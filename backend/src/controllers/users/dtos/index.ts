@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsDefined, IsOptional, IsString, Length } from 'class-validator';
-import { User, UserGroup } from 'src/domain/users';
+import { Team, TeamUser, User, UserGroup } from 'src/domain/users';
 
 export class UpsertUserDto {
   @ApiProperty({
@@ -239,4 +239,86 @@ export class UserGroupsDto {
 
     return result;
   }
+}
+
+export class TeamUserDto {
+  @ApiProperty({
+    description: 'The user.',
+    required: true,
+  })
+  user: UserDto;
+
+  @ApiProperty({
+    description: 'The role of the user within the team.',
+    required: true,
+  })
+  role: string;
+
+  static fromDomain(source: TeamUser) {
+    const result = new TeamUserDto();
+    result.role = source.role;
+    result.user = UserDto.fromDomain(source.user);
+
+    return result;
+  }
+}
+
+export class TeamDto {
+  @ApiProperty({
+    description: 'The ID of the team.',
+    required: true,
+  })
+  id: number;
+
+  @ApiProperty({
+    description: 'The display name.',
+    required: true,
+  })
+  name: string;
+
+  @ApiProperty({
+    description: 'The associated users.',
+    required: true,
+    type: [TeamUserDto],
+  })
+  users: TeamUserDto[];
+
+  static fromDomain(source: Team) {
+    const result = new TeamDto();
+    result.id = source.id;
+    result.name = source.name;
+    result.users = source.users.map(TeamUserDto.fromDomain);
+
+    return result;
+  }
+}
+
+export class TeamsDto {
+  @ApiProperty({
+    description: 'The teams.',
+    required: true,
+    type: [TeamDto],
+  })
+  items: TeamDto[];
+
+  static fromDomain(source: Team[]) {
+    const result = new TeamsDto();
+    result.items = source.map(TeamDto.fromDomain);
+
+    return result;
+  }
+}
+
+export class UpsertTeamUserDto {
+  @ApiProperty({
+    description: 'The ID of the user.',
+    required: true,
+  })
+  userId: string;
+
+  @ApiProperty({
+    description: 'The role of the user within the team.',
+    required: true,
+  })
+  role: string;
 }

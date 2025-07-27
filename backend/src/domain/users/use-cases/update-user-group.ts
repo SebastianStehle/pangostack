@@ -32,7 +32,7 @@ export class UpdateUserGroupHandler implements ICommandHandler<UpdateUserGroup, 
 
     const entity = await this.userGroups.findOneBy({ id });
     if (!entity) {
-      throw new NotFoundException();
+      throw new NotFoundException(`User group ${id} not found.`);
     }
 
     if (entity.isBuiltIn) {

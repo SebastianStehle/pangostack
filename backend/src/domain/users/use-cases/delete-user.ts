@@ -19,7 +19,7 @@ export class DeleteUserHandler implements ICommandHandler<DeleteUser, any> {
 
     const result = await this.users.delete({ id });
     if (!result.affected) {
-      throw new NotFoundException();
+      throw new NotFoundException(`User ${id} not found.`);
     }
   }
 }

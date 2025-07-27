@@ -18,9 +18,8 @@ export class DeleteUserGroupHandler implements ICommandHandler<DeleteUserGroup, 
     const { id } = command;
 
     const entity = await this.userGroups.findOneBy({ id });
-
     if (!entity) {
-      throw new NotFoundException();
+      throw new NotFoundException(`User group ${id} not found.`);
     }
 
     if (entity.isBuiltIn) {
@@ -29,7 +28,7 @@ export class DeleteUserGroupHandler implements ICommandHandler<DeleteUserGroup, 
 
     const result = await this.userGroups.delete({ id });
     if (!result.affected) {
-      throw new NotFoundException();
+      throw new NotFoundException(`User group ${id} not found.`);
     }
   }
 }

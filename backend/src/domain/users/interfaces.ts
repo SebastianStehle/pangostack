@@ -37,3 +37,22 @@ export interface UserGroup {
   // Indicates if the user group is builtin and cannot be deleted.
   isBuiltIn: boolean;
 }
+
+export interface Team {
+  // The ID of the team.
+  id: number;
+
+  // The display name.
+  name: string;
+
+  // The associated users.
+  users: TeamUser[];
+}
+
+export interface TeamUser {
+  // The user.
+  user: User;
+
+  // The role of the user within the team.
+  role: string;
+}

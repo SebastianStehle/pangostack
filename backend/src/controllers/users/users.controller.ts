@@ -67,7 +67,7 @@ export class UsersController {
     const result: GetUserResponse = await this.queryBus.execute(new GetUser(id));
 
     if (!result.user) {
-      throw new NotFoundException();
+      throw new NotFoundException(`User ${id} not found.`);
     }
 
     return UserDto.fromDomain(result.user);

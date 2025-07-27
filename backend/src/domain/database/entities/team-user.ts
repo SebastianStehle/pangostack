@@ -8,7 +8,7 @@ export type TeamUserRepository = Repository<TeamUserEntity>;
 @Entity({ name: 'team-users' })
 export class TeamUserEntity {
   @PrimaryColumn()
-  userId: number;
+  userId: string;
 
   @PrimaryColumn()
   teamId: number;

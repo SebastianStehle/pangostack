@@ -33,7 +33,7 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUser, UpdateUser
 
     const entity = await this.users.findOneBy({ id });
     if (!entity) {
-      throw new NotFoundException();
+      throw new NotFoundException(`User ${id} not found.`);
     }
 
     if (password) {

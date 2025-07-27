@@ -3,10 +3,13 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity, UserGroupEntity } from 'src/domain/database';
 import {
+  CreateTeamHandler,
   CreateUserGroupHandler,
   CreateUserHandler,
+  DeleteTeamUserHandler,
   DeleteUserGroupHandler,
   DeleteUserHandler,
+  GetTeamsHandler,
   GetUserGroupHandler,
   GetUserGroupsHandler,
   GetUserHandler,
@@ -18,10 +21,13 @@ import {
 @Module({
   imports: [CqrsModule, TypeOrmModule.forFeature([UserEntity, UserGroupEntity])],
   providers: [
+    CreateTeamHandler,
     CreateUserGroupHandler,
     CreateUserHandler,
+    DeleteTeamUserHandler,
     DeleteUserGroupHandler,
     DeleteUserHandler,
+    GetTeamsHandler,
     GetUserGroupHandler,
     GetUserGroupsHandler,
     GetUserHandler,
