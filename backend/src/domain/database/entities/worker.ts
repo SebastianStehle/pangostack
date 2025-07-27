@@ -7,8 +7,8 @@ export class WorkerEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 100 })
-  apiKey: string;
+  @Column({ length: 100, nullable: true })
+  apiKey?: string;
 
   @Column({ length: 100 })
   endpoint: string;

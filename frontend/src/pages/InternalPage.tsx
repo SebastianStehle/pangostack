@@ -1,12 +1,12 @@
 import { Route, Routes } from 'react-router-dom';
 import { RouteWhenAdmin, TransientNavigate } from 'src/components';
 import { AdminPage } from './admin/AdminPage';
-import { ChatPage } from './chat/ChatPage';
+import { TeamsPage } from './teams/TeamsPage';
 
 export function InternalPage() {
   return (
     <Routes>
-      <Route path="/chat/*" element={<ChatPage />} />
+      <Route path="/teams/*" element={<TeamsPage />} />
 
       <Route
         path="/admin/*"
@@ -17,7 +17,7 @@ export function InternalPage() {
         }
       />
 
-      <Route path="*" element={<TransientNavigate to="/chat" />} />
+      <Route path="*" element={<TransientNavigate to="/teams" />} />
     </Routes>
   );
 }

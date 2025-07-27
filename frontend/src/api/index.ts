@@ -1,18 +1,6 @@
 import { useMemo } from 'react';
-import { Observable, share } from 'rxjs';
 import { useTransientNavigate } from 'src/hooks';
-import {
-  AuthApi,
-  Configuration,
-  ConversationApi,
-  ExtensionsApi,
-  FilesApi,
-  Middleware,
-  SettingsApi,
-  StreamEventDto,
-  UsagesApi,
-  UsersApi,
-} from './generated';
+import { AuthApi, Configuration, DeploymentsApi, Middleware, ServicesApi, SettingsApi, TeamsApi, UsersApi } from './generated';
 export * from './generated';
 
 export function useApi() {
@@ -44,12 +32,10 @@ export function useApi() {
 
 export class AppClient {
   public readonly auth: AuthApi;
-  public readonly conversations: ConversationApi;
-  public readonly extensions: ExtensionsApi;
-  public readonly files: FilesApi;
+  public readonly deploymentsApi: DeploymentsApi;
+  public readonly teamsApi: TeamsApi;
+  public readonly servicesApi: ServicesApi;
   public readonly settings: SettingsApi;
-  public readonly stream: StreamApi;
-  public readonly usages: UsagesApi;
   public readonly users: UsersApi;
 
   public get url() {
@@ -60,66 +46,16 @@ export class AppClient {
     private readonly configuration: Configuration,
     middleware: Middleware,
   ) {
-    this.stream = new StreamApi(configuration);
-
     this.auth = new AuthApi(configuration).withMiddleware(middleware);
 
-    this.conversations = new ConversationApi(configuration).withMiddleware(middleware);
+    this.deploymentsApi = new DeploymentsApi(configuration).withMiddleware(middleware);
 
-    this.extensions = new ExtensionsApi(configuration).withMiddleware(middleware);
+    this.servicesApi = new ServicesApi(configuration).withMiddleware(middleware);
 
-    this.files = new FilesApi(configuration).withMiddleware(middleware);
+    this.teamsApi = new TeamsApi(configuration).withMiddleware(middleware);
 
     this.settings = new SettingsApi(configuration).withMiddleware(middleware);
 
-    this.usages = new UsagesApi(configuration).withMiddleware(middleware);
-
     this.users = new UsersApi(configuration).withMiddleware(middleware);
-  }
-}
-
-export class StreamApi {
-  constructor(private readonly configuration: Configuration) {}
-
-  streamPrompt(conversationId: number, input: string): Observable<StreamEventDto> {
-    return new Observable<StreamEventDto>((subscriber) => {
-      const source = new EventSource(
-        `${this.configuration.basePath}/conversations/${conversationId}/messages/sse?input=${encodeURIComponent(input)}`,
-        {
-          withCredentials: true,
-        },
-      );
-
-      source.addEventListener('message', (event) => {
-        if (!event) {
-          source.close();
-
-          subscriber.complete();
-        } else {
-          subscriber.next(JSON.parse(event.data));
-        }
-      });
-
-      source.addEventListener('error', (event) => {
-        const data = (event as any)['data'];
-
-        try {
-          if (data) {
-            try {
-              subscriber.error(JSON.parse(data).message);
-            } finally {
-              subscriber.error(data);
-            }
-          }
-        } finally {
-          subscriber.complete();
-          source.close();
-        }
-      });
-
-      return () => {
-        source.close();
-      };
-    }).pipe(share());
   }
 }

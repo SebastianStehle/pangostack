@@ -3,8 +3,6 @@ import { ProfileButton, TransientNavigate, TransientNavLink } from 'src/componen
 import { useTheme } from 'src/hooks';
 import { texts } from 'src/texts';
 import { DashboardPage } from './dashboard/DashboardPage';
-import { DeploymentsPage } from './extensions/DeploymentsPage';
-import { BucketsPage } from './files/BucketsPage';
 import { ThemePage } from './theme/ThemePage';
 import { UserGroupsPage } from './user-groups/UserGroupsPage';
 import { UsersPage } from './users/UsersPage';
@@ -36,16 +34,6 @@ export function AdminPage() {
                 </TransientNavLink>
               </li>
               <li>
-                <TransientNavLink className="block" to="/admin/files">
-                  {texts.files.headline}
-                </TransientNavLink>
-              </li>
-              <li>
-                <TransientNavLink className="block" to="/admin/extensions">
-                  {texts.extensions.deployments}
-                </TransientNavLink>
-              </li>
-              <li>
                 <TransientNavLink className="block" to="/admin/users">
                   {texts.users.headline}
                 </TransientNavLink>
@@ -69,13 +57,9 @@ export function AdminPage() {
 
             <Route path="/theme" element={<ThemePage />} />
 
-            <Route path="/files/*" element={<BucketsPage />} />
-
             <Route path="/users" element={<UsersPage />} />
 
             <Route path="/user-groups" element={<UserGroupsPage />} />
-
-            <Route path="/extensions/*" element={<DeploymentsPage />} />
 
             <Route path="*" element={<TransientNavigate to="/admin/dashboard" />} />
           </Routes>

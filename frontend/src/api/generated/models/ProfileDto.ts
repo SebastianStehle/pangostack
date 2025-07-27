@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * CCCC
- * CodeCentric Company Chat
+ * Omni SaaS
+ * SaaS Deployment Tool
  *
  * The version of the OpenAPI document: 1.0
  * 
@@ -50,12 +50,6 @@ export interface ProfileDto {
      * @memberof ProfileDto
      */
     isAdmin: boolean;
-    /**
-     * Indicates if the file upload should be hidden.
-     * @type {boolean}
-     * @memberof ProfileDto
-     */
-    hideFileUpload?: boolean;
 }
 
 /**
@@ -86,7 +80,6 @@ export function ProfileDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         'email': json['email'],
         'picture': !exists(json, 'picture') ? undefined : json['picture'],
         'isAdmin': json['isAdmin'],
-        'hideFileUpload': !exists(json, 'hideFileUpload') ? undefined : json['hideFileUpload'],
     };
 }
 
@@ -104,7 +97,6 @@ export function ProfileDtoToJSON(value?: ProfileDto | null): any {
         'email': value.email,
         'picture': value.picture,
         'isAdmin': value.isAdmin,
-        'hideFileUpload': value.hideFileUpload,
     };
 }
 

@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
 import { BUILTIN_USER_GROUP_ADMIN } from 'src/domain/database';
 import {
@@ -18,6 +18,7 @@ import { UpsertUserDto, UserDto, UsersDto } from './dtos';
 
 @Controller('users')
 @ApiTags('users')
+@ApiSecurity('x-api-key')
 @UseGuards(LocalAuthGuard)
 export class UsersController {
   constructor(
@@ -53,21 +54,21 @@ export class UsersController {
     return UsersDto.fromDomain(result.users, result.total);
   }
 
-  @Get(':id')
+  @Get(':userId')
   @ApiOperation({ operationId: 'getUser', description: 'Get the user.' })
   @ApiParam({
-    name: 'id',
+    name: 'userId',
     description: 'The ID of the user.',
     required: true,
   })
   @ApiOkResponse({ type: UserDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async getUser(@Param('id') id: string) {
-    const result: GetUserResponse = await this.queryBus.execute(new GetUser(id));
+  async getUser(@Param('userId') userId: string) {
+    const result: GetUserResponse = await this.queryBus.execute(new GetUser(userId));
 
     if (!result.user) {
-      throw new NotFoundException(`User ${id} not found.`);
+      throw new NotFoundException(`User ${userId} not found.`);
     }
 
     return UserDto.fromDomain(result.user);
@@ -85,35 +86,35 @@ export class UsersController {
     return UserDto.fromDomain(result.user);
   }
 
-  @Put(':id')
+  @Put(':userId')
   @ApiOperation({ operationId: 'putUser', description: 'Updates the user.' })
   @ApiParam({
-    name: 'id',
+    name: 'userId',
     description: 'The ID of the user.',
     required: true,
   })
   @ApiOkResponse({ type: UserDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async putUser(@Param('id') id: string, @Body() body: UpsertUserDto) {
-    const command = new UpdateUser(id, body);
+  async putUser(@Param('userId') userId: string, @Body() body: UpsertUserDto) {
+    const command = new UpdateUser(userId, body);
     const result: UpdateUserResponse = await this.commandBus.execute(command);
 
     return UserDto.fromDomain(result.user);
   }
 
-  @Delete(':id')
+  @Delete(':userId')
   @ApiOperation({ operationId: 'deleteUser', description: 'Deletes an user.' })
   @ApiParam({
-    name: 'id',
+    name: 'userId',
     description: 'The ID of the user.',
     required: true,
   })
   @ApiNoContentResponse()
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async deleteUser(@Param('id') id: string) {
-    const command = new DeleteUser(id);
+  async deleteUser(@Param('userId') userId: string) {
+    const command = new DeleteUser(userId);
 
     await this.commandBus.execute(command);
   }

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDefined, IsNumber, IsObject, IsOptional } from 'class-validator';
+import { IsBoolean, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 import { Deployment, Service, ServicePublic, ServiceVersion } from 'src/domain/services';
 import { ParameterDefinition } from 'src/domain/services/workflows/model';
 
@@ -91,12 +91,16 @@ export class UpsertServiceDto {
     description: 'The name of the service.',
     required: true,
   })
+  @IsDefined()
+  @IsString()
   name: string;
 
   @ApiProperty({
     description: 'The description.',
     required: true,
   })
+  @IsDefined()
+  @IsString()
   description: string;
 
   @ApiProperty({
@@ -105,48 +109,64 @@ export class UpsertServiceDto {
     type: Object,
     additionalProperties: { type: 'string' },
   })
+  @IsDefined()
+  @IsObject()
   environment: Record<string, string>;
 
   @ApiProperty({
     description: 'The currency.',
     required: true,
   })
+  @IsDefined()
+  @IsString()
   currency: string;
 
   @ApiProperty({
     description: 'The price per CPU and hour in the selected currency.',
     required: true,
   })
+  @IsDefined()
+  @IsNumber()
   pricePerCpuHour: number;
 
   @ApiProperty({
     description: 'The price per Memory in GB and hour in the selected currency.',
     required: true,
   })
+  @IsDefined()
+  @IsNumber()
   pricePerMemoryGbHour: number;
 
   @ApiProperty({
     description: 'The price per Storage in GB and hour in the selected currency.',
     required: true,
   })
+  @IsDefined()
+  @IsNumber()
   pricePerStorageGbHour: number;
 
   @ApiProperty({
     description: 'The price per Disk in GB and hour in the selected currency.',
     required: true,
   })
+  @IsDefined()
+  @IsNumber()
   pricePerDiskGbHour: number;
 
   @ApiProperty({
     description: 'The additional fixed price.',
     required: true,
   })
+  @IsDefined()
+  @IsNumber()
   fixedPrice: number;
 
   @ApiProperty({
     description: 'Indicates if the service is public.',
     required: true,
   })
+  @IsDefined()
+  @IsBoolean()
   isPublic: boolean;
 }
 
@@ -277,12 +297,16 @@ export class CreateServiceVersionDto {
     description: 'The name of the version.',
     required: true,
   })
+  @IsDefined()
+  @IsString()
   name: string;
 
   @ApiProperty({
     description: 'The YAML definition.',
     required: true,
   })
+  @IsDefined()
+  @IsString()
   definition: string;
 
   @ApiProperty({
@@ -291,12 +315,16 @@ export class CreateServiceVersionDto {
     type: Object,
     additionalProperties: { type: 'string' },
   })
+  @IsDefined()
+  @IsObject()
   environment: Record<string, string>;
 
   @ApiProperty({
     description: 'Indicates if the version is active.',
     required: true,
   })
+  @IsDefined()
+  @IsBoolean()
   isActive: boolean;
 }
 
@@ -305,6 +333,8 @@ export class UpdateServiceVersionDto {
     description: 'The YAML definition.',
     required: true,
   })
+  @IsOptional()
+  @IsString()
   definition?: string;
 
   @ApiProperty({
@@ -313,12 +343,16 @@ export class UpdateServiceVersionDto {
     type: Object,
     additionalProperties: { type: 'string' },
   })
+  @IsOptional()
+  @IsObject()
   environment?: Record<string, string>;
 
   @ApiProperty({
     description: 'Indicates if the version is active.',
     required: true,
   })
+  @IsOptional()
+  @IsBoolean()
   isActive?: boolean;
 }
 

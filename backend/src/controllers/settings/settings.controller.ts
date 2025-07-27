@@ -22,6 +22,7 @@ import {
   ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
@@ -72,6 +73,7 @@ export class SettingsController {
   @ApiOkResponse({ type: SettingsDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(LocalAuthGuard, RoleGuard)
+  @ApiSecurity('x-api-key')
   async postSettings(@Body() request: SettingsDto) {
     const result: UpdateSettingsResponse = await this.commandBus.execute(new UpdateSettings(request));
 
@@ -95,6 +97,7 @@ export class SettingsController {
   @UseInterceptors(FileInterceptor('file'))
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(LocalAuthGuard, RoleGuard)
+  @ApiSecurity('x-api-key')
   async postLogo(
     @UploadedFile(
       new ParseFilePipe({
@@ -114,6 +117,7 @@ export class SettingsController {
   @ApiNoContentResponse()
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(LocalAuthGuard, RoleGuard)
+  @ApiSecurity('x-api-key')
   async deleteLogo() {
     await this.commandBus.execute(new DeleteLogo());
   }

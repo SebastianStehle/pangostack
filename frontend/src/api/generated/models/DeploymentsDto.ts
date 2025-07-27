@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * CCCC
- * CodeCentric Company Chat
+ * Omni SaaS
+ * SaaS Deployment Tool
  *
  * The version of the OpenAPI document: 1.0
  * 
@@ -28,7 +28,7 @@ import {
  */
 export interface DeploymentsDto {
     /**
-     * The configured deployments.
+     * The deployments.
      * @type {Array<DeploymentDto>}
      * @memberof DeploymentsDto
      */

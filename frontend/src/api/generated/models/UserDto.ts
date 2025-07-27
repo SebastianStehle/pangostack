@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * CCCC
- * CodeCentric Company Chat
+ * Omni SaaS
+ * SaaS Deployment Tool
  *
  * The version of the OpenAPI document: 1.0
  * 

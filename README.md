@@ -1,6 +1,6 @@
-# codecentric Company Chat
+# OmniSaaS
 
-> Wrapper around `Langchain` which handles LLM abstraction, so that we can use Mystral/AzureAI/ChatGPT/... interchangeably and add external Systems e.g. Weather Services once and use it with all supported LLMs.
+> Deployment Tool for SaaS companies
 
 ## How to start
 
@@ -74,10 +74,3 @@ There is a CLI tool to manage the backend. Especially to import and export its c
 * React Query
 * Tailwind
 * Zustand
-
-## Links
-- [JIRA Board](https://jira.codecentric.de/projects/GENAI/summary)
-- [DEV Deployment (VPN)](https://chat2.dev.ccopt.de/)
-- Not to be confused with the [deployment of our fork of LibreChat (VPN)](https://cc-chatgpt.prod.ccopt.de/c/new)
-  - Fork: https://gitlab.codecentric.de/cc-chatgpt/librechat
-- [Architecture Diagram](https://miro.com/app/board/uXjVKVYAJZM=/?moveToWidget=3458764593254049639&cot=14)

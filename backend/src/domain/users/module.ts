@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity, UserGroupEntity } from 'src/domain/database';
+import { TeamEntity, TeamUserEntity, UserEntity, UserGroupEntity } from 'src/domain/database';
 import {
   CreateTeamHandler,
   CreateUserGroupHandler,
@@ -19,7 +19,7 @@ import {
 } from './use-cases';
 
 @Module({
-  imports: [CqrsModule, TypeOrmModule.forFeature([UserEntity, UserGroupEntity])],
+  imports: [CqrsModule, TypeOrmModule.forFeature([TeamEntity, TeamUserEntity, UserEntity, UserGroupEntity])],
   providers: [
     CreateTeamHandler,
     CreateUserGroupHandler,

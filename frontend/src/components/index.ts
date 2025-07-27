@@ -1,7 +1,5 @@
 export * from './Alert';
 export * from './Avatar';
-export * from './ChatSuggestions';
-export * from './ChatSuggestionsScheme';
 export * from './CollapseButton';
 export * from './ConfirmDialog';
 export * from './FormAlert';

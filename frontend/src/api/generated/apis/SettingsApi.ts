@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * CCCC
- * CodeCentric Company Chat
+ * Omni SaaS
+ * SaaS Deployment Tool
  *
  * The version of the OpenAPI document: 1.0
  * 
@@ -44,6 +44,10 @@ export class SettingsApi extends runtime.BaseAPI {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
 
         const response = await this.request({
             path: `/settings/logo`,
@@ -99,6 +103,10 @@ export class SettingsApi extends runtime.BaseAPI {
 
         const headerParameters: runtime.HTTPHeaders = {};
 
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
         const consumes: runtime.Consume[] = [
             { contentType: 'multipart/form-data' },
         ];
@@ -151,6 +159,10 @@ export class SettingsApi extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
         headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
 
         const response = await this.request({
             path: `/settings`,

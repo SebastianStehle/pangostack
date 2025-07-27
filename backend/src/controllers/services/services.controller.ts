@@ -1,11 +1,14 @@
-import { Body, Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiParam, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
 import { BUILTIN_USER_GROUP_ADMIN, BUILTIN_USER_GROUP_DEFAULT } from 'src/domain/database';
 import {
-  CreateServiceVersionVersionVersionVersionVersionVersion,
+  CreateService,
   CreateServiceResponse,
+  CreateServiceVersion,
+  DeleteService,
+  DeleteServiceVersion,
   GetServices,
   GetServicesPublic,
   GetServicesPublicResponse,
@@ -14,11 +17,21 @@ import {
   GetServiceVersionsResponse,
   UpdateService,
   UpdateServiceResponse,
+  UpdateServiceVersion,
 } from 'src/domain/services';
-import { ServiceDto, ServicesDto, ServicesPublicDto, ServiceVersionsDto, UpsertServiceDto } from './dtos';
+import {
+  CreateServiceVersionDto,
+  ServiceDto,
+  ServicesDto,
+  ServicesPublicDto,
+  ServiceVersionsDto,
+  UpdateServiceVersionDto,
+  UpsertServiceDto,
+} from './dtos';
 
 @Controller('services')
 @ApiTags('services')
+@ApiSecurity('x-api-key')
 @UseGuards(LocalAuthGuard)
 export class ServicesController {
   constructor(
@@ -60,34 +73,50 @@ export class ServicesController {
     return ServiceDto.fromDomain(result.service);
   }
 
-  @Put(':id')
+  @Put(':serviceId')
   @ApiOperation({ operationId: 'putService', description: 'Updates the service.' })
   @ApiParam({
-    name: 'id',
+    name: 'serviceId',
     description: 'The ID of the service.',
     required: true,
   })
   @ApiOkResponse({ type: ServiceDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async putService(@Param('id') id: string, @Body() body: UpsertServiceDto) {
+  async putService(@Param('serviceId') id: string, @Body() body: UpsertServiceDto) {
     const command = new UpdateService(+id, body);
     const result: UpdateServiceResponse = await this.commandBus.execute(command);
 
     return ServiceDto.fromDomain(result.service);
   }
 
-  @Get(':id/versions')
+  @Delete(':serviceId')
+  @ApiOperation({ operationId: 'deleteService', description: 'Deletes the service.' })
+  @ApiParam({
+    name: 'serviceId',
+    description: 'The ID of the service.',
+    required: true,
+  })
+  @ApiNoContentResponse()
+  @Role(BUILTIN_USER_GROUP_ADMIN)
+  @UseGuards(RoleGuard)
+  async deleteService(@Param('serviceId') id: string) {
+    const command = new DeleteService(+id);
+
+    await this.commandBus.execute(command);
+  }
+
+  @Get(':serviceId/versions')
   @ApiOperation({ operationId: 'getServiceVersions', description: 'Gets all services versions.' })
   @ApiParam({
-    name: 'id',
+    name: 'serviceId',
     description: 'The ID of the service.',
     required: true,
   })
   @ApiOkResponse({ type: ServiceVersionsDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async getDeployments(@Param('id') id: string) {
+  async getDeployments(@Param('serviceId') id: string) {
     const result: GetServiceVersionsResponse = await this.queryBus.execute(new GetServiceVersions(+id));
 
     return ServiceVersionsDto.fromDomain(result.serviceVersions);
@@ -98,17 +127,17 @@ export class ServicesController {
   @ApiOkResponse({ type: ServiceDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async postServiceVersion(@Body() body: UpsertServiceDto) {
-    const command = new CreateServiceVersion(body);
+  async postServiceVersion(@Param('serviceId') id: string, @Body() body: CreateServiceVersionDto) {
+    const command = new CreateServiceVersion(+id, body);
     const result: CreateServiceResponse = await this.commandBus.execute(command);
 
     return ServiceDto.fromDomain(result.service);
   }
 
-  @Put(':id/versions/:versionId')
-  @ApiOperation({ operationId: 'putService', description: 'Updates the service version.' })
+  @Put(':serviceId/versions/:versionId')
+  @ApiOperation({ operationId: 'putServiceVersion', description: 'Updates the service version.' })
   @ApiParam({
-    name: 'id',
+    name: 'serviceId',
     description: 'The ID of the service.',
     required: true,
   })
@@ -120,10 +149,31 @@ export class ServicesController {
   @ApiOkResponse({ type: ServiceDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async putServiceVersion(@Param('id') id: string, @Body() body: UpsertServiceVersionDto) {
-    const command = new UpdateServiceVersion(+id, body);
+  async putServiceVersion(@Param('versionId') versionId: string, @Body() body: UpdateServiceVersionDto) {
+    const command = new UpdateServiceVersion(+versionId, body);
     const result: UpdateServiceResponse = await this.commandBus.execute(command);
 
     return ServiceDto.fromDomain(result.service);
+  }
+
+  @Delete(':serviceId/versions/:versionId')
+  @ApiOperation({ operationId: 'deleteServiceVersion', description: 'Deletes the service version.' })
+  @ApiParam({
+    name: 'serviceId',
+    description: 'The ID of the service.',
+    required: true,
+  })
+  @ApiParam({
+    name: 'versionId',
+    description: 'The ID of the service version.',
+    required: true,
+  })
+  @ApiNoContentResponse()
+  @Role(BUILTIN_USER_GROUP_ADMIN)
+  @UseGuards(RoleGuard)
+  async deleteServiceVersion(@Param('versionId') versionId: string) {
+    const command = new DeleteServiceVersion(+versionId);
+
+    await this.commandBus.execute(command);
   }
 }

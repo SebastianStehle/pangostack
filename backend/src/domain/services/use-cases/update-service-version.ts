@@ -2,11 +2,11 @@ import { NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceEntity, ServiceVersionRepository } from 'src/domain/database';
-import { assignDefined } from 'src/lib';
+import { assignDefined, Optional } from 'src/lib';
 import { ServiceVersion } from '../interfaces';
 import { buildServiceVersion } from './utils';
 
-type Values = Pick<ServiceVersion, 'definition' | 'environment' | 'isActive'>;
+type Values = Optional<Pick<ServiceVersion, 'definition' | 'environment' | 'isActive'>>;
 
 export class UpdateServiceVersion {
   constructor(

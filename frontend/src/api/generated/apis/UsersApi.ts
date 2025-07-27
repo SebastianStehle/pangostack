@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * CCCC
- * CodeCentric Company Chat
+ * Omni SaaS
+ * SaaS Deployment Tool
  *
  * The version of the OpenAPI document: 1.0
  * 
@@ -39,15 +39,15 @@ import {
 } from '../models/index';
 
 export interface DeleteUserRequest {
-    id: string;
+    userId: string;
 }
 
 export interface DeleteUserGroupRequest {
-    id: string;
+    groupId: string;
 }
 
 export interface GetUserRequest {
-    id: string;
+    userId: string;
 }
 
 export interface GetUsersRequest {
@@ -65,12 +65,12 @@ export interface PostUserGroupRequest {
 }
 
 export interface PutUserRequest {
-    id: string;
+    userId: string;
     upsertUserDto: UpsertUserDto;
 }
 
 export interface PutUserGroupRequest {
-    id: string;
+    groupId: string;
     upsertUserGroupDto: UpsertUserGroupDto;
 }
 
@@ -84,16 +84,20 @@ export class UsersApi extends runtime.BaseAPI {
      * 
      */
     async deleteUserRaw(requestParameters: DeleteUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling deleteUser.');
+        if (requestParameters.userId === null || requestParameters.userId === undefined) {
+            throw new runtime.RequiredError('userId','Required parameter requestParameters.userId was null or undefined when calling deleteUser.');
         }
 
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
 
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
         const response = await this.request({
-            path: `/users/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            path: `/users/{userId}`.replace(`{${"userId"}}`, encodeURIComponent(String(requestParameters.userId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -106,8 +110,8 @@ export class UsersApi extends runtime.BaseAPI {
      * Deletes an user.
      * 
      */
-    async deleteUser(id: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.deleteUserRaw({ id: id }, initOverrides);
+    async deleteUser(userId: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.deleteUserRaw({ userId: userId }, initOverrides);
     }
 
     /**
@@ -115,16 +119,20 @@ export class UsersApi extends runtime.BaseAPI {
      * 
      */
     async deleteUserGroupRaw(requestParameters: DeleteUserGroupRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling deleteUserGroup.');
+        if (requestParameters.groupId === null || requestParameters.groupId === undefined) {
+            throw new runtime.RequiredError('groupId','Required parameter requestParameters.groupId was null or undefined when calling deleteUserGroup.');
         }
 
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
 
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
         const response = await this.request({
-            path: `/user-groups/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            path: `/user-groups/{groupId}`.replace(`{${"groupId"}}`, encodeURIComponent(String(requestParameters.groupId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -137,8 +145,8 @@ export class UsersApi extends runtime.BaseAPI {
      * Deletes an user group.
      * 
      */
-    async deleteUserGroup(id: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.deleteUserGroupRaw({ id: id }, initOverrides);
+    async deleteUserGroup(groupId: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.deleteUserGroupRaw({ groupId: groupId }, initOverrides);
     }
 
     /**
@@ -146,16 +154,20 @@ export class UsersApi extends runtime.BaseAPI {
      * 
      */
     async getUserRaw(requestParameters: GetUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserDto>> {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling getUser.');
+        if (requestParameters.userId === null || requestParameters.userId === undefined) {
+            throw new runtime.RequiredError('userId','Required parameter requestParameters.userId was null or undefined when calling getUser.');
         }
 
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
 
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
         const response = await this.request({
-            path: `/users/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            path: `/users/{userId}`.replace(`{${"userId"}}`, encodeURIComponent(String(requestParameters.userId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -168,8 +180,8 @@ export class UsersApi extends runtime.BaseAPI {
      * Get the user.
      * 
      */
-    async getUser(id: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserDto> {
-        const response = await this.getUserRaw({ id: id }, initOverrides);
+    async getUser(userId: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserDto> {
+        const response = await this.getUserRaw({ userId: userId }, initOverrides);
         return await response.value();
     }
 
@@ -181,6 +193,10 @@ export class UsersApi extends runtime.BaseAPI {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
 
         const response = await this.request({
             path: `/user-groups`,
@@ -222,6 +238,10 @@ export class UsersApi extends runtime.BaseAPI {
 
         const headerParameters: runtime.HTTPHeaders = {};
 
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
         const response = await this.request({
             path: `/users`,
             method: 'GET',
@@ -255,6 +275,10 @@ export class UsersApi extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
         headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
 
         const response = await this.request({
             path: `/users`,
@@ -291,6 +315,10 @@ export class UsersApi extends runtime.BaseAPI {
 
         headerParameters['Content-Type'] = 'application/json';
 
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
         const response = await this.request({
             path: `/user-groups`,
             method: 'POST',
@@ -316,8 +344,8 @@ export class UsersApi extends runtime.BaseAPI {
      * 
      */
     async putUserRaw(requestParameters: PutUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserDto>> {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling putUser.');
+        if (requestParameters.userId === null || requestParameters.userId === undefined) {
+            throw new runtime.RequiredError('userId','Required parameter requestParameters.userId was null or undefined when calling putUser.');
         }
 
         if (requestParameters.upsertUserDto === null || requestParameters.upsertUserDto === undefined) {
@@ -330,8 +358,12 @@ export class UsersApi extends runtime.BaseAPI {
 
         headerParameters['Content-Type'] = 'application/json';
 
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
         const response = await this.request({
-            path: `/users/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            path: `/users/{userId}`.replace(`{${"userId"}}`, encodeURIComponent(String(requestParameters.userId))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
@@ -345,8 +377,8 @@ export class UsersApi extends runtime.BaseAPI {
      * Updates the user.
      * 
      */
-    async putUser(id: string, upsertUserDto: UpsertUserDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserDto> {
-        const response = await this.putUserRaw({ id: id, upsertUserDto: upsertUserDto }, initOverrides);
+    async putUser(userId: string, upsertUserDto: UpsertUserDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserDto> {
+        const response = await this.putUserRaw({ userId: userId, upsertUserDto: upsertUserDto }, initOverrides);
         return await response.value();
     }
 
@@ -355,8 +387,8 @@ export class UsersApi extends runtime.BaseAPI {
      * 
      */
     async putUserGroupRaw(requestParameters: PutUserGroupRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserGroupDto>> {
-        if (requestParameters.id === null || requestParameters.id === undefined) {
-            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling putUserGroup.');
+        if (requestParameters.groupId === null || requestParameters.groupId === undefined) {
+            throw new runtime.RequiredError('groupId','Required parameter requestParameters.groupId was null or undefined when calling putUserGroup.');
         }
 
         if (requestParameters.upsertUserGroupDto === null || requestParameters.upsertUserGroupDto === undefined) {
@@ -369,8 +401,12 @@ export class UsersApi extends runtime.BaseAPI {
 
         headerParameters['Content-Type'] = 'application/json';
 
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
         const response = await this.request({
-            path: `/user-groups/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            path: `/user-groups/{groupId}`.replace(`{${"groupId"}}`, encodeURIComponent(String(requestParameters.groupId))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
@@ -384,8 +420,8 @@ export class UsersApi extends runtime.BaseAPI {
      * Updates the user group.
      * 
      */
-    async putUserGroup(id: string, upsertUserGroupDto: UpsertUserGroupDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserGroupDto> {
-        const response = await this.putUserGroupRaw({ id: id, upsertUserGroupDto: upsertUserGroupDto }, initOverrides);
+    async putUserGroup(groupId: string, upsertUserGroupDto: UpsertUserGroupDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserGroupDto> {
+        const response = await this.putUserGroupRaw({ groupId: groupId, upsertUserGroupDto: upsertUserGroupDto }, initOverrides);
         return await response.value();
     }
 

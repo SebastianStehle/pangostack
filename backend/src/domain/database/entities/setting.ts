@@ -1,5 +1,4 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, Repository, UpdateDateColumn } from 'typeorm';
-import { ChatSuggestion } from 'src/domain/shared';
 
 export type SettingRepository = Repository<SettingEntity>;
 
@@ -22,15 +21,6 @@ export class SettingEntity {
 
   @Column('text', { nullable: true })
   customCss?: string;
-
-  @Column('text', { nullable: true })
-  agentName?: string;
-
-  @Column('text', { nullable: true })
-  chatFooter?: string;
-
-  @Column('json', { nullable: true })
-  chatSuggestions?: ChatSuggestion[];
 
   @CreateDateColumn()
   createdAt: Date;

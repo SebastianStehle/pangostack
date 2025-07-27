@@ -9,10 +9,10 @@ import { GetBlob, GetBlobResponse } from 'src/domain/settings';
 export class BlobsController {
   constructor(private readonly queryBus: QueryBus) {}
 
-  @Get(':id')
+  @Get(':blobId')
   @ApiExcludeEndpoint()
-  async getLogo(@Param('id') id: string) {
-    const result: GetBlobResponse = await this.queryBus.execute(new GetBlob(id));
+  async getLogo(@Param('blobId') blobId: string) {
+    const result: GetBlobResponse = await this.queryBus.execute(new GetBlob(blobId));
 
     if (!result.logo) {
       throw new NotFoundException('Cannot find logo.');

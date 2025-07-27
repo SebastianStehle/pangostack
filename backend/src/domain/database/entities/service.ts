@@ -8,7 +8,7 @@ export class ServiceEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 100 })
+  @Column({ length: 100, nullable: true })
   name: string;
 
   @Column('text')
@@ -18,25 +18,25 @@ export class ServiceEntity {
   environment: Record<string, string> = {};
 
   @Column({ length: 10, default: 'USD' })
-  currency = 'USD';
+  currency: string = 'USD';
 
   @Column({ default: 0 })
-  pricePerCpuHour = 0;
+  pricePerCpuHour: number = 0;
 
   @Column({ default: 0 })
-  pricePerMemoryGbHour = 0;
+  pricePerMemoryGbHour: number = 0;
 
   @Column({ default: 0 })
-  pricePerStorageGbHour = 0;
+  pricePerStorageGbHour: number = 0;
 
   @Column({ default: 0 })
-  pricePerDiskGbHour = 0;
+  pricePerDiskGbHour: number = 0;
 
   @Column({ default: 0 })
-  fixedPrice = 0;
+  fixedPrice: number = 0;
 
   @Column({ default: true })
-  isPublic = true;
+  isPublic: boolean = true;
 
   @OneToMany(() => ServiceVersionEntity, (version) => version.service)
   versions: ServiceVersionEntity[];

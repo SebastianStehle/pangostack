@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * CCCC
- * CodeCentric Company Chat
+ * Omni SaaS
+ * SaaS Deployment Tool
  *
  * The version of the OpenAPI document: 1.0
  * 
@@ -14,13 +14,6 @@
  */
 
 import { exists, mapValues } from '../runtime';
-import type { ChatSuggestionDto } from './ChatSuggestionDto';
-import {
-    ChatSuggestionDtoFromJSON,
-    ChatSuggestionDtoFromJSONTyped,
-    ChatSuggestionDtoToJSON,
-} from './ChatSuggestionDto';
-
 /**
  * 
  * @export
@@ -34,53 +27,17 @@ export interface DeploymentDto {
      */
     id: number;
     /**
-     * The name of the deployment.
+     * The ID of the service.
+     * @type {number}
+     * @memberof DeploymentDto
+     */
+    serviceId: number;
+    /**
+     * The name of the service.
      * @type {string}
      * @memberof DeploymentDto
      */
-    name: string;
-    /**
-     * Indicates whether the depoloyment is enabled.
-     * @type {boolean}
-     * @memberof DeploymentDto
-     */
-    enabled: boolean;
-    /**
-     * The name of the agent.
-     * @type {string}
-     * @memberof DeploymentDto
-     */
-    agentName?: string;
-    /**
-     * The footer text to be shown below the chat.
-     * @type {string}
-     * @memberof DeploymentDto
-     */
-    chatFooter?: string;
-    /**
-     * The suggestions to be shown for the chat.
-     * @type {Array<ChatSuggestionDto>}
-     * @memberof DeploymentDto
-     */
-    chatSuggestions?: Array<ChatSuggestionDto>;
-    /**
-     * The optional executor endpoint.
-     * @type {string}
-     * @memberof DeploymentDto
-     */
-    executorEndpoint?: string;
-    /**
-     * The optional executor headers.
-     * @type {string}
-     * @memberof DeploymentDto
-     */
-    executorHeaders?: string;
-    /**
-     * The allowed user groups.
-     * @type {Array<string>}
-     * @memberof DeploymentDto
-     */
-    userGroupsIds?: Array<string>;
+    serviceName: string;
 }
 
 /**
@@ -89,8 +46,8 @@ export interface DeploymentDto {
 export function instanceOfDeploymentDto(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "id" in value;
-    isInstance = isInstance && "name" in value;
-    isInstance = isInstance && "enabled" in value;
+    isInstance = isInstance && "serviceId" in value;
+    isInstance = isInstance && "serviceName" in value;
 
     return isInstance;
 }
@@ -106,14 +63,8 @@ export function DeploymentDtoFromJSONTyped(json: any, ignoreDiscriminator: boole
     return {
         
         'id': json['id'],
-        'name': json['name'],
-        'enabled': json['enabled'],
-        'agentName': !exists(json, 'agentName') ? undefined : json['agentName'],
-        'chatFooter': !exists(json, 'chatFooter') ? undefined : json['chatFooter'],
-        'chatSuggestions': !exists(json, 'chatSuggestions') ? undefined : ((json['chatSuggestions'] as Array<any>).map(ChatSuggestionDtoFromJSON)),
-        'executorEndpoint': !exists(json, 'executorEndpoint') ? undefined : json['executorEndpoint'],
-        'executorHeaders': !exists(json, 'executorHeaders') ? undefined : json['executorHeaders'],
-        'userGroupsIds': !exists(json, 'userGroupsIds') ? undefined : json['userGroupsIds'],
+        'serviceId': json['serviceId'],
+        'serviceName': json['serviceName'],
     };
 }
 
@@ -127,14 +78,8 @@ export function DeploymentDtoToJSON(value?: DeploymentDto | null): any {
     return {
         
         'id': value.id,
-        'name': value.name,
-        'enabled': value.enabled,
-        'agentName': value.agentName,
-        'chatFooter': value.chatFooter,
-        'chatSuggestions': value.chatSuggestions === undefined ? undefined : ((value.chatSuggestions as Array<any>).map(ChatSuggestionDtoToJSON)),
-        'executorEndpoint': value.executorEndpoint,
-        'executorHeaders': value.executorHeaders,
-        'userGroupsIds': value.userGroupsIds,
+        'serviceId': value.serviceId,
+        'serviceName': value.serviceName,
     };
 }
 

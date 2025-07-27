@@ -42,3 +42,7 @@ export function isDate(value: any): value is Date {
 export function is<TClass>(x: any, c: new (...args: any[]) => TClass): x is TClass {
   return x instanceof c;
 }
+
+export type Optional<T> = {
+  [P in keyof T]?: T[P];
+};

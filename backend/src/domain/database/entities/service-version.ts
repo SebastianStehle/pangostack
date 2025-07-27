@@ -23,7 +23,7 @@ export class ServiceVersionEntity {
   name: string;
 
   @Column({ default: 0 })
-  order = 0;
+  order: number = 0;
 
   @Column('text')
   definition: string;
@@ -32,7 +32,7 @@ export class ServiceVersionEntity {
   environment: Record<string, string> = {};
 
   @Column({ default: true })
-  isActive = true;
+  isActive: boolean = true;
 
   @Column()
   serviceId: number;

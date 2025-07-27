@@ -11,6 +11,7 @@ import { BlobsController } from './controllers/blobs/blobs.controller';
 import { ServicesController } from './controllers/services/services.controller';
 import { TeamDeploymentsController } from './controllers/services/team-deployments.controller';
 import { SettingsController } from './controllers/settings/settings.controller';
+import { TeamsController } from './controllers/users/teams.controller';
 import { UserGroupsController } from './controllers/users/user-groups.controller';
 import { UsersController } from './controllers/users/users.controller';
 import { AuthModule } from './domain/auth/module';
@@ -44,7 +45,7 @@ import { UsersModule } from './domain/users/module';
     ServicesModule,
     SettingsModule,
     UsersModule,
-    TypeOrmModule.forFeature([UserEntity]),
+    TypeOrmModule.forFeature([TeamEntity, UserEntity]),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -83,6 +84,7 @@ import { UsersModule } from './domain/users/module';
     ServicesController,
     SettingsController,
     TeamDeploymentsController,
+    TeamsController,
     UserGroupsController,
     UsersController,
   ],

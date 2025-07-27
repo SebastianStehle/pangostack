@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * CCCC
- * CodeCentric Company Chat
+ * Omni SaaS
+ * SaaS Deployment Tool
  *
  * The version of the OpenAPI document: 1.0
  * 
@@ -14,13 +14,6 @@
  */
 
 import { exists, mapValues } from '../runtime';
-import type { ChatSuggestionDto } from './ChatSuggestionDto';
-import {
-    ChatSuggestionDtoFromJSON,
-    ChatSuggestionDtoFromJSONTyped,
-    ChatSuggestionDtoToJSON,
-} from './ChatSuggestionDto';
-
 /**
  * 
  * @export
@@ -52,24 +45,6 @@ export interface SettingsDto {
      */
     welcomeText?: string;
     /**
-     * The name of the agent.
-     * @type {string}
-     * @memberof SettingsDto
-     */
-    agentName?: string;
-    /**
-     * The footer text to be shown below the chat.
-     * @type {string}
-     * @memberof SettingsDto
-     */
-    chatFooter?: string;
-    /**
-     * The suggestions to be shown for the chat.
-     * @type {Array<ChatSuggestionDto>}
-     * @memberof SettingsDto
-     */
-    chatSuggestions?: Array<ChatSuggestionDto>;
-    /**
      * Some custom css.
      * @type {string}
      * @memberof SettingsDto
@@ -100,9 +75,6 @@ export function SettingsDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'primaryColor': !exists(json, 'primaryColor') ? undefined : json['primaryColor'],
         'primaryContentColor': !exists(json, 'primaryContentColor') ? undefined : json['primaryContentColor'],
         'welcomeText': !exists(json, 'welcomeText') ? undefined : json['welcomeText'],
-        'agentName': !exists(json, 'agentName') ? undefined : json['agentName'],
-        'chatFooter': !exists(json, 'chatFooter') ? undefined : json['chatFooter'],
-        'chatSuggestions': !exists(json, 'chatSuggestions') ? undefined : ((json['chatSuggestions'] as Array<any>).map(ChatSuggestionDtoFromJSON)),
         'customCss': !exists(json, 'customCss') ? undefined : json['customCss'],
     };
 }
@@ -120,9 +92,6 @@ export function SettingsDtoToJSON(value?: SettingsDto | null): any {
         'primaryColor': value.primaryColor,
         'primaryContentColor': value.primaryContentColor,
         'welcomeText': value.welcomeText,
-        'agentName': value.agentName,
-        'chatFooter': value.chatFooter,
-        'chatSuggestions': value.chatSuggestions === undefined ? undefined : ((value.chatSuggestions as Array<any>).map(ChatSuggestionDtoToJSON)),
         'customCss': value.customCss,
     };
 }

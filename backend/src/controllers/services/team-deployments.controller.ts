@@ -1,6 +1,18 @@
-import { Body, Controller, ForbiddenException, Get, NotFoundException, Param, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiParam, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Request } from 'express';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
@@ -18,7 +30,13 @@ import { User } from 'src/domain/users';
 import { CreateDeploymentDto, DeploymentDto, DeploymentsDto } from './dtos';
 
 @Controller('teams/:teamId/deployments')
+@ApiParam({
+  name: 'teamId',
+  description: 'The ID of the team.',
+  required: true,
+})
 @ApiTags('deployments')
+@ApiSecurity('x-api-key')
 @UseGuards(LocalAuthGuard)
 export class TeamDeploymentsController {
   constructor(
@@ -55,27 +73,42 @@ export class TeamDeploymentsController {
     return DeploymentDto.fromDomain(result.deployment);
   }
 
-  @Post(':id')
+  @Put(':deploymentId')
   @ApiOperation({ operationId: 'putDeployment', description: 'Updates a deployment.' })
+  @ApiParam({
+    name: 'deploymentId',
+    description: 'The ID of the deployment.',
+    required: true,
+  })
   @ApiOkResponse({ type: DeploymentDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard)
-  async putDeployment(@Req() req: Request, @Param('teamId') teamId: string, id: string, @Body() body: CreateDeploymentDto) {
+  async putDeployment(
+    @Req() req: Request,
+    @Param('teamId') teamId: string,
+    @Param('deploymentId') deploymentId: string,
+    @Body() body: CreateDeploymentDto,
+  ) {
     await this.ensurePermission(req.user, +teamId);
 
-    const command = new UpdateDeployment(+id, +teamId, body.parameters, body.serviceId, req.user);
+    const command = new UpdateDeployment(+deploymentId, +teamId, body.parameters, body.serviceId, req.user);
     const result: UpdateDeploymentResponse = await this.commandBus.execute(command);
 
     return DeploymentDto.fromDomain(result.deployment);
   }
 
-  @Post(':id')
+  @Delete(':deploymentId')
+  @ApiParam({
+    name: 'deploymentId',
+    description: 'The ID of the deployment.',
+    required: true,
+  })
   @ApiOperation({ operationId: 'deleteDeployment', description: 'Delete a deployment.' })
   @ApiNoContentResponse()
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard)
-  async deleteDeployment(id: string) {
-    const command = new DeleteDeployment(+id);
+  async deleteDeployment(@Param('deploymentId') deploymentId: string) {
+    const command = new DeleteDeployment(+deploymentId);
 
     await this.commandBus.execute(command);
   }

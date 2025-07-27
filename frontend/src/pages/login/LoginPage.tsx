@@ -60,7 +60,7 @@ function LoginForm() {
       return api.auth.login(request);
     },
     onSuccess: () => {
-      navigate('/chat');
+      navigate('/teams');
     },
   });
 

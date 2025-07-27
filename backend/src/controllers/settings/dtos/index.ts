@@ -1,10 +1,7 @@
-import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsOptional, IsString, ValidateNested } from 'class-validator';
-import { ChatSuggestionDto } from 'src/controllers/shared';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional, IsString } from 'class-validator';
 import { Settings } from 'src/domain/settings';
 
-@ApiExtraModels(ChatSuggestionDto)
 export class SettingsDto {
   @ApiProperty({
     description: 'The name of the app.',
@@ -39,35 +36,6 @@ export class SettingsDto {
   welcomeText?: string;
 
   @ApiProperty({
-    description: 'The name of the agent.',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  agentName?: string;
-
-  @ApiProperty({
-    description: 'The footer text to be shown below the chat.',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  chatFooter?: string;
-
-  @ApiProperty({
-    description: 'The suggestions to be shown for the chat.',
-    required: false,
-    type: [ChatSuggestionDto],
-  })
-  @IsOptional()
-  @IsArray()
-  @ArrayMinSize(0)
-  @ArrayMaxSize(10)
-  @ValidateNested({ each: true })
-  @Type(() => ChatSuggestionDto)
-  chatSuggestions?: ChatSuggestionDto[];
-
-  @ApiProperty({
     description: 'Some custom css.',
     required: false,
   })
@@ -78,9 +46,6 @@ export class SettingsDto {
   static fromDomain(source: Settings) {
     const result = new SettingsDto();
     result.name = source.name;
-    result.agentName = source.agentName;
-    result.chatFooter = source.chatFooter;
-    result.chatSuggestions = source.chatSuggestions;
     result.customCss = source.customCss;
     result.primaryColor = source.primaryColor;
     result.primaryContentColor = source.primaryContentColor;

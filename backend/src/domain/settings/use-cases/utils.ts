@@ -5,7 +5,7 @@ export function buildSettings(source: SettingEntity): Settings {
   // eslint-disable-next-line prefer-const
   let { name, primaryColor, primaryContentColor, ...other } = source;
 
-  name ||= 'CompanyChat';
+  name ||= 'SaaS';
   primaryColor ||= '#491eff';
   primaryContentColor ||= '#ffffff';
 
