@@ -1,0 +1,13 @@
+version: "3.5"
+services:
+  ccccc:
+    image: "cccc-local:5"
+    environment:
+      - AUTH_GOOGLE_CLIENTID=900148737461-bokl2nj32l14lchpkeaadis9t6js4sp3.apps.googleusercontent.com
+      - AUTH_GOOGLE_CLIENTSECRET=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
+      - AUTH_BASEURL=https://localhost:3333
+      - AUTH_INITIALUSER_EMAIL=admin
+      - AUTH_INITIALUSER_PASSWORD=secret
+      - DB_URL=postgres://admin:secret@host.docker.internal:5010/cccc?sslmode=disable
+    ports:
+      - "3333:3000"

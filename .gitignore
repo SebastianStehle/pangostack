@@ -1,0 +1,13 @@
+node_modules
+dist
+bin
+
+.idea
+.env
+
+dist
+
+docker-compose-local.yml
+
+backend/dev/local-dev-key.pem
+backend/dev/local-dev.pem
