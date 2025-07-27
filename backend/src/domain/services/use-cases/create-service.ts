@@ -5,7 +5,7 @@ import { assignDefined } from 'src/lib';
 import { Service } from '../interfaces';
 import { buildService } from './utils';
 
-type Values = Omit<Service, 'id' | 'lastestVersion' | 'numDeployments'>;
+type Values = Omit<Service, 'id' | 'isActive' | 'lastestVersion' | 'numDeployments'>;
 
 export class CreateService {
   constructor(public readonly values: Values) {}

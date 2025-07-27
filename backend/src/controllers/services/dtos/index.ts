@@ -86,6 +86,70 @@ export class DeploymentsDto {
   }
 }
 
+export class UpsertServiceDto {
+  @ApiProperty({
+    description: 'The name of the service.',
+    required: true,
+  })
+  name: string;
+
+  @ApiProperty({
+    description: 'The description.',
+    required: true,
+  })
+  description: string;
+
+  @ApiProperty({
+    description: 'The environment settings.',
+    required: true,
+    type: Object,
+    additionalProperties: { type: 'string' },
+  })
+  environment: Record<string, string>;
+
+  @ApiProperty({
+    description: 'The currency.',
+    required: true,
+  })
+  currency: string;
+
+  @ApiProperty({
+    description: 'The price per CPU and hour in the selected currency.',
+    required: true,
+  })
+  pricePerCpuHour: number;
+
+  @ApiProperty({
+    description: 'The price per Memory in GB and hour in the selected currency.',
+    required: true,
+  })
+  pricePerMemoryGbHour: number;
+
+  @ApiProperty({
+    description: 'The price per Storage in GB and hour in the selected currency.',
+    required: true,
+  })
+  pricePerStorageGbHour: number;
+
+  @ApiProperty({
+    description: 'The price per Disk in GB and hour in the selected currency.',
+    required: true,
+  })
+  pricePerDiskGbHour: number;
+
+  @ApiProperty({
+    description: 'The additional fixed price.',
+    required: true,
+  })
+  fixedPrice: number;
+
+  @ApiProperty({
+    description: 'Indicates if the service is public.',
+    required: true,
+  })
+  isPublic: boolean;
+}
+
 export class ServiceDto {
   @ApiProperty({
     description: 'The ID of the service.',
@@ -206,6 +270,56 @@ export class ServicesDto {
     result.items = source.map(ServiceDto.fromDomain);
     return result;
   }
+}
+
+export class CreateServiceVersionDto {
+  @ApiProperty({
+    description: 'The name of the version.',
+    required: true,
+  })
+  name: string;
+
+  @ApiProperty({
+    description: 'The YAML definition.',
+    required: true,
+  })
+  definition: string;
+
+  @ApiProperty({
+    description: 'The environment settings.',
+    required: true,
+    type: Object,
+    additionalProperties: { type: 'string' },
+  })
+  environment: Record<string, string>;
+
+  @ApiProperty({
+    description: 'Indicates if the version is active.',
+    required: true,
+  })
+  isActive: boolean;
+}
+
+export class UpdateServiceVersionDto {
+  @ApiProperty({
+    description: 'The YAML definition.',
+    required: true,
+  })
+  definition?: string;
+
+  @ApiProperty({
+    description: 'The environment settings.',
+    required: true,
+    type: Object,
+    additionalProperties: { type: 'string' },
+  })
+  environment?: Record<string, string>;
+
+  @ApiProperty({
+    description: 'Indicates if the version is active.',
+    required: true,
+  })
+  isActive?: boolean;
 }
 
 export class ServiceVersionDto {

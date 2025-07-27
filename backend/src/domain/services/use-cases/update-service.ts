@@ -6,7 +6,7 @@ import { assignDefined } from 'src/lib';
 import { Service } from '../interfaces';
 import { buildService } from './utils';
 
-type Values = Omit<Service, 'id'>;
+type Values = Omit<Service, 'id' | 'isActive' | 'lastVersion' | 'numDeployments'>;
 
 export class UpdateService {
   constructor(
