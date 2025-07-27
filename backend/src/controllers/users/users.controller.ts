@@ -80,7 +80,6 @@ export class UsersController {
   @UseGuards(RoleGuard)
   async postUser(@Body() body: UpsertUserDto) {
     const command = new CreateUser(body);
-
     const result: CreateUserResponse = await this.commandBus.execute(command);
 
     return UserDto.fromDomain(result.user);
@@ -98,7 +97,6 @@ export class UsersController {
   @UseGuards(RoleGuard)
   async putUser(@Param('id') id: string, @Body() body: UpsertUserDto) {
     const command = new UpdateUser(id, body);
-
     const result: UpdateUserResponse = await this.commandBus.execute(command);
 
     return UserDto.fromDomain(result.user);

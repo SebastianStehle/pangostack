@@ -8,35 +8,35 @@ export class ServiceEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ length: 100 })
   name: string;
 
   @Column('text')
   description: string;
 
-  @Column('simple-json')
+  @Column('simple-json', { default: '{}' })
   environment: Record<string, string> = {};
 
-  @Column()
-  currency: string;
+  @Column({ length: 10, default: 'USD' })
+  currency = 'USD';
 
-  @Column()
-  pricePerCpuHour: number;
+  @Column({ default: 0 })
+  pricePerCpuHour = 0;
 
-  @Column()
-  pricePerMemoryGbHour: number;
+  @Column({ default: 0 })
+  pricePerMemoryGbHour = 0;
 
-  @Column()
-  pricePerStorageGbHour: number;
+  @Column({ default: 0 })
+  pricePerStorageGbHour = 0;
 
-  @Column()
-  pricePerDiskGbHour: number;
+  @Column({ default: 0 })
+  pricePerDiskGbHour = 0;
 
-  @Column()
-  fixedPrice: number;
+  @Column({ default: 0 })
+  fixedPrice = 0;
 
-  @Column()
-  isPublic: boolean;
+  @Column({ default: true })
+  isPublic = true;
 
   @OneToMany(() => ServiceVersionEntity, (version) => version.service)
   versions: ServiceVersionEntity[];

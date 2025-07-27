@@ -4,16 +4,16 @@ import { DeploymentEntity, DeploymentRepository, DeploymentUpdateEntity, Deploym
 import { Deployment } from '../interfaces';
 import { buildDeployment } from './utils';
 
-export class GetDeployments {
+export class GetTeamDeployments {
   constructor(public readonly teamId: number) {}
 }
 
-export class GetDeploymentsResponse {
+export class GetTeamDeploymentsResponse {
   constructor(public readonly deployments: Deployment[]) {}
 }
 
-@QueryHandler(GetDeployments)
-export class GetDeploymentsHandler implements IQueryHandler<GetDeployments, GetDeploymentsResponse> {
+@QueryHandler(GetTeamDeployments)
+export class GetTeamDeploymentsHandler implements IQueryHandler<GetTeamDeployments, GetTeamDeploymentsResponse> {
   constructor(
     @InjectRepository(DeploymentEntity)
     private readonly deployments: DeploymentRepository,
@@ -21,7 +21,7 @@ export class GetDeploymentsHandler implements IQueryHandler<GetDeployments, GetD
     private readonly deploymentUpdates: DeploymentUpdateRepository,
   ) {}
 
-  async execute(query: GetDeployments): Promise<GetDeploymentsResponse> {
+  async execute(query: GetTeamDeployments): Promise<GetTeamDeploymentsResponse> {
     const { teamId } = query;
 
     const entities = await this.deployments.find({ where: { teamId } });
@@ -41,6 +41,6 @@ export class GetDeploymentsHandler implements IQueryHandler<GetDeployments, GetD
       result.push(buildDeployment(entity, lastUpdate.serviceVersion.service));
     }
 
-    return new GetDeploymentsResponse(result);
+    return new GetTeamDeploymentsResponse(result);
   }
 }

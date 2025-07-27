@@ -41,7 +41,6 @@ export class UserGroupsController {
   @UseGuards(RoleGuard)
   async postUserGroup(@Body() body: UpsertUserGroupDto) {
     const command = new CreateUserGroup(body);
-
     const result: CreateUserGroupResponse = await this.commandBus.execute(command);
 
     return UserGroupDto.fromDomain(result.userGroup);
@@ -59,7 +58,6 @@ export class UserGroupsController {
   @UseGuards(RoleGuard)
   async putUser(@Param('id') id: string, @Body() body: UpsertUserGroupDto) {
     const command = new UpdateUserGroup(id, body);
-
     const result: UpdateUserGroupResponse = await this.commandBus.execute(command);
 
     return UserGroupDto.fromDomain(result.userGroup);

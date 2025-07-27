@@ -57,7 +57,7 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
 
     const version = await this.serviceVersions.findOne({
       where: { serviceId: service.id, isActive: true },
-      order: { name: 'DESC' },
+      order: { order: 'DESC' },
     });
     if (!version) {
       throw new NotFoundException(`Service ${serviceId} has no active version.`);
@@ -68,7 +68,10 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
       throw new NotFoundException('No worker registered.');
     }
 
-    const deployment = new DeploymentEntity();
+    // The environment settings from the version overwrite the service.
+    const environment = { ...service.environment, ...version.environment };
+
+    const deployment = this.deployments.create();
     deployment.createdAt = undefined;
     deployment.createdBy = user?.id || 'UNKNOWN';
     deployment.teamId = teamdId;
@@ -76,13 +79,15 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     deployment.updatedBy = user?.id || 'UNKNOWN';
     await this.deployments.save(deployment);
 
-    const update = new DeploymentUpdateEntity();
+    const update = this.deploymentUpdates.create();
     update.createdAt = undefined;
     update.createdBy = user?.id || 'UNKNOWN';
     update.context = {};
+    update.deployment = deployment;
     update.deploymentId = deployment.id;
-    update.environment = service.environment;
+    update.environment = environment;
     update.parameters = parameters;
+    update.serviceVersion = version;
     update.serviceVersionId = version.id;
     await this.deploymentUpdates.save(update);
 

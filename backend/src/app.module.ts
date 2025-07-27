@@ -8,7 +8,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { AuthController } from './controllers/auth/auth.controller';
 import { BlobsController } from './controllers/blobs/blobs.controller';
-import { DeploymentsController } from './controllers/services/deployments.controller';
+import { ServicesController } from './controllers/services/services.controller';
+import { TeamDeploymentsController } from './controllers/services/team-deployments.controller';
 import { SettingsController } from './controllers/settings/settings.controller';
 import { UserGroupsController } from './controllers/users/user-groups.controller';
 import { UsersController } from './controllers/users/users.controller';
@@ -79,8 +80,9 @@ import { UsersModule } from './domain/users/module';
   controllers: [
     AuthController,
     BlobsController,
-    DeploymentsController,
+    ServicesController,
     SettingsController,
+    TeamDeploymentsController,
     UserGroupsController,
     UsersController,
   ],

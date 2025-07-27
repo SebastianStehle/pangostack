@@ -1,7 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TeamEntity, TeamRepository, TeamUserEntity, TeamUserRepository, UserEntity, UserRepository } from 'src/domain/database';
+import { TeamEntity, TeamRepository, TeamUserRepository, UserEntity, UserRepository } from 'src/domain/database';
 import { Team, User } from '../interfaces';
 import { buildTeam } from './utils';
 
@@ -50,7 +50,7 @@ export class SetTeamUserHandler implements ICommandHandler<SetTeamUser, any> {
     if (user) {
       entity.role = role;
     } else {
-      entity = new TeamUserEntity();
+      entity = this.teamUsers.create();
       entity.userId = userId;
       entity.teamId = id;
       entity.role = role;

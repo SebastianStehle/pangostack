@@ -54,7 +54,6 @@ export class TeamsController {
   @UseGuards(RoleGuard)
   async deleteTeamUser(@Req() req: Request, @Param('id') id: string, @Param('userId') userId: string) {
     const command = new DeleteTeamUser(+id, userId, req.user);
-
     const result: DeleteTeamUserResponse = await this.commandBus.execute(command);
 
     return TeamDto.fromDomain(result.team);

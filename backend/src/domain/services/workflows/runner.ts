@@ -7,7 +7,7 @@ import { DeploymentEntity, ServiceVersionEntity, WorkerEntity } from 'src/domain
 import { DeploymentUpdateEntity } from 'src/domain/database/entities/deployment-update';
 import { TemporalService } from 'src/lib';
 import * as activities from './activities';
-import { ResourcesDefinition } from './model';
+import { parseDefinition, ResourcesDefinition } from './model';
 import * as workflows from './workflows';
 
 @Injectable()
@@ -31,8 +31,7 @@ export class WorkflowRunner {
     const taskQueue = `deployments`;
     await this.ensureCreated(taskQueue);
 
-    const definitionJson = fromYAML(serviceVersion.definition);
-    const definitionClass = plainToInstance(ResourcesDefinition, definitionJson);
+    const definition = parseDefinition(serviceVersion.definition);
 
     await client.workflow.start(workflows.deployAll, {
       workflowId: `deployment-${deployment.id}`,
@@ -40,7 +39,7 @@ export class WorkflowRunner {
       args: [
         {
           deploymentId: deployment.id,
-          resources: definitionClass.resources,
+          resources: definition.resources,
           updateId: deploymentUpdate.id,
           workerApiKey: worker.apiKey,
           workerEndpoint: worker.endpoint,

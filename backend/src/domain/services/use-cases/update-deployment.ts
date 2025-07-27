@@ -19,6 +19,7 @@ import { buildDeployment } from './utils';
 export class UpdateDeployment {
   constructor(
     public readonly id: number,
+    public readonly teamId: number,
     public readonly parameters: Record<string, string> | null,
     public readonly versionId: number | null,
     public readonly user: User,
@@ -44,9 +45,9 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
   ) {}
 
   async execute(command: UpdateDeployment): Promise<UpdateDeploymentResponse> {
-    const { id, parameters, user, versionId } = command;
+    const { id, parameters, teamId, user, versionId } = command;
 
-    const deployment = await this.deployments.findOne({ where: { id }, relations: ['version', 'version.service'] });
+    const deployment = await this.deployments.findOne({ where: { id, teamId }, relations: ['version', 'version.service'] });
     if (!deployment) {
       throw new NotFoundException(`Deployment ${id} not found`);
     }
@@ -87,13 +88,18 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
       throw new NotFoundException('No worker registered.');
     }
 
-    const update = new DeploymentUpdateEntity();
+    // The environment settings from the version overwrite the service.
+    const environment = { ...version.service.environment, ...version.environment };
+
+    const update = this.deploymentUpdates.create();
+    update.context = {};
     update.createdAt = undefined;
     update.createdBy = user?.id || 'UNKNOWN';
-    update.context = {};
+    update.deployment = deployment;
     update.deploymentId = deployment.id;
-    update.environment = version.service.environment;
+    update.environment = environment;
     update.parameters = parameters || lastUpdate.parameters;
+    update.serviceVersion = version;
     update.serviceVersionId = version.id;
     await this.deploymentUpdates.save(update);
 

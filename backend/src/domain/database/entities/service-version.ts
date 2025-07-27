@@ -22,14 +22,17 @@ export class ServiceVersionEntity {
   @Column()
   name: string;
 
+  @Column({ default: 0 })
+  order = 0;
+
   @Column('text')
   definition: string;
 
-  @Column('text')
-  environment: string;
+  @Column('simple-json')
+  environment: Record<string, string> = {};
 
-  @Column()
-  isActive: boolean;
+  @Column({ default: true })
+  isActive = true;
 
   @Column()
   serviceId: number;

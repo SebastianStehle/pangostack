@@ -2,7 +2,21 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeploymentEntity, DeploymentUpdateEntity, ServiceEntity, ServiceVersionEntity, WorkerEntity } from 'src/domain/database';
 import { TemporalService } from './services';
-import { CreateDeploymentHandler, DeleteDeploymentHandler, GetDeploymentsHandler, UpdateDeploymentHandler } from './use-cases';
+import {
+  CreateDeploymentHandler,
+  CreateService,
+  CreateServiceVersion,
+  DeleteDeploymentHandler,
+  DeleteService,
+  DeleteServiceVersion,
+  GetServices,
+  GetServicesPublic,
+  GetServiceVersions,
+  GetTeamDeploymentsHandler,
+  UpdateDeploymentHandler,
+  UpdateService,
+  UpdateServiceVersion,
+} from './use-cases';
 import { DeleteResourceActivity, DeployResourceActivity, UpdateDeploymentActivity } from './workflows/activities';
 import { WorkflowRunner } from './workflows/runner';
 
@@ -12,13 +26,22 @@ import { WorkflowRunner } from './workflows/runner';
   ],
   providers: [
     CreateDeploymentHandler,
+    CreateService,
+    CreateServiceVersion,
     DeleteDeploymentHandler,
     DeleteResourceActivity,
-    GetDeploymentsHandler,
+    DeleteService,
+    DeleteServiceVersion,
     DeployResourceActivity,
+    GetTeamDeploymentsHandler,
+    GetServices,
+    GetServicesPublic,
+    GetServiceVersions,
     TemporalService,
     UpdateDeploymentActivity,
     UpdateDeploymentHandler,
+    UpdateService,
+    UpdateServiceVersion,
     WorkflowRunner,
   ],
 })
