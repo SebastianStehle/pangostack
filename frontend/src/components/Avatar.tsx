@@ -1,11 +1,16 @@
+import classNames from 'classnames';
 import { memo, useMemo, useState } from 'react';
 
 export interface AvatarProps {
+  // The user information.
   user: { name: string; picture?: string };
+
+  // The size of the avatar.
+  size?: 'sm' | 'md';
 }
 
 export const Avatar = memo((props: AvatarProps) => {
-  const { user } = props;
+  const { size, user } = props;
 
   const [usePicture, setUsePicture] = useState(!!user.picture);
 
@@ -27,15 +32,17 @@ export const Avatar = memo((props: AvatarProps) => {
     return result;
   }, [user.name]);
 
+  let actualSize = size === 'md' ? 'w-10' : 'w-8';
+
   return usePicture ? (
     <div className="avatar flex">
-      <div className="w-8 rounded-full">
+      <div className={classNames(actualSize, 'rounded-full')}>
         <img src={user.picture} alt={user.name} onError={() => setUsePicture(false)} />
       </div>
     </div>
   ) : (
-    <div className="avatar placeholder flex font-semibold">
-      <div className="w-8 rounded-full bg-neutral text-neutral-content">
+    <div className="avatar avatar-placeholder flex font-semibold">
+      <div className={classNames(actualSize, 'rounded-full bg-neutral text-neutral-content')}>
         <span className="text-xs">{initials}</span>
       </div>
     </div>

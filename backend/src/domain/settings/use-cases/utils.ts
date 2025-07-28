@@ -3,13 +3,15 @@ import { Settings } from '../interfaces';
 
 export function buildSettings(source: SettingEntity): Settings {
   // eslint-disable-next-line prefer-const
-  let { name, primaryColor, primaryContentColor, ...other } = source;
+  let { headerColor, name, primaryColor, primaryContentColor, ...other } = source;
 
-  name ||= 'SaaS';
+  name ||= 'My Saas Project';
   primaryColor ||= '#491eff';
   primaryContentColor ||= '#ffffff';
+  headerColor ||= '#491eff';
 
   return {
+    headerColor,
     name,
     primaryColor,
     primaryContentColor,

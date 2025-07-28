@@ -10,6 +10,7 @@ export * from './Logo';
 export * from './Markdown';
 export * from './Modal';
 export * from './Page';
+export * from './Links';
 export * from './Pagination';
 export * from './ProfileButton';
 export * from './RouteWhenAdmin';

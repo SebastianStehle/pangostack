@@ -154,7 +154,7 @@ export module Forms {
   export const Color = ({ className, ...other }: FormEditorProps) => {
     return (
       <Forms.Row className={className} {...other}>
-        <InputText type="color" {...other} className="!w-[4rem] px-1" />
+        <InputText type="color" {...other} className="!w-[3rem] px-1" />
       </Forms.Row>
     );
   };

@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, Repository, UpdateDateColumn } from 'typeorm';
 
 export type SettingRepository = Repository<SettingEntity>;
+export type SettingLink = { title: string; url: string };
 
 @Entity({ name: 'settings' })
 export class SettingEntity {
@@ -16,11 +17,20 @@ export class SettingEntity {
   @Column({ length: 20, nullable: true })
   primaryContentColor?: string;
 
+  @Column({ length: 20, nullable: true })
+  headerColor?: string;
+
   @Column('text', { nullable: true })
   welcomeText?: string;
 
   @Column('text', { nullable: true })
   customCss?: string;
+
+  @Column('simple-json', { nullable: true })
+  footerLinks?: SettingLink[];
+
+  @Column('text', { nullable: true })
+  footerText?: string;
 
   @CreateDateColumn()
   createdAt: Date;

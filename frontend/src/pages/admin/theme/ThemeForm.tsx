@@ -3,9 +3,19 @@ import { useEffect } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { SettingsDto, useApi } from 'src/api';
-import { FormAlert, Forms } from 'src/components';
+import * as Yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { FormAlert, Forms, Links } from 'src/components';
 import { useTheme } from 'src/hooks';
 import { texts } from 'src/texts';
+import { LINKS_SCHEME } from 'src/components/LinksScheme';
+
+const SCHEME = Yup.object().shape({
+  // Optional footer links.
+  chatSuggestions: LINKS_SCHEME,
+});
+
+const RESOLVER = yupResolver<any>(SCHEME);
 
 export function ThemeForm() {
   const api = useApi();
@@ -24,7 +34,7 @@ export function ThemeForm() {
     },
   });
 
-  const form = useForm<SettingsDto>({ defaultValues: settings });
+  const form = useForm<SettingsDto>({ resolver: RESOLVER, defaultValues: settings });
 
   useEffect(() => {
     form.reset(settings);
@@ -37,16 +47,22 @@ export function ThemeForm() {
           <FormAlert common={texts.theme.updateFailed} error={updating.error} />
 
           <Forms.Text name="name" label={texts.theme.appName} hints={texts.theme.appNameHints} />
-
           <Forms.Text name="welcomeText" label={texts.theme.welcomeText} hints={texts.theme.welcomeTextHints} />
 
           <div className="h-4" />
 
           <Forms.Color name="primaryColor" className="w-auto" label={texts.theme.primaryColor} />
-
           <Forms.Color name="primaryContentColor" className="w-auto" label={texts.theme.primaryContentColor} />
-
+          <Forms.Color name="headerColor" className="w-auto" label={texts.theme.headerColor} />
           <Forms.Textarea name="customCss" label={texts.theme.customCss} />
+
+          <div className="h-4" />
+
+          <Forms.Text name="footerText" label={texts.theme.footerText} />
+
+          <Forms.Row name="footerLinks" label={texts.theme.footerLinks}>
+            <Links name="footerLinks" />
+          </Forms.Row>
 
           <Forms.Row name="submit">
             <button type="submit" className="btn btn-primary w-auto">

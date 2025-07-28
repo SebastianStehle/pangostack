@@ -443,6 +443,12 @@ export class ParameterDefinitionDto {
   required: boolean;
 
   @ApiProperty({
+    description: 'Describes the parameter.',
+    required: false,
+  })
+  hint?: string;
+
+  @ApiProperty({
     description: 'The default value of the parameter.',
     required: false,
   })

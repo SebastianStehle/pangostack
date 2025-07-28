@@ -5,6 +5,7 @@ import {
   IsArray,
   isBoolean,
   IsBoolean,
+  IsDefined,
   IsIn,
   isNumber,
   IsNumber,
@@ -19,14 +20,21 @@ import {
 import { parse as fromYAML } from 'yaml';
 
 export class ParameterDefinition {
+  @IsDefined()
   @IsString()
   name: string;
 
+  @IsDefined()
   @IsIn(['string', 'number', 'boolean'])
   type: 'string' | 'number' | 'boolean';
 
+  @IsDefined()
   @IsBoolean()
   required: boolean;
+
+  @IsOptional()
+  @IsString()
+  hint?: string;
 
   @IsOptional()
   @IsNumber()
@@ -60,47 +68,58 @@ export class ParameterDefinition {
 }
 
 export class ResourceDefinition {
+  @IsDefined()
   @IsString()
   name: string;
 
+  @IsDefined()
   @IsString()
   id: string;
 
+  @IsDefined()
   @IsString()
   type: string;
 
+  @IsDefined()
   @IsObject()
   parameters: Record<string, string>;
 }
 
 export class UsageDefinition {
+  @IsDefined()
   @IsString()
   totalCpus: string;
 
+  @IsDefined()
   @IsString()
   totalMembery: string;
 
+  @IsDefined()
   @IsString()
   totalStorage: string;
 }
 
 export class ServiceDefinition {
+  @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ParameterDefinition)
   parameters: ParameterDefinition[];
 
+  @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ResourceDefinition)
   resources: ResourceDefinition[];
 
+  @IsDefined()
   @ValidateNested()
   @Type(() => UsageDefinition)
   usage: UsageDefinition;
 }
 
 export class ResourcesDefinition {
+  @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ResourceDefinition)

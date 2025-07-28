@@ -7,6 +7,7 @@ export * from './CreateDeploymentDto';
 export * from './CreateServiceVersionDto';
 export * from './DeploymentDto';
 export * from './DeploymentsDto';
+export * from './LinkDto';
 export * from './LoginDto';
 export * from './ProfileDto';
 export * from './ServiceDto';

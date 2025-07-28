@@ -14,6 +14,13 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { LinkDto } from './LinkDto';
+import {
+    LinkDtoFromJSON,
+    LinkDtoFromJSONTyped,
+    LinkDtoToJSON,
+} from './LinkDto';
+
 /**
  * 
  * @export
@@ -27,11 +34,17 @@ export interface SettingsDto {
      */
     name?: string;
     /**
-     * The primary color used for buttons and links.
+     * The header color.
      * @type {string}
      * @memberof SettingsDto
      */
     primaryColor?: string;
+    /**
+     * The primary color used for buttons and links.
+     * @type {string}
+     * @memberof SettingsDto
+     */
+    headerColor?: string;
     /**
      * The primary content color used for buttons and links.
      * @type {string}
@@ -50,6 +63,18 @@ export interface SettingsDto {
      * @memberof SettingsDto
      */
     customCss?: string;
+    /**
+     * The footer links.
+     * @type {Array<LinkDto>}
+     * @memberof SettingsDto
+     */
+    footerLinks?: Array<LinkDto>;
+    /**
+     * The footer text, for example for copyright infos.
+     * @type {string}
+     * @memberof SettingsDto
+     */
+    footerText?: string;
 }
 
 /**
@@ -73,9 +98,12 @@ export function SettingsDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
         
         'name': !exists(json, 'name') ? undefined : json['name'],
         'primaryColor': !exists(json, 'primaryColor') ? undefined : json['primaryColor'],
+        'headerColor': !exists(json, 'headerColor') ? undefined : json['headerColor'],
         'primaryContentColor': !exists(json, 'primaryContentColor') ? undefined : json['primaryContentColor'],
         'welcomeText': !exists(json, 'welcomeText') ? undefined : json['welcomeText'],
         'customCss': !exists(json, 'customCss') ? undefined : json['customCss'],
+        'footerLinks': !exists(json, 'footerLinks') ? undefined : ((json['footerLinks'] as Array<any>).map(LinkDtoFromJSON)),
+        'footerText': !exists(json, 'footerText') ? undefined : json['footerText'],
     };
 }
 
@@ -90,9 +118,12 @@ export function SettingsDtoToJSON(value?: SettingsDto | null): any {
         
         'name': value.name,
         'primaryColor': value.primaryColor,
+        'headerColor': value.headerColor,
         'primaryContentColor': value.primaryContentColor,
         'welcomeText': value.welcomeText,
         'customCss': value.customCss,
+        'footerLinks': value.footerLinks === undefined ? undefined : ((value.footerLinks as Array<any>).map(LinkDtoToJSON)),
+        'footerText': value.footerText,
     };
 }
 

@@ -13,6 +13,7 @@ models/CreateDeploymentDto.ts
 models/CreateServiceVersionDto.ts
 models/DeploymentDto.ts
 models/DeploymentsDto.ts
+models/LinkDto.ts
 models/LoginDto.ts
 models/ProfileDto.ts
 models/ServiceDto.ts

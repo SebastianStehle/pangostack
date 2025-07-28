@@ -8,8 +8,9 @@ export function ThemeStyle() {
   return ReactDOM.createPortal(
     <>
       <style>
-        {colorClass('p', theme.primaryColor)}
-        {colorClass('pc', theme.primaryContentColor)}
+        {colorClass('color-primary', theme.primaryColor)}
+        {colorClass('color-primary-content', theme.primaryContentColor)}
+        {colorClass('header', theme.headerColor)}
 
         {theme.customCss || ''}
       </style>
@@ -21,7 +22,7 @@ export function ThemeStyle() {
 function colorClass(className: string, color?: string) {
   return color
     ? `:root {
-      --${className}: ${convertColor(color)}
+      --${className}: oklch(${convertColor(color)})
     }
     `
     : '';

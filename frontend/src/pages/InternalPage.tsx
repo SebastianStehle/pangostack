@@ -1,13 +1,11 @@
 import { Route, Routes } from 'react-router-dom';
-import { RouteWhenAdmin, TransientNavigate } from 'src/components';
+import { RouteWhenAdmin } from 'src/components';
 import { AdminPage } from './admin/AdminPage';
-import { TeamsPage } from './teams/TeamsPage';
+import { PublicPage } from './admin/public/PublicPage';
 
 export function InternalPage() {
   return (
     <Routes>
-      <Route path="/teams/*" element={<TeamsPage />} />
-
       <Route
         path="/admin/*"
         element={
@@ -17,7 +15,12 @@ export function InternalPage() {
         }
       />
 
-      <Route path="*" element={<TransientNavigate to="/teams" />} />
+      <Route
+        path="/*"
+        element={
+          <PublicPage />
+        }
+      />
     </Routes>
   );
 }
