@@ -41,6 +41,7 @@ export const texts = {
     save: 'Save',
     saved: 'Saved successfully.',
     search: 'Search',
+    settings: 'Settings',
     subtitle: 'Subtitle',
     text: 'Text',
     title: 'Title',
@@ -49,7 +50,13 @@ export const texts = {
     userGroups: 'User Groups',
     yes: 'Yes',
   },
+  billing: {
+    title: 'Billing',
+  },
   dashboard: {},
+  deployments: {
+    title: 'Deployments',
+  },
   login: {
     loginButton: (provider: string) => `Login with ${provider}`,
     loginHint: 'Login to your account',
@@ -72,6 +79,12 @@ export const texts = {
     headline: 'Users',
     update: 'Update User',
     updateFailed: 'Failed to update User',
+  },
+  teams: {
+    createTitle: 'Create Team',
+    createText: 'You are not part of any team yet. Create a new one to invite other members and manage resources.',
+    selectTeam: 'Select Team',
+    members: 'Members',
   },
   theme: {
     appName: 'App Name',

@@ -1,17 +1,16 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { FormProvider, useForm } from 'react-hook-form';
-import { LoginDto, useApi } from 'src/api';
+import { LoginDto, useClients } from 'src/api';
 import { Forms, Logo } from 'src/components';
 import { useLoginUrl, useTheme, useTransientNavigate } from 'src/hooks';
 import { texts } from 'src/texts';
 
 export function LoginPage() {
-  const api = useApi();
-
+  const clients = useClients();
   const { theme } = useTheme();
   const { data: authSettings } = useQuery({
     queryKey: ['settings'],
-    queryFn: () => api.auth.getAuthSettings(),
+    queryFn: () => clients.auth.getAuthSettings(),
   });
 
   return (
@@ -19,7 +18,7 @@ export function LoginPage() {
       <div className="no-shrink flex w-full max-w-[800px] grow-0 overflow-y-auto bg-base-100 px-4 pt-24 lg:px-24">
         <div className="mx-auto lg:w-96">
           <div className="mb-[4rem] flex items-center gap-4 text-4xl">
-            <Logo size="3rem" baseUrl={api.url} file={theme.logo} />
+            <Logo size="3rem" baseUrl={clients.url} file={theme.logo} />
 
             <span className="min-w-0 truncate">{theme.name}</span>
           </div>
@@ -52,12 +51,11 @@ export function LoginPage() {
 }
 
 function LoginForm() {
-  const api = useApi();
-
+  const clients = useClients();
   const navigate = useTransientNavigate();
   const login = useMutation({
     mutationFn: (request: LoginDto) => {
-      return api.auth.login(request);
+      return clients.auth.login(request);
     },
     onSuccess: () => {
       navigate('/teams');

@@ -21,15 +21,15 @@ export const ProfileButton = (props: ProfileButtonProps) => {
   return (
     <OverlayDropdown
       placement={menuPlacement}
-      fullWidth
+      fullWidth={style !== 'avatar'}
       button={() => (
         <>
           {style === 'avatar' ? (
-            <button className='btn btn-link h-auto p-0'>
-              <Avatar size='md' user={profile} />
+            <button className="btn btn-link p-0">
+              <Avatar size="md" user={profile} />
             </button>
           ) : (
-            <button className="btn btn-ghost h-auto w-full justify-start p-2 hover:bg-slate-200" data-testId="menu user">
+            <button className="btn btn-ghost h-auto w-full justify-start p-2 hover:bg-slate-200">
               <div className="flex max-w-full items-center gap-2">
                 <div className="shrink-0">
                   <Avatar user={profile} />
@@ -45,9 +45,9 @@ export const ProfileButton = (props: ProfileButtonProps) => {
         </>
       )}
     >
-      <ul tabIndex={0} className="dropdown-menu">
+      <ul tabIndex={0} className="dropdown-menu my-2">
         {profile.isAdmin && (
-          <li data-testId="link administration">
+          <li>
             <NavLink to="/admin">{texts.common.administration}</NavLink>
           </li>
         )}

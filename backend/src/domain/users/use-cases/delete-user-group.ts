@@ -26,8 +26,8 @@ export class DeleteUserGroupHandler implements ICommandHandler<DeleteUserGroup, 
       throw new BadRequestException('Cannot delete builtin user group.');
     }
 
-    const result = await this.userGroups.delete({ id });
-    if (!result.affected) {
+    const { affected } = await this.userGroups.delete({ id });
+    if (!affected) {
       throw new NotFoundException(`User group ${id} not found.`);
     }
   }

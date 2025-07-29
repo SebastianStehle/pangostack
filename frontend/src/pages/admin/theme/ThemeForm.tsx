@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'react-toastify';
-import { SettingsDto, useApi } from 'src/api';
+import { SettingsDto, useClients } from 'src/api';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { FormAlert, Forms, Links } from 'src/components';
@@ -12,22 +12,21 @@ import { LINKS_SCHEME } from 'src/components/LinksScheme';
 
 const SCHEME = Yup.object().shape({
   // Optional footer links.
-  chatSuggestions: LINKS_SCHEME,
+  links: LINKS_SCHEME,
 });
 
 const RESOLVER = yupResolver<any>(SCHEME);
 
 export function ThemeForm() {
-  const api = useApi();
-
+  const clients = useClients();
   const { data: settings } = useQuery({
     queryKey: ['editable-theme'],
-    queryFn: () => api.settings.getSettings(),
+    queryFn: () => clients.settings.getSettings(),
   });
 
   const updating = useMutation({
     mutationFn: (request: SettingsDto) => {
-      return api.settings.postSettings(request);
+      return clients.settings.postSettings(request);
     },
     onSuccess: () => {
       toast(texts.common.saved, { type: 'success' });
@@ -54,6 +53,7 @@ export function ThemeForm() {
           <Forms.Color name="primaryColor" className="w-auto" label={texts.theme.primaryColor} />
           <Forms.Color name="primaryContentColor" className="w-auto" label={texts.theme.primaryContentColor} />
           <Forms.Color name="headerColor" className="w-auto" label={texts.theme.headerColor} />
+
           <Forms.Textarea name="customCss" label={texts.theme.customCss} />
 
           <div className="h-4" />

@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
-import { UpsertUserDto, useApi, UserDto, UserGroupDto } from 'src/api';
+import { UpsertUserDto, useClients, UserDto, UserGroupDto } from 'src/api';
 import { ConfirmDialog, FormAlert, Forms, Modal } from 'src/components';
 import { texts } from 'src/texts';
 import { GenerateApiKeyButton } from './GenerateApiKeyButton';
@@ -46,11 +46,10 @@ export interface UpdateUserDialogProps {
 export function UpdateUserDialog(props: UpdateUserDialogProps) {
   const { onClose, onDelete, onUpdate, target, userGroups } = props;
 
-  const api = useApi();
-
+  const clients = useClients();
   const updating = useMutation({
     mutationFn: (request: UpsertUserDto) => {
-      return api.users.putUser(target.id, request);
+      return clients.users.putUser(target.id, request);
     },
     onSuccess: (response) => {
       onUpdate(response);
@@ -60,7 +59,7 @@ export function UpdateUserDialog(props: UpdateUserDialogProps) {
 
   const deleting = useMutation({
     mutationFn: () => {
-      return api.users.deleteUser(target.id);
+      return clients.users.deleteUser(target.id);
     },
     onSuccess: () => {
       onDelete(target.id);

@@ -17,8 +17,8 @@ export class DeleteServiceHandler implements ICommandHandler<DeleteService, any>
   async execute(command: DeleteService): Promise<any> {
     const { id } = command;
 
-    const result = await this.services.delete({ id });
-    if (!result.affected) {
+    const { affected } = await this.services.delete({ id });
+    if (!affected) {
       throw new NotFoundException(`Service ${id} not found.`);
     }
   }

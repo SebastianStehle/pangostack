@@ -4,7 +4,7 @@ import Tags from '@yaireo/tagify/dist/react.tagify';
 import classNames from 'classnames';
 import { useMemo } from 'react';
 import { useController } from 'react-hook-form';
-import { useApi } from 'src/api';
+import { useClients } from 'src/api';
 import { useEventCallback } from 'src/hooks';
 
 export interface UserGroupTagsProps {
@@ -15,11 +15,10 @@ export interface UserGroupTagsProps {
 export function UserGroupTags(props: UserGroupTagsProps) {
   const { name } = props;
 
-  const api = useApi();
-
+  const clients = useClients();
   const { data: loadedGroups } = useQuery({
     queryKey: ['userGroups'],
-    queryFn: () => api.users.getUserGroups(),
+    queryFn: () => clients.users.getUserGroups(),
   });
 
   const { field } = useController({ name });

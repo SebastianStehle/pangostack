@@ -1,14 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { ProfileContext } from 'src/hooks';
-import { useApi } from '../api';
+import { useClients } from '../api';
 
 export function RouteWhenPrivate(props: React.PropsWithChildren) {
   const { children } = props;
 
-  const api = useApi();
+  const clients = useClients();
   const { data: profile } = useQuery({
     queryKey: ['profile'],
-    queryFn: () => api.auth.getProfile(),
+    queryFn: () => clients.auth.getProfile(),
     refetchOnWindowFocus: false,
   });
 

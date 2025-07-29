@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
-import { UpsertUserDto, useApi, UserDto, UserGroupDto } from 'src/api';
+import { UpsertUserDto, useClients, UserDto, UserGroupDto } from 'src/api';
 import { FormAlert, Forms, Modal } from 'src/components';
 import { texts } from 'src/texts';
 import { GenerateApiKeyButton } from './GenerateApiKeyButton';
@@ -40,11 +40,10 @@ export interface CreateUserDialogProps {
 export function CreateUserDialog(props: CreateUserDialogProps) {
   const { onClose, onCreate, userGroups } = props;
 
-  const api = useApi();
-
+  const clients = useClients();
   const updating = useMutation({
     mutationFn: (request: UpsertUserDto) => {
-      return api.users.postUser(request);
+      return clients.users.postUser(request);
     },
     onSuccess: (response) => {
       onCreate(response);

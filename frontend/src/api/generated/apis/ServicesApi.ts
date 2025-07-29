@@ -20,6 +20,7 @@ import type {
   ServiceDto,
   ServiceVersionsDto,
   ServicesDto,
+  ServicesPublicDto,
   UpdateServiceVersionDto,
   UpsertServiceDto,
 } from '../models/index';
@@ -32,6 +33,8 @@ import {
     ServiceVersionsDtoToJSON,
     ServicesDtoFromJSON,
     ServicesDtoToJSON,
+    ServicesPublicDtoFromJSON,
+    ServicesPublicDtoToJSON,
     UpdateServiceVersionDtoFromJSON,
     UpdateServiceVersionDtoToJSON,
     UpsertServiceDtoFromJSON,
@@ -218,7 +221,7 @@ export class ServicesApi extends runtime.BaseAPI {
      * Gets all services for end users.
      * 
      */
-    async getServicesPublicRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ServicesDto>> {
+    async getServicesPublicRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ServicesPublicDto>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -234,14 +237,14 @@ export class ServicesApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => ServicesDtoFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => ServicesPublicDtoFromJSON(jsonValue));
     }
 
     /**
      * Gets all services for end users.
      * 
      */
-    async getServicesPublic(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ServicesDto> {
+    async getServicesPublic(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ServicesPublicDto> {
         const response = await this.getServicesPublicRaw(initOverrides);
         return await response.value();
     }

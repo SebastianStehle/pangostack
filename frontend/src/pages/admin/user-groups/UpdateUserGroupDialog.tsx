@@ -2,7 +2,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useMutation } from '@tanstack/react-query';
 import { FormProvider, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
-import { UpsertUserGroupDto, useApi, UserGroupDto } from 'src/api';
+import { UpsertUserGroupDto, useClients, UserGroupDto } from 'src/api';
 import { ConfirmDialog, FormAlert, Forms, Modal } from 'src/components';
 import { texts } from 'src/texts';
 
@@ -30,11 +30,10 @@ export interface UpdateUserGroupDialogProps {
 export function UpdateUserGroupDialog(props: UpdateUserGroupDialogProps) {
   const { onClose, onDelete, onUpdate, target } = props;
 
-  const api = useApi();
-
+  const clients = useClients();
   const updating = useMutation({
     mutationFn: (request: UpsertUserGroupDto) => {
-      return api.users.putUserGroup(target.id, request);
+      return clients.users.putUserGroup(target.id, request);
     },
     onSuccess: (response) => {
       onUpdate(response);
@@ -44,7 +43,7 @@ export function UpdateUserGroupDialog(props: UpdateUserGroupDialogProps) {
 
   const deleting = useMutation({
     mutationFn: () => {
-      return api.users.deleteUserGroup(target.id);
+      return clients.users.deleteUserGroup(target.id);
     },
     onSuccess: () => {
       onDelete(target.id);
@@ -78,12 +77,6 @@ export function UpdateUserGroupDialog(props: UpdateUserGroupDialogProps) {
             <FormAlert common={texts.userGroups.updateFailed} error={updating.error} />
 
             <Forms.Text name="name" label={texts.common.name} required />
-
-            <Forms.Number name="monthlyTokens" label={texts.common.monthlyTokens} />
-
-            <Forms.Number name="monthlyUserTokens" label={texts.common.monthlyUserTokens} />
-
-            <Forms.Boolean name="hideFileUpload" label={texts.common.hideFileUpload} />
 
             <hr className="my-6" />
 

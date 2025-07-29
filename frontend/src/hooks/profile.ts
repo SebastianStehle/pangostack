@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo } from 'react';
-import { ProfileDto, useApi } from 'src/api';
+import { ProfileDto, useClients } from 'src/api';
 
 export const ProfileContext = createContext<ProfileDto>(null!);
 
@@ -8,21 +8,19 @@ export function useProfile() {
 }
 
 export function useLogoutUrl() {
-  const api = useApi();
-
+  const clients = useClients();
   return useMemo(() => {
     const redirectUrl = `${location.protocol}//${location.host}`;
 
-    return `${api.url}/auth/logout?redirectUrl=${redirectUrl}`;
-  }, [api.url]);
+    return `${clients.url}/auth/logout?redirectUrl=${redirectUrl}`;
+  }, [clients.url]);
 }
 
 export function useLoginUrl(provider: string) {
-  const api = useApi();
-
+  const clients = useClients();
   return useMemo(() => {
     const redirectUrl = `${location.protocol}//${location.host}`;
 
-    return `${api.url}/auth/login/${provider}?redirectUrl=${redirectUrl}`;
-  }, [api.url, provider]);
+    return `${clients.url}/auth/login/${provider}?redirectUrl=${redirectUrl}`;
+  }, [clients.url, provider]);
 }

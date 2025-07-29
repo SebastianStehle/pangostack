@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { useApi, UserDto, UserGroupDto } from 'src/api';
+import { useClients, UserDto, UserGroupDto } from 'src/api';
 import { Icon, Page, Pagingation, Search } from 'src/components';
 import { useEventCallback } from 'src/hooks';
 import { formatBoolean, formatTags } from 'src/lib';
@@ -12,10 +12,8 @@ import { useUsersStore } from './state';
 const EMPTY_USER_GROUPS: UserGroupDto[] = [];
 
 export function UsersPage() {
-  const api = useApi();
-
+  const clients = useClients();
   const { removeUser, setUser, setUsers, users } = useUsersStore();
-
   const [page, setPage] = useState(0);
   const [query, setQuery] = useState<string>();
   const [toCreate, setToCreate] = useState<boolean>();
@@ -23,12 +21,12 @@ export function UsersPage() {
 
   const { data: loadedUsers, isFetched } = useQuery({
     queryKey: ['users', page, query],
-    queryFn: () => api.users.getUsers(page, 20, query),
+    queryFn: () => clients.users.getUsers(page, 20, query),
   });
 
   const { data: loadedGroups } = useQuery({
     queryKey: ['userGroups'],
-    queryFn: async () => await api.users.getUserGroups(),
+    queryFn: async () => await clients.users.getUserGroups(),
   });
 
   useEffect(() => {

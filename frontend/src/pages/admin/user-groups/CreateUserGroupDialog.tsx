@@ -2,7 +2,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useMutation } from '@tanstack/react-query';
 import { FormProvider, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
-import { UpsertUserGroupDto, useApi, UserGroupDto } from 'src/api';
+import { UpsertUserGroupDto, useClients, UserGroupDto } from 'src/api';
 import { FormAlert, Forms, Modal } from 'src/components';
 import { texts } from 'src/texts';
 
@@ -24,11 +24,10 @@ export interface CreateUserGroupDialogProps {
 export function CreateUserGroupDialog(props: CreateUserGroupDialogProps) {
   const { onClose, onCreate } = props;
 
-  const api = useApi();
-
+  const clients = useClients();
   const updating = useMutation({
     mutationFn: (request: UpsertUserGroupDto) => {
-      return api.users.postUserGroup(request);
+      return clients.users.postUserGroup(request);
     },
     onSuccess: (response) => {
       onCreate(response);
@@ -62,12 +61,6 @@ export function CreateUserGroupDialog(props: CreateUserGroupDialogProps) {
             <FormAlert common={texts.userGroups.updateFailed} error={updating.error} />
 
             <Forms.Text name="name" label={texts.common.name} required />
-
-            <Forms.Number name="monthlyTokens" label={texts.common.monthlyTokens} />
-
-            <Forms.Number name="monthlyUserTokens" label={texts.common.monthlyUserTokens} />
-
-            <Forms.Boolean name="hideFileUpload" label={texts.common.hideFileUpload} />
           </fieldset>
         </Modal>
       </form>

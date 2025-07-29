@@ -1,6 +1,7 @@
 import Color from 'colorjs.io';
 import ReactDOM from 'react-dom';
 import { useTheme } from 'src/hooks';
+import { isNumber } from 'src/lib';
 
 export function ThemeStyle() {
   const { theme } = useTheme();
@@ -33,7 +34,7 @@ function convertColor(rgb: string) {
 
   const coords = color.to('oklch').coords;
 
-  if (Number.isNaN(coords[2])) {
+  if (Number.isNaN(coords[2]) || !isNumber(coords[2])) {
     coords[2] = 0;
   }
 

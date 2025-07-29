@@ -241,6 +241,14 @@ export class UserGroupsDto {
   }
 }
 
+export class UpsertTeamDto {
+  @ApiProperty({
+    description: 'The name of the team.',
+    required: true,
+  })
+  name: string;
+}
+
 export class TeamUserDto {
   @ApiProperty({
     description: 'The user.',

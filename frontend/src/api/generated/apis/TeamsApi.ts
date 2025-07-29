@@ -16,12 +16,18 @@
 
 import * as runtime from '../runtime';
 import type {
+  TeamDto,
   TeamsDto,
+  UpsertTeamDto,
   UpsertTeamUserDto,
 } from '../models/index';
 import {
+    TeamDtoFromJSON,
+    TeamDtoToJSON,
     TeamsDtoFromJSON,
     TeamsDtoToJSON,
+    UpsertTeamDtoFromJSON,
+    UpsertTeamDtoToJSON,
     UpsertTeamUserDtoFromJSON,
     UpsertTeamUserDtoToJSON,
 } from '../models/index';
@@ -31,9 +37,18 @@ export interface DeleteTeamuserRequest {
     userId: string;
 }
 
+export interface PostTeamRequest {
+    upsertTeamDto: UpsertTeamDto;
+}
+
 export interface PostTeamUserRequest {
     teamId: string;
     upsertTeamUserDto: UpsertTeamUserDto;
+}
+
+export interface PutTeamRequest {
+    teamId: string;
+    upsertTeamDto: UpsertTeamDto;
 }
 
 /**
@@ -45,7 +60,7 @@ export class TeamsApi extends runtime.BaseAPI {
      * Removes a team user.
      * 
      */
-    async deleteTeamuserRaw(requestParameters: DeleteTeamuserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TeamsDto>> {
+    async deleteTeamuserRaw(requestParameters: DeleteTeamuserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TeamDto>> {
         if (requestParameters.teamId === null || requestParameters.teamId === undefined) {
             throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling deleteTeamuser.');
         }
@@ -69,14 +84,14 @@ export class TeamsApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => TeamsDtoFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => TeamDtoFromJSON(jsonValue));
     }
 
     /**
      * Removes a team user.
      * 
      */
-    async deleteTeamuser(teamId: string, userId: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TeamsDto> {
+    async deleteTeamuser(teamId: string, userId: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TeamDto> {
         const response = await this.deleteTeamuserRaw({ teamId: teamId, userId: userId }, initOverrides);
         return await response.value();
     }
@@ -114,10 +129,49 @@ export class TeamsApi extends runtime.BaseAPI {
     }
 
     /**
+     * Creates a team.
+     * 
+     */
+    async postTeamRaw(requestParameters: PostTeamRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TeamDto>> {
+        if (requestParameters.upsertTeamDto === null || requestParameters.upsertTeamDto === undefined) {
+            throw new runtime.RequiredError('upsertTeamDto','Required parameter requestParameters.upsertTeamDto was null or undefined when calling postTeam.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/teams`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: UpsertTeamDtoToJSON(requestParameters.upsertTeamDto),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => TeamDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Creates a team.
+     * 
+     */
+    async postTeam(upsertTeamDto: UpsertTeamDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TeamDto> {
+        const response = await this.postTeamRaw({ upsertTeamDto: upsertTeamDto }, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Sets a team user.
      * 
      */
-    async postTeamUserRaw(requestParameters: PostTeamUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TeamsDto>> {
+    async postTeamUserRaw(requestParameters: PostTeamUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TeamDto>> {
         if (requestParameters.teamId === null || requestParameters.teamId === undefined) {
             throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling postTeamUser.');
         }
@@ -144,15 +198,58 @@ export class TeamsApi extends runtime.BaseAPI {
             body: UpsertTeamUserDtoToJSON(requestParameters.upsertTeamUserDto),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => TeamsDtoFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => TeamDtoFromJSON(jsonValue));
     }
 
     /**
      * Sets a team user.
      * 
      */
-    async postTeamUser(teamId: string, upsertTeamUserDto: UpsertTeamUserDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TeamsDto> {
+    async postTeamUser(teamId: string, upsertTeamUserDto: UpsertTeamUserDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TeamDto> {
         const response = await this.postTeamUserRaw({ teamId: teamId, upsertTeamUserDto: upsertTeamUserDto }, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Updates a team.
+     * 
+     */
+    async putTeamRaw(requestParameters: PutTeamRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TeamDto>> {
+        if (requestParameters.teamId === null || requestParameters.teamId === undefined) {
+            throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling putTeam.');
+        }
+
+        if (requestParameters.upsertTeamDto === null || requestParameters.upsertTeamDto === undefined) {
+            throw new runtime.RequiredError('upsertTeamDto','Required parameter requestParameters.upsertTeamDto was null or undefined when calling putTeam.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/teams/{teamId}`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))),
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: UpsertTeamDtoToJSON(requestParameters.upsertTeamDto),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => TeamDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Updates a team.
+     * 
+     */
+    async putTeam(teamId: string, upsertTeamDto: UpsertTeamDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TeamDto> {
+        const response = await this.putTeamRaw({ teamId: teamId, upsertTeamDto: upsertTeamDto }, initOverrides);
         return await response.value();
     }
 

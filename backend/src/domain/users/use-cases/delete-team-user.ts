@@ -38,13 +38,15 @@ export class DeleteTeamUserHandler implements ICommandHandler<DeleteTeamUser, De
       throw new BadRequestException('You cannot remove yourself');
     }
 
-    const result = await this.teamUsers.delete({ teamId: id, userId });
-    if (!result.affected) {
+    const { affected } = await this.teamUsers.delete({ teamId: id, userId });
+    if (!affected) {
       throw new NotFoundException(`Team User ${id}, ${userId} not found.`);
     }
 
     // Reload the team to ge tupdates relations.
     const updated = await this.teams.findOne({ where: { id }, relations: ['users', 'users.user'] });
-    return new DeleteTeamUserResponse(buildTeam(updated));
+    const response = buildTeam(updated);
+
+    return new DeleteTeamUserResponse(response);
   }
 }

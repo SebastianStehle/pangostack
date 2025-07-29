@@ -3,7 +3,7 @@ import { useTransientNavigate } from 'src/hooks';
 import { AuthApi, Configuration, DeploymentsApi, Middleware, ServicesApi, SettingsApi, TeamsApi, UsersApi } from './generated';
 export * from './generated';
 
-export function useApi() {
+export function useClients() {
   const navigate = useTransientNavigate();
 
   return useMemo(() => {
@@ -32,9 +32,9 @@ export function useApi() {
 
 export class AppClient {
   public readonly auth: AuthApi;
-  public readonly deploymentsApi: DeploymentsApi;
-  public readonly teamsApi: TeamsApi;
-  public readonly servicesApi: ServicesApi;
+  public readonly deployments: DeploymentsApi;
+  public readonly teams: TeamsApi;
+  public readonly services: ServicesApi;
   public readonly settings: SettingsApi;
   public readonly users: UsersApi;
 
@@ -48,11 +48,11 @@ export class AppClient {
   ) {
     this.auth = new AuthApi(configuration).withMiddleware(middleware);
 
-    this.deploymentsApi = new DeploymentsApi(configuration).withMiddleware(middleware);
+    this.deployments = new DeploymentsApi(configuration).withMiddleware(middleware);
 
-    this.servicesApi = new ServicesApi(configuration).withMiddleware(middleware);
+    this.services = new ServicesApi(configuration).withMiddleware(middleware);
 
-    this.teamsApi = new TeamsApi(configuration).withMiddleware(middleware);
+    this.teams = new TeamsApi(configuration).withMiddleware(middleware);
 
     this.settings = new SettingsApi(configuration).withMiddleware(middleware);
 

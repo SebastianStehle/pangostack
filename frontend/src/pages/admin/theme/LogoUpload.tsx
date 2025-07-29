@@ -1,21 +1,20 @@
 import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { useApi } from 'src/api';
+import { useClients } from 'src/api';
 import { Alert, Forms, Logo } from 'src/components';
 import { useTheme } from 'src/hooks';
 import { buildError } from 'src/lib';
 import { texts } from 'src/texts';
 
 export function LogoUpload() {
-  const api = useApi();
-
+  const clients = useClients();
   const { refetch, setTheme } = useTheme();
   const [logo, setLogo] = useState<File | undefined>(undefined);
 
   const updating = useMutation({
     mutationFn: (request: File) => {
-      return api.settings.postLogo(request);
+      return clients.settings.postLogo(request);
     },
     onSuccess: () => {
       refetch();
@@ -45,7 +44,7 @@ export function LogoUpload() {
 
       <div className="flex flex-row items-center gap-8">
         <div className="relative">
-          <Logo size="6rem" baseUrl={api.url} file={logo} />
+          <Logo size="6rem" baseUrl={clients.url} file={logo} />
         </div>
 
         <div className="divider divider-horizontal"></div>

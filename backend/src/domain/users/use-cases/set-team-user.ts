@@ -29,7 +29,7 @@ export class SetTeamUserHandler implements ICommandHandler<SetTeamUser, any> {
     private readonly teamUsers: TeamUserRepository,
   ) {}
 
-  async execute(command: SetTeamUser): Promise<any> {
+  async execute(command: SetTeamUser): Promise<SetTeamUserResponse> {
     const { id, role, user, userId } = command;
 
     const team = await this.teams.findOne({ where: { id }, relations: ['users', 'users.user'] });
@@ -60,6 +60,8 @@ export class SetTeamUserHandler implements ICommandHandler<SetTeamUser, any> {
 
     // Reload the team to ge tupdates relations.
     const updated = await this.teams.findOne({ where: { id }, relations: ['users', 'users.user'] });
-    return new SetTeamUserResponse(buildTeam(updated));
+    const result = buildTeam(updated);
+
+    return new SetTeamUserResponse(result);
   }
 }

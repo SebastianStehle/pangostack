@@ -17,8 +17,8 @@ export class DeleteUserHandler implements ICommandHandler<DeleteUser, any> {
   async execute(command: DeleteUser): Promise<any> {
     const { id } = command;
 
-    const result = await this.users.delete({ id });
-    if (!result.affected) {
+    const { affected } = await this.users.delete({ id });
+    if (!affected) {
       throw new NotFoundException(`User ${id} not found.`);
     }
   }

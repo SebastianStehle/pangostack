@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { useApi, UserGroupDto } from 'src/api';
+import { useClients, UserGroupDto } from 'src/api';
 import { Icon, Page } from 'src/components';
 import { useEventCallback } from 'src/hooks';
 import { formatBoolean } from 'src/lib';
@@ -10,16 +10,15 @@ import { UpdateUserGroupDialog } from './UpdateUserGroupDialog';
 import { useUserGroupsStore } from './state';
 
 export function UserGroupsPage() {
-  const api = useApi();
+  const clients = useClients();
 
   const { removeUserGroup, setUserGroup, setUserGroups, userGroups } = useUserGroupsStore();
-
   const [toCreate, setToCreate] = useState<boolean>();
   const [toUpdate, setToUpdate] = useState<UserGroupDto | null>(null);
 
   const { data: loadedGroups, isFetched } = useQuery({
     queryKey: ['userGroups'],
-    queryFn: () => api.users.getUserGroups(),
+    queryFn: () => clients.users.getUserGroups(),
   });
 
   useEffect(() => {

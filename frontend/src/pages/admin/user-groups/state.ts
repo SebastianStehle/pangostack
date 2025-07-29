@@ -1,7 +1,5 @@
 import { create } from 'zustand';
-import { ExtensionDto, ExtensionSpecDto, UserGroupDto } from 'src/api';
-
-export type ExtensionWithSpec = { extension: ExtensionDto; spec: ExtensionSpecDto };
+import { UserGroupDto } from 'src/api';
 
 interface UserGroupssState {
   // The user groups.

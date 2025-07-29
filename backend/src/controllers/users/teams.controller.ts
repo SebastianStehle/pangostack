@@ -1,18 +1,22 @@
-import { Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOkResponse, ApiOperation, ApiParam, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
 import { BUILTIN_USER_GROUP_DEFAULT } from 'src/domain/database';
 import {
+  CreateTeam,
+  CreateTeamResponse,
   DeleteTeamUser,
   DeleteTeamUserResponse,
   GetTeams,
   GetTeamsResponse,
   SetTeamUser,
   SetTeamUserResponse,
+  UpdateTeam,
+  UpdateTeamResponse,
 } from 'src/domain/users';
-import { TeamDto, TeamsDto, UpsertTeamUserDto } from './dtos';
+import { TeamDto, TeamsDto, UpsertTeamDto, UpsertTeamUserDto } from './dtos';
 
 @Controller('teams')
 @ApiTags('teams')
@@ -29,10 +33,41 @@ export class TeamsController {
   @ApiOkResponse({ type: TeamsDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard)
-  async getTeams() {
-    const result: GetTeamsResponse = await this.queryBus.execute(new GetTeams());
+  async getTeams(@Req() req: Request) {
+    const result: GetTeamsResponse = await this.queryBus.execute(new GetTeams(req.user));
 
     return TeamsDto.fromDomain(result.teams);
+  }
+
+  @Post('')
+  @ApiOperation({ operationId: 'postTeam', description: 'Creates a team.' })
+  @ApiOkResponse({ type: TeamDto })
+  @Role(BUILTIN_USER_GROUP_DEFAULT)
+  @UseGuards(RoleGuard)
+  async postTeam(@Req() req: Request, @Body() body: UpsertTeamDto) {
+    const command = new CreateTeam(body, req.user);
+
+    const result: CreateTeamResponse = await this.commandBus.execute(command);
+
+    return TeamDto.fromDomain(result.team);
+  }
+
+  @Put(':teamId')
+  @ApiOperation({ operationId: 'putTeam', description: 'Updates a team.' })
+  @ApiParam({
+    name: 'teamId',
+    description: 'The ID of the team.',
+    required: true,
+  })
+  @ApiOkResponse({ type: TeamDto })
+  @Role(BUILTIN_USER_GROUP_DEFAULT)
+  @UseGuards(RoleGuard)
+  async putTeam(@Param('teamId') teamId: string, @Body() body: UpsertTeamDto) {
+    const command = new UpdateTeam(+teamId, body);
+
+    const result: UpdateTeamResponse = await this.commandBus.execute(command);
+
+    return TeamDto.fromDomain(result.team);
   }
 
   @Post(':teamId/users')
@@ -42,7 +77,7 @@ export class TeamsController {
     description: 'The ID of the team.',
     required: true,
   })
-  @ApiOkResponse({ type: TeamsDto })
+  @ApiOkResponse({ type: TeamDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard)
   async postTeamUser(@Req() req: Request, @Param('teamId') teamId: string, @Body() body: UpsertTeamUserDto) {
@@ -60,7 +95,7 @@ export class TeamsController {
     required: true,
   })
   @ApiOperation({ operationId: 'deleteTeamuser', description: 'Removes a team user.' })
-  @ApiOkResponse({ type: TeamsDto })
+  @ApiOkResponse({ type: TeamDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard)
   async deleteTeamUser(@Req() req: Request, @Param('teamId') teamId: string, @Param('userId') userId: string) {

@@ -52,7 +52,7 @@ export class ServicesController {
 
   @Get('public')
   @ApiOperation({ operationId: 'getServicesPublic', description: 'Gets all services for end users.' })
-  @ApiOkResponse({ type: ServicesDto })
+  @ApiOkResponse({ type: ServicesPublicDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard)
   async getServicesPublic() {

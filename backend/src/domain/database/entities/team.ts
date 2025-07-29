@@ -12,7 +12,7 @@ export class TeamEntity {
   @Column({ length: 100 })
   name: string;
 
-  @OneToMany(() => TeamUserEntity, (user) => user.user)
+  @OneToMany(() => TeamUserEntity, (user) => user.team)
   users: TeamUserEntity[];
 
   @OneToMany(() => DeploymentEntity, (deployment) => deployment.team)

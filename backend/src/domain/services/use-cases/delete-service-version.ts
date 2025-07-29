@@ -17,8 +17,8 @@ export class DeleteServiceVersionHandler implements ICommandHandler<DeleteServic
   async execute(command: DeleteServiceVersion): Promise<any> {
     const { id } = command;
 
-    const result = await this.serviceVersions.delete({ id });
-    if (!result.affected) {
+    const { affected } = await this.serviceVersions.delete({ id });
+    if (!affected) {
       throw new NotFoundException(`Service ${id} not found.`);
     }
   }
