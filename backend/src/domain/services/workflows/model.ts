@@ -34,11 +34,15 @@ export class ParameterDefinition {
 
   @IsOptional()
   @IsString()
+  label?: string;
+
+  @IsOptional()
+  @IsString()
   hint?: string;
 
   @IsOptional()
   @IsNumber()
-  default?: number;
+  defaultValue?: any;
 
   @IsOptional()
   @IsArray()
@@ -52,6 +56,10 @@ export class ParameterDefinition {
   @IsOptional()
   @IsNumber()
   maxValue?: number;
+
+  @IsOptional()
+  @IsNumber()
+  step?: number;
 
   @IsOptional()
   @IsNumber()
@@ -92,7 +100,11 @@ export class UsageDefinition {
 
   @IsDefined()
   @IsString()
-  totalMembery: string;
+  totalMemory: string;
+
+  @IsDefined()
+  @IsString()
+  totalVolumeSize: string;
 
   @IsDefined()
   @IsString()

@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { TransientNavLink } from 'src/components';
 import { texts } from 'src/texts';
 import { BillingPage } from './billing/BillingPage';
+import { DeployPage } from './deploy/DeployPage';
 import { DeploymentPage } from './deployment/DeploymentPage';
 import { DeploymentsPage } from './deployments/DeploymentsPage';
 import { MembersPage } from './members/MembersPage';
@@ -50,6 +51,7 @@ export function TeamPage() {
         <div className="card-body p-8">
           <Routes>
             <Route path="billing" element={<BillingPage />} />
+            <Route path="deploy" element={<DeployPage />} />
             <Route path="deployments" element={<DeploymentsPage />} />
             <Route path="deployments/:deploymentId" element={<DeploymentPage />} />
             <Route path="members" element={<MembersPage />} />

@@ -79,13 +79,13 @@ export interface ServiceDto {
      * @type {number}
      * @memberof ServiceDto
      */
-    pricePerStorageGbHour: number;
+    pricePerStorageGbMonth: number;
     /**
      * The price per Disk in GB and hour in the selected currency.
      * @type {number}
      * @memberof ServiceDto
      */
-    pricePerDiskGbHour: number;
+    pricePerVolumeGbHour: number;
     /**
      * The additional fixed price.
      * @type {number}
@@ -119,8 +119,8 @@ export function instanceOfServiceDto(value: object): boolean {
     isInstance = isInstance && "currency" in value;
     isInstance = isInstance && "pricePerCpuHour" in value;
     isInstance = isInstance && "pricePerMemoryGbHour" in value;
-    isInstance = isInstance && "pricePerStorageGbHour" in value;
-    isInstance = isInstance && "pricePerDiskGbHour" in value;
+    isInstance = isInstance && "pricePerStorageGbMonth" in value;
+    isInstance = isInstance && "pricePerVolumeGbHour" in value;
     isInstance = isInstance && "fixedPrice" in value;
     isInstance = isInstance && "isActive" in value;
     isInstance = isInstance && "isPublic" in value;
@@ -147,8 +147,8 @@ export function ServiceDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         'currency': json['currency'],
         'pricePerCpuHour': json['pricePerCpuHour'],
         'pricePerMemoryGbHour': json['pricePerMemoryGbHour'],
-        'pricePerStorageGbHour': json['pricePerStorageGbHour'],
-        'pricePerDiskGbHour': json['pricePerDiskGbHour'],
+        'pricePerStorageGbMonth': json['pricePerStorageGbMonth'],
+        'pricePerVolumeGbHour': json['pricePerVolumeGbHour'],
         'fixedPrice': json['fixedPrice'],
         'isActive': json['isActive'],
         'isPublic': json['isPublic'],
@@ -173,8 +173,8 @@ export function ServiceDtoToJSON(value?: ServiceDto | null): any {
         'currency': value.currency,
         'pricePerCpuHour': value.pricePerCpuHour,
         'pricePerMemoryGbHour': value.pricePerMemoryGbHour,
-        'pricePerStorageGbHour': value.pricePerStorageGbHour,
-        'pricePerDiskGbHour': value.pricePerDiskGbHour,
+        'pricePerStorageGbMonth': value.pricePerStorageGbMonth,
+        'pricePerVolumeGbHour': value.pricePerVolumeGbHour,
         'fixedPrice': value.fixedPrice,
         'isActive': value.isActive,
         'isPublic': value.isPublic,

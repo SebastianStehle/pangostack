@@ -31,9 +31,9 @@ export function buildServicePublic(
     fixedPrice,
     name,
     pricePerCpuHour,
-    pricePerDiskGbHour,
+    pricePerVolumeGbHour,
     pricePerMemoryGbHour,
-    pricePerStorageGbHour,
+    pricePerStorageGbMonth,
   } = source;
 
   return {
@@ -44,10 +44,11 @@ export function buildServicePublic(
     name,
     parameters: definition.parameters,
     pricePerCpuHour,
-    pricePerDiskGbHour,
+    pricePerVolumeGbHour: pricePerVolumeGbHour,
     pricePerMemoryGbHour,
-    pricePerStorageGbHour,
+    pricePerStorageGbMonth,
     version: version.name,
+    usage: definition.usage,
   };
 }
 
@@ -61,9 +62,9 @@ export function buildService(source: ServiceEntity): Service {
     isPublic,
     name,
     pricePerCpuHour,
-    pricePerDiskGbHour,
+    pricePerVolumeGbHour,
     pricePerMemoryGbHour,
-    pricePerStorageGbHour,
+    pricePerStorageGbMonth,
   } = source;
 
   const versions = source.versions || [];
@@ -87,8 +88,8 @@ export function buildService(source: ServiceEntity): Service {
     name,
     numDeployments: handledDeployments.size,
     pricePerCpuHour,
-    pricePerDiskGbHour,
+    pricePerVolumeGbHour,
     pricePerMemoryGbHour,
-    pricePerStorageGbHour,
+    pricePerStorageGbMonth,
   };
 }

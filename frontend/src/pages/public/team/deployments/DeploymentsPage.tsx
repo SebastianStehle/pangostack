@@ -1,3 +1,12 @@
+import { Icon, TransientNavLink } from 'src/components';
+import { texts } from 'src/texts';
+
 export const DeploymentsPage = () => {
-  return <h2>Deployments</h2>;
+  return (
+    <div>
+      <TransientNavLink to="../deploy" className="btn btn-success">
+        <Icon icon="plus" /> {texts.deployments.create}
+      </TransientNavLink>
+    </div>
+  );
 };

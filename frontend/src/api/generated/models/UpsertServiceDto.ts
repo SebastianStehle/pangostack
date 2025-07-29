@@ -61,13 +61,13 @@ export interface UpsertServiceDto {
      * @type {number}
      * @memberof UpsertServiceDto
      */
-    pricePerStorageGbHour: number;
+    pricePerStorageGbMonth: number;
     /**
      * The price per Disk in GB and hour in the selected currency.
      * @type {number}
      * @memberof UpsertServiceDto
      */
-    pricePerDiskGbHour: number;
+    pricePerVolumeGbHour: number;
     /**
      * The additional fixed price.
      * @type {number}
@@ -93,8 +93,8 @@ export function instanceOfUpsertServiceDto(value: object): boolean {
     isInstance = isInstance && "currency" in value;
     isInstance = isInstance && "pricePerCpuHour" in value;
     isInstance = isInstance && "pricePerMemoryGbHour" in value;
-    isInstance = isInstance && "pricePerStorageGbHour" in value;
-    isInstance = isInstance && "pricePerDiskGbHour" in value;
+    isInstance = isInstance && "pricePerStorageGbMonth" in value;
+    isInstance = isInstance && "pricePerVolumeGbHour" in value;
     isInstance = isInstance && "fixedPrice" in value;
     isInstance = isInstance && "isPublic" in value;
 
@@ -117,8 +117,8 @@ export function UpsertServiceDtoFromJSONTyped(json: any, ignoreDiscriminator: bo
         'currency': json['currency'],
         'pricePerCpuHour': json['pricePerCpuHour'],
         'pricePerMemoryGbHour': json['pricePerMemoryGbHour'],
-        'pricePerStorageGbHour': json['pricePerStorageGbHour'],
-        'pricePerDiskGbHour': json['pricePerDiskGbHour'],
+        'pricePerStorageGbMonth': json['pricePerStorageGbMonth'],
+        'pricePerVolumeGbHour': json['pricePerVolumeGbHour'],
         'fixedPrice': json['fixedPrice'],
         'isPublic': json['isPublic'],
     };
@@ -139,8 +139,8 @@ export function UpsertServiceDtoToJSON(value?: UpsertServiceDto | null): any {
         'currency': value.currency,
         'pricePerCpuHour': value.pricePerCpuHour,
         'pricePerMemoryGbHour': value.pricePerMemoryGbHour,
-        'pricePerStorageGbHour': value.pricePerStorageGbHour,
-        'pricePerDiskGbHour': value.pricePerDiskGbHour,
+        'pricePerStorageGbMonth': value.pricePerStorageGbMonth,
+        'pricePerVolumeGbHour': value.pricePerVolumeGbHour,
         'fixedPrice': value.fixedPrice,
         'isPublic': value.isPublic,
     };

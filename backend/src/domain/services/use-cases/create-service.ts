@@ -32,9 +32,9 @@ export class CreateServiceHandler implements ICommandHandler<CreateService, Crea
       isPublic,
       name,
       pricePerCpuHour,
-      pricePerDiskGbHour,
+      pricePerVolumeGbHour,
       pricePerMemoryGbHour,
-      pricePerStorageGbHour,
+      pricePerStorageGbMonth,
     } = values;
 
     const entity = this.services.create();
@@ -48,9 +48,9 @@ export class CreateServiceHandler implements ICommandHandler<CreateService, Crea
       isPublic,
       name,
       pricePerCpuHour,
-      pricePerDiskGbHour,
+      pricePerVolumeGbHour,
       pricePerMemoryGbHour,
-      pricePerStorageGbHour,
+      pricePerStorageGbMonth,
     });
 
     // Use the save method otherwise we would not get previous values.

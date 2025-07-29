@@ -143,7 +143,7 @@ export class UpsertServiceDto {
   })
   @IsDefined()
   @IsNumber()
-  pricePerStorageGbHour: number;
+  pricePerStorageGbMonth: number;
 
   @ApiProperty({
     description: 'The price per Disk in GB and hour in the selected currency.',
@@ -151,7 +151,7 @@ export class UpsertServiceDto {
   })
   @IsDefined()
   @IsNumber()
-  pricePerDiskGbHour: number;
+  pricePerVolumeGbHour: number;
 
   @ApiProperty({
     description: 'The additional fixed price.',
@@ -231,13 +231,13 @@ export class ServiceDto {
     description: 'The price per Storage in GB and hour in the selected currency.',
     required: true,
   })
-  pricePerStorageGbHour: number;
+  pricePerStorageGbMonth: number;
 
   @ApiProperty({
     description: 'The price per Disk in GB and hour in the selected currency.',
     required: true,
   })
-  pricePerDiskGbHour: number;
+  pricePerVolumeGbHour: number;
 
   @ApiProperty({
     description: 'The additional fixed price.',
@@ -270,9 +270,9 @@ export class ServiceDto {
     result.name = source.name;
     result.numDeployments = source.numDeployments;
     result.pricePerCpuHour = source.pricePerCpuHour;
-    result.pricePerDiskGbHour = source.pricePerDiskGbHour;
+    result.pricePerVolumeGbHour = source.pricePerVolumeGbHour;
     result.pricePerMemoryGbHour = source.pricePerMemoryGbHour;
-    result.pricePerStorageGbHour = source.pricePerStorageGbHour;
+    result.pricePerStorageGbMonth = source.pricePerStorageGbMonth;
     return result;
   }
 }
@@ -443,6 +443,12 @@ export class ParameterDefinitionDto {
   required: boolean;
 
   @ApiProperty({
+    description: 'Gives the parameter a readable name.',
+    required: false,
+  })
+  label?: string;
+
+  @ApiProperty({
     description: 'Describes the parameter.',
     required: false,
   })
@@ -452,7 +458,7 @@ export class ParameterDefinitionDto {
     description: 'The default value of the parameter.',
     required: false,
   })
-  default?: number;
+  defaultValue?: any;
 
   @ApiProperty({
     description: 'Allowed values for the parameter.',
@@ -480,6 +486,12 @@ export class ParameterDefinitionDto {
   minLength?: number;
 
   @ApiProperty({
+    description: 'The step when the control is a slider.',
+    required: false,
+  })
+  step?: number;
+
+  @ApiProperty({
     description: 'Maximum length for string parameters.',
     required: false,
   })
@@ -495,13 +507,15 @@ export class ParameterDefinitionDto {
     const result = new ParameterDefinitionDto();
     result.name = source.name;
     result.allowedValues = source.allowedValues;
-    result.default = source.default;
+    result.defaultValue = source.defaultValue;
+    result.label = source.label;
     result.maxLength = source.maxLength;
     result.maxValue = source.maxValue;
     result.minLength = source.minLength;
     result.minValue = source.minValue;
     result.required = source.required;
     result.section = source.section;
+    result.step = source.step;
     result.type = source.type;
     return result;
   }
@@ -554,13 +568,13 @@ export class ServicePublicDto {
     description: 'The price per Storage in GB and hour in the selected currency.',
     required: true,
   })
-  pricePerStorageGbHour: number;
+  pricePerStorageGbMonth: number;
 
   @ApiProperty({
     description: 'The price per Disk in GB and hour in the selected currency.',
     required: true,
   })
-  pricePerDiskGbHour: number;
+  pricePerVolumeGbHour: number;
 
   @ApiProperty({
     description: 'The additional fixed price.',
@@ -575,6 +589,30 @@ export class ServicePublicDto {
   })
   parameters: ParameterDefinitionDto[];
 
+  @ApiProperty({
+    description: 'The expression to calculate the total number of CPUs.',
+    required: true,
+  })
+  totalCpus: string;
+
+  @ApiProperty({
+    description: 'The expression to calculate the total memory.',
+    required: true,
+  })
+  totalMemory: string;
+
+  @ApiProperty({
+    description: 'The expression to calculate the total volume size.',
+    required: true,
+  })
+  totalVolumeSize: string;
+
+  @ApiProperty({
+    description: 'The expression to calculate the total storage.',
+    required: true,
+  })
+  totalStorage: string;
+
   static fromDomain(source: ServicePublic): ServicePublicDto {
     const result = new ServicePublicDto();
     result.id = source.id;
@@ -584,9 +622,13 @@ export class ServicePublicDto {
     result.name = source.name;
     result.parameters = source.parameters.map(ParameterDefinitionDto.fromDomain);
     result.pricePerCpuHour = source.pricePerCpuHour;
-    result.pricePerDiskGbHour = source.pricePerDiskGbHour;
+    result.pricePerVolumeGbHour = source.pricePerVolumeGbHour;
     result.pricePerMemoryGbHour = source.pricePerMemoryGbHour;
-    result.pricePerStorageGbHour = source.pricePerStorageGbHour;
+    result.pricePerStorageGbMonth = source.pricePerStorageGbMonth;
+    result.totalCpus = source.usage.totalCpus;
+    result.totalMemory = source.usage.totalMemory;
+    result.totalStorage = source.usage.totalStorage;
+    result.totalVolumeSize = source.usage.totalVolumeSize;
     result.version = source.version;
     return result;
   }

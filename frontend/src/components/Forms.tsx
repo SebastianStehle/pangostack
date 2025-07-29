@@ -79,11 +79,11 @@ export module Forms {
     return <FormDescription className={className} hints={hints} />;
   };
 
-  export const Row = (props: FormRowProps) => {
-    const { children, className, hideError, hints, name, label, required, vertical } = props;
+  export const Row = (props: FormRowProps & { aligned?: boolean }) => {
+    const { aligned, children, className, hideError, hints, name, label, required, vertical } = props;
 
     return vertical ? (
-      <div className={classNames('form-row flex flex-col', className)}>
+      <div className={classNames('form-row flex flex-col', className, { 'items-center': aligned })}>
         {label && (
           <label className="mb-1 text-sm font-semibold" htmlFor={name}>
             {label}
@@ -108,8 +108,8 @@ export module Forms {
         <FormDescription hints={hints} />
       </div>
     ) : (
-      <div className={classNames('form-row flex flex-row', className)}>
-        <label className="mt-3 w-48 shrink-0 text-sm font-semibold" htmlFor={name}>
+      <div className={classNames('form-row flex flex-row', className, { 'items-center': aligned })}>
+        <label className="my-3 w-48 shrink-0 text-sm font-semibold" htmlFor={name}>
           {label}
 
           {label && required && (
@@ -135,18 +135,18 @@ export module Forms {
     );
   };
 
-  export const Text = ({ className, placeholder, ...other }: FormEditorProps & HTMLProps<HTMLInputElement>) => {
+  export const Text = ({ className, ...other }: FormEditorProps & HTMLProps<HTMLInputElement>) => {
     return (
       <Forms.Row className={className} {...other}>
-        <InputText type="text" placeholder={placeholder} {...other} />
+        <InputText type="text" {...other} />
       </Forms.Row>
     );
   };
 
-  export const Url = ({ className, placeholder, ...other }: FormEditorProps & HTMLProps<HTMLInputElement>) => {
+  export const Url = ({ className, ...other }: FormEditorProps & HTMLProps<HTMLInputElement>) => {
     return (
       <Forms.Row className={className} {...other}>
-        <InputText type="url" placeholder={placeholder} {...other} />
+        <InputText type="url" {...other} />
       </Forms.Row>
     );
   };
@@ -159,42 +159,42 @@ export module Forms {
     );
   };
 
-  export const Tags = ({ className, placeholder, ...other }: FormEditorProps) => {
+  export const Tags = ({ className, ...other }: FormEditorProps) => {
     return (
       <Forms.Row className={className} {...other}>
-        <InputTags placeholder={placeholder} {...other} />
+        <InputTags {...other} />
       </Forms.Row>
     );
   };
 
-  export const Textarea = ({ className, placeholder, ...other }: FormEditorProps) => {
+  export const Textarea = ({ className, ...other }: FormEditorProps) => {
     return (
       <Forms.Row className={className} {...other}>
-        <InputTextarea placeholder={placeholder} {...other} />
+        <InputTextarea {...other} />
       </Forms.Row>
     );
   };
 
-  export const Number = ({ className, max, min, placeholder, ...other }: NumberFormEditorProps) => {
+  export const Number = ({ className, ...other }: NumberFormEditorProps) => {
     return (
       <Forms.Row className={className} {...other}>
-        <InputText type="number" placeholder={placeholder} max={max} min={min} {...other} />
+        <InputText type="number" {...other} />
       </Forms.Row>
     );
   };
 
-  export const Range = ({ className, max, min, ...other }: NumberFormEditorProps) => {
+  export const Range = ({ className, ...other }: NumberFormEditorProps) => {
     return (
-      <Forms.Row className={className} {...other}>
-        <InputRange max={max} min={min} {...other} />
+      <Forms.Row className={className} aligned={true} {...other}>
+        <InputRange {...other} />
       </Forms.Row>
     );
   };
 
-  export const Password = ({ className, placeholder, ...other }: FormEditorProps) => {
+  export const Password = ({ className, ...other }: FormEditorProps) => {
     return (
       <Forms.Row className={className} {...other}>
-        <InputText type="password" placeholder={placeholder} {...other} />
+        <InputText type="password" {...other} />
       </Forms.Row>
     );
   };
@@ -260,8 +260,8 @@ const InputRange = ({ className, name, ...other }: FormEditorProps & HTMLProps<H
   const { field, fieldState, formState } = useController({ name });
 
   return (
-    <div className="flex">
-      <div className="grow">
+    <div className="flex flex-row">
+      <div className="max-w-24 grow">
         <input
           type="range"
           id={name}

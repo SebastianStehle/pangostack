@@ -36,9 +36,9 @@ export class UpdateServiceHandler implements ICommandHandler<UpdateService, Upda
       isPublic,
       name,
       pricePerCpuHour,
-      pricePerDiskGbHour,
+      pricePerVolumeGbHour,
       pricePerMemoryGbHour,
-      pricePerStorageGbHour,
+      pricePerStorageGbMonth,
     } = values;
 
     const entity = await this.services.findOne({ where: { id }, relations: ['versions', 'versions.deploymentUpdates'] });
@@ -55,9 +55,9 @@ export class UpdateServiceHandler implements ICommandHandler<UpdateService, Upda
       isPublic,
       name,
       pricePerCpuHour,
-      pricePerDiskGbHour,
+      pricePerVolumeGbHour,
       pricePerMemoryGbHour,
-      pricePerStorageGbHour,
+      pricePerStorageGbMonth,
     });
 
     // Use the save method otherwise we would not get previous values.

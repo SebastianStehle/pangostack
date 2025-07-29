@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, Repository, UpdateDateColumn } from 'typeorm';
+import { DecimalToNumberTransformer } from 'src/lib';
 import { ServiceVersionEntity } from './service-version';
 
 export type ServiceRepository = Repository<ServiceEntity>;
@@ -20,19 +21,44 @@ export class ServiceEntity {
   @Column({ length: 10, default: 'USD' })
   currency: string = 'USD';
 
-  @Column({ default: 0 })
+  @Column('decimal', {
+    default: 0,
+    precision: 12,
+    scale: 4,
+    transformer: DecimalToNumberTransformer,
+  })
   pricePerCpuHour: number = 0;
 
-  @Column({ default: 0 })
+  @Column('decimal', {
+    default: 0,
+    precision: 12,
+    scale: 4,
+    transformer: DecimalToNumberTransformer,
+  })
   pricePerMemoryGbHour: number = 0;
 
-  @Column({ default: 0 })
-  pricePerStorageGbHour: number = 0;
+  @Column('decimal', {
+    default: 0,
+    precision: 12,
+    scale: 4,
+    transformer: DecimalToNumberTransformer,
+  })
+  pricePerStorageGbMonth: number = 0;
 
-  @Column({ default: 0 })
-  pricePerDiskGbHour: number = 0;
+  @Column('decimal', {
+    default: 0,
+    precision: 12,
+    scale: 4,
+    transformer: DecimalToNumberTransformer,
+  })
+  pricePerVolumeGbHour: number = 0;
 
-  @Column({ default: 0 })
+  @Column('decimal', {
+    default: 0,
+    precision: 12,
+    scale: 4,
+    transformer: DecimalToNumberTransformer,
+  })
   fixedPrice: number = 0;
 
   @Column({ default: true })

@@ -74,13 +74,13 @@ export interface ServicePublicDto {
      * @type {number}
      * @memberof ServicePublicDto
      */
-    pricePerStorageGbHour: number;
+    pricePerStorageGbMonth: number;
     /**
      * The price per Disk in GB and hour in the selected currency.
      * @type {number}
      * @memberof ServicePublicDto
      */
-    pricePerDiskGbHour: number;
+    pricePerVolumeGbHour: number;
     /**
      * The additional fixed price.
      * @type {number}
@@ -93,6 +93,30 @@ export interface ServicePublicDto {
      * @memberof ServicePublicDto
      */
     parameters: Array<ParameterDefinitionDto>;
+    /**
+     * The expression to calculate the total number of CPUs.
+     * @type {string}
+     * @memberof ServicePublicDto
+     */
+    totalCpus: string;
+    /**
+     * The expression to calculate the total memory.
+     * @type {string}
+     * @memberof ServicePublicDto
+     */
+    totalMemory: string;
+    /**
+     * The expression to calculate the total volume size.
+     * @type {string}
+     * @memberof ServicePublicDto
+     */
+    totalVolumeSize: string;
+    /**
+     * The expression to calculate the total storage.
+     * @type {string}
+     * @memberof ServicePublicDto
+     */
+    totalStorage: string;
 }
 
 /**
@@ -107,10 +131,14 @@ export function instanceOfServicePublicDto(value: object): boolean {
     isInstance = isInstance && "currency" in value;
     isInstance = isInstance && "pricePerCpuHour" in value;
     isInstance = isInstance && "pricePerMemoryGbHour" in value;
-    isInstance = isInstance && "pricePerStorageGbHour" in value;
-    isInstance = isInstance && "pricePerDiskGbHour" in value;
+    isInstance = isInstance && "pricePerStorageGbMonth" in value;
+    isInstance = isInstance && "pricePerVolumeGbHour" in value;
     isInstance = isInstance && "fixedPrice" in value;
     isInstance = isInstance && "parameters" in value;
+    isInstance = isInstance && "totalCpus" in value;
+    isInstance = isInstance && "totalMemory" in value;
+    isInstance = isInstance && "totalVolumeSize" in value;
+    isInstance = isInstance && "totalStorage" in value;
 
     return isInstance;
 }
@@ -132,10 +160,14 @@ export function ServicePublicDtoFromJSONTyped(json: any, ignoreDiscriminator: bo
         'currency': json['currency'],
         'pricePerCpuHour': json['pricePerCpuHour'],
         'pricePerMemoryGbHour': json['pricePerMemoryGbHour'],
-        'pricePerStorageGbHour': json['pricePerStorageGbHour'],
-        'pricePerDiskGbHour': json['pricePerDiskGbHour'],
+        'pricePerStorageGbMonth': json['pricePerStorageGbMonth'],
+        'pricePerVolumeGbHour': json['pricePerVolumeGbHour'],
         'fixedPrice': json['fixedPrice'],
         'parameters': ((json['parameters'] as Array<any>).map(ParameterDefinitionDtoFromJSON)),
+        'totalCpus': json['totalCpus'],
+        'totalMemory': json['totalMemory'],
+        'totalVolumeSize': json['totalVolumeSize'],
+        'totalStorage': json['totalStorage'],
     };
 }
 
@@ -155,10 +187,14 @@ export function ServicePublicDtoToJSON(value?: ServicePublicDto | null): any {
         'currency': value.currency,
         'pricePerCpuHour': value.pricePerCpuHour,
         'pricePerMemoryGbHour': value.pricePerMemoryGbHour,
-        'pricePerStorageGbHour': value.pricePerStorageGbHour,
-        'pricePerDiskGbHour': value.pricePerDiskGbHour,
+        'pricePerStorageGbMonth': value.pricePerStorageGbMonth,
+        'pricePerVolumeGbHour': value.pricePerVolumeGbHour,
         'fixedPrice': value.fixedPrice,
         'parameters': ((value.parameters as Array<any>).map(ParameterDefinitionDtoToJSON)),
+        'totalCpus': value.totalCpus,
+        'totalMemory': value.totalMemory,
+        'totalVolumeSize': value.totalVolumeSize,
+        'totalStorage': value.totalStorage,
     };
 }
 

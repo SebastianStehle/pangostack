@@ -39,6 +39,12 @@ export interface ParameterDefinitionDto {
      */
     required: boolean;
     /**
+     * Gives the parameter a readable name.
+     * @type {string}
+     * @memberof ParameterDefinitionDto
+     */
+    label?: string;
+    /**
      * Describes the parameter.
      * @type {string}
      * @memberof ParameterDefinitionDto
@@ -46,10 +52,10 @@ export interface ParameterDefinitionDto {
     hint?: string;
     /**
      * The default value of the parameter.
-     * @type {number}
+     * @type {object}
      * @memberof ParameterDefinitionDto
      */
-    _default?: number;
+    defaultValue?: object;
     /**
      * Allowed values for the parameter.
      * @type {Array<object>}
@@ -74,6 +80,12 @@ export interface ParameterDefinitionDto {
      * @memberof ParameterDefinitionDto
      */
     minLength?: number;
+    /**
+     * The step when the control is a slider.
+     * @type {number}
+     * @memberof ParameterDefinitionDto
+     */
+    step?: number;
     /**
      * Maximum length for string parameters.
      * @type {number}
@@ -125,12 +137,14 @@ export function ParameterDefinitionDtoFromJSONTyped(json: any, ignoreDiscriminat
         'name': json['name'],
         'type': json['type'],
         'required': json['required'],
+        'label': !exists(json, 'label') ? undefined : json['label'],
         'hint': !exists(json, 'hint') ? undefined : json['hint'],
-        '_default': !exists(json, 'default') ? undefined : json['default'],
+        'defaultValue': !exists(json, 'defaultValue') ? undefined : json['defaultValue'],
         'allowedValues': !exists(json, 'allowedValues') ? undefined : json['allowedValues'],
         'minValue': !exists(json, 'minValue') ? undefined : json['minValue'],
         'maxValue': !exists(json, 'maxValue') ? undefined : json['maxValue'],
         'minLength': !exists(json, 'minLength') ? undefined : json['minLength'],
+        'step': !exists(json, 'step') ? undefined : json['step'],
         'maxLength': !exists(json, 'maxLength') ? undefined : json['maxLength'],
         'section': !exists(json, 'section') ? undefined : json['section'],
     };
@@ -148,12 +162,14 @@ export function ParameterDefinitionDtoToJSON(value?: ParameterDefinitionDto | nu
         'name': value.name,
         'type': value.type,
         'required': value.required,
+        'label': value.label,
         'hint': value.hint,
-        'default': value._default,
+        'defaultValue': value.defaultValue,
         'allowedValues': value.allowedValues,
         'minValue': value.minValue,
         'maxValue': value.maxValue,
         'minLength': value.minLength,
+        'step': value.step,
         'maxLength': value.maxLength,
         'section': value.section,
     };

@@ -1,4 +1,4 @@
-import { ParameterDefinition } from './workflows/model';
+import { ParameterDefinition, UsageDefinition } from './workflows/model';
 
 export interface Deployment {
   // The ID of the deployment.
@@ -60,10 +60,10 @@ export interface Service {
   pricePerMemoryGbHour: number;
 
   // The price per Storage in GB and hour in the selected currency.
-  pricePerStorageGbHour: number;
+  pricePerStorageGbMonth: number;
 
   // The price per Disk in GB and hour in the selected currency.
-  pricePerDiskGbHour: number;
+  pricePerVolumeGbHour: number;
 
   // The additional fixed price.
   fixedPrice: number;
@@ -98,14 +98,17 @@ export interface ServicePublic {
   pricePerMemoryGbHour: number;
 
   // The price per Storage in GB and hour in the selected currency.
-  pricePerStorageGbHour: number;
+  pricePerStorageGbMonth: number;
 
   // The price per Disk in GB and hour in the selected currency.
-  pricePerDiskGbHour: number;
+  pricePerVolumeGbHour: number;
 
   // The additional fixed price.
   fixedPrice: number;
 
   // The parameters.
   parameters: ParameterDefinition[];
+
+  // The usage definition.
+  usage: UsageDefinition;
 }
