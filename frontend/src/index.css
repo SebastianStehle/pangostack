@@ -144,4 +144,8 @@
   .dropdown-menu {
     @apply menu rounded-box border-gray-200 border-[1px] bg-base-100 p-2 shadow;
   }
+
+  .legend {
+    @apply mb-2 mt-8 text-lg font-semibold;
+  }
 }

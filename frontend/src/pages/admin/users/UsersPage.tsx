@@ -6,7 +6,7 @@ import { useEventCallback } from 'src/hooks';
 import { formatBoolean, formatTags } from 'src/lib';
 import { texts } from 'src/texts';
 import { CreateUserDialog } from './CreateUserDialog';
-import { UpdateUserDialog } from './UpdateUserDialog';
+import { UpdateUserDialog } from './UpsertUserDialog';
 import { useUsersStore } from './state';
 
 const EMPTY_USER_GROUPS: UserGroupDto[] = [];

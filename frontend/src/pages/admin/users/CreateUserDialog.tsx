@@ -39,9 +39,9 @@ export interface CreateUserDialogProps {
 
 export function CreateUserDialog(props: CreateUserDialogProps) {
   const { onClose, onCreate, userGroups } = props;
-
   const clients = useClients();
-  const updating = useMutation({
+
+  const creating = useMutation({
     mutationFn: (request: UpsertUserDto) => {
       return clients.users.postUser(request);
     },
@@ -59,12 +59,12 @@ export function CreateUserDialog(props: CreateUserDialogProps) {
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit((v) => updating.mutate(v))}>
+      <form onSubmit={form.handleSubmit((v) => creating.mutate(v))}>
         <Modal
           onClose={onClose}
           header={<div className="flex items-center gap-4">{texts.users.create}</div>}
           footer={
-            <fieldset disabled={updating.isPending}>
+            <fieldset disabled={creating.isPending}>
               <div className="flex flex-row justify-between">
                 <button type="button" className="btn btn-ghost" onClick={onClose}>
                   {texts.common.cancel}
@@ -77,8 +77,8 @@ export function CreateUserDialog(props: CreateUserDialogProps) {
             </fieldset>
           }
         >
-          <fieldset disabled={updating.isPending}>
-            <FormAlert common={texts.users.updateFailed} error={updating.error} />
+          <fieldset disabled={creating.isPending}>
+            <FormAlert common={texts.users.createFailed} error={creating.error} />
 
             <Forms.Text name="name" label={texts.common.name} required />
 

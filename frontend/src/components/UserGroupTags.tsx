@@ -14,8 +14,8 @@ export interface UserGroupTagsProps {
 
 export function UserGroupTags(props: UserGroupTagsProps) {
   const { name } = props;
-
   const clients = useClients();
+
   const { data: loadedGroups } = useQuery({
     queryKey: ['userGroups'],
     queryFn: () => clients.users.getUserGroups(),

@@ -51,7 +51,11 @@ export interface DeleteServiceVersionRequest {
 }
 
 export interface GetServiceVersionsRequest {
-    serviceId: string;
+    serviceId: number;
+}
+
+export interface PostServiceRequest {
+    upsertServiceDto: UpsertServiceDto;
 }
 
 export interface PostServiceVersionRequest {
@@ -60,7 +64,7 @@ export interface PostServiceVersionRequest {
 }
 
 export interface PutServiceRequest {
-    serviceId: string;
+    serviceId: number;
     upsertServiceDto: UpsertServiceDto;
 }
 
@@ -180,7 +184,7 @@ export class ServicesApi extends runtime.BaseAPI {
      * Gets all services versions.
      * 
      */
-    async getServiceVersions(serviceId: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ServiceVersionsDto> {
+    async getServiceVersions(serviceId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ServiceVersionsDto> {
         const response = await this.getServiceVersionsRaw({ serviceId: serviceId }, initOverrides);
         return await response.value();
     }
@@ -250,6 +254,45 @@ export class ServicesApi extends runtime.BaseAPI {
     }
 
     /**
+     * Creates a service.
+     * 
+     */
+    async postServiceRaw(requestParameters: PostServiceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ServiceDto>> {
+        if (requestParameters.upsertServiceDto === null || requestParameters.upsertServiceDto === undefined) {
+            throw new runtime.RequiredError('upsertServiceDto','Required parameter requestParameters.upsertServiceDto was null or undefined when calling postService.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/services`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: UpsertServiceDtoToJSON(requestParameters.upsertServiceDto),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ServiceDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Creates a service.
+     * 
+     */
+    async postService(upsertServiceDto: UpsertServiceDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ServiceDto> {
+        const response = await this.postServiceRaw({ upsertServiceDto: upsertServiceDto }, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Creates a service version.
      * 
      */
@@ -273,7 +316,7 @@ export class ServicesApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/services`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))),
+            path: `/services/{serviceId}/versions`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -330,7 +373,7 @@ export class ServicesApi extends runtime.BaseAPI {
      * Updates the service.
      * 
      */
-    async putService(serviceId: string, upsertServiceDto: UpsertServiceDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ServiceDto> {
+    async putService(serviceId: number, upsertServiceDto: UpsertServiceDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ServiceDto> {
         const response = await this.putServiceRaw({ serviceId: serviceId, upsertServiceDto: upsertServiceDto }, initOverrides);
         return await response.value();
     }

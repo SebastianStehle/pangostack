@@ -7,8 +7,11 @@ import { ControllerFieldState, FormState, useController } from 'react-hook-form'
 import { useEventCallback } from 'src/hooks';
 import { isString } from 'src/lib';
 import { texts } from 'src/texts';
+import { CodeEditor, CodeEditorProps } from './CodeEditor';
 import { FormControlError } from './FormControlError';
 import { Markdown } from './Markdown';
+import { MarkdownEditor } from './MarkdownEditor';
+import { NumberInput } from './NumberInput';
 
 export type FormEditorOption<T> = {
   // The value to select.
@@ -56,6 +59,14 @@ export interface NumberFormEditorProps extends FormEditorProps {
 
   // The steps.
   step?: number;
+}
+
+export interface CodeFormEditorProps extends FormEditorProps {
+  // The editor model.
+  mode: CodeEditorProps['mode'];
+
+  // The value mode.
+  valueMode: CodeEditorProps['valueMode'];
 }
 
 export interface OptionsFormEditorProps<T> extends FormEditorProps {
@@ -178,7 +189,7 @@ export module Forms {
   export const Number = ({ className, ...other }: NumberFormEditorProps) => {
     return (
       <Forms.Row className={className} {...other}>
-        <InputText type="number" {...other} />
+        <InputNumber {...other} />
       </Forms.Row>
     );
   };
@@ -187,6 +198,22 @@ export module Forms {
     return (
       <Forms.Row className={className} aligned={true} {...other}>
         <InputRange {...other} />
+      </Forms.Row>
+    );
+  };
+
+  export const Markdown = ({ className, ...other }: FormEditorProps) => {
+    return (
+      <Forms.Row className={className} {...other}>
+        <InputMarkdown {...other} />
+      </Forms.Row>
+    );
+  };
+
+  export const Code = ({ className, ...other }: CodeFormEditorProps) => {
+    return (
+      <Forms.Row className={className} {...other}>
+        <InputCode {...other} />
       </Forms.Row>
     );
   };
@@ -234,8 +261,21 @@ const InputText = ({ className, name, ...other }: FormEditorProps & HTMLProps<HT
   return (
     <input
       id={name}
-      {...other}
       {...field}
+      {...other}
+      className={classNames('input input-bordered w-full', className, { 'input-error': isInvalid(fieldState, formState) })}
+    />
+  );
+};
+
+const InputNumber = ({ className, name, ...other }: FormEditorProps & HTMLProps<HTMLInputElement>) => {
+  const { field, fieldState, formState } = useController({ name });
+
+  return (
+    <NumberInput
+      id={name}
+      {...field}
+      {...other}
       className={classNames('input input-bordered w-full', className, { 'input-error': isInvalid(fieldState, formState) })}
     />
   );
@@ -247,8 +287,8 @@ const InputTextarea = ({ className, name, ...other }: FormEditorProps) => {
   return (
     <textarea
       id={name}
-      {...other}
       {...field}
+      {...other}
       className={classNames('textarea textarea-bordered w-full', className, {
         'textarea-error': isInvalid(fieldState, formState),
       })}
@@ -352,6 +392,18 @@ const InputSelect = ({
       </select>
     </>
   );
+};
+
+const InputMarkdown = ({ name }: FormEditorProps) => {
+  const { field } = useController({ name });
+
+  return <MarkdownEditor id={name} {...field} />;
+};
+
+const InputCode = ({ name, ...other }: CodeFormEditorProps) => {
+  const { field } = useController({ name });
+
+  return <CodeEditor {...field} {...other} />;
 };
 
 const SET_UNDEFINED = '__UNDEFINED';

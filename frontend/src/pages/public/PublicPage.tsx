@@ -9,8 +9,8 @@ import { TeamCreatePage } from './team-create/TeamCreatePage';
 
 export function PublicPage() {
   const { theme } = useTheme();
-
   const clients = useClients();
+
   const { data: teams, isFetched } = useQuery({
     queryKey: ['teams'],
     queryFn: () => clients.teams.getTeams(),

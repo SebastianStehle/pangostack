@@ -8,6 +8,7 @@ import { texts } from 'src/texts';
 export function LoginPage() {
   const clients = useClients();
   const { theme } = useTheme();
+
   const { data: authSettings } = useQuery({
     queryKey: ['settings'],
     queryFn: () => clients.auth.getAuthSettings(),
@@ -53,6 +54,7 @@ export function LoginPage() {
 function LoginForm() {
   const clients = useClients();
   const navigate = useTransientNavigate();
+
   const login = useMutation({
     mutationFn: (request: LoginDto) => {
       return clients.auth.login(request);

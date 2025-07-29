@@ -109,9 +109,9 @@ export class UpsertServiceDto {
     type: Object,
     additionalProperties: { type: 'string' },
   })
-  @IsDefined()
+  @IsOptional()
   @IsObject()
-  environment: Record<string, string>;
+  environment?: Record<string, string>;
 
   @ApiProperty({
     description: 'The currency.',

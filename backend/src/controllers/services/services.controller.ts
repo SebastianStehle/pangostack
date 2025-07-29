@@ -79,6 +79,7 @@ export class ServicesController {
     name: 'serviceId',
     description: 'The ID of the service.',
     required: true,
+    type: 'number',
   })
   @ApiOkResponse({ type: ServiceDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
@@ -96,6 +97,7 @@ export class ServicesController {
     name: 'serviceId',
     description: 'The ID of the service.',
     required: true,
+    type: 'number',
   })
   @ApiNoContentResponse()
   @Role(BUILTIN_USER_GROUP_ADMIN)
@@ -112,6 +114,7 @@ export class ServicesController {
     name: 'serviceId',
     description: 'The ID of the service.',
     required: true,
+    type: 'number',
   })
   @ApiOkResponse({ type: ServiceVersionsDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
@@ -122,7 +125,7 @@ export class ServicesController {
     return ServiceVersionsDto.fromDomain(result.serviceVersions);
   }
 
-  @Post('')
+  @Post(':serviceId/versions')
   @ApiOperation({ operationId: 'postServiceVersion', description: 'Creates a service version.' })
   @ApiOkResponse({ type: ServiceDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
@@ -140,11 +143,13 @@ export class ServicesController {
     name: 'serviceId',
     description: 'The ID of the service.',
     required: true,
+    type: 'number',
   })
   @ApiParam({
     name: 'versionId',
     description: 'The ID of the service version.',
     required: true,
+    type: 'number',
   })
   @ApiOkResponse({ type: ServiceDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
@@ -162,11 +167,13 @@ export class ServicesController {
     name: 'serviceId',
     description: 'The ID of the service.',
     required: true,
+    type: 'number',
   })
   @ApiParam({
     name: 'versionId',
     description: 'The ID of the service version.',
     required: true,
+    type: 'number',
   })
   @ApiNoContentResponse()
   @Role(BUILTIN_USER_GROUP_ADMIN)

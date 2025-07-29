@@ -5,13 +5,11 @@ import { Icon, Page } from 'src/components';
 import { useEventCallback } from 'src/hooks';
 import { formatBoolean } from 'src/lib';
 import { texts } from 'src/texts';
-import { CreateUserGroupDialog } from './CreateUserGroupDialog';
-import { UpdateUserGroupDialog } from './UpdateUserGroupDialog';
+import { UpsertUserGroupDialog } from './UpsertUserGroupDialog';
 import { useUserGroupsStore } from './state';
 
 export function UserGroupsPage() {
   const clients = useClients();
-
   const { removeUserGroup, setUserGroup, setUserGroups, userGroups } = useUserGroupsStore();
   const [toCreate, setToCreate] = useState<boolean>();
   const [toUpdate, setToUpdate] = useState<UserGroupDto | null>(null);
@@ -73,9 +71,9 @@ export function UserGroupsPage() {
         </div>
       </div>
 
-      {toCreate && <CreateUserGroupDialog onClose={doClose} onCreate={setUserGroup} />}
+      {toCreate && <UpsertUserGroupDialog onClose={doClose} onUpsert={setUserGroup} />}
       {toUpdate && (
-        <UpdateUserGroupDialog onClose={doClose} onDelete={removeUserGroup} onUpdate={setUserGroup} target={toUpdate} />
+        <UpsertUserGroupDialog onClose={doClose} onDelete={removeUserGroup} onUpsert={setUserGroup} target={toUpdate} />
       )}
     </Page>
   );

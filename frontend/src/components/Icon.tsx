@@ -14,18 +14,22 @@ type IconType =
   | 'bird'
   | 'clipboard'
   | 'close'
+  | 'droplet'
   | 'edit'
   | 'external-link'
   | 'more-horizontal'
   | 'more-vertical'
+  | 'pie-chart'
   | 'plus'
   | 'refresh'
   | 'search'
+  | 'server'
   | 'terminal'
   | 'thumb-down'
   | 'thumb-up'
   | 'trash'
-  | 'user';
+  | 'user'
+  | 'users';
 
 export function Icon(props: IconProps) {
   const { className, icon, size } = props;
@@ -120,6 +124,23 @@ export function Icon(props: IconProps) {
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
       );
+    case 'droplet':
+      return (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+          width={actualSize}
+          height={actualSize}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+        </svg>
+      );
     case 'edit':
       return (
         <svg
@@ -195,6 +216,24 @@ export function Icon(props: IconProps) {
           <circle cx="12" cy="19" r="1"></circle>
         </svg>
       );
+    case 'pie-chart':
+      return (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+          width={actualSize}
+          height={actualSize}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+          <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+        </svg>
+      );
     case 'plus':
       return (
         <svg
@@ -247,6 +286,26 @@ export function Icon(props: IconProps) {
         >
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      );
+    case 'server':
+      return (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+          width={actualSize}
+          height={actualSize}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+          <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+          <line x1="6" y1="6" x2="6.01" y2="6"></line>
+          <line x1="6" y1="18" x2="6.01" y2="18"></line>
         </svg>
       );
     case 'terminal':
@@ -334,6 +393,26 @@ export function Icon(props: IconProps) {
         >
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
           <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+      );
+    case 'users':
+      return (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+          width={actualSize}
+          height={actualSize}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
         </svg>
       );
   }

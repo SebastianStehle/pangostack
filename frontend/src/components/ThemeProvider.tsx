@@ -8,8 +8,8 @@ const defaultTheme = { name: texts.common.appName };
 
 export function ThemeProvider(props: React.PropsWithChildren) {
   const { children } = props;
-
   const clientspi = useClients();
+
   const { data: loadedSettings, refetch } = useQuery({
     queryKey: ['theme'],
     queryFn: () => clientspi.settings.getSettings(),

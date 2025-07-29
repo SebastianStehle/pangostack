@@ -122,7 +122,7 @@ export function DeploymentForm(props: DeploymentFormProps) {
 
               {groupedParameters.map(([label, parameters]) => (
                 <section className="mb-4" key={label}>
-                  <legend className="mb-2 mt-8 text-lg">{label}</legend>
+                  <legend className="legend">{label}</legend>
                   {parameters.map((parameter) => (
                     <DeploymentControl key={parameter.name} parameter={parameter} />
                   ))}

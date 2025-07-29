@@ -58,6 +58,7 @@ export class TeamsController {
     name: 'teamId',
     description: 'The ID of the team.',
     required: true,
+    type: 'number',
   })
   @ApiOkResponse({ type: TeamDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
@@ -76,6 +77,7 @@ export class TeamsController {
     name: 'teamId',
     description: 'The ID of the team.',
     required: true,
+    type: 'number',
   })
   @ApiOkResponse({ type: TeamDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
@@ -93,6 +95,7 @@ export class TeamsController {
     name: 'teamId',
     description: 'The ID of the team.',
     required: true,
+    type: 'number',
   })
   @ApiOperation({ operationId: 'deleteTeamuser', description: 'Removes a team user.' })
   @ApiOkResponse({ type: TeamDto })

@@ -48,7 +48,7 @@ export interface Service {
   latestVersion?: string;
 
   // The environment settings.
-  environment: Record<string, string>;
+  environment?: Record<string, string>;
 
   // The currency.
   currency: string;

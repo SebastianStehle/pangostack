@@ -19,6 +19,7 @@ const RESOLVER = yupResolver<any>(SCHEME);
 
 export function ThemeForm() {
   const clients = useClients();
+
   const { data: settings } = useQuery({
     queryKey: ['editable-theme'],
     queryFn: () => clients.settings.getSettings(),

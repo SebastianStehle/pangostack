@@ -33,7 +33,7 @@ import {
 } from '../models/index';
 
 export interface DeleteTeamuserRequest {
-    teamId: string;
+    teamId: number;
     userId: string;
 }
 
@@ -42,12 +42,12 @@ export interface PostTeamRequest {
 }
 
 export interface PostTeamUserRequest {
-    teamId: string;
+    teamId: number;
     upsertTeamUserDto: UpsertTeamUserDto;
 }
 
 export interface PutTeamRequest {
-    teamId: string;
+    teamId: number;
     upsertTeamDto: UpsertTeamDto;
 }
 
@@ -91,7 +91,7 @@ export class TeamsApi extends runtime.BaseAPI {
      * Removes a team user.
      * 
      */
-    async deleteTeamuser(teamId: string, userId: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TeamDto> {
+    async deleteTeamuser(teamId: number, userId: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TeamDto> {
         const response = await this.deleteTeamuserRaw({ teamId: teamId, userId: userId }, initOverrides);
         return await response.value();
     }
@@ -205,7 +205,7 @@ export class TeamsApi extends runtime.BaseAPI {
      * Sets a team user.
      * 
      */
-    async postTeamUser(teamId: string, upsertTeamUserDto: UpsertTeamUserDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TeamDto> {
+    async postTeamUser(teamId: number, upsertTeamUserDto: UpsertTeamUserDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TeamDto> {
         const response = await this.postTeamUserRaw({ teamId: teamId, upsertTeamUserDto: upsertTeamUserDto }, initOverrides);
         return await response.value();
     }
@@ -248,7 +248,7 @@ export class TeamsApi extends runtime.BaseAPI {
      * Updates a team.
      * 
      */
-    async putTeam(teamId: string, upsertTeamDto: UpsertTeamDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TeamDto> {
+    async putTeam(teamId: number, upsertTeamDto: UpsertTeamDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TeamDto> {
         const response = await this.putTeamRaw({ teamId: teamId, upsertTeamDto: upsertTeamDto }, initOverrides);
         return await response.value();
     }

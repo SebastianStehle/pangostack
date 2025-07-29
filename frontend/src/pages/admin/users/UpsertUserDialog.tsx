@@ -27,7 +27,7 @@ const SCHEME = Yup.object({
 const RESOLVER = yupResolver<any>(SCHEME);
 
 export interface UpdateUserDialogProps {
-  // The extension.
+  // The user.
   target: UserDto;
 
   // The user groups.
@@ -45,8 +45,8 @@ export interface UpdateUserDialogProps {
 
 export function UpdateUserDialog(props: UpdateUserDialogProps) {
   const { onClose, onDelete, onUpdate, target, userGroups } = props;
-
   const clients = useClients();
+
   const updating = useMutation({
     mutationFn: (request: UpsertUserDto) => {
       return clients.users.putUser(target.id, request);
@@ -118,7 +118,7 @@ export function UpdateUserDialog(props: UpdateUserDialogProps) {
 
             <Forms.Tags name="roles" label={texts.common.roles} />
 
-            <hr className="my-6" />
+            <hr className="my-6 border-slate-300" />
 
             <Forms.Row name="danger" label={texts.common.dangerZone}>
               <ConfirmDialog

@@ -9,8 +9,8 @@ import { DeploymentForm } from './DeploymentForm';
 export const DeployPage = () => {
   const { teamId } = useParams();
   const [service, setService] = useState<ServicePublicDto>();
-
   const clients = useClients();
+
   const { data: services } = useQuery({
     queryKey: ['services-public'],
     queryFn: () => clients.services.getServicesPublic(),

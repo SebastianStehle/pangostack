@@ -34,6 +34,7 @@ import { CreateDeploymentDto, DeploymentDto, DeploymentsDto } from './dtos';
   name: 'teamId',
   description: 'The ID of the team.',
   required: true,
+  type: 'number',
 })
 @ApiTags('deployments')
 @ApiSecurity('x-api-key')
@@ -79,6 +80,7 @@ export class TeamDeploymentsController {
     name: 'deploymentId',
     description: 'The ID of the deployment.',
     required: true,
+    type: 'number',
   })
   @ApiOkResponse({ type: DeploymentDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
@@ -102,6 +104,7 @@ export class TeamDeploymentsController {
     name: 'deploymentId',
     description: 'The ID of the deployment.',
     required: true,
+    type: 'number',
   })
   @ApiOperation({ operationId: 'deleteDeployment', description: 'Delete a deployment.' })
   @ApiNoContentResponse()

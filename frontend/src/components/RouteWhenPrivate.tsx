@@ -4,8 +4,8 @@ import { useClients } from '../api';
 
 export function RouteWhenPrivate(props: React.PropsWithChildren) {
   const { children } = props;
-
   const clients = useClients();
+
   const { data: profile } = useQuery({
     queryKey: ['profile'],
     queryFn: () => clients.auth.getProfile(),

@@ -1,7 +1,5 @@
 import { create } from 'zustand';
-import { ExtensionDto, ExtensionSpecDto, UserDto } from 'src/api';
-
-export type ExtensionWithSpec = { extension: ExtensionDto; spec: ExtensionSpecDto };
+import { UserDto } from 'src/api';
 
 interface UsersState {
   // The users.

@@ -14,7 +14,7 @@ export interface ModalProps extends PropsWithChildren {
   onClose?: () => void;
 
   // The optional size.
-  size?: 'sm' | 'md';
+  size?: 'sm' | 'md' | 'lg';
 
   // True to choose a gray background.
   gray?: boolean;
@@ -29,6 +29,8 @@ export interface ModalProps extends PropsWithChildren {
 export function Modal(props: ModalProps) {
   const { asPortal, children, footer, header, gray, onClose, size } = props;
   const isSmall = size === 'sm';
+  const isMedium = size === 'md' || !size;
+  const isLarge = size === 'lg';
 
   const render = () => {
     return (
@@ -37,7 +39,7 @@ export function Modal(props: ModalProps) {
         <div
           className={classNames(
             'z-50 flex min-h-0 flex-col overflow-hidden rounded-xl bg-white shadow-xl',
-            { 'w-[750px]': !isSmall, 'mt-8 w-[450px]': isSmall },
+            { 'w-[900px]': isLarge, 'w-[750px]': isMedium, 'mt-8 w-[450px]': isSmall },
             classNames,
           )}
         >
@@ -50,7 +52,9 @@ export function Modal(props: ModalProps) {
               </button>
             </div>
           )}
-          <div className={classNames('grow overflow-y-auto px-8 py-8', { 'bg-gray-100': gray })}>{children}</div>
+          <div className={classNames('grow overflow-y-auto overflow-x-hidden px-8 py-8', { 'bg-gray-100': gray })}>
+            {children}
+          </div>
           {footer && (
             <div className="shrink-0 border-t-[1px] border-t-slate-200 p-6 px-8">
               <h2>{footer}</h2>

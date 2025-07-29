@@ -13,40 +13,44 @@ const SCHEME = Yup.object({
 
 const RESOLVER = yupResolver<any>(SCHEME);
 
-export interface UpdateUserGroupDialogProps {
-  // The extension.
-  target: UserGroupDto;
+export interface UpsertUserGroupDialogProps {
+  // The user group.
+  target?: UserGroupDto;
 
   // Invoked when cancelled.
   onClose: () => void;
 
   // Invoked when updated.
-  onUpdate: (userGroup: UserGroupDto) => void;
+  onUpsert: (userGroup: UserGroupDto) => void;
 
   // Invoked when deleted.
-  onDelete: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
-export function UpdateUserGroupDialog(props: UpdateUserGroupDialogProps) {
-  const { onClose, onDelete, onUpdate, target } = props;
-
+export function UpsertUserGroupDialog(props: UpsertUserGroupDialogProps) {
+  const { onClose, onDelete, onUpsert, target } = props;
   const clients = useClients();
+
   const updating = useMutation({
     mutationFn: (request: UpsertUserGroupDto) => {
-      return clients.users.putUserGroup(target.id, request);
+      if (target) {
+        return clients.users.putUserGroup(target.id, request);
+      } else {
+        return clients.users.postUserGroup(request);
+      }
     },
     onSuccess: (response) => {
-      onUpdate(response);
+      onUpsert(response);
       onClose();
     },
   });
 
   const deleting = useMutation({
     mutationFn: () => {
-      return clients.users.deleteUserGroup(target.id);
+      return clients.users.deleteUserGroup(target!.id);
     },
     onSuccess: () => {
-      onDelete(target.id);
+      onDelete?.(target!.id);
       onClose();
     },
   });
@@ -58,9 +62,9 @@ export function UpdateUserGroupDialog(props: UpdateUserGroupDialogProps) {
       <form onSubmit={form.handleSubmit((v) => updating.mutate(v))}>
         <Modal
           onClose={onClose}
-          header={<div className="flex items-center gap-4">{texts.userGroups.update}</div>}
+          header={<div className="flex items-center gap-4">{target ? texts.userGroups.update : texts.userGroups.create}</div>}
           footer={
-            <fieldset disabled={updating.isPending || deleting.isPending || target.isBuiltIn}>
+            <fieldset disabled={updating.isPending || deleting.isPending || target?.isBuiltIn}>
               <div className="flex flex-row justify-between">
                 <button type="button" className="btn btn-ghost" onClick={onClose}>
                   {texts.common.cancel}
@@ -73,26 +77,30 @@ export function UpdateUserGroupDialog(props: UpdateUserGroupDialogProps) {
             </fieldset>
           }
         >
-          <fieldset disabled={updating.isPending || deleting.isPending || target.isBuiltIn}>
-            <FormAlert common={texts.userGroups.updateFailed} error={updating.error} />
+          <fieldset disabled={updating.isPending || deleting.isPending || target?.isBuiltIn}>
+            <FormAlert common={target ? texts.userGroups.updateFailed : texts.userGroups.createFailed} error={updating.error} />
 
             <Forms.Text name="name" label={texts.common.name} required />
 
-            <hr className="my-6" />
+            {target && (
+              <>
+                <hr className="my-6 border-slate-300" />
 
-            <Forms.Row name="danger" label={texts.common.dangerZone}>
-              <ConfirmDialog
-                title={texts.userGroups.removeConfirmTitle}
-                text={texts.userGroups.removeConfirmText}
-                onPerform={deleting.mutate}
-              >
-                {({ onClick }) => (
-                  <button type="button" className="btn btn-error" onClick={onClick}>
-                    {texts.common.remove}
-                  </button>
-                )}
-              </ConfirmDialog>
-            </Forms.Row>
+                <Forms.Row name="danger" label={texts.common.dangerZone}>
+                  <ConfirmDialog
+                    title={texts.userGroups.removeConfirmTitle}
+                    text={texts.userGroups.removeConfirmText}
+                    onPerform={deleting.mutate}
+                  >
+                    {({ onClick }) => (
+                      <button type="button" className="btn btn-error" onClick={onClick}>
+                        {texts.common.remove}
+                      </button>
+                    )}
+                  </ConfirmDialog>
+                </Forms.Row>
+              </>
+            )}
           </fieldset>
         </Modal>
       </form>
