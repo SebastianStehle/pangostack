@@ -32,7 +32,7 @@ export const Avatar = memo((props: AvatarProps) => {
     return result;
   }, [user.name]);
 
-  let actualSize = size === 'md' ? 'w-10' : 'w-8';
+  const actualSize = size === 'md' ? 'w-10' : 'w-8';
 
   return usePicture ? (
     <div className="avatar flex">
@@ -42,7 +42,7 @@ export const Avatar = memo((props: AvatarProps) => {
     </div>
   ) : (
     <div className="avatar avatar-placeholder flex font-semibold">
-      <div className={classNames(actualSize, 'rounded-full bg-neutral text-neutral-content')}>
+      <div className={classNames(actualSize, 'bg-neutral text-neutral-content rounded-full')}>
         <span className="text-xs">{initials}</span>
       </div>
     </div>

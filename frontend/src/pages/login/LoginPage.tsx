@@ -15,7 +15,7 @@ export function LoginPage() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <div className="no-shrink flex w-full max-w-[800px] grow-0 overflow-y-auto bg-base-100 px-4 pt-24 lg:px-24">
+      <div className="no-shrink bg-base-100 flex w-full max-w-[800px] grow-0 overflow-y-auto px-4 pt-24 lg:px-24">
         <div className="mx-auto lg:w-96">
           <div className="mb-[4rem] flex items-center gap-4 text-4xl">
             <Logo size="3rem" baseUrl={clients.url} file={theme.logo} />

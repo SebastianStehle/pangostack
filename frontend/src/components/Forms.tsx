@@ -90,7 +90,7 @@ export module Forms {
 
             {label && required && (
               <span
-                className="px-1 font-bold text-error"
+                className="text-error px-1 font-bold"
                 data-tooltip-id="default"
                 data-tooltip-content={texts.common.required}
                 data-tooltip-delay-show={1000}
@@ -114,7 +114,7 @@ export module Forms {
 
           {label && required && (
             <span
-              className="px-1 font-bold text-error"
+              className="text-error px-1 font-bold"
               data-tooltip-id="default"
               data-tooltip-content={texts.common.required}
               data-tooltip-delay-show={1000}

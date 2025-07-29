@@ -1,12 +1,12 @@
+import { yupResolver } from '@hookform/resolvers/yup';
 import { useEffect, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { ServicePublicDto } from 'src/api';
 import * as Yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { FormAlert, Forms, Links } from 'src/components';
-import { texts } from 'src/texts';
 import { ObjectShape } from 'yup';
+import { ServicePublicDto } from 'src/api';
+import { FormAlert, Forms, Links } from 'src/components';
 import { isNumber } from 'src/lib';
+import { texts } from 'src/texts';
 
 interface ThemeFormProps {
   value: Record<string, any>;

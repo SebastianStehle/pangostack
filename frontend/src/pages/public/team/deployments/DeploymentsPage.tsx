@@ -1,5 +1,3 @@
 export const DeploymentsPage = () => {
-  return (
-    <h2>Deployments</h2>
-  );
-}
+  return <h2>Deployments</h2>;
+};

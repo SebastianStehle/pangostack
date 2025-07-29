@@ -1,14 +1,14 @@
+import { yupResolver } from '@hookform/resolvers/yup';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'react-toastify';
-import { SettingsDto, useClients } from 'src/api';
 import * as Yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { SettingsDto, useClients } from 'src/api';
 import { FormAlert, Forms, Links } from 'src/components';
+import { LINKS_SCHEME } from 'src/components/LinksScheme';
 import { useTheme } from 'src/hooks';
 import { texts } from 'src/texts';
-import { LINKS_SCHEME } from 'src/components/LinksScheme';
 
 const SCHEME = Yup.object().shape({
   // Optional footer links.

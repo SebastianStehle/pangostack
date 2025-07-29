@@ -23,10 +23,10 @@ export const FormControlError = (props: FormControlErrorProps) => {
 
   return (
     <div className="relative">
-      <div className="absolute -bottom-1 left-2 h-2 w-2 border-4 border-transparent border-t-error"></div>
+      <div className="border-t-error absolute -bottom-1 left-2 h-2 w-2 border-4 border-transparent"></div>
       <div
         className={classNames(
-          'absolute bottom-1 bg-error px-2 py-1 text-sm text-white',
+          'bg-error absolute bottom-1 px-2 py-1 text-sm text-white',
           alignment ? `errors-${alignment}` : false,
         )}
       >

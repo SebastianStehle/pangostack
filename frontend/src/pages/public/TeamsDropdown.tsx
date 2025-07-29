@@ -1,4 +1,4 @@
-import { matchRoutes, useLocation, useParams } from 'react-router-dom';
+import { matchRoutes, useLocation } from 'react-router-dom';
 import { TeamDto } from 'src/api';
 import { TransientNavLink } from 'src/components';
 import { OverlayDropdown } from 'src/components/Overlay';
@@ -10,7 +10,7 @@ export interface TeamDropdownProps {
 
 export const TeamsDropdown = (props: TeamDropdownProps) => {
   const location = useLocation();
-  const matches = matchRoutes([{ path: '/teams/:teamId' }], location);
+  const matches = matchRoutes([{ path: '/teams/:teamId/*' }], location);
   const teamId = matches?.[0]?.params?.teamId;
   const { teams } = props;
 
@@ -20,9 +20,7 @@ export const TeamsDropdown = (props: TeamDropdownProps) => {
     <OverlayDropdown
       placement="bottom-end"
       button={() => (
-        <button className="btn btn-primary min-w-30 rounded-full bg-black/10 bg-opacity-50">
-          {team?.name ?? texts.teams.selectTeam}
-        </button>
+        <button className="btn btn-primary rounded-full bg-black/10 bg-opacity-50">{team?.name ?? texts.teams.selectTeam}</button>
       )}
     >
       <ul tabIndex={0} className="dropdown-menu m">

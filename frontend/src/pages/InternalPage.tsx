@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import { RouteWhenAdmin } from 'src/components';
 import { AdminPage } from './admin/AdminPage';
-import { PublicPage } from './admin/public/PublicPage';
+import { PublicPage } from './public/PublicPage';
 
 export function InternalPage() {
   return (
@@ -15,12 +15,7 @@ export function InternalPage() {
         }
       />
 
-      <Route
-        path="/*"
-        element={
-          <PublicPage />
-        }
-      />
+      <Route path="/*" element={<PublicPage />} />
     </Routes>
   );
 }

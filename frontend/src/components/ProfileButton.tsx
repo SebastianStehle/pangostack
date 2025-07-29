@@ -1,9 +1,9 @@
+import { Placement } from '@floating-ui/react-dom';
 import { NavLink } from 'react-router-dom';
 import { useLogoutUrl, useProfile } from 'src/hooks';
 import { texts } from 'src/texts';
 import { Avatar } from './Avatar';
 import { OverlayDropdown } from './Overlay';
-import { Placement } from '@floating-ui/react-dom';
 
 export interface ProfileButtonProps {
   // The style of the button.

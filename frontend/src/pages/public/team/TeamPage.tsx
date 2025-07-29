@@ -1,12 +1,12 @@
+import classNames from 'classnames';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { TransientNavLink } from 'src/components';
 import { texts } from 'src/texts';
+import { BillingPage } from './billing/BillingPage';
 import { DeploymentPage } from './deployment/DeploymentPage';
 import { DeploymentsPage } from './deployments/DeploymentsPage';
-import { BillingPage } from './billing/BillingPage';
-import { SettingsPage } from './settings/SettingsPage';
-import classNames from 'classnames';
 import { MembersPage } from './members/MembersPage';
+import { SettingsPage } from './settings/SettingsPage';
 
 export function TeamPage() {
   return (
@@ -15,7 +15,7 @@ export function TeamPage() {
         <li>
           <TransientNavLink
             className={({ isActive }) => classNames('text-primary-content text-lg opacity-70', { 'opacity-100': isActive })}
-            to={`/deployments`}
+            to="deployments"
           >
             {texts.deployments.title}
           </TransientNavLink>
@@ -23,7 +23,7 @@ export function TeamPage() {
         <li>
           <TransientNavLink
             className={({ isActive }) => classNames('text-primary-content text-lg opacity-70', { 'opacity-100': isActive })}
-            to={`billing`}
+            to="billing"
           >
             {texts.billing.title}
           </TransientNavLink>
@@ -31,7 +31,7 @@ export function TeamPage() {
         <li>
           <TransientNavLink
             className={({ isActive }) => classNames('text-primary-content text-lg opacity-70', { 'opacity-100': isActive })}
-            to={`members`}
+            to="members"
           >
             {texts.teams.members}
           </TransientNavLink>
@@ -39,7 +39,7 @@ export function TeamPage() {
         <li>
           <TransientNavLink
             className={({ isActive }) => classNames('text-primary-content text-lg opacity-70', { 'opacity-100': isActive })}
-            to={`settings`}
+            to="settings"
           >
             {texts.common.settings}
           </TransientNavLink>

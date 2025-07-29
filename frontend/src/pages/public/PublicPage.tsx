@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { useClients } from 'src/api';
 import { ProfileButton, TransientNavigate, TransientNavLink } from 'src/components';
 import { useTheme } from 'src/hooks';
+import { TeamsDropdown } from './TeamsDropdown';
 import { TeamPage } from './team/TeamPage';
 import { TeamCreatePage } from './team-create/TeamCreatePage';
-import { TeamsDropdown } from './TeamsDropdown';
 
 export function PublicPage() {
   const { theme } = useTheme();
@@ -44,7 +44,10 @@ export function PublicPage() {
         <Route path="/teams/create" element={<TeamCreatePage />} />
         <Route path="/teams/:id/*" element={<TeamPage />} />
 
-        <Route path="*" element={team ? <TransientNavigate to={`/teams/${team.id}`} /> : <Navigate to="/teams/create" />} />
+        <Route
+          path="*"
+          element={team ? <TransientNavigate to={`/teams/${team.id}`} /> : <TransientNavigate to="/teams/create" />}
+        />
       </Routes>
     </div>
   );

@@ -1,5 +1,3 @@
 export const MembersPage = () => {
-  return (
-    <h2>Members</h2>
-  );
-}
+  return <h2>Members</h2>;
+};

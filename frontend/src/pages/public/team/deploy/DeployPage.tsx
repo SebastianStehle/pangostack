@@ -1,5 +1,3 @@
 export const DeployPage = () => {
-  return (
-    <h2>Deploy</h2>
-  );
-}
+  return <h2>Deploy</h2>;
+};
