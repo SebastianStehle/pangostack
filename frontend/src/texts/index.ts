@@ -81,9 +81,11 @@ export const texts = {
   services: {
     create: 'New Service',
     createFailed: 'Failed to create Service',
+    createVersion: 'New Version',
     empty: 'No service found.',
     fixedPrice: 'Fixed base price',
     headline: 'Services',
+    isActive: 'Is Active',
     isPublic: 'Is Public',
     latestVersion: 'Latest Version',
     numDeployments: 'Num deployments',

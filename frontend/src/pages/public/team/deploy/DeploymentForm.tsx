@@ -143,7 +143,7 @@ export function DeploymentForm(props: DeploymentFormProps) {
             </fieldset>
           </div>
           <div className="w-100">
-            <div className="card sticky top-4 border-[1px] border-slate-100 shadow-sm">
+            <div className="card card-border sticky top-4 shadow-sm">
               <div className="card-body">
                 <h2 className="card-title text-xl">{texts.deployments.estimatedPrice}</h2>
                 <DeploymentSummary service={service} />

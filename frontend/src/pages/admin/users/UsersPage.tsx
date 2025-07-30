@@ -87,7 +87,7 @@ export function UsersPage() {
 
               {users.length === 0 && isFetched && (
                 <tr>
-                  <td colSpan={4}>{texts.users.empty}</td>
+                  <td colSpan={8}>{texts.users.empty}</td>
                 </tr>
               )}
             </tbody>

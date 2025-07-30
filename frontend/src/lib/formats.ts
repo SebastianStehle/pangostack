@@ -15,6 +15,10 @@ export function formatBoolean(value: boolean) {
   return value ? texts.common.yes : texts.common.no;
 }
 
+export function formatTrue(value: boolean) {
+  return value ? texts.common.yes : '';
+}
+
 export function formatTags(value?: string[]) {
   return value?.join(', ') || '';
 }

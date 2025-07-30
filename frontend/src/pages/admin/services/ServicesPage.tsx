@@ -1,12 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { ServiceDto, useClients } from 'src/api';
 import { Icon, Page } from 'src/components';
 import { useEventCallback, useTransientNavigate } from 'src/hooks';
 import { texts } from 'src/texts';
 import { Service } from './Service';
 import { UpsertServiceDialog } from './UpsertServiceDialog';
+import { ServicePage } from './service/ServicePage';
 import { useServicesStore } from './state';
 
 export function ServicesPage() {
@@ -44,7 +45,11 @@ export function ServicesPage() {
           <div className="flex p-8 pb-4">
             <h3 className="grow text-xl">{texts.services.headline}</h3>
 
-            <button className="btn btn-square btn-success btn-sm text-sm text-white" onClick={() => setToCreate(true)}>
+            <button
+              className="btn btn-square btn-success btn-sm text-sm text-white"
+              title={texts.services.create}
+              onClick={() => setToCreate(true)}
+            >
               <Icon icon="plus" size={16} />
             </button>
           </div>
@@ -61,7 +66,9 @@ export function ServicesPage() {
         </div>
       }
     >
-      <Routes></Routes>
+      <Routes>
+        <Route path=":serviceId" element={<ServicePage />} />
+      </Routes>
 
       {toCreate && <UpsertServiceDialog onClose={doClose} onUpsert={doCreate} />}
       {toUpdate && <UpsertServiceDialog onClose={doClose} onUpsert={setService} target={toUpdate} />}
