@@ -29,46 +29,46 @@ Deployment definitions are written in JSON or YAML and specify the parameters an
 
 ```yaml
 {
-	"parameters": [
-		{
-			"name": "domain",
-			"type": "string",
-			"required": true
-		},
-		{
-			"name": "mongoDbNodes",
-			"type": "number",
-			"required": true,
-			"default": 1,
-			"minimumValue": 3,
-			"maximumValue": 12,
-			"section": "MongoDB"
-		},
-		....
-	],
-	"resources": {
-		{
-			"name": "Storage",
-			"type": "vulture-storage",
-			"parameters": {
-				"apiKey": "${env.apiKey}"
-			}
-		},
-		{
-			"name": "Squidex and MongoDB",
-			"type": "helm",
-			"parameters": {
-				"k8Config": "${env.apiKey}",
-				"mongodb.numNodes": "${parameters.mongoDbNodes}",
-				"mongodb....": "",
-			}
-		}
-	},
-	"usage": {
-		"totalCpus": "${parameters.mongoDbNodes * parameters.mongoDbCoresPerNode + (parameters.squidexNodes + 1) * parameters.squidexCoresPerNode}",
-		"totalMembery": "${parameters.mongoDbNodes * parameters.squidexDbMemoryPerNode + (parameters.squidexNodes + 1) * parameters.squidexDbMemoryPerNode}",
-		"totalStorage": "${parameters.mongoDbNodes * parameters.mongoDbStoragePerNode}"
-	}
+  "parameters": [
+    {
+      "name": "domain",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "mongoDbNodes",
+      "type": "number",
+      "required": true,
+      "default": 1,
+      "minimumValue": 3,
+      "maximumValue": 12,
+      "section": "MongoDB"
+    },
+    ....
+  ],
+  "resources": {
+    {
+      "name": "Storage",
+      "type": "vulture-storage",
+      "parameters": {
+        "apiKey": "${env.apiKey}"
+      }
+    },
+    {
+      "name": "Squidex and MongoDB",
+      "type": "helm",
+      "parameters": {
+        "k8Config": "${env.apiKey}",
+        "mongodb.numNodes": "${parameters.mongoDbNodes}",
+        "mongodb....": "",
+      }
+    }
+  },
+  "usage": {
+    "totalCpus": "${parameters.mongoDbNodes * parameters.mongoDbCoresPerNode + (parameters.squidexNodes + 1) * parameters.squidexCoresPerNode}",
+    "totalMembery": "${parameters.mongoDbNodes * parameters.squidexDbMemoryPerNode + (parameters.squidexNodes + 1) * parameters.squidexDbMemoryPerNode}",
+    "totalStorage": "${parameters.mongoDbNodes * parameters.mongoDbStoragePerNode}"
+  }
 }
 ```
 
