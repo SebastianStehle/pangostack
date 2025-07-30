@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ServiceEntity, ServiceVersionRepository } from 'src/domain/database';
+import { ServiceVersionEntity, ServiceVersionRepository } from 'src/domain/database';
 import { assignDefined, Optional } from 'src/lib';
 import { ServiceVersion } from '../interfaces';
 import { buildServiceVersion } from './utils';
@@ -22,7 +22,7 @@ export class UpdateServiceVersionResponse {
 @CommandHandler(UpdateServiceVersion)
 export class UpdateServiceVersionHandler implements ICommandHandler<UpdateServiceVersion, UpdateServiceVersionResponse> {
   constructor(
-    @InjectRepository(ServiceEntity)
+    @InjectRepository(ServiceVersionEntity)
     private readonly serviceVersions: ServiceVersionRepository,
   ) {}
 
@@ -38,7 +38,7 @@ export class UpdateServiceVersionHandler implements ICommandHandler<UpdateServic
     // If the service is active, we can only update the active state so that we do not mess up existing deployments.
     if (entity.service.isPublic) {
       // Assign the object manually to avoid updating unexpected values.
-      assignDefined(entity, { isActive });
+      assignDefined(entity, { isActive, environment });
     } else {
       // Assign the object manually to avoid updating unexpected values.
       assignDefined(entity, { definition, environment, isActive });
@@ -46,7 +46,7 @@ export class UpdateServiceVersionHandler implements ICommandHandler<UpdateServic
 
     // Use the save method otherwise we would not get previous values.
     const created = await this.serviceVersions.save(entity);
-    const result = buildServiceVersion(created);
+    const result = buildServiceVersion(created, false);
 
     return new UpdateServiceVersionResponse(result);
   }

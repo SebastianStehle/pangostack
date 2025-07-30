@@ -8,15 +8,17 @@ export function buildDeployment(source: DeploymentEntity, service: ServiceEntity
   return { id, serviceName: service.name, serviceId: service.id };
 }
 
-export function buildServiceVersion(source: ServiceVersionEntity): ServiceVersion {
+export function buildServiceVersion(source: ServiceVersionEntity, isDefault: boolean): ServiceVersion {
   const { id, definition, environment, isActive, name } = source;
 
   const handledDeployments = new Set<number>();
-  for (const update of source.deploymentUpdates) {
-    handledDeployments.add(update.deploymentId);
+  if (source.deploymentUpdates) {
+    for (const update of source.deploymentUpdates) {
+      handledDeployments.add(update.deploymentId);
+    }
   }
 
-  return { id, definition, environment, isActive, name, numDeployments: handledDeployments.size };
+  return { id, definition, environment, isActive, isDefault, name, numDeployments: handledDeployments.size };
 }
 
 export function buildServicePublic(
@@ -84,7 +86,7 @@ export function buildService(source: ServiceEntity): Service {
     fixedPrice,
     isActive: !!versions.find((x) => x.isActive),
     isPublic,
-    latestVersion: versions.sort((x) => x.order)[0]?.name,
+    latestVersion: versions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0]?.name,
     name,
     numDeployments: handledDeployments.size,
     pricePerCpuHour,

@@ -57,7 +57,7 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
 
     const version = await this.serviceVersions.findOne({
       where: { serviceId: service.id, isActive: true },
-      order: { order: 'DESC' },
+      order: { createdAt: 'DESC' },
     });
     if (!version) {
       throw new NotFoundException(`Service ${serviceId} has no active version.`);

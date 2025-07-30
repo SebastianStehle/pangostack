@@ -61,6 +61,7 @@ export function UpsertServiceDialog(props: UpsertServiceDialogProps) {
   const clients = useClients();
   const upserting = useMutation({
     mutationFn: (request: UpsertServiceDto) => {
+      request.environment ||= {};
       if (target) {
         return clients.services.putService(target.id, request);
       } else {
@@ -124,7 +125,13 @@ export function UpsertServiceDialog(props: UpsertServiceDialogProps) {
 
               <Forms.Boolean name="isPublic" label={texts.services.isPublic} required />
 
-              <Forms.Code name="environment" label={texts.common.environment} mode="javascript" valueMode="object" />
+              <Forms.Code
+                height="200px"
+                label={texts.common.environment}
+                mode="javascript"
+                name="environment"
+                valueMode="object"
+              />
             </section>
           </fieldset>
         </Modal>

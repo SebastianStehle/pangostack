@@ -18,6 +18,7 @@ import * as runtime from '../runtime';
 import type {
   CreateServiceVersionDto,
   ServiceDto,
+  ServiceVersionDto,
   ServiceVersionsDto,
   ServicesDto,
   ServicesPublicDto,
@@ -29,6 +30,8 @@ import {
     CreateServiceVersionDtoToJSON,
     ServiceDtoFromJSON,
     ServiceDtoToJSON,
+    ServiceVersionDtoFromJSON,
+    ServiceVersionDtoToJSON,
     ServiceVersionsDtoFromJSON,
     ServiceVersionsDtoToJSON,
     ServicesDtoFromJSON,
@@ -42,12 +45,17 @@ import {
 } from '../models/index';
 
 export interface DeleteServiceRequest {
-    serviceId: string;
+    serviceId: number;
 }
 
 export interface DeleteServiceVersionRequest {
-    versionId: string;
-    serviceId: any;
+    serviceId: number;
+    versionId: number;
+}
+
+export interface GetServiceVersionRequest {
+    serviceId: number;
+    versionId: number;
 }
 
 export interface GetServiceVersionsRequest {
@@ -59,7 +67,7 @@ export interface PostServiceRequest {
 }
 
 export interface PostServiceVersionRequest {
-    serviceId: string;
+    serviceId: number;
     createServiceVersionDto: CreateServiceVersionDto;
 }
 
@@ -69,8 +77,8 @@ export interface PutServiceRequest {
 }
 
 export interface PutServiceVersionRequest {
-    versionId: string;
-    serviceId: any;
+    serviceId: number;
+    versionId: number;
     updateServiceVersionDto: UpdateServiceVersionDto;
 }
 
@@ -110,7 +118,7 @@ export class ServicesApi extends runtime.BaseAPI {
      * Deletes the service.
      * 
      */
-    async deleteService(serviceId: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+    async deleteService(serviceId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.deleteServiceRaw({ serviceId: serviceId }, initOverrides);
     }
 
@@ -119,12 +127,12 @@ export class ServicesApi extends runtime.BaseAPI {
      * 
      */
     async deleteServiceVersionRaw(requestParameters: DeleteServiceVersionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.versionId === null || requestParameters.versionId === undefined) {
-            throw new runtime.RequiredError('versionId','Required parameter requestParameters.versionId was null or undefined when calling deleteServiceVersion.');
-        }
-
         if (requestParameters.serviceId === null || requestParameters.serviceId === undefined) {
             throw new runtime.RequiredError('serviceId','Required parameter requestParameters.serviceId was null or undefined when calling deleteServiceVersion.');
+        }
+
+        if (requestParameters.versionId === null || requestParameters.versionId === undefined) {
+            throw new runtime.RequiredError('versionId','Required parameter requestParameters.versionId was null or undefined when calling deleteServiceVersion.');
         }
 
         const queryParameters: any = {};
@@ -136,7 +144,7 @@ export class ServicesApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/services/{serviceId}/versions/{versionId}`.replace(`{${"versionId"}}`, encodeURIComponent(String(requestParameters.versionId))).replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))),
+            path: `/services/{serviceId}/versions/{versionId}`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))).replace(`{${"versionId"}}`, encodeURIComponent(String(requestParameters.versionId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -149,8 +157,48 @@ export class ServicesApi extends runtime.BaseAPI {
      * Deletes the service version.
      * 
      */
-    async deleteServiceVersion(versionId: string, serviceId: any, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.deleteServiceVersionRaw({ versionId: versionId, serviceId: serviceId }, initOverrides);
+    async deleteServiceVersion(serviceId: number, versionId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.deleteServiceVersionRaw({ serviceId: serviceId, versionId: versionId }, initOverrides);
+    }
+
+    /**
+     * Gets a service version.
+     * 
+     */
+    async getServiceVersionRaw(requestParameters: GetServiceVersionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ServiceVersionDto>> {
+        if (requestParameters.serviceId === null || requestParameters.serviceId === undefined) {
+            throw new runtime.RequiredError('serviceId','Required parameter requestParameters.serviceId was null or undefined when calling getServiceVersion.');
+        }
+
+        if (requestParameters.versionId === null || requestParameters.versionId === undefined) {
+            throw new runtime.RequiredError('versionId','Required parameter requestParameters.versionId was null or undefined when calling getServiceVersion.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/services/{serviceId}/versions/{versionId}`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))).replace(`{${"versionId"}}`, encodeURIComponent(String(requestParameters.versionId))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ServiceVersionDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Gets a service version.
+     * 
+     */
+    async getServiceVersion(serviceId: number, versionId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ServiceVersionDto> {
+        const response = await this.getServiceVersionRaw({ serviceId: serviceId, versionId: versionId }, initOverrides);
+        return await response.value();
     }
 
     /**
@@ -296,7 +344,7 @@ export class ServicesApi extends runtime.BaseAPI {
      * Creates a service version.
      * 
      */
-    async postServiceVersionRaw(requestParameters: PostServiceVersionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ServiceDto>> {
+    async postServiceVersionRaw(requestParameters: PostServiceVersionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ServiceVersionDto>> {
         if (requestParameters.serviceId === null || requestParameters.serviceId === undefined) {
             throw new runtime.RequiredError('serviceId','Required parameter requestParameters.serviceId was null or undefined when calling postServiceVersion.');
         }
@@ -323,14 +371,14 @@ export class ServicesApi extends runtime.BaseAPI {
             body: CreateServiceVersionDtoToJSON(requestParameters.createServiceVersionDto),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => ServiceDtoFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => ServiceVersionDtoFromJSON(jsonValue));
     }
 
     /**
      * Creates a service version.
      * 
      */
-    async postServiceVersion(serviceId: string, createServiceVersionDto: CreateServiceVersionDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ServiceDto> {
+    async postServiceVersion(serviceId: number, createServiceVersionDto: CreateServiceVersionDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ServiceVersionDto> {
         const response = await this.postServiceVersionRaw({ serviceId: serviceId, createServiceVersionDto: createServiceVersionDto }, initOverrides);
         return await response.value();
     }
@@ -382,13 +430,13 @@ export class ServicesApi extends runtime.BaseAPI {
      * Updates the service version.
      * 
      */
-    async putServiceVersionRaw(requestParameters: PutServiceVersionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ServiceDto>> {
-        if (requestParameters.versionId === null || requestParameters.versionId === undefined) {
-            throw new runtime.RequiredError('versionId','Required parameter requestParameters.versionId was null or undefined when calling putServiceVersion.');
-        }
-
+    async putServiceVersionRaw(requestParameters: PutServiceVersionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ServiceVersionDto>> {
         if (requestParameters.serviceId === null || requestParameters.serviceId === undefined) {
             throw new runtime.RequiredError('serviceId','Required parameter requestParameters.serviceId was null or undefined when calling putServiceVersion.');
+        }
+
+        if (requestParameters.versionId === null || requestParameters.versionId === undefined) {
+            throw new runtime.RequiredError('versionId','Required parameter requestParameters.versionId was null or undefined when calling putServiceVersion.');
         }
 
         if (requestParameters.updateServiceVersionDto === null || requestParameters.updateServiceVersionDto === undefined) {
@@ -406,22 +454,22 @@ export class ServicesApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/services/{serviceId}/versions/{versionId}`.replace(`{${"versionId"}}`, encodeURIComponent(String(requestParameters.versionId))).replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))),
+            path: `/services/{serviceId}/versions/{versionId}`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))).replace(`{${"versionId"}}`, encodeURIComponent(String(requestParameters.versionId))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
             body: UpdateServiceVersionDtoToJSON(requestParameters.updateServiceVersionDto),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => ServiceDtoFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => ServiceVersionDtoFromJSON(jsonValue));
     }
 
     /**
      * Updates the service version.
      * 
      */
-    async putServiceVersion(versionId: string, serviceId: any, updateServiceVersionDto: UpdateServiceVersionDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ServiceDto> {
-        const response = await this.putServiceVersionRaw({ versionId: versionId, serviceId: serviceId, updateServiceVersionDto: updateServiceVersionDto }, initOverrides);
+    async putServiceVersion(serviceId: number, versionId: number, updateServiceVersionDto: UpdateServiceVersionDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ServiceVersionDto> {
+        const response = await this.putServiceVersionRaw({ serviceId: serviceId, versionId: versionId, updateServiceVersionDto: updateServiceVersionDto }, initOverrides);
         return await response.value();
     }
 

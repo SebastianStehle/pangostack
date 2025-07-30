@@ -17,6 +17,9 @@ export interface CodeEditorProps {
   // The value mode.
   valueMode: 'string' | 'object';
 
+  // The optional number;
+  height?: string;
+
   // When the value has changed.
   onChange: (value: any) => void;
 
@@ -25,7 +28,7 @@ export interface CodeEditorProps {
 }
 
 export const CodeEditor = (props: CodeEditorProps) => {
-  const { mode, onBlur, onChange, value, valueMode } = props;
+  const { height, mode, onBlur, onChange, value, valueMode } = props;
 
   const doChange = useEventCallback((value: string) => {
     let output: any = value;
@@ -57,7 +60,7 @@ export const CodeEditor = (props: CodeEditorProps) => {
 
   return (
     <div className="border-[1px] border-slate-300">
-      <AceEditor value={parsedValue} mode={mode} onChange={doChange} onBlur={onBlur} width="100%" />
+      <AceEditor height={height} value={parsedValue} mode={mode} onChange={doChange} onBlur={onBlur} width="100%" />
     </div>
   );
 };

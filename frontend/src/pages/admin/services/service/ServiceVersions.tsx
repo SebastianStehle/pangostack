@@ -1,10 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
+import classNames from 'classnames';
+import { useNavigate } from 'react-router-dom';
 import { useClients } from 'src/api';
 import { formatTrue } from 'src/lib';
 import { texts } from 'src/texts';
 
 export const ServiceVersions = ({ serviceId }: { serviceId: number }) => {
   const clients = useClients();
+  const navigate = useNavigate();
 
   const { data: loadedServiceVersions, isFetched } = useQuery({
     queryKey: ['service-versions', serviceId],
@@ -24,10 +27,34 @@ export const ServiceVersions = ({ serviceId }: { serviceId: number }) => {
       </thead>
       <tbody>
         {serviceVersions.map((serviceVersion) => (
-          <tr className="cursor-pointer hover:bg-slate-50" key={serviceVersion.id}>
-            <td className="overflow-hidden font-semibold">{serviceVersion.name}</td>
-            <td className="overflow-hidden">{serviceVersion.numDeployments}</td>
-            <td className="overflow-hidden font-semibold">{formatTrue(serviceVersion.isActive)}</td>
+          <tr
+            className="cursor-pointer hover:bg-slate-50"
+            key={serviceVersion.id}
+            onClick={() => navigate(`versions/${serviceVersion.id}`)}
+          >
+            <td className="overflow-hidden font-semibold">
+              <div
+                className={classNames(`badge badge-neutral badge-sm rounded-full font-normal`, {
+                  'badge-primary': serviceVersion.isDefault,
+                })}
+              >
+                {serviceVersion.name}
+              </div>
+            </td>
+            <td
+              className={classNames(`overflow-hidden`, {
+                'font-semibold': serviceVersion.isDefault,
+              })}
+            >
+              {serviceVersion.numDeployments}
+            </td>
+            <td
+              className={classNames(`overflow-hidden`, {
+                'font-semibold': serviceVersion.isDefault,
+              })}
+            >
+              {formatTrue(serviceVersion.isActive)}
+            </td>
           </tr>
         ))}
 

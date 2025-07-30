@@ -30,22 +30,22 @@ import {
 } from '../models/index';
 
 export interface DeleteDeploymentRequest {
-    deploymentId: string;
-    teamId: any;
+    deploymentId: number;
+    teamId: number;
 }
 
 export interface GetDeploymentsRequest {
-    teamId: string;
+    teamId: number;
 }
 
 export interface PostDeploymentRequest {
-    teamId: string;
+    teamId: number;
     createDeploymentDto: CreateDeploymentDto;
 }
 
 export interface PutDeploymentRequest {
-    teamId: string;
-    deploymentId: string;
+    teamId: number;
+    deploymentId: number;
     createDeploymentDto: CreateDeploymentDto;
 }
 
@@ -89,7 +89,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
      * Delete a deployment.
      * 
      */
-    async deleteDeployment(deploymentId: string, teamId: any, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+    async deleteDeployment(deploymentId: number, teamId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.deleteDeploymentRaw({ deploymentId: deploymentId, teamId: teamId }, initOverrides);
     }
 
@@ -124,7 +124,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
      * Gets all deployments.
      * 
      */
-    async getDeployments(teamId: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentsDto> {
+    async getDeployments(teamId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentsDto> {
         const response = await this.getDeploymentsRaw({ teamId: teamId }, initOverrides);
         return await response.value();
     }
@@ -167,7 +167,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
      * Creates a deployment.
      * 
      */
-    async postDeployment(teamId: string, createDeploymentDto: CreateDeploymentDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentDto> {
+    async postDeployment(teamId: number, createDeploymentDto: CreateDeploymentDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentDto> {
         const response = await this.postDeploymentRaw({ teamId: teamId, createDeploymentDto: createDeploymentDto }, initOverrides);
         return await response.value();
     }
@@ -214,7 +214,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
      * Updates a deployment.
      * 
      */
-    async putDeployment(teamId: string, deploymentId: string, createDeploymentDto: CreateDeploymentDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentDto> {
+    async putDeployment(teamId: number, deploymentId: number, createDeploymentDto: CreateDeploymentDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentDto> {
         const response = await this.putDeploymentRaw({ teamId: teamId, deploymentId: deploymentId, createDeploymentDto: createDeploymentDto }, initOverrides);
         return await response.value();
     }

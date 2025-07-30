@@ -27,6 +27,9 @@ export interface ServiceVersion {
   // Indicates if the version is active.
   isActive: boolean;
 
+  // Indicates if the version is the default.
+  isDefault: boolean;
+
   // The number of deployments.
   numDeployments: number;
 }

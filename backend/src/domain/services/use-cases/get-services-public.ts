@@ -25,7 +25,7 @@ export class GetServicesPublicHandler implements IQueryHandler<GetServicesPublic
     const result: ServicePublic[] = [];
 
     for (const entity of entities) {
-      const version = entity.versions.sort((a, b) => b.order - a.order).find((x) => x.isActive);
+      const version = entity.versions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).find((x) => x.isActive);
       if (!version) {
         continue;
       }

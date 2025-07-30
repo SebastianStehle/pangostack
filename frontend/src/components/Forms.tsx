@@ -61,18 +61,12 @@ export interface NumberFormEditorProps extends FormEditorProps {
   step?: number;
 }
 
-export interface CodeFormEditorProps extends FormEditorProps {
-  // The editor model.
-  mode: CodeEditorProps['mode'];
-
-  // The value mode.
-  valueMode: CodeEditorProps['valueMode'];
-}
-
 export interface OptionsFormEditorProps<T> extends FormEditorProps {
   // The allowed selected values.
   options: FormEditorOption<T>[];
 }
+
+export interface CodeFormEditorProps extends FormEditorProps, Pick<CodeEditorProps, 'height' | 'mode' | 'valueMode'> {}
 
 export interface FormRowProps extends FormEditorProps, PropsWithChildren {}
 

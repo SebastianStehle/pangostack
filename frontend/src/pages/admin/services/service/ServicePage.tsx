@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { Icon } from 'src/components';
+import { Icon, TransientNavLink } from 'src/components';
 import { texts } from 'src/texts';
 import { ServiceVersions } from './ServiceVersions';
 
@@ -8,12 +8,12 @@ export const ServicePage = () => {
 
   return (
     <>
-      <div className="flex pb-4">
+      <div className="flex gap-4 pb-4">
         <h3 className="grow text-xl">{texts.services.headline}</h3>
 
-        <button className="btn btn-success btn-sm text-sm text-white">
+        <TransientNavLink className="btn btn-success btn-sm text-sm text-white" to="new-version">
           <Icon icon="plus" size={16} /> {texts.services.createVersion}
-        </button>
+        </TransientNavLink>
       </div>
 
       <div className="card bg-base-100 shadow-sm">

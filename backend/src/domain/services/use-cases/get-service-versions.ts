@@ -22,8 +22,14 @@ export class GetServiceVersionsHandler implements IQueryHandler<GetServiceVersio
   async execute(query: GetServiceVersions): Promise<GetServiceVersionsResponse> {
     const { serviceId } = query;
 
-    const entities = await this.serviceVersions.find({ where: { serviceId }, relations: ['deploymentUpdates'] });
-    const result = entities.map(buildServiceVersion);
+    const entities = await this.serviceVersions.find({
+      where: { serviceId },
+      order: { createdAt: 'DESC' },
+      relations: ['deploymentUpdates'],
+    });
+
+    const active = entities.find((x) => x.isActive);
+    const result = entities.map((x) => buildServiceVersion(x, x === active));
 
     return new GetServiceVersionsResponse(result);
   }

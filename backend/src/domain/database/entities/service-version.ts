@@ -22,9 +22,6 @@ export class ServiceVersionEntity {
   @Column()
   name: string;
 
-  @Column({ default: 0 })
-  order: number = 0;
-
   @Column('text')
   definition: string;
 

@@ -390,6 +390,12 @@ export class ServiceVersionDto {
   isActive: boolean;
 
   @ApiProperty({
+    description: 'Indicates if the version is the default one.',
+    required: true,
+  })
+  isDefault: boolean;
+
+  @ApiProperty({
     description: 'The number of deployments.',
     required: true,
   })
@@ -401,6 +407,7 @@ export class ServiceVersionDto {
     result.definition = source.definition;
     result.environment = source.environment;
     result.isActive = source.isActive;
+    result.isDefault = source.isDefault;
     result.name = source.name;
     result.numDeployments = source.numDeployments;
     return result;

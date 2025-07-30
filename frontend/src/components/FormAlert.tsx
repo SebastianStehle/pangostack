@@ -1,6 +1,8 @@
 import classNames from 'classnames';
 import { useEffect, useState } from 'react';
 import { buildError } from 'src/lib';
+import { Icon } from './Icon';
+import { Markdown } from './Markdown';
 
 export interface FormAlertProps {
   // The common message.
@@ -32,5 +34,9 @@ export function FormAlert(props: FormAlertProps) {
     return null;
   }
 
-  return <div className={classNames('alert alert-error mb-4', className)}>{message}</div>;
+  return (
+    <div className={classNames('alert alert-error mb-4', className)}>
+      <Icon icon="alert-circle" /> <Markdown>{message}</Markdown>
+    </div>
+  );
 }

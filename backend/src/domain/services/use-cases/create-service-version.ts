@@ -1,12 +1,13 @@
 import { NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ServiceEntity, ServiceRepository, ServiceVersionRepository } from 'src/domain/database';
+import { ServiceEntity, ServiceRepository, ServiceVersionEntity, ServiceVersionRepository } from 'src/domain/database';
 import { assignDefined } from 'src/lib';
 import { ServiceVersion } from '../interfaces';
+import { parseDefinition, validateDefinition } from '../workflows/model';
 import { buildServiceVersion } from './utils';
 
-type Values = Omit<ServiceVersion, 'id' | 'lastestVersion' | 'numDeployments'>;
+type Values = Omit<ServiceVersion, 'id' | 'isDefault' | 'lastestVersion' | 'numDeployments'>;
 
 export class CreateServiceVersion {
   constructor(
@@ -24,13 +25,13 @@ export class CreateServiceVersionHandler implements ICommandHandler<CreateServic
   constructor(
     @InjectRepository(ServiceEntity)
     private readonly services: ServiceRepository,
-    @InjectRepository(ServiceEntity)
+    @InjectRepository(ServiceVersionEntity)
     private readonly serviceVersions: ServiceVersionRepository,
   ) {}
 
   async execute(request: CreateServiceVersion): Promise<CreateServiceVersionResponse> {
     const { serviceId, values } = request;
-    const { environment, isActive, name } = values;
+    const { definition, environment, isActive, name } = values;
 
     const service = await this.services.findOneBy({ id: serviceId });
     if (!service) {
@@ -39,12 +40,15 @@ export class CreateServiceVersionHandler implements ICommandHandler<CreateServic
 
     const entity = this.serviceVersions.create();
 
+    const parsed = parseDefinition(definition);
+    await validateDefinition(parsed);
+
     // Assign the object manually to avoid updating unexpected values.
-    assignDefined(entity, { environment, isActive, name, serviceId });
+    assignDefined(entity, { definition, environment, isActive, name, serviceId });
 
     // Use the save method otherwise we would not get previous values.
     const created = await this.serviceVersions.save(entity);
-    const result = buildServiceVersion(created);
+    const result = buildServiceVersion(created, false);
 
     return new CreateServiceVersionResponse(result);
   }

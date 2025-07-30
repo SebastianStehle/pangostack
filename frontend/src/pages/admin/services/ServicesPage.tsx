@@ -8,6 +8,8 @@ import { texts } from 'src/texts';
 import { Service } from './Service';
 import { UpsertServiceDialog } from './UpsertServiceDialog';
 import { ServicePage } from './service/ServicePage';
+import { NewServicePage } from './service/new-version/NewVersionPage';
+import { VersionPage } from './service/version/VersionPage';
 import { useServicesStore } from './state';
 
 export function ServicesPage() {
@@ -17,7 +19,11 @@ export function ServicesPage() {
   const [toCreate, setToCreate] = useState<boolean>();
   const [toUpdate, setToUpdate] = useState<ServiceDto | null>(null);
 
-  const { data: loadedServices, isFetched } = useQuery({
+  const {
+    data: loadedServices,
+    isFetched,
+    refetch,
+  } = useQuery({
     queryKey: ['services'],
     queryFn: () => clients.services.getServices(),
   });
@@ -67,7 +73,9 @@ export function ServicesPage() {
       }
     >
       <Routes>
-        <Route path=":serviceId" element={<ServicePage />} />
+        <Route path=":serviceId" element={<ServicePage />}></Route>
+        <Route path=":serviceId/versions/new" element={<NewServicePage onCreate={refetch} />} />
+        <Route path=":serviceId/versions/:versionId" element={<VersionPage onUpdate={refetch} />} />
       </Routes>
 
       {toCreate && <UpsertServiceDialog onClose={doClose} onUpsert={doCreate} />}

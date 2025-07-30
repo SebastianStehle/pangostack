@@ -51,6 +51,12 @@ export interface ServiceVersionDto {
      */
     isActive: boolean;
     /**
+     * Indicates if the version is the default one.
+     * @type {boolean}
+     * @memberof ServiceVersionDto
+     */
+    isDefault: boolean;
+    /**
      * The number of deployments.
      * @type {number}
      * @memberof ServiceVersionDto
@@ -68,6 +74,7 @@ export function instanceOfServiceVersionDto(value: object): boolean {
     isInstance = isInstance && "definition" in value;
     isInstance = isInstance && "environment" in value;
     isInstance = isInstance && "isActive" in value;
+    isInstance = isInstance && "isDefault" in value;
     isInstance = isInstance && "numDeployments" in value;
 
     return isInstance;
@@ -88,6 +95,7 @@ export function ServiceVersionDtoFromJSONTyped(json: any, ignoreDiscriminator: b
         'definition': json['definition'],
         'environment': json['environment'],
         'isActive': json['isActive'],
+        'isDefault': json['isDefault'],
         'numDeployments': json['numDeployments'],
     };
 }
@@ -106,6 +114,7 @@ export function ServiceVersionDtoToJSON(value?: ServiceVersionDto | null): any {
         'definition': value.definition,
         'environment': value.environment,
         'isActive': value.isActive,
+        'isDefault': value.isDefault,
         'numDeployments': value.numDeployments,
     };
 }

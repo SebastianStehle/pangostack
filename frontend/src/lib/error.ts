@@ -1,32 +1,35 @@
 import { ResponseError } from 'src/api';
-import { is, isString } from './types';
+import { is, isArray, isString } from './types';
 
 export async function buildError(common: string, details?: string | Error | null) {
-  let result = common;
-
-  let detailString: string | null = null;
+  let errorSummary = common;
+  let errorDetails: string[] = [];
   if (isString(details)) {
-    detailString = details;
+    errorSummary = details;
   } else if (is(details, ResponseError)) {
     try {
       const response = await details.response.json();
 
-      detailString = response.message;
+      if (isString(response.message)) {
+        errorSummary = response.message;
+      } else if (isArray(response.message)) {
+        errorDetails = response.message;
+      }
     } catch {
       console.error('Server response is an not a JSON object.');
     }
   }
 
-  if (isString(detailString)) {
-    if (result.endsWith('.')) {
-      result = result.substring(0, result.length - 1);
-    }
-
-    result = `${result}: ${detailString}`;
+  if (!errorSummary) {
+    errorSummary = 'common';
   }
 
-  if (!result.endsWith('.')) {
-    result = `${result}.`;
+  let result = errorSummary;
+  if (errorDetails.length > 0) {
+    result += '\n\n';
+    for (const detail of errorDetails) {
+      result += ` * ${detail}\n`;
+    }
   }
 
   return result;

@@ -14,10 +14,12 @@ import {
   isString,
   IsString,
   Min,
+  validate,
   ValidateNested,
   ValidationError,
 } from 'class-validator';
 import { parse as fromYAML } from 'yaml';
+import { flattenValidationErrors } from 'src/lib';
 
 export class ParameterDefinition {
   @IsDefined()
@@ -145,7 +147,15 @@ export function parseDefinition(yaml: string) {
   return definitionClass;
 }
 
-export function validate(service: ServiceDefinition, target: Record<string, any>) {
+export async function validateDefinition(service: ServiceDefinition) {
+  const errors = await validate(service);
+
+  if (errors.length > 0) {
+    throw new BadRequestException(flattenValidationErrors(errors));
+  }
+}
+
+export function validateDefinitionValue(service: ServiceDefinition, target: Record<string, any>) {
   const errors: ValidationError[] = [];
 
   for (const [key, definition] of Object.entries(service.parameters)) {
@@ -223,6 +233,6 @@ export function validate(service: ServiceDefinition, target: Record<string, any>
   }
 
   if (errors.length > 0) {
-    throw new BadRequestException(errors);
+    throw new BadRequestException(flattenValidationErrors(errors));
   }
 }

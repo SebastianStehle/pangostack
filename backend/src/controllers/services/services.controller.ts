@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiParam, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
@@ -7,6 +7,7 @@ import {
   CreateService,
   CreateServiceResponse,
   CreateServiceVersion,
+  CreateServiceVersionResponse,
   DeleteService,
   DeleteServiceVersion,
   GetServices,
@@ -18,12 +19,14 @@ import {
   UpdateService,
   UpdateServiceResponse,
   UpdateServiceVersion,
+  UpdateServiceVersionResponse,
 } from 'src/domain/services';
 import {
   CreateServiceVersionDto,
   ServiceDto,
   ServicesDto,
   ServicesPublicDto,
+  ServiceVersionDto,
   ServiceVersionsDto,
   UpdateServiceVersionDto,
   UpsertServiceDto,
@@ -125,16 +128,50 @@ export class ServicesController {
     return ServiceVersionsDto.fromDomain(result.serviceVersions);
   }
 
+  @Get(':serviceId/versions/:versionId')
+  @ApiOperation({ operationId: 'getServiceVersion', description: 'Gets a service version.' })
+  @ApiParam({
+    name: 'serviceId',
+    description: 'The ID of the service.',
+    required: true,
+    type: 'number',
+  })
+  @ApiParam({
+    name: 'versionId',
+    description: 'The ID of the service version.',
+    required: true,
+    type: 'number',
+  })
+  @ApiOkResponse({ type: ServiceVersionDto })
+  @Role(BUILTIN_USER_GROUP_ADMIN)
+  @UseGuards(RoleGuard)
+  async getServiceVersion(@Param('serviceId') id: string, @Param('versionId') versionId: string) {
+    const result: GetServiceVersionsResponse = await this.queryBus.execute(new GetServiceVersions(+id));
+
+    const version = result.serviceVersions.find((x) => x.id === +versionId);
+    if (!version) {
+      throw new NotFoundException();
+    }
+
+    return ServiceVersionDto.fromDomain(version);
+  }
+
   @Post(':serviceId/versions')
   @ApiOperation({ operationId: 'postServiceVersion', description: 'Creates a service version.' })
-  @ApiOkResponse({ type: ServiceDto })
+  @ApiParam({
+    name: 'serviceId',
+    description: 'The ID of the service.',
+    required: true,
+    type: 'number',
+  })
+  @ApiOkResponse({ type: ServiceVersionDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
   async postServiceVersion(@Param('serviceId') id: string, @Body() body: CreateServiceVersionDto) {
     const command = new CreateServiceVersion(+id, body);
-    const result: CreateServiceResponse = await this.commandBus.execute(command);
+    const result: CreateServiceVersionResponse = await this.commandBus.execute(command);
 
-    return ServiceDto.fromDomain(result.service);
+    return ServiceVersionDto.fromDomain(result.serviceVersion);
   }
 
   @Put(':serviceId/versions/:versionId')
@@ -151,14 +188,18 @@ export class ServicesController {
     required: true,
     type: 'number',
   })
-  @ApiOkResponse({ type: ServiceDto })
+  @ApiOkResponse({ type: ServiceVersionDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async putServiceVersion(@Param('versionId') versionId: string, @Body() body: UpdateServiceVersionDto) {
+  async putServiceVersion(
+    @Param('serviceId') _serviceId: string,
+    @Param('versionId') versionId: string,
+    @Body() body: UpdateServiceVersionDto,
+  ) {
     const command = new UpdateServiceVersion(+versionId, body);
-    const result: UpdateServiceResponse = await this.commandBus.execute(command);
+    const result: UpdateServiceVersionResponse = await this.commandBus.execute(command);
 
-    return ServiceDto.fromDomain(result.service);
+    return ServiceVersionDto.fromDomain(result.serviceVersion);
   }
 
   @Delete(':serviceId/versions/:versionId')
@@ -178,7 +219,7 @@ export class ServicesController {
   @ApiNoContentResponse()
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async deleteServiceVersion(@Param('versionId') versionId: string) {
+  async deleteServiceVersion(@Param('serviceId') _serviceId: string, @Param('versionId') versionId: string) {
     const command = new DeleteServiceVersion(+versionId);
 
     await this.commandBus.execute(command);
