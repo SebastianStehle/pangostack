@@ -67,10 +67,16 @@ export class HelmResource implements Resource {
       // The namespace also identifies the resource.
       const namespace = getNamespace(id);
 
+      // Allow chart names with and without repository prefix.
+      let fullChartName = chartName;
+      if (fullChartName.indexOf(repositoryName) < 0) {
+        fullChartName = `${repositoryName}/${chartName}`;
+      }
+
       const args = [
         'upgrade',
         namespace,
-        `${repositoryName}/${chartName}`,
+        fullChartName,
         '--version',
         chartVersion,
         '--install',
@@ -199,7 +205,15 @@ export class HelmResource implements Resource {
 }
 
 function getNamespace(id: string) {
-  return `resource-${id}`;
+  const trimmedId = id
+    .toLowerCase() // 1. Lowercase
+    .replace(/[^a-z0-9.-]/g, '-') // 2. Replace invalid chars with `-`
+    .replace(/^[^a-z0-9]+/, '') // 3. Trim leading non-alphanum
+    .replace(/[^a-z0-9]+$/, '') // 3. Trim trailing non-alphanum
+    .slice(0, 53) // 4. Max 53 chars
+    .replace(/[^a-z0-9]+$/, ''); // 5. Re-trim trailing non-alphanum (again after slicing)
+
+  return `resource-${trimmedId}`;
 }
 
 function isPodReady(status?: k8s.V1PodStatus): boolean {

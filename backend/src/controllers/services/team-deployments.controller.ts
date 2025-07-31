@@ -6,6 +6,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Req,
@@ -52,8 +53,8 @@ export class TeamDeploymentsController {
   @ApiOkResponse({ type: DeploymentsDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard)
-  async getDeployments(@Req() req: Request, @Param('teamId') teamId: string) {
-    await this.ensurePermission(req.user, +teamId);
+  async getDeployments(@Req() req: Request, @Param('teamId', ParseIntPipe) teamId: number) {
+    await this.ensurePermission(req.user, teamId);
 
     const result: GetTeamDeploymentsResponse = await this.queryBus.execute(new GetTeamDeployments(+teamId));
 
@@ -65,10 +66,10 @@ export class TeamDeploymentsController {
   @ApiOkResponse({ type: DeploymentDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard)
-  async postDeployment(@Req() req: Request, @Param('teamId') teamId: string, @Body() body: CreateDeploymentDto) {
-    await this.ensurePermission(req.user, +teamId);
+  async postDeployment(@Req() req: Request, @Param('teamId', ParseIntPipe) teamId: number, @Body() body: CreateDeploymentDto) {
+    await this.ensurePermission(req.user, teamId);
 
-    const command = new CreateDeployment(+teamId, body.serviceId, body.parameters, req.user);
+    const command = new CreateDeployment(+teamId, body.name, body.serviceId, body.parameters, req.user);
     const result: CreateDeploymentResponse = await this.commandBus.execute(command);
 
     return DeploymentDto.fromDomain(result.deployment);
@@ -87,13 +88,13 @@ export class TeamDeploymentsController {
   @UseGuards(RoleGuard)
   async putDeployment(
     @Req() req: Request,
-    @Param('teamId') teamId: string,
-    @Param('deploymentId') deploymentId: string,
+    @Param('teamId', ParseIntPipe) teamId: number,
+    @Param('deploymentId', ParseIntPipe) deploymentId: number,
     @Body() body: CreateDeploymentDto,
   ) {
-    await this.ensurePermission(req.user, +teamId);
+    await this.ensurePermission(req.user, teamId);
 
-    const command = new UpdateDeployment(+deploymentId, +teamId, body.parameters, body.serviceId, req.user);
+    const command = new UpdateDeployment(deploymentId, teamId, body.name, body.parameters, body.serviceId, req.user);
     const result: UpdateDeploymentResponse = await this.commandBus.execute(command);
 
     return DeploymentDto.fromDomain(result.deployment);
@@ -117,12 +118,12 @@ export class TeamDeploymentsController {
   }
 
   async ensurePermission(user: User, teamId: number) {
-    const team = await this.teams.findOne({ where: { id: teamId }, relations: ['teamUsers'] });
+    const team = await this.teams.findOne({ where: { id: teamId }, relations: ['users'] });
     if (!team) {
       throw new NotFoundException(`Team ${teamId} not found.`);
     }
 
-    if (team.users.find((x) => x.userId === user.id)) {
+    if (!team.users.find((x) => x.userId === user.id)) {
       throw new ForbiddenException();
     }
   }

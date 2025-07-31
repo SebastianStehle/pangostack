@@ -21,6 +21,7 @@ import { buildDeployment } from './utils';
 export class CreateDeployment {
   constructor(
     public readonly teamdId: number,
+    public readonly name: string | undefined,
     public readonly serviceId: number,
     public readonly parameters: Record<string, string>,
     public readonly user: User,
@@ -48,7 +49,7 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
   ) {}
 
   async execute(command: CreateDeployment): Promise<CreateDeploymentResponse> {
-    const { parameters, serviceId, teamdId, user } = command;
+    const { name, parameters, serviceId, teamdId, user } = command;
 
     const service = await this.services.findOneBy({ id: serviceId });
     if (!service) {
@@ -58,6 +59,7 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     const version = await this.serviceVersions.findOne({
       where: { serviceId: service.id, isActive: true },
       order: { createdAt: 'DESC' },
+      relations: ['service'],
     });
     if (!version) {
       throw new NotFoundException(`Service ${serviceId} has no active version.`);
@@ -72,6 +74,7 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     const environment = { ...service.environment, ...version.environment };
 
     const deployment = this.deployments.create();
+    deployment.name = name;
     deployment.createdAt = undefined;
     deployment.createdBy = user?.id || 'UNKNOWN';
     deployment.teamId = teamdId;
@@ -92,6 +95,6 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     await this.deploymentUpdates.save(update);
 
     await this.runner.deploy(deployment, update, version, worker);
-    return { deployment: buildDeployment(deployment, service) };
+    return { deployment: buildDeployment(deployment, update) };
   }
 }

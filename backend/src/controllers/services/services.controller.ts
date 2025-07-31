@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Post, Put, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiParam, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
@@ -87,8 +87,8 @@ export class ServicesController {
   @ApiOkResponse({ type: ServiceDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async putService(@Param('serviceId') id: string, @Body() body: UpsertServiceDto) {
-    const command = new UpdateService(+id, body);
+  async putService(@Param('serviceId', ParseIntPipe) serviceId: number, @Body() body: UpsertServiceDto) {
+    const command = new UpdateService(serviceId, body);
     const result: UpdateServiceResponse = await this.commandBus.execute(command);
 
     return ServiceDto.fromDomain(result.service);
@@ -105,8 +105,8 @@ export class ServicesController {
   @ApiNoContentResponse()
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async deleteService(@Param('serviceId') id: string) {
-    const command = new DeleteService(+id);
+  async deleteService(@Param('serviceId', ParseIntPipe) serviceId: number) {
+    const command = new DeleteService(serviceId);
 
     await this.commandBus.execute(command);
   }
@@ -122,8 +122,8 @@ export class ServicesController {
   @ApiOkResponse({ type: ServiceVersionsDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async getDeployments(@Param('serviceId') id: string) {
-    const result: GetServiceVersionsResponse = await this.queryBus.execute(new GetServiceVersions(+id));
+  async getDeployments(@Param('serviceId', ParseIntPipe) serviceId: number) {
+    const result: GetServiceVersionsResponse = await this.queryBus.execute(new GetServiceVersions(serviceId));
 
     return ServiceVersionsDto.fromDomain(result.serviceVersions);
   }
@@ -145,8 +145,8 @@ export class ServicesController {
   @ApiOkResponse({ type: ServiceVersionDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async getServiceVersion(@Param('serviceId') id: string, @Param('versionId') versionId: string) {
-    const result: GetServiceVersionsResponse = await this.queryBus.execute(new GetServiceVersions(+id));
+  async getServiceVersion(@Param('serviceId', ParseIntPipe) serviceId: number, @Param('versionId') versionId: string) {
+    const result: GetServiceVersionsResponse = await this.queryBus.execute(new GetServiceVersions(serviceId));
 
     const version = result.serviceVersions.find((x) => x.id === +versionId);
     if (!version) {

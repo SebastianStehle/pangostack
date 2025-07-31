@@ -140,97 +140,97 @@ export module Forms {
     );
   };
 
-  export const Text = ({ className, ...other }: FormEditorProps & HTMLProps<HTMLInputElement>) => {
+  export const Text = ({ className, required, ...other }: FormEditorProps & HTMLProps<HTMLInputElement>) => {
     return (
-      <Forms.Row className={className} {...other}>
+      <Forms.Row className={className} required={required} {...other}>
         <InputText type="text" {...other} />
       </Forms.Row>
     );
   };
 
-  export const Url = ({ className, ...other }: FormEditorProps & HTMLProps<HTMLInputElement>) => {
+  export const Url = ({ className, required, ...other }: FormEditorProps & HTMLProps<HTMLInputElement>) => {
     return (
-      <Forms.Row className={className} {...other}>
+      <Forms.Row className={className} required={required} {...other}>
         <InputText type="url" {...other} />
       </Forms.Row>
     );
   };
 
-  export const Color = ({ className, ...other }: FormEditorProps) => {
+  export const Color = ({ className, required, ...other }: FormEditorProps) => {
     return (
-      <Forms.Row className={className} {...other}>
+      <Forms.Row className={className} required={required} {...other}>
         <InputText type="color" {...other} className="!w-[3rem] px-1" />
       </Forms.Row>
     );
   };
 
-  export const Tags = ({ className, ...other }: FormEditorProps) => {
+  export const Tags = ({ className, required, ...other }: FormEditorProps) => {
     return (
-      <Forms.Row className={className} {...other}>
+      <Forms.Row className={className} required={required} {...other}>
         <InputTags {...other} />
       </Forms.Row>
     );
   };
 
-  export const Textarea = ({ className, ...other }: FormEditorProps) => {
+  export const Textarea = ({ className, required, ...other }: FormEditorProps) => {
     return (
-      <Forms.Row className={className} {...other}>
+      <Forms.Row className={className} required={required} {...other}>
         <InputTextarea {...other} />
       </Forms.Row>
     );
   };
 
-  export const Number = ({ className, ...other }: NumberFormEditorProps) => {
+  export const Number = ({ className, required, ...other }: NumberFormEditorProps) => {
     return (
-      <Forms.Row className={className} {...other}>
+      <Forms.Row className={className} required={required} {...other}>
         <InputNumber {...other} />
       </Forms.Row>
     );
   };
 
-  export const Range = ({ className, ...other }: NumberFormEditorProps) => {
+  export const Range = ({ className, required, ...other }: NumberFormEditorProps) => {
     return (
-      <Forms.Row className={className} aligned={true} {...other}>
+      <Forms.Row className={className} required={required} aligned={true} {...other}>
         <InputRange {...other} />
       </Forms.Row>
     );
   };
 
-  export const Markdown = ({ className, ...other }: FormEditorProps) => {
+  export const Markdown = ({ className, required, ...other }: FormEditorProps) => {
     return (
-      <Forms.Row className={className} {...other}>
+      <Forms.Row className={className} required={required} {...other}>
         <InputMarkdown {...other} />
       </Forms.Row>
     );
   };
 
-  export const Code = ({ className, ...other }: CodeFormEditorProps) => {
+  export const Code = ({ className, required, ...other }: CodeFormEditorProps) => {
     return (
-      <Forms.Row className={className} {...other}>
+      <Forms.Row className={className} required={required} {...other}>
         <InputCode {...other} />
       </Forms.Row>
     );
   };
 
-  export const Password = ({ className, ...other }: FormEditorProps) => {
+  export const Password = ({ className, required, ...other }: FormEditorProps) => {
     return (
-      <Forms.Row className={className} {...other}>
+      <Forms.Row className={className} required={required} {...other}>
         <InputText type="password" {...other} />
       </Forms.Row>
     );
   };
 
-  export const Boolean = ({ className, label, vertical, ...other }: FormEditorProps) => {
+  export const Boolean = ({ className, required, label, vertical, ...other }: FormEditorProps) => {
     return (
-      <Forms.Row className={className} label={!vertical ? label : undefined} vertical={vertical} {...other}>
+      <Forms.Row className={className} required={required} label={!vertical ? label : undefined} vertical={vertical} {...other}>
         <InputToggle label={label} vertical={vertical} {...other} />
       </Forms.Row>
     );
   };
 
-  export const Select = ({ className, options, ...other }: OptionsFormEditorProps<any>) => {
+  export const Select = ({ className, required, options, ...other }: OptionsFormEditorProps<any>) => {
     return (
-      <Forms.Row className={className} {...other}>
+      <Forms.Row className={className} required={required} {...other}>
         <InputSelect options={options} {...other} />
       </Forms.Row>
     );

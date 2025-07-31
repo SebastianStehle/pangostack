@@ -48,7 +48,7 @@ export function ServicesPage() {
     <Page
       menu={
         <div className="flex flex-col overflow-y-hidden">
-          <div className="flex p-8 pb-4">
+          <div className="mb-4 flex items-center gap-4 p-8">
             <h3 className="grow text-xl">{texts.services.headline}</h3>
 
             <button

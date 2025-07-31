@@ -31,6 +31,10 @@ export class GetServicesPublicHandler implements IQueryHandler<GetServicesPublic
       }
 
       const definition = parseDefinition(version.definition);
+      if (!definition?.parameters || !definition?.usage) {
+        continue;
+      }
+
       result.push(buildServicePublic(entity, version, definition));
     }
 

@@ -12,6 +12,9 @@ export interface DeployAllParam {
 
 const { deployResource, updateDeployment } = proxyActivities<typeof activities>({
   startToCloseTimeout: '30 minutes',
+  retry: {
+    maximumAttempts: 5,
+  },
 });
 
 export async function deployAll({

@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { texts } from 'src/texts';
 
 export function formatFileSize(value: number, factor = 1024) {
@@ -13,6 +14,10 @@ export function formatFileSize(value: number, factor = 1024) {
 
 export function formatBoolean(value: boolean) {
   return value ? texts.common.yes : texts.common.no;
+}
+
+export function formatDate(value: Date) {
+  return format(value, 'Pp');
 }
 
 export function formatTrue(value: boolean) {

@@ -1,9 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsDefined, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
 import { Deployment, Service, ServicePublic, ServiceVersion } from 'src/domain/services';
 import { ParameterDefinition } from 'src/domain/services/workflows/model';
 
 export class CreateDeploymentDto {
+  @ApiProperty({
+    description: 'The optional name to describe the deployment.',
+    nullable: true,
+    maxLength: 100,
+  })
+  @IsOptional()
+  @IsNumber()
+  @MaxLength(100)
+  name?: string;
+
   @ApiProperty({
     description: 'The ID of the service.',
     required: true,
@@ -23,6 +33,16 @@ export class CreateDeploymentDto {
 }
 
 export class UpdateDeploymentDto {
+  @ApiProperty({
+    description: 'The optional name to describe the deployment.',
+    nullable: true,
+    maxLength: 100,
+  })
+  @IsOptional()
+  @IsNumber()
+  @MaxLength(100)
+  name?: string;
+
   @ApiProperty({
     description: 'The ID of the version when an update is made.',
     required: true,
@@ -60,11 +80,27 @@ export class DeploymentDto {
   })
   serviceName: string;
 
+  @ApiProperty({
+    description: 'The version of the service.',
+    required: true,
+  })
+  serviceVersion: string;
+
+  @ApiProperty({
+    description: 'The timestamp when the deployment has been created.',
+    required: true,
+    type: 'string',
+    format: 'date',
+  })
+  createdAt: Date;
+
   static fromDomain(source: Deployment) {
     const result = new DeploymentDto();
     result.id = source.id;
     result.serviceId = source.serviceId;
     result.serviceName = source.serviceName;
+    result.serviceVersion = source.serviceVersion;
+    result.createdAt = source.createdAt;
 
     return result;
   }
@@ -90,9 +126,11 @@ export class UpsertServiceDto {
   @ApiProperty({
     description: 'The name of the service.',
     required: true,
+    maxLength: 100,
   })
   @IsDefined()
   @IsString()
+  @MaxLength(100)
   name: string;
 
   @ApiProperty({
@@ -296,9 +334,11 @@ export class CreateServiceVersionDto {
   @ApiProperty({
     description: 'The name of the version.',
     required: true,
+    maxLength: 10,
   })
   @IsDefined()
   @IsString()
+  @MaxLength(10)
   name: string;
 
   @ApiProperty({

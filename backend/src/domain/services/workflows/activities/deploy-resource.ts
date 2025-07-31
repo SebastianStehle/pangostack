@@ -1,10 +1,9 @@
-import * as https from 'https';
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database/entities/deployment-update';
-import { expression } from 'src/lib';
-import { Configuration, DeploymentApi } from '../../generated';
-import { ResourceDefinition } from '../model';
+import { evaluateParameters, ResourceDefinition } from '../model';
+import { Worker } from './../worker';
 
 export interface DeployResourceParam {
   deploymentId: number;
@@ -16,6 +15,8 @@ export interface DeployResourceParam {
 
 @Injectable()
 export class DeployResourceActivity {
+  private readonly logger = new Logger(DeployResourceActivity.name);
+
   constructor(
     @InjectRepository(DeploymentUpdateEntity)
     private readonly deploymentUpdateRepository: DeploymentUpdateRepository,
@@ -24,38 +25,26 @@ export class DeployResourceActivity {
   async execute({ deploymentId, resource, updateId, workerApiKey, workerEndpoint }: DeployResourceParam): Promise<any> {
     const update = await this.deploymentUpdateRepository.findOneBy({ id: updateId });
     if (!update) {
-      throw new NotFoundException();
+      throw new NotFoundException(`Deployment Update ${updateId} not found.`);
     }
 
     update.status = 'Pending';
     await this.deploymentUpdateRepository.save(update);
 
-    const { environment: env, context, parameters } = update;
-
     const resourceId = `deployment_${deploymentId}_${resource.id}`;
-    const resourceParams = { ...resource.parameters };
-    for (const [key, value] of Object.entries(resource.parameters)) {
-      resourceParams[key] = expression(value, { env, context, parameters });
-    }
+    const resourceParams = evaluateParameters(resource, update.environment, update.context);
 
-    const api = new DeploymentApi(
-      new Configuration({
-        headers: {
-          ['X-ApiKey']: workerApiKey,
-        },
-        fetchApi: async (request, init) => {
-          const agent = new https.Agent({
-            rejectUnauthorized: false,
-          });
+    this.logger.log(`Deploying resource ${resource.id} for deployment ${deploymentId}`, {
+      context: update.context,
+      deploymentId,
+      env: update.environment,
+      parameters: resourceParams,
+      parametersRaw: resource.parameters,
+      resourceId,
+    });
 
-          const result = await fetch(request as any, { ...init, agent } as any);
-          return result as any;
-        },
-        basePath: workerEndpoint,
-      }),
-    );
-
-    const response = await api.apply({
+    const worker = new Worker(workerEndpoint, workerApiKey);
+    const response = await worker.deployment.applyResource({
       resourceId,
       resourceName: resource.type,
       parameters: resourceParams,
@@ -75,7 +64,6 @@ export class DeployResourceActivity {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function deployResource(_: DeployResourceParam): Promise<any> {
-  return true;
+export async function deployResource(param: DeployResourceParam): Promise<any> {
+  return param;
 }

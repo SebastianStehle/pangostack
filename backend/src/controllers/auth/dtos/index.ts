@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { AuthConfig } from 'src/domain/auth/interfaces';
 import { BUILTIN_USER_GROUP_ADMIN } from 'src/domain/database';
-import { User, UserGroup } from 'src/domain/users';
+import { User } from 'src/domain/users';
 
 export class AuthProviderDto {
   @ApiProperty({

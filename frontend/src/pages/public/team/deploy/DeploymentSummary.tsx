@@ -15,7 +15,7 @@ export function DeploymentSummary(props: DeploymentSummaryProps) {
 
   const rows = useMemo(() => {
     const context = {
-      parameters: values,
+      parameters: values.parameters,
     };
 
     const buildRow = (label: string, formula: string, price: number, unitFactorLabel: string, factor: number, unit = '') => {
@@ -61,7 +61,6 @@ export function DeploymentSummary(props: DeploymentSummaryProps) {
   }, [service, values]);
 
   const total = useMemo(() => {
-    console.log(JSON.stringify(rows, undefined, 2));
     return rows.reduce((a, c) => a + c.totalPrice, 0) + service.fixedPrice;
   }, [rows, service.fixedPrice]);
 

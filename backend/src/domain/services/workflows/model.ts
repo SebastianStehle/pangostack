@@ -18,8 +18,8 @@ import {
   ValidateNested,
   ValidationError,
 } from 'class-validator';
-import { parse as fromYAML } from 'yaml';
-import { flattenValidationErrors } from 'src/lib';
+import { parse as fromYAML, YAMLError } from 'yaml';
+import { evaluateExpression, flattenValidationErrors, is } from 'src/lib';
 
 export class ParameterDefinition {
   @IsDefined()
@@ -141,10 +141,22 @@ export class ResourcesDefinition {
 }
 
 export function parseDefinition(yaml: string) {
-  const definitionJson = fromYAML(yaml);
-  const definitionClass = plainToInstance(ServiceDefinition, definitionJson);
+  try {
+    const definitionJson = fromYAML(yaml);
+    const definitionClass = plainToInstance(ServiceDefinition, definitionJson);
 
-  return definitionClass;
+    if (!is(definitionClass, ServiceDefinition)) {
+      return new ServiceDefinition();
+    }
+
+    return definitionClass;
+  } catch (ex: any) {
+    if (is(ex, YAMLError)) {
+      throw new BadRequestException([ex.message]);
+    } else {
+      throw ex;
+    }
+  }
 }
 
 export async function validateDefinition(service: ServiceDefinition) {
@@ -153,6 +165,17 @@ export async function validateDefinition(service: ServiceDefinition) {
   if (errors.length > 0) {
     throw new BadRequestException(flattenValidationErrors(errors));
   }
+}
+
+export function evaluateParameters(resource: ResourceDefinition, env: any, context: any) {
+  const params = { ...resource.parameters };
+
+  const expressionContext = { env, context, parameters: resource.parameters };
+  for (const [key, value] of Object.entries(resource.parameters)) {
+    params[key] = evaluateExpression(value, expressionContext);
+  }
+
+  return params;
 }
 
 export function validateDefinitionValue(service: ServiceDefinition, target: Record<string, any>) {

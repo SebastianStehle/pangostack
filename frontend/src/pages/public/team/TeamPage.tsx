@@ -18,7 +18,7 @@ export function TeamPage() {
             className={({ isActive }) => classNames('text-primary-content text-lg opacity-70', { 'opacity-100': isActive })}
             to="deployments"
           >
-            {texts.deployments.title}
+            {texts.deployments.headline}
           </TransientNavLink>
         </li>
         <li>
@@ -26,7 +26,7 @@ export function TeamPage() {
             className={({ isActive }) => classNames('text-primary-content text-lg opacity-70', { 'opacity-100': isActive })}
             to="billing"
           >
-            {texts.billing.title}
+            {texts.billing.headline}
           </TransientNavLink>
         </li>
         <li>
@@ -51,9 +51,9 @@ export function TeamPage() {
         <div className="card-body p-8">
           <Routes>
             <Route path="billing" element={<BillingPage />} />
-            <Route path="deploy" element={<DeployPage />} />
             <Route path="deployments" element={<DeploymentsPage />} />
             <Route path="deployments/:deploymentId" element={<DeploymentPage />} />
+            <Route path="deployments/new" element={<DeployPage />} />
             <Route path="members" element={<MembersPage />} />
             <Route path="settings" element={<SettingsPage />} />
 

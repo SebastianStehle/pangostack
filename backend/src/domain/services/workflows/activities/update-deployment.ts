@@ -22,11 +22,12 @@ export class UpdateDeploymentActivity {
   async execute({ updateId, status, error }: UpdateDeploymentParam): Promise<any> {
     const update = await this.deploymentUpdateRepository.findOneBy({ id: updateId });
     if (!update) {
-      throw new NotFoundException();
+      throw new NotFoundException(`Deployment Update ${updateId} not found.`);
     }
 
     update.status = status;
     update.error = error;
+    await this.deploymentUpdateRepository.save(update);
   }
 }
 

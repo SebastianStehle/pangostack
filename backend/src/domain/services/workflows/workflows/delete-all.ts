@@ -2,7 +2,7 @@ import { proxyActivities } from '@temporalio/workflow';
 import type * as activities from '../activities';
 import { ResourceDefinition } from '../model';
 
-export interface DeployAllParam {
+export interface DeleteAllParam {
   deploymentId: number;
   resources: ResourceDefinition[];
   updateId: number;
@@ -12,6 +12,9 @@ export interface DeployAllParam {
 
 const { deleteResource } = proxyActivities<typeof activities>({
   startToCloseTimeout: '30 minutes',
+  retry: {
+    maximumAttempts: 5,
+  },
 });
 
 export async function deleteAll({
@@ -20,7 +23,7 @@ export async function deleteAll({
   updateId,
   workerApiKey,
   workerEndpoint,
-}: DeployAllParam): Promise<void> {
+}: DeleteAllParam): Promise<void> {
   for (const resource of resources) {
     await deleteResource({
       workerApiKey,

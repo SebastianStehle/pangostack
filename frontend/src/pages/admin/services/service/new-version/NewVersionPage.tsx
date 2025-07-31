@@ -46,7 +46,7 @@ export const NewServicePage = (props: NewServicePageProps) => {
 
   return (
     <div className="relative">
-      <div className="flex gap-4 pb-4">
+      <div className="mb-4 flex items-center gap-4">
         <TransientNavLink className="btn btn-ghost btn-sm text-sm" to={`../${serviceId}`}>
           <Icon icon="arrow-left" size={16} />
         </TransientNavLink>
@@ -57,7 +57,7 @@ export const NewServicePage = (props: NewServicePageProps) => {
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit((v) => creating.mutate(v))}>
           <fieldset disabled={creating.isPending}>
-            <FormAlert common={texts.services.createVersionFailed} error={creating.error} />
+            <FormAlert className="sticky top-2 z-10" common={texts.services.createVersionFailed} error={creating.error} />
 
             <div ref={sentinelRef}>
               <div className="alert alert-info mb-4">

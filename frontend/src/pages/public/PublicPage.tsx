@@ -42,7 +42,7 @@ export function PublicPage() {
 
       <Routes>
         <Route path="/teams/create" element={<TeamCreatePage />} />
-        <Route path="/teams/:id/*" element={<TeamPage />} />
+        <Route path="/teams/:teamId/*" element={<TeamPage />} />
 
         <Route
           path="*"

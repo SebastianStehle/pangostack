@@ -8,10 +8,10 @@ export const ServicePage = () => {
 
   return (
     <>
-      <div className="flex gap-4 pb-4">
+      <div className="mb-4 flex items-center gap-4">
         <h3 className="grow text-xl">{texts.services.headline}</h3>
 
-        <TransientNavLink className="btn btn-success btn-sm text-sm text-white" to="new-version">
+        <TransientNavLink className="btn btn-success btn-sm text-sm text-white" to="versions/new">
           <Icon icon="plus" size={16} /> {texts.services.createVersion}
         </TransientNavLink>
       </div>

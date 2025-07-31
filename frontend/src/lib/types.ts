@@ -43,3 +43,51 @@ export function isDate(value: any): value is Date {
 export function is<TClass>(x: any, c: new (...args: any[]) => TClass): x is TClass {
   return x instanceof c;
 }
+
+export function isEquals(lhs: any, rhs: any, lazyString = false) {
+  if (lhs === rhs || (lhs !== lhs && rhs !== rhs)) {
+    return true;
+  }
+
+  if (lazyString) {
+    const result = (lhs === '' && isUndefined(rhs)) || (rhs === '' && isUndefined(lhs));
+
+    if (result) {
+      return true;
+    }
+  }
+
+  if (!lhs || !rhs) {
+    return false;
+  }
+
+  if (isArray(lhs) && isArray(rhs)) {
+    if (lhs.length !== rhs.length) {
+      return false;
+    }
+
+    for (let i = 0; i < lhs.length; i++) {
+      if (!isEquals(lhs[i], rhs[i], lazyString)) {
+        return false;
+      }
+    }
+
+    return true;
+  } else if (isObject(lhs) && isObject(rhs)) {
+    if (Object.keys(lhs).length !== Object.keys(rhs).length) {
+      return false;
+    }
+
+    for (const key in lhs) {
+      if (lhs.hasOwnProperty(key)) {
+        if (!isEquals(lhs[key], rhs[key], lazyString)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  return false;
+}

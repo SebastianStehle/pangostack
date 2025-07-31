@@ -38,7 +38,7 @@ export class GetTeamDeploymentsHandler implements IQueryHandler<GetTeamDeploymen
         continue;
       }
 
-      result.push(buildDeployment(entity, lastUpdate.serviceVersion.service));
+      result.push(buildDeployment(entity, lastUpdate));
     }
 
     return new GetTeamDeploymentsResponse(result);

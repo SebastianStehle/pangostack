@@ -33,6 +33,9 @@ export class DeploymentEntity {
   @OneToMany(() => DeploymentUpdateEntity, (updates) => updates.deployment)
   updates: DeploymentUpdateEntity[];
 
+  @Column({ length: 100, nullable: true })
+  name?: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

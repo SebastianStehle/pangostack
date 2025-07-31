@@ -1,12 +1,16 @@
-import { parseScript } from 'esprima';
-import evaluate from 'static-eval';
+type EvalContext = Record<string, any>;
 
-export function expression(source: string, context: any) {
-  try {
-    const parsed = parseScript(source).body[0] as any;
-
-    return evaluate(parsed.expression, context);
-  } catch {
-    return source;
+export function evaluateExpression(template: string, context: EvalContext): string {
+  if (!template) {
+    return '';
   }
+
+  return template.replace(/\$\{([^}]+)\}/g, (_, expr) => {
+    try {
+      const func = new Function(...Object.keys(context), `return (${expr});`);
+      return func(...Object.values(context));
+    } catch (err) {
+      return '';
+    }
+  });
 }

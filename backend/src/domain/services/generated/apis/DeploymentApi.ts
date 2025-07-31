@@ -31,12 +31,12 @@ import {
     ResourcesTypesDtoToJSON,
 } from '../models/index';
 
-export interface DeleteRequest {
-    resourcesDeleteRequestDto: ResourcesDeleteRequestDto;
+export interface ApplyResourceRequest {
+    resourceApplyRequestDto: ResourceApplyRequestDto;
 }
 
-export interface ApplyRequest {
-    resourceApplyRequestDto: ResourceApplyRequestDto;
+export interface DeleteResourcesRequest {
+    resourcesDeleteRequestDto: ResourcesDeleteRequestDto;
 }
 
 /**
@@ -45,51 +45,14 @@ export interface ApplyRequest {
 export class DeploymentApi extends runtime.BaseAPI {
 
     /**
-     * Deletes all resources with the specified IDs.
-     * 
-     */
-    async _deleteRaw(requestParameters: DeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters['resourcesDeleteRequestDto'] == null) {
-            throw new runtime.RequiredError(
-                'resourcesDeleteRequestDto',
-                'Required parameter "resourcesDeleteRequestDto" was null or undefined when calling _delete().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        const response = await this.request({
-            path: `/deployment`,
-            method: 'DELETE',
-            headers: headerParameters,
-            query: queryParameters,
-            body: ResourcesDeleteRequestDtoToJSON(requestParameters['resourcesDeleteRequestDto']),
-        }, initOverrides);
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     * Deletes all resources with the specified IDs.
-     * 
-     */
-    async _delete(resourcesDeleteRequestDto: ResourcesDeleteRequestDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this._deleteRaw({ resourcesDeleteRequestDto: resourcesDeleteRequestDto }, initOverrides);
-    }
-
-    /**
      * Applies the resource
      * 
      */
-    async applyRaw(requestParameters: ApplyRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResourceApplyResponseDto>> {
+    async applyResourceRaw(requestParameters: ApplyResourceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResourceApplyResponseDto>> {
         if (requestParameters['resourceApplyRequestDto'] == null) {
             throw new runtime.RequiredError(
                 'resourceApplyRequestDto',
-                'Required parameter "resourceApplyRequestDto" was null or undefined when calling apply().'
+                'Required parameter "resourceApplyRequestDto" was null or undefined when calling applyResource().'
             );
         }
 
@@ -114,9 +77,46 @@ export class DeploymentApi extends runtime.BaseAPI {
      * Applies the resource
      * 
      */
-    async apply(resourceApplyRequestDto: ResourceApplyRequestDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResourceApplyResponseDto> {
-        const response = await this.applyRaw({ resourceApplyRequestDto: resourceApplyRequestDto }, initOverrides);
+    async applyResource(resourceApplyRequestDto: ResourceApplyRequestDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResourceApplyResponseDto> {
+        const response = await this.applyResourceRaw({ resourceApplyRequestDto: resourceApplyRequestDto }, initOverrides);
         return await response.value();
+    }
+
+    /**
+     * Deletes all resources with the specified IDs.
+     * 
+     */
+    async deleteResourcesRaw(requestParameters: DeleteResourcesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters['resourcesDeleteRequestDto'] == null) {
+            throw new runtime.RequiredError(
+                'resourcesDeleteRequestDto',
+                'Required parameter "resourcesDeleteRequestDto" was null or undefined when calling deleteResources().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/deployment`,
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+            body: ResourcesDeleteRequestDtoToJSON(requestParameters['resourcesDeleteRequestDto']),
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Deletes all resources with the specified IDs.
+     * 
+     */
+    async deleteResources(resourcesDeleteRequestDto: ResourcesDeleteRequestDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.deleteResourcesRaw({ resourcesDeleteRequestDto: resourcesDeleteRequestDto }, initOverrides);
     }
 
     /**

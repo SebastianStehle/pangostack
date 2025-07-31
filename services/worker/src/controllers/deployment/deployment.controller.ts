@@ -13,9 +13,9 @@ export class DeploymentController {
   ) {}
 
   @Post('')
-  @ApiOperation({ operationId: 'apply', description: 'Applies the resource' })
+  @ApiOperation({ operationId: 'applyResource', description: 'Applies the resource' })
   @ApiOkResponse({ type: ResourceApplyResponseDto })
-  async apply(@Body() body: ResourceApplyRequestDto) {
+  async applyResource(@Body() body: ResourceApplyRequestDto) {
     const resource = this.resources.find((x) => x.descriptor.name === body.resourceName);
     if (!resource) {
       throw new BadRequestException(`Unknown resouce type ${body.resourceName}`);
@@ -30,7 +30,7 @@ export class DeploymentController {
   }
 
   @Delete('')
-  @ApiOperation({ operationId: 'delete', description: 'Deletes all resources with the specified IDs.' })
+  @ApiOperation({ operationId: 'deleteResources', description: 'Deletes all resources with the specified IDs.' })
   @ApiNoContentResponse()
   async deleteResources(@Body() body: ResourcesDeleteRequestDto) {
     // Validate the request first.

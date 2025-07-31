@@ -38,6 +38,18 @@ export interface DeploymentDto {
      * @memberof DeploymentDto
      */
     serviceName: string;
+    /**
+     * The version of the service.
+     * @type {string}
+     * @memberof DeploymentDto
+     */
+    serviceVersion: string;
+    /**
+     * The timestamp when the deployment has been created.
+     * @type {Date}
+     * @memberof DeploymentDto
+     */
+    createdAt: Date;
 }
 
 /**
@@ -48,6 +60,8 @@ export function instanceOfDeploymentDto(value: object): boolean {
     isInstance = isInstance && "id" in value;
     isInstance = isInstance && "serviceId" in value;
     isInstance = isInstance && "serviceName" in value;
+    isInstance = isInstance && "serviceVersion" in value;
+    isInstance = isInstance && "createdAt" in value;
 
     return isInstance;
 }
@@ -65,6 +79,8 @@ export function DeploymentDtoFromJSONTyped(json: any, ignoreDiscriminator: boole
         'id': json['id'],
         'serviceId': json['serviceId'],
         'serviceName': json['serviceName'],
+        'serviceVersion': json['serviceVersion'],
+        'createdAt': (new Date(json['createdAt'])),
     };
 }
 
@@ -80,6 +96,8 @@ export function DeploymentDtoToJSON(value?: DeploymentDto | null): any {
         'id': value.id,
         'serviceId': value.serviceId,
         'serviceName': value.serviceName,
+        'serviceVersion': value.serviceVersion,
+        'createdAt': (value.createdAt.toISOString().substring(0,10)),
     };
 }
 

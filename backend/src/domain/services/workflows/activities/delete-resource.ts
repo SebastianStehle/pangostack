@@ -1,10 +1,8 @@
-import * as https from 'https';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database/entities/deployment-update';
-import { expression } from 'src/lib';
-import { Configuration, DeploymentApi } from '../../generated';
-import { ResourceDefinition } from '../model';
+import { evaluateParameters, ResourceDefinition } from '../model';
+import { Worker } from './../worker';
 
 export interface DeleteResourceParam {
   deploymentId: number;
@@ -24,35 +22,14 @@ export class DeleteResourceActivity {
   async execute({ deploymentId, resource, updateId, workerApiKey, workerEndpoint }: DeleteResourceParam): Promise<any> {
     const update = await this.deploymentUpdateRepository.findOneBy({ id: updateId });
     if (!update) {
-      throw new NotFoundException();
+      throw new NotFoundException(`Deployment Update ${updateId} not found.`);
     }
-
-    const { environment: env, context, parameters } = update;
 
     const resourceId = `deployment_${deploymentId}_${resource.id}`;
-    const resourceParams = { ...resource.parameters };
-    for (const [key, value] of Object.entries(resource.parameters)) {
-      resourceParams[key] = expression(value, { env, context, parameters });
-    }
+    const resourceParams = evaluateParameters(resource, update.environment, update.context);
 
-    const api = new DeploymentApi(
-      new Configuration({
-        headers: {
-          ['X-ApiKey']: workerApiKey,
-        },
-        fetchApi: async (request, init) => {
-          const agent = new https.Agent({
-            rejectUnauthorized: false,
-          });
-
-          const result = await fetch(request as any, { ...init, agent } as any);
-          return result as any;
-        },
-        basePath: workerEndpoint,
-      }),
-    );
-
-    await api._delete({
+    const worker = new Worker(workerEndpoint, workerApiKey);
+    await worker.deployment.deleteResources({
       resources: [
         {
           resourceId,
@@ -64,7 +41,6 @@ export class DeleteResourceActivity {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function deleteResource(_: DeleteResourceParam): Promise<any> {
-  return true;
+export async function deleteResource(param: DeleteResourceParam): Promise<any> {
+  return param;
 }

@@ -1,4 +1,16 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
@@ -48,8 +60,12 @@ export class UsersController {
   })
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async getUsers(@Query('page') page?: string, @Query('pageSize') pageSize?: string, @Query('query') query?: string) {
-    const result: GetUsersResponse = await this.queryBus.execute(new GetUsers(+page || 0, +pageSize || 20, query));
+  async getUsers(
+    @Query('page', ParseIntPipe) page?: number,
+    @Query('pageSize', ParseIntPipe) pageSize?: number,
+    @Query('query') query?: string,
+  ) {
+    const result: GetUsersResponse = await this.queryBus.execute(new GetUsers(page || 0, pageSize || 20, query));
 
     return UsersDto.fromDomain(result.users, result.total);
   }

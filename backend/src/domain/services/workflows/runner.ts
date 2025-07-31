@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { Worker } from '@temporalio/worker';
 import { WorkflowIdReusePolicy } from '@temporalio/workflow';
 import { plainToInstance } from 'class-transformer';
@@ -11,14 +11,25 @@ import { parseDefinition, ResourcesDefinition } from './model';
 import * as workflows from './workflows';
 
 @Injectable()
-export class WorkflowRunner {
-  private workerCreated = false;
-
+export class WorkflowRunner implements OnApplicationBootstrap {
   constructor(
     private readonly temporal: TemporalService,
     private readonly deployResource: activities.DeployResourceActivity,
     private readonly updateDeployment: activities.UpdateDeploymentActivity,
   ) {}
+
+  async onApplicationBootstrap() {
+    const worker = await Worker.create({
+      workflowsPath: require.resolve('./workflows'),
+      activities: {
+        deployResource: this.deployResource.execute.bind(this.deployResource),
+        updateDeployment: this.updateDeployment.execute.bind(this.updateDeployment),
+      },
+      taskQueue: `deployments`,
+    });
+
+    worker.run();
+  }
 
   async deploy(
     deployment: DeploymentEntity,
@@ -27,9 +38,6 @@ export class WorkflowRunner {
     worker: WorkerEntity,
   ) {
     const client = this.temporal.client;
-
-    const taskQueue = `deployments`;
-    await this.ensureCreated(taskQueue);
 
     const definition = parseDefinition(serviceVersion.definition);
 
@@ -45,7 +53,7 @@ export class WorkflowRunner {
           workerEndpoint: worker.endpoint,
         },
       ],
-      taskQueue,
+      taskQueue: `deployments`,
     });
   }
 
@@ -57,13 +65,10 @@ export class WorkflowRunner {
   ) {
     const client = this.temporal.client;
 
-    const taskQueue = `deployments`;
-    await this.ensureCreated(taskQueue);
-
     const definitionJson = fromYAML(serviceVersion.definition);
     const definitionClass = plainToInstance(ResourcesDefinition, definitionJson);
 
-    await client.workflow.start(workflows.deployAll, {
+    await client.workflow.start(workflows.deleteAll, {
       workflowId: `deployment-${deployment.id}`,
       workflowIdReusePolicy: WorkflowIdReusePolicy.ALLOW_DUPLICATE,
       args: [
@@ -75,23 +80,7 @@ export class WorkflowRunner {
           workerEndpoint: worker.endpoint,
         },
       ],
-      taskQueue,
+      taskQueue: `deployments`,
     });
-  }
-
-  private async ensureCreated(taskQueue: string) {
-    if (!this.workerCreated) {
-      const worker = await Worker.create({
-        workflowsPath: require.resolve('./workflows'),
-        activities: {
-          deployResource: this.deployResource.execute.bind(this.deployResource),
-          updateDeployment: this.updateDeployment.execute.bind(this.updateDeployment),
-        },
-        taskQueue,
-      });
-
-      worker.run();
-      this.workerCreated = true;
-    }
   }
 }

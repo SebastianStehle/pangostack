@@ -1,11 +1,12 @@
-import { DeploymentEntity, ServiceEntity, ServiceVersionEntity } from 'src/domain/database';
+import { DeploymentEntity, DeploymentUpdateEntity, ServiceEntity, ServiceVersionEntity } from 'src/domain/database';
 import { Deployment, Service, ServicePublic, ServiceVersion } from '../interfaces';
 import { ServiceDefinition } from '../workflows/model';
 
-export function buildDeployment(source: DeploymentEntity, service: ServiceEntity): Deployment {
-  const { id } = source;
+export function buildDeployment(source: DeploymentEntity, update: DeploymentUpdateEntity): Deployment {
+  const { id, createdAt } = source;
+  const service = update.serviceVersion.service;
 
-  return { id, serviceName: service.name, serviceId: service.id };
+  return { id, serviceName: service.name, serviceId: service.id, serviceVersion: update.serviceVersion.name, createdAt };
 }
 
 export function buildServiceVersion(source: ServiceVersionEntity, isDefault: boolean): ServiceVersion {

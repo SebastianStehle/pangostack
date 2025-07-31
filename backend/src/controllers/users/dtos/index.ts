@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsDefined, IsOptional, IsString, Length } from 'class-validator';
+import { IsArray, IsDefined, IsOptional, IsString, Length, MaxLength } from 'class-validator';
 import { Team, TeamUser, User, UserGroup } from 'src/domain/users';
 
 export class UpsertUserDto {
@@ -147,9 +147,11 @@ export class UpsertUserGroupDto {
   @ApiProperty({
     description: 'The display name.',
     required: true,
+    maxLength: 100,
   })
   @IsDefined()
   @IsString()
+  @MaxLength(100)
   name: string;
 
   @ApiProperty({

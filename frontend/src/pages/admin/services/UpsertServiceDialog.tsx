@@ -1,5 +1,7 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useMutation } from '@tanstack/react-query';
+import classNames from 'classnames';
+import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { ServiceDto, UpsertServiceDto, useClients } from 'src/api';
@@ -57,6 +59,7 @@ export interface UpsertServiceDialogProps {
 
 export function UpsertServiceDialog(props: UpsertServiceDialogProps) {
   const { onClose, onUpsert, target } = props;
+  const [activeTab, setActiveTab] = useState(0);
 
   const clients = useClients();
   const upserting = useMutation({
@@ -80,9 +83,23 @@ export function UpsertServiceDialog(props: UpsertServiceDialogProps) {
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit((v) => upserting.mutate(v))}>
         <Modal
+          fullHeight
           size="lg"
           onClose={onClose}
-          header={<div className="flex items-center gap-4">{target ? texts.services.update : texts.services.create}</div>}
+          header={
+            <>
+              <div className="flex items-center gap-4">{target ? texts.services.update : texts.services.create}</div>
+
+              <div role="tablist" className="tabs tabs-md tabs-border -mb-6 -ms-4 mt-4">
+                <a role="tab" className={classNames('tab', { 'tab-active': activeTab === 0 })} onClick={() => setActiveTab(0)}>
+                  {texts.common.common}
+                </a>
+                <a role="tab" className={classNames('tab', { 'tab-active': activeTab === 1 })} onClick={() => setActiveTab(1)}>
+                  {texts.common.environment}
+                </a>
+              </div>
+            </>
+          }
           footer={
             <fieldset disabled={upserting.isPending}>
               <div className="flex flex-row justify-between">
@@ -98,41 +115,35 @@ export function UpsertServiceDialog(props: UpsertServiceDialogProps) {
           }
         >
           <fieldset disabled={upserting.isPending}>
-            <FormAlert common={target ? texts.services.updateFailed : texts.services.createFailed} error={upserting.error} />
+            {activeTab === 0 ? (
+              <>
+                <FormAlert common={target ? texts.services.updateFailed : texts.services.createFailed} error={upserting.error} />
 
-            <Forms.Text name="name" label={texts.common.name} required />
+                <Forms.Text name="name" label={texts.common.name} required />
 
-            <Forms.Markdown name="description" label={texts.common.description} required />
+                <Forms.Boolean name="isPublic" label={texts.services.isPublic} required />
 
-            <section>
-              <legend className="legend">{texts.services.pricing}</legend>
+                <Forms.Markdown name="description" label={texts.common.description} required />
 
-              <Forms.Text name="currency" label={texts.common.currency} maxLength={3} required />
+                <section>
+                  <legend className="legend">{texts.services.pricing}</legend>
 
-              <Forms.Number name="pricePerCpuHour" label={texts.services.pricePerCpuHourLabel} required />
+                  <Forms.Text name="currency" label={texts.common.currency} maxLength={3} required />
 
-              <Forms.Number name="pricePerVolumeGbHour" label={texts.services.pricePerVolumeGbHourLabel} required />
+                  <Forms.Number name="pricePerCpuHour" label={texts.services.pricePerCpuHourLabel} required />
 
-              <Forms.Number name="pricePerMemoryGbHour" label={texts.services.pricePerMemoryGbHourLabel} required />
+                  <Forms.Number name="pricePerVolumeGbHour" label={texts.services.pricePerVolumeGbHourLabel} required />
 
-              <Forms.Number name="pricePerStorageGbMonth" label={texts.services.pricePerStorageGbMonthLabel} required />
+                  <Forms.Number name="pricePerMemoryGbHour" label={texts.services.pricePerMemoryGbHourLabel} required />
 
-              <Forms.Number name="fixedPrice" label={texts.services.fixedPrice} required />
-            </section>
+                  <Forms.Number name="pricePerStorageGbMonth" label={texts.services.pricePerStorageGbMonthLabel} required />
 
-            <section>
-              <legend className="legend">{texts.common.more}</legend>
-
-              <Forms.Boolean name="isPublic" label={texts.services.isPublic} required />
-
-              <Forms.Code
-                height="200px"
-                label={texts.common.environment}
-                mode="javascript"
-                name="environment"
-                valueMode="object"
-              />
-            </section>
+                  <Forms.Number name="fixedPrice" label={texts.services.fixedPrice} required />
+                </section>
+              </>
+            ) : (
+              <Forms.Code height="full" label="" mode="javascript" name="environment" valueMode="object" vertical />
+            )}
           </fieldset>
         </Modal>
       </form>

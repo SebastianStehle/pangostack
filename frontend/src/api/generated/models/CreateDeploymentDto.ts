@@ -21,6 +21,12 @@ import { exists, mapValues } from '../runtime';
  */
 export interface CreateDeploymentDto {
     /**
+     * The optional name to describe the deployment.
+     * @type {string}
+     * @memberof CreateDeploymentDto
+     */
+    name: string | null;
+    /**
      * The ID of the service.
      * @type {number}
      * @memberof CreateDeploymentDto
@@ -39,6 +45,7 @@ export interface CreateDeploymentDto {
  */
 export function instanceOfCreateDeploymentDto(value: object): boolean {
     let isInstance = true;
+    isInstance = isInstance && "name" in value;
     isInstance = isInstance && "serviceId" in value;
     isInstance = isInstance && "parameters" in value;
 
@@ -55,6 +62,7 @@ export function CreateDeploymentDtoFromJSONTyped(json: any, ignoreDiscriminator:
     }
     return {
         
+        'name': json['name'],
         'serviceId': json['serviceId'],
         'parameters': json['parameters'],
     };
@@ -69,6 +77,7 @@ export function CreateDeploymentDtoToJSON(value?: CreateDeploymentDto | null): a
     }
     return {
         
+        'name': value.name,
         'serviceId': value.serviceId,
         'parameters': value.parameters,
     };

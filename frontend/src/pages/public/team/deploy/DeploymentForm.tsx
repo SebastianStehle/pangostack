@@ -10,7 +10,7 @@ import { texts } from 'src/texts';
 import { DeploymentControl } from './DeploymentControl';
 import { DeploymentSummary } from './DeploymentSummary';
 
-interface DeploymentFormProps {
+export interface DeploymentFormProps {
   value?: Record<string, any>;
 
   // The service.
@@ -23,11 +23,13 @@ interface DeploymentFormProps {
   isPending?: boolean;
 
   // When the form is submitted.
-  onSubmit: (value: Record<string, any>) => void;
+  onSubmit: (value: DeploymentUpdate) => void;
 
   // When the form is cancelled.
   onCancel?: () => void;
 }
+
+export type DeploymentUpdate = { name: string | null; parameters: Record<string, any> };
 
 export function DeploymentForm(props: DeploymentFormProps) {
   const { error, isPending, onCancel, onSubmit, service, value } = props;
@@ -79,17 +81,23 @@ export function DeploymentForm(props: DeploymentFormProps) {
       }
     }
 
-    return yupResolver(Yup.object().shape(shape));
+    const schema = Yup.object().shape({
+      name: Yup.string().max(100).nullable(),
+
+      parameters: Yup.object().shape(shape),
+    });
+
+    return yupResolver<DeploymentUpdate>(schema as any);
   }, [service]);
 
   const defaultValue = useMemo(() => {
-    const result: Record<string, any> = {};
+    const parameters: Record<string, any> = {};
 
     for (const parameter of service.parameters) {
-      result[parameter.name] = parameter.defaultValue;
+      parameters[parameter.name] = parameter.defaultValue;
     }
 
-    return result;
+    return { parameters };
   }, [service]);
 
   const groupedParameters = useMemo(() => {
@@ -106,7 +114,7 @@ export function DeploymentForm(props: DeploymentFormProps) {
     return Object.entries(result);
   }, [service]);
 
-  const form = useForm<Record<string, any>>({ resolver, defaultValues: value || defaultValue });
+  const form = useForm<DeploymentUpdate>({ resolver, defaultValues: value || defaultValue });
 
   useEffect(() => {
     form.reset(value);
@@ -119,6 +127,8 @@ export function DeploymentForm(props: DeploymentFormProps) {
           <div className="grow">
             <fieldset disabled={isPending}>
               <FormAlert common={texts.theme.updateFailed} error={error} />
+
+              <Forms.Text name="name" label={texts.common.name} maxLength={100} />
 
               {groupedParameters.map(([label, parameters]) => (
                 <section className="mb-4" key={label}>
@@ -143,7 +153,7 @@ export function DeploymentForm(props: DeploymentFormProps) {
             </fieldset>
           </div>
           <div className="w-100">
-            <div className="card card-border sticky top-4 shadow-sm">
+            <div className="card card-border bg-base sticky top-4 border-slate-300 shadow-sm">
               <div className="card-body">
                 <h2 className="card-title text-xl">{texts.deployments.estimatedPrice}</h2>
                 <DeploymentSummary service={service} />

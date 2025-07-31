@@ -3,8 +3,9 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { ServicePublicDto, useClients } from 'src/api';
+import { Icon, TransientNavLink } from 'src/components';
 import { texts } from 'src/texts';
-import { DeploymentForm } from './DeploymentForm';
+import { DeploymentForm, DeploymentUpdate } from './DeploymentForm';
 
 export const DeployPage = () => {
   const { teamId } = useParams();
@@ -18,8 +19,8 @@ export const DeployPage = () => {
   });
 
   const creating = useMutation({
-    mutationFn: (parameters: any) => {
-      return clients.deployments.postDeployment(teamId!, { parameters, serviceId: service!.id });
+    mutationFn: ({ name, parameters }: DeploymentUpdate) => {
+      return clients.deployments.postDeployment(+teamId!, { name, parameters, serviceId: service!.id });
     },
     onSuccess: () => {
       toast(texts.common.saved, { type: 'success' });
@@ -28,7 +29,13 @@ export const DeployPage = () => {
 
   return (
     <div>
-      <h2>Deploy</h2>
+      <div className="mb-8 flex items-center gap-4">
+        <TransientNavLink className="btn btn-ghost btn-sm text-sm" to={`../${teamId}`}>
+          <Icon icon="arrow-left" size={16} />
+        </TransientNavLink>
+
+        <h3 className="grow text-xl">{texts.deployments.deployHeadline}</h3>
+      </div>
 
       {service ? (
         <>
@@ -36,9 +43,20 @@ export const DeployPage = () => {
         </>
       ) : services != null ? (
         <>
+          <h4 className="text-mdx mb-2">{texts.deployments.selectService}</h4>
+
           {(services?.items || []).map((service) => (
-            <div key={service.id} className="card shadow-sm shadow-sm" onClick={() => setService(service)}>
-              <div className="card-body">{service.name}</div>
+            <div
+              key={service.id}
+              className="card card-border bg-base pointer border-slate-200 shadow-sm"
+              onClick={() => setService(service)}
+            >
+              <div className="card-body">
+                <h2 className="card-title">
+                  <div className="badge badge-primary badge-sm me-1 rounded-full font-normal">{service.version}</div>
+                  {service.name}
+                </h2>
+              </div>
             </div>
           ))}
         </>

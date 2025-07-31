@@ -20,6 +20,7 @@ export class UpdateDeployment {
   constructor(
     public readonly id: number,
     public readonly teamId: number,
+    public readonly name: string | undefined,
     public readonly parameters: Record<string, string> | null,
     public readonly versionId: number | null,
     public readonly user: User,
@@ -45,7 +46,7 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
   ) {}
 
   async execute(command: UpdateDeployment): Promise<UpdateDeploymentResponse> {
-    const { id, parameters, teamId, user, versionId } = command;
+    const { id, name, parameters, teamId, user, versionId } = command;
 
     const deployment = await this.deployments.findOne({ where: { id, teamId }, relations: ['version', 'version.service'] });
     if (!deployment) {
@@ -88,6 +89,11 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
       throw new NotFoundException('No worker registered.');
     }
 
+    if (name) {
+      deployment.name = name;
+      await this.deployments.save(deployment);
+    }
+
     // The environment settings from the version overwrite the service.
     const environment = { ...version.service.environment, ...version.environment };
 
@@ -104,6 +110,6 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
     await this.deploymentUpdates.save(update);
 
     await this.runner.deploy(deployment, update, version, worker);
-    return { deployment: buildDeployment(deployment, version.service) };
+    return { deployment: buildDeployment(deployment, update) };
   }
 }

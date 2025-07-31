@@ -28,7 +28,9 @@ export async function buildError(common: string, details?: string | Error | null
   if (errorDetails.length > 0) {
     result += '\n\n';
     for (const detail of errorDetails) {
-      result += ` * ${detail}\n`;
+      const normalized = detail.replace(/\n/g, '\n   ');
+
+      result += ` * ${normalized}\n`;
     }
   }
 

@@ -22,24 +22,27 @@ export interface ModalProps extends PropsWithChildren {
   // True to render the dialog as portal.
   asPortal?: boolean;
 
+  // Indicates if the full height should be used.
+  fullHeight?: boolean;
+
   // The optional class name.
   className?: string;
 }
 
 export function Modal(props: ModalProps) {
-  const { asPortal, children, footer, header, gray, onClose, size } = props;
+  const { asPortal, children, footer, fullHeight, header, gray, onClose, size } = props;
   const isSmall = size === 'sm';
   const isMedium = size === 'md' || !size;
   const isLarge = size === 'lg';
 
   const render = () => {
     return (
-      <div className="fixed bottom-0 left-0 right-0 top-0 flex flex-col items-center px-4 py-6">
+      <div className="z-100 fixed bottom-0 left-0 right-0 top-0 flex flex-col items-center px-4 py-6">
         <div className="fixed bottom-0 left-0 right-0 top-0 z-40 bg-black/20"></div>
         <div
           className={classNames(
             'z-50 flex min-h-0 flex-col overflow-hidden rounded-xl bg-white shadow-xl',
-            { 'w-[900px]': isLarge, 'w-[750px]': isMedium, 'mt-8 w-[450px]': isSmall },
+            { 'w-[900px]': isLarge, 'w-[750px]': isMedium, 'mt-8 w-[450px]': isSmall, 'h-full': fullHeight },
             classNames,
           )}
         >
@@ -52,7 +55,7 @@ export function Modal(props: ModalProps) {
               </button>
             </div>
           )}
-          <div className={classNames('grow overflow-y-auto overflow-x-hidden px-8 py-8', { 'bg-gray-100': gray })}>
+          <div className={classNames('relative grow overflow-y-auto overflow-x-hidden px-8 py-8', { 'bg-gray-100': gray })}>
             {children}
           </div>
           {footer && (
