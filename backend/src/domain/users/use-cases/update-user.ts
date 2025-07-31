@@ -31,20 +31,20 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUser, UpdateUser
     const { id, values } = request;
     const { apiKey, email, name, password, roles, userGroupId } = values;
 
-    const entity = await this.users.findOneBy({ id });
-    if (!entity) {
+    const user = await this.users.findOneBy({ id });
+    if (!user) {
       throw new NotFoundException(`User ${id} not found.`);
     }
 
     if (password) {
-      entity.passwordHash = await bcrypt.hash(password, 10);
+      user.passwordHash = await bcrypt.hash(password, 10);
     }
 
     // Assign the object manually to avoid updating unexpected values.
-    assignDefined(entity, { apiKey, email, name, roles, userGroupId });
+    assignDefined(user, { apiKey, email, name, roles, userGroupId });
 
     // Use the save method otherwise we would not get previous values.
-    const updated = await this.users.save(entity);
+    const updated = await this.users.save(user);
     const result = buildUser(updated);
 
     return new UpdateUserResponse(result);

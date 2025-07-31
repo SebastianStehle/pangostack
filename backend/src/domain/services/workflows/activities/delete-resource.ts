@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database/entities/deployment-update';
 import { evaluateParameters, ResourceDefinition } from '../model';
-import { Worker } from './../worker';
+import { WorkerClient } from '../worker-client';
 
 export interface DeleteResourceParam {
   deploymentId: number;
@@ -28,8 +28,8 @@ export class DeleteResourceActivity {
     const resourceId = `deployment_${deploymentId}_${resource.id}`;
     const resourceParams = evaluateParameters(resource, update.environment, update.context);
 
-    const worker = new Worker(workerEndpoint, workerApiKey);
-    await worker.deployment.deleteResources({
+    const workerClient = new WorkerClient(workerEndpoint, workerApiKey);
+    await workerClient.deployment.deleteResources({
       resources: [
         {
           resourceId,

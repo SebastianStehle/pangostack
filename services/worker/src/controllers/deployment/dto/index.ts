@@ -4,42 +4,42 @@ import { IsArray, IsNotEmpty, IsObject, IsString, ValidateNested } from 'class-v
 import { ResourceApplyResult, ResourceDescriptor, ResourceParameterDescriptor } from 'src/resources/interface';
 
 export class ResourceDeleteRequestDto {
-  @IsString()
-  @IsNotEmpty()
   @ApiProperty({
     description: 'The resource ID',
     required: true,
     type: String,
   })
-  resourceId: string;
-
   @IsString()
   @IsNotEmpty()
+  resourceId: string;
+
   @ApiProperty({
     description: 'The name of the resource type.',
     required: true,
     type: String,
   })
+  @IsString()
+  @IsNotEmpty()
   resourceName: string;
 
-  @IsObject()
   @ApiProperty({
     description: 'The parameters.',
     required: true,
     additionalProperties: true,
   })
+  @IsObject()
   parameters: Record<string, any>;
 }
 
 export class ResourcesDeleteRequestDto {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ResourceDeleteRequestDto)
   @ApiProperty({
     description: 'The deployment ids.',
     required: true,
     type: [ResourceDeleteRequestDto],
   })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResourceDeleteRequestDto)
   resources: ResourceDeleteRequestDto[];
 }
 
@@ -144,30 +144,30 @@ export class ResourcesTypesDto {
 }
 
 export class ResourceApplyRequestDto {
-  @IsString()
-  @IsNotEmpty()
   @ApiProperty({
     description: 'The resource ID',
     required: true,
     type: String,
   })
-  resourceId: string;
-
   @IsString()
   @IsNotEmpty()
+  resourceId: string;
+
   @ApiProperty({
     description: 'The name of the resource type.',
     required: true,
     type: String,
   })
+  @IsString()
+  @IsNotEmpty()
   resourceName: string;
 
-  @IsObject()
   @ApiProperty({
     description: 'The parameters.',
     required: true,
     additionalProperties: true,
   })
+  @IsObject()
   parameters: Record<string, any>;
 }
 

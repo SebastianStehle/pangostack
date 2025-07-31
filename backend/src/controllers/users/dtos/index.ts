@@ -115,7 +115,6 @@ export class UserDto {
     result.name = source.name;
     result.roles = source.roles;
     result.userGroupId = source.userGroupId;
-
     return result;
   }
 }
@@ -138,7 +137,6 @@ export class UsersDto {
     const result = new UsersDto();
     result.total = total;
     result.items = source.map(UserDto.fromDomain);
-
     return result;
   }
 }
@@ -222,7 +220,6 @@ export class UserGroupDto {
     result.isAdmin = source.isAdmin;
     result.isBuiltIn = source.isBuiltIn;
     result.name = source.name;
-
     return result;
   }
 }
@@ -238,7 +235,6 @@ export class UserGroupsDto {
   static fromDomain(source: UserGroup[]) {
     const result = new UserGroupsDto();
     result.items = source.map(UserGroupDto.fromDomain);
-
     return result;
   }
 }
@@ -268,7 +264,6 @@ export class TeamUserDto {
     const result = new TeamUserDto();
     result.role = source.role;
     result.user = UserDto.fromDomain(source.user);
-
     return result;
   }
 }
@@ -298,7 +293,6 @@ export class TeamDto {
     result.id = source.id;
     result.name = source.name;
     result.users = source.users.map(TeamUserDto.fromDomain);
-
     return result;
   }
 }
@@ -314,7 +308,6 @@ export class TeamsDto {
   static fromDomain(source: Team[]) {
     const result = new TeamsDto();
     result.items = source.map(TeamDto.fromDomain);
-
     return result;
   }
 }

@@ -22,13 +22,15 @@ import {
   CreateDeployment,
   CreateDeploymentResponse,
   DeleteDeployment,
+  GetDeploymentStatus,
+  GetDeploymentStatusResponse,
   GetTeamDeployments,
   GetTeamDeploymentsResponse,
   UpdateDeployment,
   UpdateDeploymentResponse,
 } from 'src/domain/services';
 import { User } from 'src/domain/users';
-import { CreateDeploymentDto, DeploymentDto, DeploymentsDto } from './dtos';
+import { CreateDeploymentDto, DeploymentDto, DeploymentsDto, DeploymentStatusDto } from './dtos';
 
 @Controller('teams/:teamId/deployments')
 @ApiParam({
@@ -56,7 +58,7 @@ export class TeamDeploymentsController {
   async getDeployments(@Req() req: Request, @Param('teamId', ParseIntPipe) teamId: number) {
     await this.ensurePermission(req.user, teamId);
 
-    const result: GetTeamDeploymentsResponse = await this.queryBus.execute(new GetTeamDeployments(+teamId));
+    const result: GetTeamDeploymentsResponse = await this.queryBus.execute(new GetTeamDeployments(teamId));
 
     return DeploymentsDto.fromDomain(result.deployments);
   }
@@ -69,10 +71,33 @@ export class TeamDeploymentsController {
   async postDeployment(@Req() req: Request, @Param('teamId', ParseIntPipe) teamId: number, @Body() body: CreateDeploymentDto) {
     await this.ensurePermission(req.user, teamId);
 
-    const command = new CreateDeployment(+teamId, body.name, body.serviceId, body.parameters, req.user);
+    const command = new CreateDeployment(teamId, body.name, body.serviceId, body.parameters, req.user);
     const result: CreateDeploymentResponse = await this.commandBus.execute(command);
 
     return DeploymentDto.fromDomain(result.deployment);
+  }
+
+  @Get(':deployment/status')
+  @ApiOperation({ operationId: 'getDeployments', description: 'Gets deployments status.' })
+  @ApiParam({
+    name: 'deploymentId',
+    description: 'The ID of the deployment.',
+    required: true,
+    type: 'number',
+  })
+  @ApiOkResponse({ type: DeploymentStatusDto })
+  @Role(BUILTIN_USER_GROUP_DEFAULT)
+  @UseGuards(RoleGuard)
+  async getStatus(
+    @Req() req: Request,
+    @Param('teamId', ParseIntPipe) teamId: number,
+    @Param('deploymentId', ParseIntPipe) deploymentId: number,
+  ) {
+    await this.ensurePermission(req.user, teamId);
+
+    const result: GetDeploymentStatusResponse = await this.queryBus.execute(new GetDeploymentStatus(deploymentId));
+
+    return DeploymentStatusDto.fromDomain(result.resources);
   }
 
   @Put(':deploymentId')
@@ -111,8 +136,8 @@ export class TeamDeploymentsController {
   @ApiNoContentResponse()
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard)
-  async deleteDeployment(@Param('deploymentId') deploymentId: string) {
-    const command = new DeleteDeployment(+deploymentId);
+  async deleteDeployment(@Param('deploymentId', ParseIntPipe) deploymentId: number) {
+    const command = new DeleteDeployment(deploymentId);
 
     await this.commandBus.execute(command);
   }

@@ -1,7 +1,7 @@
 import * as https from 'https';
 import { Configuration, DeploymentApi, FetchError, RequiredError, ResponseError, StatusApi } from '../generated';
 
-export class Worker {
+export class WorkerClient {
   public readonly deployment: DeploymentApi;
   public readonly status: StatusApi;
 

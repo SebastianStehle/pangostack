@@ -20,8 +20,8 @@ export class GetUserGroupsHandler implements IQueryHandler<GetUserGroups, GetUse
   ) {}
 
   async execute(): Promise<GetUserGroupsResponse> {
-    const entity = await this.userGroups.find();
-    const result = entity.map(buildUserGroup);
+    const userGroup = await this.userGroups.find();
+    const result = userGroup.map(buildUserGroup);
 
     return new GetUserGroupsResponse(result);
   }

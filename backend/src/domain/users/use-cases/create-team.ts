@@ -32,13 +32,13 @@ export class CreateTeamHandler implements ICommandHandler<CreateTeam, CreateTeam
     const { values, user } = request;
     const { name } = values;
 
-    const entity = this.teams.create();
+    const teams = this.teams.create();
 
     // Assign the object manually to avoid updating unexpected values.
-    assignDefined(entity, { name });
+    assignDefined(teams, { name });
 
     // Use the save method otherwise we would not get previous values.
-    const created = await this.teams.save(entity);
+    const created = await this.teams.save(teams);
     const teamUser = this.teamUsers.create();
     teamUser.user = undefined!;
     teamUser.userId = user.id;

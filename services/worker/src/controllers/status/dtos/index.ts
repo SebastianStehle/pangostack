@@ -4,42 +4,42 @@ import { IsArray, IsNotEmpty, IsObject, IsString, ValidateNested } from 'class-v
 import { ResourceNodeStatus, ResourceStatusResult, ResourceWorkloadStatus } from 'src/resources/interface';
 
 export class StatusRequestResourceDto {
-  @IsString()
-  @IsNotEmpty()
   @ApiProperty({
     description: 'The resource ID',
     required: true,
     type: String,
   })
-  resourceId: string;
-
   @IsString()
   @IsNotEmpty()
+  resourceId: string;
+
   @ApiProperty({
     description: 'The name of the resource type.',
     required: true,
     type: String,
   })
+  @IsString()
+  @IsNotEmpty()
   resourceName: string;
 
-  @IsObject()
   @ApiProperty({
     description: 'The parameters.',
     required: true,
     additionalProperties: true,
   })
+  @IsObject()
   parameters: Record<string, any>;
 }
 
 export class StatusRequestDto {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => StatusRequestResourceDto)
   @ApiProperty({
     description: 'The resource identifiers',
     required: true,
     type: [StatusRequestResourceDto],
   })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => StatusRequestResourceDto)
   resources: StatusRequestResourceDto[];
 }
 

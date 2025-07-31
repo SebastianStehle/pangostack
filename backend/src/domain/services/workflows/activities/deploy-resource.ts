@@ -3,7 +3,7 @@ import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database/entities/deployment-update';
 import { evaluateParameters, ResourceDefinition } from '../model';
-import { Worker } from './../worker';
+import { WorkerClient } from '../worker-client';
 
 export interface DeployResourceParam {
   deploymentId: number;
@@ -43,8 +43,8 @@ export class DeployResourceActivity {
       resourceId,
     });
 
-    const worker = new Worker(workerEndpoint, workerApiKey);
-    const response = await worker.deployment.applyResource({
+    const workerClient = new WorkerClient(workerEndpoint, workerApiKey);
+    const response = await workerClient.deployment.applyResource({
       resourceId,
       resourceName: resource.type,
       parameters: resourceParams,

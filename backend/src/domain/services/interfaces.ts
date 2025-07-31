@@ -124,3 +124,33 @@ export interface ServicePublic {
   // The usage definition.
   usage: UsageDefinition;
 }
+
+export interface ResourceNodeStatus {
+  // The name of the node.
+  name: string;
+
+  // Indicates if the node can be used.
+  isReady: boolean;
+
+  // The message to describe the status.
+  message?: string;
+}
+
+export interface ResourceWorkloadStatus {
+  // The name of the workload.
+  name: string;
+
+  // All nodes within the workload.
+  nodes: ResourceNodeStatus[];
+}
+
+export class ResourceStatus {
+  // The name of the resource.
+  resourceId: string;
+
+  // The name of the resource.
+  resourceName: string;
+
+  // The workflows that have been created.
+  workloads: ResourceWorkloadStatus[] = [];
+}

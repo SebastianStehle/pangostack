@@ -26,13 +26,13 @@ export class CreateUserGroupHandler implements ICommandHandler<CreateUserGroup, 
     const { values } = request;
     const { name } = values;
 
-    const entity = this.userGroups.create();
+    const userGroup = this.userGroups.create();
 
     // Assign the object manually to avoid updating unexpected values.
-    assignDefined(entity, { name });
+    assignDefined(userGroup, { name });
 
     // Use the save method otherwise we would not get previous values.
-    const created = await this.userGroups.save(entity);
+    const created = await this.userGroups.save(userGroup);
     const result = buildUserGroup(created);
 
     return new CreateUserGroupResponse(result);

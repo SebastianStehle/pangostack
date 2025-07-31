@@ -28,17 +28,17 @@ export class CreateUserHandler implements ICommandHandler<CreateUser, CreateUser
     const { values } = request;
     const { apiKey, email, name, password, roles, userGroupId } = values;
 
-    const entity = this.users.create({ id: uuid.v4() });
+    const user = this.users.create({ id: uuid.v4() });
 
     if (password) {
-      entity.passwordHash = await bcrypt.hash(password, 10);
+      user.passwordHash = await bcrypt.hash(password, 10);
     }
 
     // Assign the object manually to avoid updating unexpected values.
-    assignDefined(entity, { apiKey, email, name, userGroupId, roles });
+    assignDefined(user, { apiKey, email, name, userGroupId, roles });
 
     // Use the save method otherwise we would not get previous values.
-    const created = await this.users.save(entity);
+    const created = await this.users.save(user);
     const result = buildUser(created);
 
     return new CreateUserResponse(result);

@@ -20,14 +20,13 @@ export class GetBlobHandler implements IQueryHandler<GetBlob, GetBlobResponse> {
   async execute(request: GetBlob): Promise<GetBlobResponse> {
     const { id } = request;
 
-    const entity = await this.blobs.findOneBy({ id });
-
-    if (!entity) {
+    const blob = await this.blobs.findOneBy({ id });
+    if (!blob) {
       return new GetBlobResponse();
     }
 
-    const buffer = Buffer.from(entity.buffer, 'base64');
+    const buffer = Buffer.from(blob.buffer, 'base64');
 
-    return new GetBlobResponse({ type: entity.type, buffer });
+    return new GetBlobResponse({ type: blob.type, buffer });
   }
 }

@@ -130,7 +130,6 @@ export class ProfileDto {
     result.isAdmin = source.userGroupId === BUILTIN_USER_GROUP_ADMIN;
     result.name = source.name ?? source.email;
     result.picture = source.picture;
-
     return result;
   }
 }

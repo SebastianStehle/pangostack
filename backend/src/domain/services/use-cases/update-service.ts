@@ -41,13 +41,13 @@ export class UpdateServiceHandler implements ICommandHandler<UpdateService, Upda
       pricePerStorageGbMonth,
     } = values;
 
-    const entity = await this.services.findOne({ where: { id }, relations: ['versions', 'versions.deploymentUpdates'] });
-    if (!entity) {
+    const service = await this.services.findOne({ where: { id }, relations: ['versions', 'versions.deploymentUpdates'] });
+    if (!service) {
       throw new NotFoundException(`Service ${id} not found.`);
     }
 
     // Assign the object manually to avoid updating unexpected values.
-    assignDefined(entity, {
+    assignDefined(service, {
       currency,
       description,
       environment,
@@ -61,7 +61,7 @@ export class UpdateServiceHandler implements ICommandHandler<UpdateService, Upda
     });
 
     // Use the save method otherwise we would not get previous values.
-    const created = await this.services.save(entity);
+    const created = await this.services.save(service);
     const result = buildService(created);
 
     return new UpdateServiceResponse(result);

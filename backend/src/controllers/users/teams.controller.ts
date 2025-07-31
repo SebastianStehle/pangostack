@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOkResponse, ApiOperation, ApiParam, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -63,8 +63,8 @@ export class TeamsController {
   @ApiOkResponse({ type: TeamDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard)
-  async putTeam(@Param('teamId') teamId: string, @Body() body: UpsertTeamDto) {
-    const command = new UpdateTeam(+teamId, body);
+  async putTeam(@Param('teamId', ParseIntPipe) teamId: number, @Body() body: UpsertTeamDto) {
+    const command = new UpdateTeam(teamId, body);
 
     const result: UpdateTeamResponse = await this.commandBus.execute(command);
 
@@ -82,8 +82,8 @@ export class TeamsController {
   @ApiOkResponse({ type: TeamDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard)
-  async postTeamUser(@Req() req: Request, @Param('teamId') teamId: string, @Body() body: UpsertTeamUserDto) {
-    const command = new SetTeamUser(+teamId, body.userId, req.user, body.role);
+  async postTeamUser(@Req() req: Request, @Param('teamId', ParseIntPipe) teamId: number, @Body() body: UpsertTeamUserDto) {
+    const command = new SetTeamUser(teamId, body.userId, req.user, body.role);
 
     const result: SetTeamUserResponse = await this.commandBus.execute(command);
 
@@ -101,8 +101,8 @@ export class TeamsController {
   @ApiOkResponse({ type: TeamDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard)
-  async deleteTeamUser(@Req() req: Request, @Param('teamId') teamId: string, @Param('userId') userId: string) {
-    const command = new DeleteTeamUser(+teamId, userId, req.user);
+  async deleteTeamUser(@Req() req: Request, @Param('teamId', ParseIntPipe) teamId: number, @Param('userId') userId: string) {
+    const command = new DeleteTeamUser(teamId, userId, req.user);
     const result: DeleteTeamUserResponse = await this.commandBus.execute(command);
 
     return TeamDto.fromDomain(result.team);

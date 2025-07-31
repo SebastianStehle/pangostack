@@ -37,10 +37,10 @@ export class CreateServiceHandler implements ICommandHandler<CreateService, Crea
       pricePerStorageGbMonth,
     } = values;
 
-    const entity = this.services.create();
+    const service = this.services.create();
 
     // Assign the object manually to avoid updating unexpected values.
-    assignDefined(entity, {
+    assignDefined(service, {
       currency,
       description,
       environment,
@@ -54,7 +54,7 @@ export class CreateServiceHandler implements ICommandHandler<CreateService, Crea
     });
 
     // Use the save method otherwise we would not get previous values.
-    const created = await this.services.save(entity);
+    const created = await this.services.save(service);
     const result = buildService(created);
 
     return new CreateServiceResponse(result);

@@ -9,7 +9,7 @@ import { DataSource } from 'typeorm';
 import { AuthController } from './controllers/auth/auth.controller';
 import { BlobsController } from './controllers/blobs/blobs.controller';
 import { ServicesController } from './controllers/services/services.controller';
-import { TeamDeploymentsController } from './controllers/services/team-deployments.controller';
+import { TeamDeploymentsController } from './controllers/deployments/team-deployments.controller';
 import { SettingsController } from './controllers/settings/settings.controller';
 import { TeamsController } from './controllers/users/teams.controller';
 import { UserGroupsController } from './controllers/users/user-groups.controller';

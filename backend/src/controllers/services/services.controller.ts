@@ -167,8 +167,8 @@ export class ServicesController {
   @ApiOkResponse({ type: ServiceVersionDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async postServiceVersion(@Param('serviceId') id: string, @Body() body: CreateServiceVersionDto) {
-    const command = new CreateServiceVersion(+id, body);
+  async postServiceVersion(@Param('serviceId', ParseIntPipe) serviceId: number, @Body() body: CreateServiceVersionDto) {
+    const command = new CreateServiceVersion(serviceId, body);
     const result: CreateServiceVersionResponse = await this.commandBus.execute(command);
 
     return ServiceVersionDto.fromDomain(result.serviceVersion);
@@ -192,11 +192,11 @@ export class ServicesController {
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
   async putServiceVersion(
-    @Param('serviceId') _serviceId: string,
-    @Param('versionId') versionId: string,
+    @Param('serviceId', ParseIntPipe) _serviceId: number,
+    @Param('versionId', ParseIntPipe) versionId: number,
     @Body() body: UpdateServiceVersionDto,
   ) {
-    const command = new UpdateServiceVersion(+versionId, body);
+    const command = new UpdateServiceVersion(versionId, body);
     const result: UpdateServiceVersionResponse = await this.commandBus.execute(command);
 
     return ServiceVersionDto.fromDomain(result.serviceVersion);
@@ -219,8 +219,11 @@ export class ServicesController {
   @ApiNoContentResponse()
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async deleteServiceVersion(@Param('serviceId') _serviceId: string, @Param('versionId') versionId: string) {
-    const command = new DeleteServiceVersion(+versionId);
+  async deleteServiceVersion(
+    @Param('serviceId', ParseIntPipe) _serviceId: number,
+    @Param('versionId', ParseIntPipe) versionId: number,
+  ) {
+    const command = new DeleteServiceVersion(versionId);
 
     await this.commandBus.execute(command);
   }

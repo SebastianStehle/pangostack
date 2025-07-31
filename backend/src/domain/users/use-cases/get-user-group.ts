@@ -22,8 +22,8 @@ export class GetUserGroupHandler implements IQueryHandler<GetUserGroup, GetUserG
   async execute(request: GetUserGroup): Promise<GetUserGroupResponse> {
     const { id } = request;
 
-    const entity = await this.userGroups.findOneBy({ id });
-    const result = entity ? buildUserGroup(entity) : undefined;
+    const userGroup = await this.userGroups.findOneBy({ id });
+    const result = userGroup ? buildUserGroup(userGroup) : undefined;
 
     return new GetUserGroupResponse(result);
   }

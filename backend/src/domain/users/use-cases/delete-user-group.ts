@@ -17,12 +17,12 @@ export class DeleteUserGroupHandler implements ICommandHandler<DeleteUserGroup, 
   async execute(command: DeleteUserGroup): Promise<any> {
     const { id } = command;
 
-    const entity = await this.userGroups.findOneBy({ id });
-    if (!entity) {
+    const userGroup = await this.userGroups.findOneBy({ id });
+    if (!userGroup) {
       throw new NotFoundException(`User group ${id} not found.`);
     }
 
-    if (entity.isBuiltIn) {
+    if (userGroup.isBuiltIn) {
       throw new BadRequestException('Cannot delete builtin user group.');
     }
 

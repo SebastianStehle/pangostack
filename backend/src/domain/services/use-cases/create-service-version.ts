@@ -38,16 +38,16 @@ export class CreateServiceVersionHandler implements ICommandHandler<CreateServic
       throw new NotFoundException(`Service ${serviceId} not found.`);
     }
 
-    const entity = this.serviceVersions.create();
+    const serviceVersion = this.serviceVersions.create();
 
     const parsed = parseDefinition(definition);
     await validateDefinition(parsed);
 
     // Assign the object manually to avoid updating unexpected values.
-    assignDefined(entity, { definition, environment, isActive, name, serviceId });
+    assignDefined(serviceVersion, { definition, environment, isActive, name, serviceId });
 
     // Use the save method otherwise we would not get previous values.
-    const created = await this.serviceVersions.save(entity);
+    const created = await this.serviceVersions.save(serviceVersion);
     const result = buildServiceVersion(created, false);
 
     return new CreateServiceVersionResponse(result);

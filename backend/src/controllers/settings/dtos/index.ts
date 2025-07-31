@@ -24,7 +24,6 @@ export class LinkDto {
     const result = new LinkDto();
     result.title = source.title;
     result.url = source.url;
-
     return result;
   }
 }
@@ -109,7 +108,6 @@ export class SettingsDto {
     result.primaryColor = source.primaryColor;
     result.primaryContentColor = source.primaryContentColor;
     result.welcomeText = source.welcomeText;
-
     return result;
   }
 }

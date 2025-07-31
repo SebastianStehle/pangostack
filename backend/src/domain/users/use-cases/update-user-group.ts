@@ -30,20 +30,20 @@ export class UpdateUserGroupHandler implements ICommandHandler<UpdateUserGroup, 
     const { id, values } = request;
     const { name } = values;
 
-    const entity = await this.userGroups.findOneBy({ id });
-    if (!entity) {
+    const userGroup = await this.userGroups.findOneBy({ id });
+    if (!userGroup) {
       throw new NotFoundException(`User group ${id} not found.`);
     }
 
-    if (entity.isBuiltIn) {
+    if (userGroup.isBuiltIn) {
       throw new BadRequestException('Cannot update builtin user group.');
     }
 
     // Assign the object manually to avoid updating unexpected values.
-    assignDefined(entity, { name });
+    assignDefined(userGroup, { name });
 
     // Use the save method otherwise we would not get previous values.
-    const updated = await this.userGroups.save(entity);
+    const updated = await this.userGroups.save(userGroup);
     const result = buildUserGroup(updated);
 
     return new UpdateUserGroupResponse(result);

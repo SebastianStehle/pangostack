@@ -22,8 +22,8 @@ export class GetUserHandler implements IQueryHandler<GetUser, GetUserResponse> {
   async execute(query: GetUser): Promise<GetUserResponse> {
     const { id } = query;
 
-    const entity = await this.users.findOneBy({ id });
-    const result = entity ? buildUser(entity) : undefined;
+    const user = await this.users.findOneBy({ id });
+    const result = user ? buildUser(user) : undefined;
 
     return new GetUserResponse(result);
   }
