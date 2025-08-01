@@ -41,6 +41,7 @@ export class DeploymentController {
       }
     }
 
+    // Now we know that the resource will always exist.
     for (const identifier of body.resources) {
       const resource = this.resources.find((x) => x.descriptor.name === identifier.resourceType);
 

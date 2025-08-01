@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { ConnectInfoDto } from './ConnectInfoDto';
+import {
+    ConnectInfoDtoFromJSON,
+    ConnectInfoDtoFromJSONTyped,
+    ConnectInfoDtoToJSON,
+} from './ConnectInfoDto';
+
 /**
  * 
  * @export
@@ -31,6 +38,12 @@ export interface ResourceApplyResponseDto {
      * @memberof ResourceApplyResponseDto
      */
     log?: string;
+    /**
+     * Provides values how to connect to the resource, for example Api Keys.
+     * @type {{ [key: string]: ConnectInfoDto; }}
+     * @memberof ResourceApplyResponseDto
+     */
+    connection: { [key: string]: ConnectInfoDto; };
 }
 
 /**
@@ -38,6 +51,7 @@ export interface ResourceApplyResponseDto {
  */
 export function instanceOfResourceApplyResponseDto(value: object): boolean {
     if (!('context' in value)) return false;
+    if (!('connection' in value)) return false;
     return true;
 }
 
@@ -53,6 +67,7 @@ export function ResourceApplyResponseDtoFromJSONTyped(json: any, ignoreDiscrimin
         
         'context': json['context'],
         'log': json['log'] == null ? undefined : json['log'],
+        'connection': (mapValues(json['connection'], ConnectInfoDtoFromJSON)),
     };
 }
 
@@ -64,6 +79,7 @@ export function ResourceApplyResponseDtoToJSON(value?: ResourceApplyResponseDto 
         
         'context': value['context'],
         'log': value['log'],
+        'connection': (mapValues(value['connection'], ConnectInfoDtoToJSON)),
     };
 }
 

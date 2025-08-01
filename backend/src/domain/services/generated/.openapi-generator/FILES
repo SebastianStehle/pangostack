@@ -3,6 +3,7 @@ apis/DeploymentApi.ts
 apis/StatusApi.ts
 apis/index.ts
 index.ts
+models/ConnectInfoDto.ts
 models/ResourceApplyRequestDto.ts
 models/ResourceApplyResponseDto.ts
 models/ResourceDeleteRequestDto.ts

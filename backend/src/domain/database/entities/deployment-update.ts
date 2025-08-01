@@ -23,6 +23,9 @@ export class DeploymentUpdateEntity {
   @JoinColumn({ name: 'serviceVersionId' })
   serviceVersion: ServiceVersionEntity;
 
+  @Column('simple-json', { default: {} })
+  connections: Record<string, Record<string, { value: string; label: string }>> = {};
+
   @Column('simple-json')
   context: Record<string, string> = {};
 

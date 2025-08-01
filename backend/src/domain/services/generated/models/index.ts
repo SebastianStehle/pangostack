@@ -1,5 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
+export * from './ConnectInfoDto';
 export * from './ResourceApplyRequestDto';
 export * from './ResourceApplyResponseDto';
 export * from './ResourceDeleteRequestDto';

@@ -50,6 +50,8 @@ export class DeployResourceActivity {
       parameters: resourceParams,
     });
 
+    update.connections[resource.id] = response.connection;
+
     if (response.context) {
       for (const [key, value] of Object.entries(response.context)) {
         update.context[key] = value;
