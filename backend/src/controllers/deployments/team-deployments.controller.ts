@@ -1,23 +1,9 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  ForbiddenException,
-  Get,
-  NotFoundException,
-  Param,
-  ParseIntPipe,
-  Post,
-  Put,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiParam, ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Request } from 'express';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
-import { BUILTIN_USER_GROUP_DEFAULT, TeamEntity, TeamRepository } from 'src/domain/database';
+import { BUILTIN_USER_GROUP_DEFAULT } from 'src/domain/database';
 import {
   CreateDeployment,
   CreateDeploymentResponse,
@@ -29,7 +15,8 @@ import {
   UpdateDeployment,
   UpdateDeploymentResponse,
 } from 'src/domain/services';
-import { User } from 'src/domain/users';
+import { IntParam } from 'src/lib';
+import { TeamPermissionGuard } from '../TeamPermissionGuard';
 import { CreateDeploymentDto, DeploymentDto, DeploymentsDto, DeploymentStatusDto } from './dtos';
 
 @Controller('teams/:teamId/deployments')
@@ -46,18 +33,14 @@ export class TeamDeploymentsController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-    @InjectRepository(TeamEntity)
-    private readonly teams: TeamRepository,
   ) {}
 
   @Get('')
   @ApiOperation({ operationId: 'getDeployments', description: 'Gets all deployments.' })
   @ApiOkResponse({ type: DeploymentsDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
-  @UseGuards(RoleGuard)
-  async getDeployments(@Req() req: Request, @Param('teamId', ParseIntPipe) teamId: number) {
-    await this.ensurePermission(req.user, teamId);
-
+  @UseGuards(RoleGuard, TeamPermissionGuard)
+  async getDeployments(@IntParam('teamId') teamId: number) {
     const result: GetTeamDeploymentsResponse = await this.queryBus.execute(new GetTeamDeployments(teamId));
 
     return DeploymentsDto.fromDomain(result.deployments);
@@ -67,10 +50,8 @@ export class TeamDeploymentsController {
   @ApiOperation({ operationId: 'postDeployment', description: 'Creates a deployment.' })
   @ApiOkResponse({ type: DeploymentDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
-  @UseGuards(RoleGuard)
-  async postDeployment(@Req() req: Request, @Param('teamId', ParseIntPipe) teamId: number, @Body() body: CreateDeploymentDto) {
-    await this.ensurePermission(req.user, teamId);
-
+  @UseGuards(RoleGuard, TeamPermissionGuard)
+  async postDeployment(@Req() req: Request, @IntParam('teamId') teamId: number, @Body() body: CreateDeploymentDto) {
     const command = new CreateDeployment(teamId, body.name, body.serviceId, body.parameters, req.user);
     const result: CreateDeploymentResponse = await this.commandBus.execute(command);
 
@@ -78,7 +59,7 @@ export class TeamDeploymentsController {
   }
 
   @Get(':deploymentId/status')
-  @ApiOperation({ operationId: 'getStatus', description: 'Gets deployments status.' })
+  @ApiOperation({ operationId: 'getDeploymentStatus', description: 'Gets deployments status.' })
   @ApiParam({
     name: 'deploymentId',
     description: 'The ID of the deployment.',
@@ -87,14 +68,8 @@ export class TeamDeploymentsController {
   })
   @ApiOkResponse({ type: DeploymentStatusDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
-  @UseGuards(RoleGuard)
-  async getStatus(
-    @Req() req: Request,
-    @Param('teamId', ParseIntPipe) teamId: number,
-    @Param('deploymentId', ParseIntPipe) deploymentId: number,
-  ) {
-    await this.ensurePermission(req.user, teamId);
-
+  @UseGuards(RoleGuard, TeamPermissionGuard)
+  async getDeploymentStatus(@IntParam('deploymentId') deploymentId: number) {
     const result: GetDeploymentStatusResponse = await this.queryBus.execute(new GetDeploymentStatus(deploymentId));
 
     return DeploymentStatusDto.fromDomain(result.resources);
@@ -110,15 +85,13 @@ export class TeamDeploymentsController {
   })
   @ApiOkResponse({ type: DeploymentDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
-  @UseGuards(RoleGuard)
+  @UseGuards(RoleGuard, TeamPermissionGuard)
   async putDeployment(
     @Req() req: Request,
-    @Param('teamId', ParseIntPipe) teamId: number,
-    @Param('deploymentId', ParseIntPipe) deploymentId: number,
+    @IntParam('teamId') teamId: number,
+    @IntParam('deploymentId') deploymentId: number,
     @Body() body: CreateDeploymentDto,
   ) {
-    await this.ensurePermission(req.user, teamId);
-
     const command = new UpdateDeployment(deploymentId, teamId, body.name, body.parameters, body.serviceId, req.user);
     const result: UpdateDeploymentResponse = await this.commandBus.execute(command);
 
@@ -135,21 +108,10 @@ export class TeamDeploymentsController {
   @ApiOperation({ operationId: 'deleteDeployment', description: 'Delete a deployment.' })
   @ApiNoContentResponse()
   @Role(BUILTIN_USER_GROUP_DEFAULT)
-  @UseGuards(RoleGuard)
-  async deleteDeployment(@Param('deploymentId', ParseIntPipe) deploymentId: number) {
+  @UseGuards(RoleGuard, TeamPermissionGuard)
+  async deleteDeployment(@IntParam('deploymentId') deploymentId: number) {
     const command = new DeleteDeployment(deploymentId);
 
     await this.commandBus.execute(command);
-  }
-
-  async ensurePermission(user: User, teamId: number) {
-    const team = await this.teams.findOne({ where: { id: teamId }, relations: ['users'] });
-    if (!team) {
-      throw new NotFoundException(`Team ${teamId} not found.`);
-    }
-
-    if (!team.users.find((x) => x.userId === user.id)) {
-      throw new ForbiddenException();
-    }
   }
 }

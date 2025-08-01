@@ -16,8 +16,16 @@ export function formatBoolean(value: boolean) {
   return value ? texts.common.yes : texts.common.no;
 }
 
-export function formatDate(value: Date) {
+export function formatDateTime(value: Date) {
   return format(value, 'Pp');
+}
+
+export function formatDate(value: Date) {
+  return format(value, 'P');
+}
+
+export function formatTime(value: Date) {
+  return format(value, 'p');
 }
 
 export function formatTrue(value: boolean) {

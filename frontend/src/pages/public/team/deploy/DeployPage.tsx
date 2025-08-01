@@ -29,7 +29,7 @@ export const DeployPage = () => {
 
   return (
     <div>
-      <div className="mb-8 flex items-center gap-4">
+      <div className="mb-8 flex h-10 items-center gap-4">
         <TransientNavLink className="btn btn-ghost btn-sm text-sm" to={`../${teamId}`}>
           <Icon icon="arrow-left" size={16} />
         </TransientNavLink>
@@ -43,22 +43,24 @@ export const DeployPage = () => {
         </>
       ) : services != null ? (
         <>
-          <h4 className="text-mdx mb-2">{texts.deployments.selectService}</h4>
+          <p className="text-mdx mb-2">{texts.deployments.selectService}</p>
 
-          {(services?.items || []).map((service) => (
-            <div
-              key={service.id}
-              className="card card-border bg-base pointer border-slate-200 shadow-sm"
-              onClick={() => setService(service)}
-            >
-              <div className="card-body">
-                <h2 className="card-title">
-                  <div className="badge badge-primary badge-sm me-1 rounded-full font-normal">{service.version}</div>
-                  {service.name}
-                </h2>
+          <div className="flex flex-col gap-2">
+            {(services?.items || []).map((service) => (
+              <div
+                key={service.id}
+                className="card card-border bg-base pointer border-slate-200 shadow-sm"
+                onClick={() => setService(service)}
+              >
+                <div className="card-body">
+                  <h2 className="card-title">
+                    <div className="badge badge-primary badge-sm me-1 rounded-full font-normal">{service.version}</div>
+                    {service.name}
+                  </h2>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </>
       ) : (
         <></>

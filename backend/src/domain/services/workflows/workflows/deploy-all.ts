@@ -7,12 +7,13 @@ export interface DeployAllParam {
   previousResources: ResourceDefinition[] | null;
   previousUpdateId: number | null;
   resources: ResourceDefinition[];
+  teamId: number;
   updateId: number;
   workerApiKey: string;
   workerEndpoint: string;
 }
 
-const { deleteResource, deployResource, updateDeployment } = proxyActivities<typeof activities>({
+const { createSubscription, deleteResource, deployResource, updateDeployment } = proxyActivities<typeof activities>({
   startToCloseTimeout: '30 minutes',
   retry: {
     maximumAttempts: 5,
@@ -24,10 +25,13 @@ export async function deployAll({
   previousResources,
   previousUpdateId,
   resources,
+  teamId,
   updateId,
   workerApiKey,
   workerEndpoint,
 }: DeployAllParam): Promise<void> {
+  await createSubscription({ teamId, deploymentId });
+
   await updateDeployment({ updateId, status: 'Running' });
 
   try {

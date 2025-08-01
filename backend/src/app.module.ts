@@ -7,14 +7,16 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { AuthController } from './controllers/auth/auth.controller';
+import { TeamBillingController } from './controllers/billing/team-billing.controller';
 import { BlobsController } from './controllers/blobs/blobs.controller';
-import { ServicesController } from './controllers/services/services.controller';
 import { TeamDeploymentsController } from './controllers/deployments/team-deployments.controller';
+import { ServicesController } from './controllers/services/services.controller';
 import { SettingsController } from './controllers/settings/settings.controller';
 import { TeamsController } from './controllers/users/teams.controller';
 import { UserGroupsController } from './controllers/users/user-groups.controller';
 import { UsersController } from './controllers/users/users.controller';
 import { AuthModule } from './domain/auth/module';
+import { billingConfig, BillingModule } from './domain/billing';
 import {
   BlobEntity,
   CacheEntity,
@@ -38,8 +40,9 @@ import { UsersModule } from './domain/users/module';
 @Module({
   imports: [
     AuthModule,
+    BillingModule,
     CacheModule.register({ isGlobal: true, shouldCloneBeforeSet: false }),
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ load: [billingConfig] }),
     CqrsModule,
     ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', 'assets') }),
     ServicesModule,
@@ -83,6 +86,7 @@ import { UsersModule } from './domain/users/module';
     BlobsController,
     ServicesController,
     SettingsController,
+    TeamBillingController,
     TeamDeploymentsController,
     TeamsController,
     UserGroupsController,

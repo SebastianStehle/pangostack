@@ -34,7 +34,13 @@ export interface ResourceStatusDto {
      */
     resourceId: string;
     /**
-     * The name of the resource type.
+     * The type of the resource.
+     * @type {string}
+     * @memberof ResourceStatusDto
+     */
+    resourceType: string;
+    /**
+     * The name of the resource.
      * @type {string}
      * @memberof ResourceStatusDto
      */
@@ -53,6 +59,7 @@ export interface ResourceStatusDto {
 export function instanceOfResourceStatusDto(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "resourceId" in value;
+    isInstance = isInstance && "resourceType" in value;
     isInstance = isInstance && "resourceName" in value;
     isInstance = isInstance && "workloads" in value;
 
@@ -70,6 +77,7 @@ export function ResourceStatusDtoFromJSONTyped(json: any, ignoreDiscriminator: b
     return {
         
         'resourceId': json['resourceId'],
+        'resourceType': json['resourceType'],
         'resourceName': json['resourceName'],
         'workloads': ((json['workloads'] as Array<any>).map(ResourceWorkloadStatusDtoFromJSON)),
     };
@@ -85,6 +93,7 @@ export function ResourceStatusDtoToJSON(value?: ResourceStatusDto | null): any {
     return {
         
         'resourceId': value.resourceId,
+        'resourceType': value.resourceType,
         'resourceName': value.resourceName,
         'workloads': ((value.workloads as Array<any>).map(ResourceWorkloadStatusDtoToJSON)),
     };

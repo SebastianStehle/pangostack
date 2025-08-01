@@ -1,5 +1,6 @@
 .openapi-generator-ignore
 apis/AuthApi.ts
+apis/BillingApi.ts
 apis/DeploymentsApi.ts
 apis/ServicesApi.ts
 apis/SettingsApi.ts
@@ -9,11 +10,14 @@ apis/index.ts
 index.ts
 models/AuthProviderDto.ts
 models/AuthSettingsDto.ts
+models/BillingStatusDto.ts
 models/CreateDeploymentDto.ts
 models/CreateServiceVersionDto.ts
 models/DeploymentDto.ts
 models/DeploymentStatusDto.ts
 models/DeploymentsDto.ts
+models/InvoiceDto.ts
+models/InvoicesDto.ts
 models/LinkDto.ts
 models/LoginDto.ts
 models/ParameterDefinitionDto.ts

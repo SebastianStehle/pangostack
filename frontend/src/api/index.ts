@@ -1,6 +1,16 @@
 import { useMemo } from 'react';
 import { useTransientNavigate } from 'src/hooks';
-import { AuthApi, Configuration, DeploymentsApi, Middleware, ServicesApi, SettingsApi, TeamsApi, UsersApi } from './generated';
+import {
+  AuthApi,
+  BillingApi,
+  Configuration,
+  DeploymentsApi,
+  Middleware,
+  ServicesApi,
+  SettingsApi,
+  TeamsApi,
+  UsersApi,
+} from './generated';
 export * from './generated';
 
 export function useClients() {
@@ -32,6 +42,7 @@ export function useClients() {
 
 export class AppClient {
   public readonly auth: AuthApi;
+  public readonly billing: BillingApi;
   public readonly deployments: DeploymentsApi;
   public readonly teams: TeamsApi;
   public readonly services: ServicesApi;
@@ -47,6 +58,8 @@ export class AppClient {
     middleware: Middleware,
   ) {
     this.auth = new AuthApi(configuration).withMiddleware(middleware);
+
+    this.billing = new BillingApi(configuration).withMiddleware(middleware);
 
     this.deployments = new DeploymentsApi(configuration).withMiddleware(middleware);
 

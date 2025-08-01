@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiParam, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
@@ -22,6 +22,7 @@ import {
   UpdateServiceVersion,
   UpdateServiceVersionResponse,
 } from 'src/domain/services';
+import { IntParam } from 'src/lib';
 import {
   CreateServiceVersionDto,
   ServiceDto,
@@ -88,7 +89,7 @@ export class ServicesController {
   @ApiOkResponse({ type: ServiceDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async putService(@Param('serviceId', ParseIntPipe) serviceId: number, @Body() body: UpsertServiceDto) {
+  async putService(@IntParam('serviceId') serviceId: number, @Body() body: UpsertServiceDto) {
     const command = new UpdateService(serviceId, body);
     const result: UpdateServiceResponse = await this.commandBus.execute(command);
 
@@ -106,7 +107,7 @@ export class ServicesController {
   @ApiNoContentResponse()
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async deleteService(@Param('serviceId', ParseIntPipe) serviceId: number) {
+  async deleteService(@IntParam('serviceId') serviceId: number) {
     const command = new DeleteService(serviceId);
 
     await this.commandBus.execute(command);
@@ -123,7 +124,7 @@ export class ServicesController {
   @ApiOkResponse({ type: ServiceVersionsDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async getDeployments(@Param('serviceId', ParseIntPipe) serviceId: number) {
+  async getDeployments(@IntParam('serviceId') serviceId: number) {
     const result: GetServiceVersionsResponse = await this.queryBus.execute(new GetServiceVersions(serviceId));
 
     return ServiceVersionsDto.fromDomain(result.serviceVersions);
@@ -146,7 +147,7 @@ export class ServicesController {
   @ApiOkResponse({ type: ServiceVersionDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async getServiceVersion(@Param('serviceId', ParseIntPipe) serviceId: number, @Param('versionId') versionId: string) {
+  async getServiceVersion(@IntParam('serviceId') serviceId: number, @Param('versionId') versionId: string) {
     const result: GetServiceVersionsResponse = await this.queryBus.execute(new GetServiceVersions(serviceId));
 
     const version = result.serviceVersions.find((x) => x.id === +versionId);
@@ -168,7 +169,7 @@ export class ServicesController {
   @ApiOkResponse({ type: ServiceVersionDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async postServiceVersion(@Param('serviceId', ParseIntPipe) serviceId: number, @Body() body: CreateServiceVersionDto) {
+  async postServiceVersion(@IntParam('serviceId') serviceId: number, @Body() body: CreateServiceVersionDto) {
     const { definition: yaml, ...other } = body;
 
     const definition = yamlToDefinition(yaml);
@@ -198,8 +199,8 @@ export class ServicesController {
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
   async putServiceVersion(
-    @Param('serviceId', ParseIntPipe) _serviceId: number,
-    @Param('versionId', ParseIntPipe) versionId: number,
+    @IntParam('serviceId') _serviceId: number,
+    @IntParam('versionId') versionId: number,
     @Body() body: UpdateServiceVersionDto,
   ) {
     const { definition: yaml, ...other } = body;
@@ -230,10 +231,7 @@ export class ServicesController {
   @ApiNoContentResponse()
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async deleteServiceVersion(
-    @Param('serviceId', ParseIntPipe) _serviceId: number,
-    @Param('versionId', ParseIntPipe) versionId: number,
-  ) {
+  async deleteServiceVersion(@IntParam('serviceId') _serviceId: number, @IntParam('versionId') versionId: number) {
     const command = new DeleteServiceVersion(versionId);
 
     await this.commandBus.execute(command);

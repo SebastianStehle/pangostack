@@ -174,21 +174,21 @@ export class ResourceStatusDto {
   @ApiProperty({
     description: 'The resource ID',
     required: true,
-    type: String,
+    type: 'string',
   })
   resourceId: string;
 
   @ApiProperty({
     description: 'The type of the resource.',
     required: true,
-    type: String,
+    type: 'string',
   })
   resourceType: string;
 
   @ApiProperty({
     description: 'The name of the resource.',
     required: true,
-    type: String,
+    type: 'string',
   })
   resourceName: string;
 

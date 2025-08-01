@@ -1,7 +1,9 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not } from 'typeorm';
+import { DeploymentDto } from 'src/controllers/deployments/dtos';
+import { BillingService } from 'src/domain/billing';
 import {
   DeploymentEntity,
   DeploymentRepository,
@@ -14,7 +16,6 @@ import {
 } from 'src/domain/database';
 import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database/entities/deployment-update';
 import { User } from 'src/domain/users';
-import { Deployment } from '../interfaces';
 import { WorkflowRunner } from '../workflows/runner';
 import { buildDeployment } from './utils';
 
@@ -29,7 +30,7 @@ export class CreateDeployment {
 }
 
 export class CreateDeploymentResponse {
-  constructor(public readonly deployment: Deployment) {}
+  constructor(public readonly deployment: DeploymentDto) {}
 }
 
 @CommandHandler(CreateDeployment)
@@ -45,11 +46,16 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     private readonly serviceVersions: ServiceVersionRepository,
     @InjectRepository(WorkerEntity)
     private readonly workers: WorkerRepository,
+    private readonly billingService: BillingService,
     private readonly runner: WorkflowRunner,
   ) {}
 
   async execute(command: CreateDeployment): Promise<CreateDeploymentResponse> {
     const { name, parameters, serviceId, teamdId, user } = command;
+
+    if (!(await this.billingService.hasPaymentDetails(teamdId))) {
+      throw new BadRequestException('No billing information configured.');
+    }
 
     const service = await this.services.findOneBy({ id: serviceId });
     if (!service) {
@@ -95,7 +101,7 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     update.serviceVersionId = version.id;
     await this.deploymentUpdates.save(update);
 
-    await this.runner.deploy(deployment, update, null, worker);
-    return { deployment: buildDeployment(deployment, update) };
+    await this.runner.deploy(deployment, update, null, teamdId, worker);
+    return new CreateDeploymentResponse(buildDeployment(deployment, update));
   }
 }

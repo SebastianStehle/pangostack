@@ -3,7 +3,7 @@ import { Worker } from '@temporalio/worker';
 import { WorkflowIdReusePolicy } from '@temporalio/workflow';
 import { DeploymentEntity, WorkerEntity } from 'src/domain/database';
 import { DeploymentUpdateEntity } from 'src/domain/database/entities/deployment-update';
-import { TemporalService } from 'src/lib';
+import { TemporalService } from '../services/temporal.service';
 import * as activities from './activities';
 import * as workflows from './workflows';
 
@@ -11,6 +11,7 @@ import * as workflows from './workflows';
 export class WorkflowRunner implements OnApplicationBootstrap {
   constructor(
     private readonly temporal: TemporalService,
+    private readonly createSubscription: activities.CreateSubscriptionActivity,
     private readonly deployResource: activities.DeployResourceActivity,
     private readonly updateDeployment: activities.UpdateDeploymentActivity,
   ) {}
@@ -19,6 +20,7 @@ export class WorkflowRunner implements OnApplicationBootstrap {
     const worker = await Worker.create({
       workflowsPath: require.resolve('./workflows'),
       activities: {
+        createSubscription: this.createSubscription.execute.bind(this.createSubscription),
         deployResource: this.deployResource.execute.bind(this.deployResource),
         updateDeployment: this.updateDeployment.execute.bind(this.updateDeployment),
       },
@@ -32,6 +34,7 @@ export class WorkflowRunner implements OnApplicationBootstrap {
     deployment: DeploymentEntity,
     deploymentUpdate: DeploymentUpdateEntity,
     previousUpdate: DeploymentUpdateEntity | null,
+    teamId: number,
     worker: WorkerEntity,
   ) {
     const client = this.temporal.client;
@@ -45,6 +48,7 @@ export class WorkflowRunner implements OnApplicationBootstrap {
           previousUpdateId: deploymentUpdate?.id || null,
           previousResources: previousUpdate?.serviceVersion.definition.resources || null,
           resources: deploymentUpdate.serviceVersion.definition.resources,
+          teamId,
           updateId: deploymentUpdate.id,
           workerApiKey: worker.apiKey,
           workerEndpoint: worker.endpoint,

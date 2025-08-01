@@ -63,7 +63,16 @@ export const texts = {
     yes: 'Yes',
   },
   billing: {
+    amount: 'Amount',
     headline: 'Billing',
+    dueDate: 'Due Date',
+    notPaid: 'Not Paid',
+    number: 'Invoice',
+    paid: 'Paid',
+    paymentDue: 'Payment Due',
+    portal: 'Payment Portal',
+    pending: 'Pending',
+    voided: 'Voided',
   },
   dashboard: {},
   deployments: {
@@ -84,6 +93,9 @@ export const texts = {
     loginButton: (provider: string) => `Login with ${provider}`,
     loginHint: 'Login to your account',
     welcome: 'Welcome to Omni SaaS 👋',
+  },
+  members: {
+    headline: 'Members',
   },
   services: {
     create: 'New Service',
@@ -137,7 +149,6 @@ export const texts = {
     createTitle: 'Create Team',
     createText: 'You are not part of any team yet. Create a new one to invite other members and manage resources.',
     selectTeam: 'Select Team',
-    members: 'Members',
   },
   theme: {
     appName: 'App Name',

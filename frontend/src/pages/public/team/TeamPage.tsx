@@ -34,7 +34,7 @@ export function TeamPage() {
             className={({ isActive }) => classNames('text-primary-content text-lg opacity-70', { 'opacity-100': isActive })}
             to="members"
           >
-            {texts.teams.members}
+            {texts.members.headline}
           </TransientNavLink>
         </li>
         <li>

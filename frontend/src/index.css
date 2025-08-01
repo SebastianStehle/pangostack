@@ -19,7 +19,7 @@
     --color-microsoft-hover: #00A4EF;
     --color-header: #491eff;
     --shadow-top: 0 -10px 10px rgba(0, 0, 0, 0.25);
-    --text-mdx: 1.05rem;
+    --text-mdx: 110%;
 }
 
 @tailwind base;

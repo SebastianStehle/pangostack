@@ -10,7 +10,7 @@ export const DeploymentPage = () => {
 
   const { data: loadedStatus } = useQuery({
     queryKey: ['status', teamId, deploymentId],
-    queryFn: () => clients.deployments.getStatus(+teamId!, +deploymentId!),
+    queryFn: () => clients.deployments.getDeploymentStatus(+teamId!, +deploymentId!),
     refetchOnWindowFocus: false,
   });
 
@@ -18,7 +18,7 @@ export const DeploymentPage = () => {
 
   return (
     <>
-      <div className="mb-4 flex items-center gap-4">
+      <div className="mb-4 flex h-10 items-center gap-4">
         <TransientNavLink className="btn btn-ghost btn-sm text-sm" to={`../${teamId}`}>
           <Icon icon="arrow-left" size={16} />
         </TransientNavLink>

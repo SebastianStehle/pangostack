@@ -37,13 +37,13 @@ export interface DeleteDeploymentRequest {
     teamId: number;
 }
 
-export interface GetDeploymentsRequest {
+export interface GetDeploymentStatusRequest {
+    deploymentId: number;
     teamId: number;
 }
 
-export interface GetStatusRequest {
+export interface GetDeploymentsRequest {
     teamId: number;
-    deploymentId: number;
 }
 
 export interface PostDeploymentRequest {
@@ -102,6 +102,46 @@ export class DeploymentsApi extends runtime.BaseAPI {
     }
 
     /**
+     * Gets deployments status.
+     * 
+     */
+    async getDeploymentStatusRaw(requestParameters: GetDeploymentStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeploymentStatusDto>> {
+        if (requestParameters.deploymentId === null || requestParameters.deploymentId === undefined) {
+            throw new runtime.RequiredError('deploymentId','Required parameter requestParameters.deploymentId was null or undefined when calling getDeploymentStatus.');
+        }
+
+        if (requestParameters.teamId === null || requestParameters.teamId === undefined) {
+            throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling getDeploymentStatus.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/teams/{teamId}/deployments/{deploymentId}/status`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))).replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => DeploymentStatusDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Gets deployments status.
+     * 
+     */
+    async getDeploymentStatus(deploymentId: number, teamId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentStatusDto> {
+        const response = await this.getDeploymentStatusRaw({ deploymentId: deploymentId, teamId: teamId }, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Gets all deployments.
      * 
      */
@@ -134,46 +174,6 @@ export class DeploymentsApi extends runtime.BaseAPI {
      */
     async getDeployments(teamId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentsDto> {
         const response = await this.getDeploymentsRaw({ teamId: teamId }, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Gets deployments status.
-     * 
-     */
-    async getStatusRaw(requestParameters: GetStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeploymentStatusDto>> {
-        if (requestParameters.teamId === null || requestParameters.teamId === undefined) {
-            throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling getStatus.');
-        }
-
-        if (requestParameters.deploymentId === null || requestParameters.deploymentId === undefined) {
-            throw new runtime.RequiredError('deploymentId','Required parameter requestParameters.deploymentId was null or undefined when calling getStatus.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        if (this.configuration && this.configuration.apiKey) {
-            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
-        }
-
-        const response = await this.request({
-            path: `/teams/{teamId}/deployments/{deploymentId}/status`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))).replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => DeploymentStatusDtoFromJSON(jsonValue));
-    }
-
-    /**
-     * Gets deployments status.
-     * 
-     */
-    async getStatus(teamId: number, deploymentId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentStatusDto> {
-        const response = await this.getStatusRaw({ teamId: teamId, deploymentId: deploymentId }, initOverrides);
         return await response.value();
     }
 

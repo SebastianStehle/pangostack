@@ -3,11 +3,14 @@
 /* eslint-disable */
 export * from './AuthProviderDto';
 export * from './AuthSettingsDto';
+export * from './BillingStatusDto';
 export * from './CreateDeploymentDto';
 export * from './CreateServiceVersionDto';
 export * from './DeploymentDto';
 export * from './DeploymentStatusDto';
 export * from './DeploymentsDto';
+export * from './InvoiceDto';
+export * from './InvoicesDto';
 export * from './LinkDto';
 export * from './LoginDto';
 export * from './ParameterDefinitionDto';

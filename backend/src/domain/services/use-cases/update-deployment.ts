@@ -110,7 +110,7 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
     update.serviceVersionId = version.id;
     await this.deploymentUpdates.save(update);
 
-    await this.runner.deploy(deployment, update, lastUpdate, worker);
+    await this.runner.deploy(deployment, update, lastUpdate, teamId, worker);
     return { deployment: buildDeployment(deployment, update) };
   }
 }
