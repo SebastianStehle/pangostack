@@ -12,28 +12,32 @@ export class StatusController {
   ) {}
 
   @Post('')
-  @ApiOperation({ operationId: 'getStatus', description: 'Gets the status for all specified deployment IDs' })
+  @ApiOperation({ operationId: 'postStatus', description: 'Gets the status for all specified deployment IDs' })
   @ApiOkResponse({ type: StatusResultDto })
-  async getStatus(@Body() body: StatusRequestDto) {
+  async postStatus(@Body() body: StatusRequestDto) {
     const result = new StatusResultDto();
+    console.log('FF1');
 
     // Validate the request first.
     for (const identifier of body.resources) {
-      const resource = this.resources.find((x) => x.descriptor.name === identifier.resourceName);
+      const resource = this.resources.find((x) => x.descriptor.name === identifier.resourceType);
       if (!resource) {
-        throw new BadRequestException(`Unknown resouce type ${identifier.resourceName}`);
+        console.log('FF2' + identifier.resourceType);
+        throw new BadRequestException(`Unknown resouce type ${identifier.resourceType}`);
       }
     }
 
+    console.log('FF2');
     for (const identifier of body.resources) {
-      const resource = this.resources.find((x) => x.descriptor.name === identifier.resourceName);
+      const resource = this.resources.find((x) => x.descriptor.name === identifier.resourceType);
 
       // The resource exists as it has already been verified in the previous pass.
       const resourceResult = await resource.status(identifier.resourceId, { parameters: identifier.parameters });
-      const resourceResponse = ResourceStatusDto.fromDomain(resourceResult, identifier.resourceId, identifier.resourceName);
+      const resourceResponse = ResourceStatusDto.fromDomain(resourceResult, identifier.resourceId, identifier.resourceType);
 
       result.resources.push(resourceResponse);
     }
+    console.log('FF');
 
     return result;
   }

@@ -38,6 +38,9 @@ export interface ResourceApplyResult {
   // Context values added or overwritten in the deployment
   readonly context: Record<string, string>;
 
+  // Provides values how to connect to the resource, for example Api Keys.
+  readonly connection: Record<string, { value: string; label: string }>;
+
   // Optional log output
   readonly log?: string;
 }

@@ -20,7 +20,7 @@ export class StatusRequestResourceDto {
   })
   @IsString()
   @IsNotEmpty()
-  resourceName: string;
+  resourceType: string;
 
   @ApiProperty({
     description: 'The parameters.',
@@ -103,11 +103,11 @@ export class ResourceStatusDto {
   resourceId: string;
 
   @ApiProperty({
-    description: 'The name of the resource type.',
+    description: 'The type of the resource.',
     required: true,
     type: String,
   })
-  resourceName: string;
+  resourceType: string;
 
   @ApiProperty({
     description: 'The workflows that have been created',
@@ -116,10 +116,10 @@ export class ResourceStatusDto {
   })
   workloads: ResourceWorkloadStatusDto[] = [];
 
-  static fromDomain(source: ResourceStatusResult, id: string, name: string) {
+  static fromDomain(source: ResourceStatusResult, id: string, type: string) {
     const result = new ResourceStatusDto();
     result.resourceId = id;
-    result.resourceName = name;
+    result.resourceType = type;
     result.workloads = source.workloads.map(ResourceWorkloadStatusDto.fromDomain);
     return result;
   }

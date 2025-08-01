@@ -1,6 +1,5 @@
 import { DeploymentEntity, DeploymentUpdateEntity, ServiceEntity, ServiceVersionEntity } from 'src/domain/database';
 import { Deployment, Service, ServicePublic, ServiceVersion } from '../interfaces';
-import { ServiceDefinition } from '../workflows/model';
 
 export function buildDeployment(source: DeploymentEntity, update: DeploymentUpdateEntity): Deployment {
   const { id, createdAt } = source;
@@ -22,11 +21,7 @@ export function buildServiceVersion(source: ServiceVersionEntity, isDefault: boo
   return { id, definition, environment, isActive, isDefault, name, numDeployments: handledDeployments.size };
 }
 
-export function buildServicePublic(
-  source: ServiceEntity,
-  version: ServiceVersionEntity,
-  definition: ServiceDefinition,
-): ServicePublic {
+export function buildServicePublic(source: ServiceEntity, version: ServiceVersionEntity): ServicePublic {
   const {
     id,
     currency,
@@ -45,13 +40,13 @@ export function buildServicePublic(
     description,
     fixedPrice,
     name,
-    parameters: definition.parameters,
+    parameters: version.definition.parameters,
     pricePerCpuHour,
     pricePerVolumeGbHour: pricePerVolumeGbHour,
     pricePerMemoryGbHour,
     pricePerStorageGbMonth,
     version: version.name,
-    usage: definition.usage,
+    usage: version.definition.usage,
   };
 }
 

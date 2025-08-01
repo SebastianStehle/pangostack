@@ -26,11 +26,11 @@ export interface ResourceDeleteRequestDto {
      */
     resourceId: string;
     /**
-     * The name of the resource type.
+     * The type of the resource.
      * @type {string}
      * @memberof ResourceDeleteRequestDto
      */
-    resourceName: string;
+    resourceType: string;
     /**
      * The parameters.
      * @type {{ [key: string]: any; }}
@@ -44,7 +44,7 @@ export interface ResourceDeleteRequestDto {
  */
 export function instanceOfResourceDeleteRequestDto(value: object): boolean {
     if (!('resourceId' in value)) return false;
-    if (!('resourceName' in value)) return false;
+    if (!('resourceType' in value)) return false;
     if (!('parameters' in value)) return false;
     return true;
 }
@@ -60,7 +60,7 @@ export function ResourceDeleteRequestDtoFromJSONTyped(json: any, ignoreDiscrimin
     return {
         
         'resourceId': json['resourceId'],
-        'resourceName': json['resourceName'],
+        'resourceType': json['resourceType'],
         'parameters': json['parameters'],
     };
 }
@@ -72,7 +72,7 @@ export function ResourceDeleteRequestDtoToJSON(value?: ResourceDeleteRequestDto 
     return {
         
         'resourceId': value['resourceId'],
-        'resourceName': value['resourceName'],
+        'resourceType': value['resourceType'],
         'parameters': value['parameters'],
     };
 }

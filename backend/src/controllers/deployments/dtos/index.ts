@@ -179,7 +179,14 @@ export class ResourceStatusDto {
   resourceId: string;
 
   @ApiProperty({
-    description: 'The name of the resource type.',
+    description: 'The type of the resource.',
+    required: true,
+    type: String,
+  })
+  resourceType: string;
+
+  @ApiProperty({
+    description: 'The name of the resource.',
     required: true,
     type: String,
   })
@@ -196,6 +203,7 @@ export class ResourceStatusDto {
     const result = new ResourceStatusDto();
     result.resourceId = source.resourceId;
     result.resourceName = source.resourceName;
+    result.resourceName = source.resourceType;
     result.workloads = source.workloads.map(ResourceWorkloadStatusDto.fromDomain);
     return result;
   }

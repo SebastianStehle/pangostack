@@ -16,9 +16,9 @@ export class DeploymentController {
   @ApiOperation({ operationId: 'applyResource', description: 'Applies the resource' })
   @ApiOkResponse({ type: ResourceApplyResponseDto })
   async applyResource(@Body() body: ResourceApplyRequestDto) {
-    const resource = this.resources.find((x) => x.descriptor.name === body.resourceName);
+    const resource = this.resources.find((x) => x.descriptor.name === body.resourceType);
     if (!resource) {
-      throw new BadRequestException(`Unknown resouce type ${body.resourceName}`);
+      throw new BadRequestException(`Unknown resouce type ${body.resourceType}`);
     }
 
     validate(resource.descriptor, body.parameters);
@@ -35,14 +35,14 @@ export class DeploymentController {
   async deleteResources(@Body() body: ResourcesDeleteRequestDto) {
     // Validate the request first.
     for (const identifier of body.resources) {
-      const resource = this.resources.find((x) => x.descriptor.name === identifier.resourceName);
+      const resource = this.resources.find((x) => x.descriptor.name === identifier.resourceType);
       if (!resource) {
-        throw new BadRequestException(`Unknown resouce type ${identifier.resourceName}`);
+        throw new BadRequestException(`Unknown resouce type ${identifier.resourceType}`);
       }
     }
 
     for (const identifier of body.resources) {
-      const resource = this.resources.find((x) => x.descriptor.name === identifier.resourceName);
+      const resource = this.resources.find((x) => x.descriptor.name === identifier.resourceType);
 
       await resource.delete(identifier.resourceId, identifier);
     }

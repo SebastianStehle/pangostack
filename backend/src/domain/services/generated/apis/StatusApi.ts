@@ -25,7 +25,7 @@ import {
     StatusResultDtoToJSON,
 } from '../models/index';
 
-export interface GetStatusRequest {
+export interface PostStatusRequest {
     statusRequestDto: StatusRequestDto;
 }
 
@@ -38,11 +38,11 @@ export class StatusApi extends runtime.BaseAPI {
      * Gets the status for all specified deployment IDs
      * 
      */
-    async getStatusRaw(requestParameters: GetStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<StatusResultDto>> {
+    async postStatusRaw(requestParameters: PostStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<StatusResultDto>> {
         if (requestParameters['statusRequestDto'] == null) {
             throw new runtime.RequiredError(
                 'statusRequestDto',
-                'Required parameter "statusRequestDto" was null or undefined when calling getStatus().'
+                'Required parameter "statusRequestDto" was null or undefined when calling postStatus().'
             );
         }
 
@@ -67,8 +67,8 @@ export class StatusApi extends runtime.BaseAPI {
      * Gets the status for all specified deployment IDs
      * 
      */
-    async getStatus(statusRequestDto: StatusRequestDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<StatusResultDto> {
-        const response = await this.getStatusRaw({ statusRequestDto: statusRequestDto }, initOverrides);
+    async postStatus(statusRequestDto: StatusRequestDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<StatusResultDto> {
+        const response = await this.postStatusRaw({ statusRequestDto: statusRequestDto }, initOverrides);
         return await response.value();
     }
 

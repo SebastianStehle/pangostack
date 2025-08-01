@@ -1,4 +1,4 @@
-import { ParameterDefinition, UsageDefinition } from './workflows/model';
+import { ParameterDefinition, ServiceDefinition, UsageDefinition } from '../definitions';
 
 export interface Deployment {
   // The ID of the deployment.
@@ -28,7 +28,7 @@ export interface ServiceVersion {
   name: string;
 
   // The YAML definition.
-  definition: string;
+  definition: ServiceDefinition;
 
   // The environment settings.
   environment: Record<string, string>;
@@ -147,6 +147,9 @@ export interface ResourceWorkloadStatus {
 export class ResourceStatus {
   // The name of the resource.
   resourceId: string;
+
+  // The type of the resource.
+  resourceType: string;
 
   // The name of the resource.
   resourceName: string;

@@ -3,8 +3,8 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not } from 'typeorm';
 import { DeploymentEntity, DeploymentRepository, WorkerEntity, WorkerRepository } from 'src/domain/database';
+import { evaluateParameters } from 'src/domain/definitions';
 import { ResourceStatus } from '../interfaces';
-import { evaluateParameters, parseDefinition } from '../workflows/model';
 import { WorkerClient } from '../workflows/worker-client';
 
 export class GetDeploymentStatus {
@@ -46,17 +46,16 @@ export class GetDeploymentStatusHandler implements IQueryHandler<GetDeploymentSt
       return new GetDeploymentStatusResponse([]);
     }
 
-    const definition = parseDefinition(lastUpdate.serviceVersion.definition);
-
     const workerClient = new WorkerClient(worker.endpoint, worker.apiKey);
-    const statuses = await workerClient.status.getStatus({
-      resources: definition.resources.map((resource) => ({
+
+    const statuses = await workerClient.status.postStatus({
+      resources: lastUpdate.serviceVersion.definition.resources.map((resource) => ({
         resourceId: `deployment_${deploymentId}_${resource.id}`,
-        resourceName: resource.name,
+        resourceType: resource.type,
         parameters: evaluateParameters(resource, lastUpdate.environment, {}),
       })),
     });
 
-    return new GetDeploymentStatusResponse(statuses.resources);
+    return new GetDeploymentStatusResponse(statuses.resources as any);
   }
 }

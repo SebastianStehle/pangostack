@@ -1,13 +1,10 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { Worker } from '@temporalio/worker';
 import { WorkflowIdReusePolicy } from '@temporalio/workflow';
-import { plainToInstance } from 'class-transformer';
-import { parse as fromYAML } from 'yaml';
-import { DeploymentEntity, ServiceVersionEntity, WorkerEntity } from 'src/domain/database';
+import { DeploymentEntity, WorkerEntity } from 'src/domain/database';
 import { DeploymentUpdateEntity } from 'src/domain/database/entities/deployment-update';
 import { TemporalService } from 'src/lib';
 import * as activities from './activities';
-import { parseDefinition, ResourcesDefinition } from './model';
 import * as workflows from './workflows';
 
 @Injectable()
@@ -34,12 +31,10 @@ export class WorkflowRunner implements OnApplicationBootstrap {
   async deploy(
     deployment: DeploymentEntity,
     deploymentUpdate: DeploymentUpdateEntity,
-    serviceVersion: ServiceVersionEntity,
+    previousUpdate: DeploymentUpdateEntity | null,
     worker: WorkerEntity,
   ) {
     const client = this.temporal.client;
-
-    const definition = parseDefinition(serviceVersion.definition);
 
     await client.workflow.start(workflows.deployAll, {
       workflowId: `deployment-${deployment.id}`,
@@ -47,7 +42,9 @@ export class WorkflowRunner implements OnApplicationBootstrap {
       args: [
         {
           deploymentId: deployment.id,
-          resources: definition.resources,
+          previousUpdateId: deploymentUpdate?.id || null,
+          previousResources: previousUpdate?.serviceVersion.definition.resources || null,
+          resources: deploymentUpdate.serviceVersion.definition.resources,
           updateId: deploymentUpdate.id,
           workerApiKey: worker.apiKey,
           workerEndpoint: worker.endpoint,
@@ -57,16 +54,8 @@ export class WorkflowRunner implements OnApplicationBootstrap {
     });
   }
 
-  async delete(
-    deployment: DeploymentEntity,
-    deploymentUpdate: DeploymentUpdateEntity,
-    serviceVersion: ServiceVersionEntity,
-    worker: WorkerEntity,
-  ) {
+  async delete(deployment: DeploymentEntity, deploymentUpdate: DeploymentUpdateEntity, worker: WorkerEntity) {
     const client = this.temporal.client;
-
-    const definitionJson = fromYAML(serviceVersion.definition);
-    const definitionClass = plainToInstance(ResourcesDefinition, definitionJson);
 
     await client.workflow.start(workflows.deleteAll, {
       workflowId: `deployment-${deployment.id}`,
@@ -74,7 +63,7 @@ export class WorkflowRunner implements OnApplicationBootstrap {
       args: [
         {
           deploymentId: deployment.id,
-          resources: definitionClass.resources,
+          resources: deploymentUpdate.serviceVersion.definition.resources,
           updateId: deploymentUpdate.id,
           workerApiKey: worker.apiKey,
           workerEndpoint: worker.endpoint,

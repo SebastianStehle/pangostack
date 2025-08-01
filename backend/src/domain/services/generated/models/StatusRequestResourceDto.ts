@@ -30,7 +30,7 @@ export interface StatusRequestResourceDto {
      * @type {string}
      * @memberof StatusRequestResourceDto
      */
-    resourceName: string;
+    resourceType: string;
     /**
      * The parameters.
      * @type {{ [key: string]: any; }}
@@ -44,7 +44,7 @@ export interface StatusRequestResourceDto {
  */
 export function instanceOfStatusRequestResourceDto(value: object): boolean {
     if (!('resourceId' in value)) return false;
-    if (!('resourceName' in value)) return false;
+    if (!('resourceType' in value)) return false;
     if (!('parameters' in value)) return false;
     return true;
 }
@@ -60,7 +60,7 @@ export function StatusRequestResourceDtoFromJSONTyped(json: any, ignoreDiscrimin
     return {
         
         'resourceId': json['resourceId'],
-        'resourceName': json['resourceName'],
+        'resourceType': json['resourceType'],
         'parameters': json['parameters'],
     };
 }
@@ -72,7 +72,7 @@ export function StatusRequestResourceDtoToJSON(value?: StatusRequestResourceDto 
     return {
         
         'resourceId': value['resourceId'],
-        'resourceName': value['resourceName'],
+        'resourceType': value['resourceType'],
         'parameters': value['parameters'],
     };
 }

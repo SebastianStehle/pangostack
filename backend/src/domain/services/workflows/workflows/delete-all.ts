@@ -1,6 +1,6 @@
 import { proxyActivities } from '@temporalio/workflow';
+import { ResourceDefinition } from 'src/domain/definitions';
 import type * as activities from '../activities';
-import { ResourceDefinition } from '../model';
 
 export interface DeleteAllParam {
   deploymentId: number;

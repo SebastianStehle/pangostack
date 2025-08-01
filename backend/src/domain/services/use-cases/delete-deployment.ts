@@ -44,7 +44,7 @@ export class DeleteDeploymentHandler implements ICommandHandler<DeleteDeployment
       throw new NotFoundException('No worker registered.');
     }
 
-    await this.runner.delete(deployment, lastUpdate, lastUpdate.serviceVersion, worker);
+    await this.runner.delete(deployment, lastUpdate, worker);
     return { deployment };
   }
 }

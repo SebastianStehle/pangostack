@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database/entities/deployment-update';
-import { evaluateParameters, ResourceDefinition } from '../model';
+import { evaluateParameters, ResourceDefinition } from 'src/domain/definitions';
 import { WorkerClient } from '../worker-client';
 
 export interface DeployResourceParam {
@@ -46,7 +46,7 @@ export class DeployResourceActivity {
     const workerClient = new WorkerClient(workerEndpoint, workerApiKey);
     const response = await workerClient.deployment.applyResource({
       resourceId,
-      resourceName: resource.type,
+      resourceType: resource.type,
       parameters: resourceParams,
     });
 

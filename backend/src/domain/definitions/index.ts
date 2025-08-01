@@ -18,10 +18,10 @@ import {
   ValidateNested,
   ValidationError,
 } from 'class-validator';
-import { parse as fromYAML, YAMLError } from 'yaml';
+import { parse, stringify, YAMLError } from 'yaml';
 import { evaluateExpression, flattenValidationErrors, is } from 'src/lib';
 
-export class ParameterDefinition {
+class ParameterDefinitionClass {
   @IsDefined()
   @IsString()
   name: string;
@@ -77,7 +77,7 @@ export class ParameterDefinition {
   section?: string;
 }
 
-export class ResourceDefinition {
+class ResourceDefinitionClass {
   @IsDefined()
   @IsString()
   name: string;
@@ -95,7 +95,7 @@ export class ResourceDefinition {
   parameters: Record<string, string>;
 }
 
-export class UsageDefinition {
+class UsageDefinitionClass {
   @IsDefined()
   @IsString()
   totalCpus: string;
@@ -113,40 +113,42 @@ export class UsageDefinition {
   totalStorage: string;
 }
 
-export class ServiceDefinition {
+class ServiceDefinitionClass {
   @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => ParameterDefinition)
-  parameters: ParameterDefinition[];
+  @Type(() => ParameterDefinitionClass)
+  parameters: ParameterDefinitionClass[];
 
   @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => ResourceDefinition)
-  resources: ResourceDefinition[];
+  @Type(() => ResourceDefinitionClass)
+  resources: ResourceDefinitionClass[];
 
   @IsDefined()
   @ValidateNested()
-  @Type(() => UsageDefinition)
-  usage: UsageDefinition;
+  @Type(() => UsageDefinitionClass)
+  usage: UsageDefinitionClass;
 }
 
-export class ResourcesDefinition {
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ResourceDefinition)
-  resources: ResourceDefinition[];
+export type ParameterDefinition = InstanceType<typeof ParameterDefinitionClass>;
+export type ResourceDefinition = InstanceType<typeof ResourceDefinitionClass>;
+export type ResourcesDefinition = Pick<ServiceDefinition, 'resources'>;
+export type ServiceDefinition = InstanceType<typeof ServiceDefinitionClass>;
+export type UsageDefinition = InstanceType<typeof UsageDefinitionClass>;
+
+export function definitionToYaml(definition: ServiceDefinition) {
+  return stringify(definition);
 }
 
-export function parseDefinition(yaml: string) {
+export function yamlToDefinition(yaml: string): ServiceDefinition {
   try {
-    const definitionJson = fromYAML(yaml);
-    const definitionClass = plainToInstance(ServiceDefinition, definitionJson);
+    const definitionJson = parse(yaml);
+    const definitionClass = plainToInstance(ServiceDefinitionClass, definitionJson);
 
-    if (!is(definitionClass, ServiceDefinition)) {
-      return new ServiceDefinition();
+    if (!is(definitionClass, ResourceDefinitionClass)) {
+      return new ServiceDefinitionClass();
     }
 
     return definitionClass;

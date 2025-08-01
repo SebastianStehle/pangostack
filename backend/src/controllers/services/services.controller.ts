@@ -3,6 +3,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiParam, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
 import { BUILTIN_USER_GROUP_ADMIN, BUILTIN_USER_GROUP_DEFAULT } from 'src/domain/database';
+import { validateDefinition, yamlToDefinition } from 'src/domain/definitions';
 import {
   CreateService,
   CreateServiceResponse,
@@ -168,7 +169,12 @@ export class ServicesController {
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
   async postServiceVersion(@Param('serviceId', ParseIntPipe) serviceId: number, @Body() body: CreateServiceVersionDto) {
-    const command = new CreateServiceVersion(serviceId, body);
+    const { definition: yaml, ...other } = body;
+
+    const definition = yamlToDefinition(yaml);
+    await validateDefinition(definition);
+
+    const command = new CreateServiceVersion(serviceId, { ...other, definition });
     const result: CreateServiceVersionResponse = await this.commandBus.execute(command);
 
     return ServiceVersionDto.fromDomain(result.serviceVersion);
@@ -196,7 +202,12 @@ export class ServicesController {
     @Param('versionId', ParseIntPipe) versionId: number,
     @Body() body: UpdateServiceVersionDto,
   ) {
-    const command = new UpdateServiceVersion(versionId, body);
+    const { definition: yaml, ...other } = body;
+
+    const definition = yamlToDefinition(yaml);
+    await validateDefinition(definition);
+
+    const command = new UpdateServiceVersion(versionId, { ...other, definition });
     const result: UpdateServiceVersionResponse = await this.commandBus.execute(command);
 
     return ServiceVersionDto.fromDomain(result.serviceVersion);

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
+import { definitionToYaml, ParameterDefinition } from 'src/domain/definitions';
 import { Service, ServicePublic, ServiceVersion } from 'src/domain/services';
-import { ParameterDefinition } from 'src/domain/services/workflows/model';
 
 export class UpsertServiceDto {
   @ApiProperty({
@@ -325,7 +325,7 @@ export class ServiceVersionDto {
   static fromDomain(source: ServiceVersion): ServiceVersionDto {
     const result = new ServiceVersionDto();
     result.id = source.id;
-    result.definition = source.definition;
+    result.definition = definitionToYaml(source.definition);
     result.environment = source.environment;
     result.isActive = source.isActive;
     result.isDefault = source.isDefault;

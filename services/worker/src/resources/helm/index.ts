@@ -98,7 +98,20 @@ export class HelmResource implements Resource {
       try {
         const { stdout, stderr } = await execa('helm', args);
 
-        return { log: stdout + '\n' + stderr, context: {} };
+        return {
+          log: stdout + '\n' + stderr,
+          context: {},
+          connection: {
+            namespace: {
+              value: namespace,
+              label: 'Namespace',
+            },
+            config: {
+              value: config,
+              label: 'Kubernetes Config',
+            },
+          },
+        };
       } finally {
         if (valuesFilePath) {
           fs.rm(valuesFilePath);
@@ -151,6 +164,7 @@ export class HelmResource implements Resource {
         if (selector) {
           const matchingPods = pods.items.filter((pod) => matchesSelector(pod.metadata?.labels, selector));
           for (const pod of matchingPods) {
+            console.log('GOT POD');
             const node: ResourceNodeStatus = { name: pod.metadata.name, isReady: isPodReady(pod.status) };
 
             workloadResult.nodes.push(node);

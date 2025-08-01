@@ -9,6 +9,7 @@ import {
   Repository,
   UpdateDateColumn,
 } from 'typeorm';
+import { ServiceDefinition } from 'src/domain/definitions';
 import { DeploymentUpdateEntity } from './deployment-update';
 import { ServiceEntity } from './service';
 
@@ -22,8 +23,8 @@ export class ServiceVersionEntity {
   @Column()
   name: string;
 
-  @Column('text')
-  definition: string;
+  @Column('simple-json')
+  definition: ServiceDefinition;
 
   @Column('simple-json')
   environment: Record<string, string> = {};

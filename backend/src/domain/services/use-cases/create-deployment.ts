@@ -82,6 +82,7 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     deployment.updatedBy = user?.id || 'UNKNOWN';
     await this.deployments.save(deployment);
 
+    // Assign the references as well, so that it we can access them.
     const update = this.deploymentUpdates.create();
     update.createdAt = undefined;
     update.createdBy = user?.id || 'UNKNOWN';
@@ -94,7 +95,7 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     update.serviceVersionId = version.id;
     await this.deploymentUpdates.save(update);
 
-    await this.runner.deploy(deployment, update, version, worker);
+    await this.runner.deploy(deployment, update, null, worker);
     return { deployment: buildDeployment(deployment, update) };
   }
 }

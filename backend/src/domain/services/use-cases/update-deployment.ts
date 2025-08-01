@@ -97,6 +97,7 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
     // The environment settings from the version overwrite the service.
     const environment = { ...version.service.environment, ...version.environment };
 
+    // Assign the references as well, so that it we can access them.
     const update = this.deploymentUpdates.create();
     update.context = {};
     update.createdAt = undefined;
@@ -109,7 +110,7 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
     update.serviceVersionId = version.id;
     await this.deploymentUpdates.save(update);
 
-    await this.runner.deploy(deployment, update, version, worker);
+    await this.runner.deploy(deployment, update, lastUpdate, worker);
     return { deployment: buildDeployment(deployment, update) };
   }
 }

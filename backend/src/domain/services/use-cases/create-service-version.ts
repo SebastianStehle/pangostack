@@ -4,7 +4,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceEntity, ServiceRepository, ServiceVersionEntity, ServiceVersionRepository } from 'src/domain/database';
 import { assignDefined } from 'src/lib';
 import { ServiceVersion } from '../interfaces';
-import { parseDefinition, validateDefinition } from '../workflows/model';
 import { buildServiceVersion } from './utils';
 
 type Values = Omit<ServiceVersion, 'id' | 'isDefault' | 'lastestVersion' | 'numDeployments'>;
@@ -39,9 +38,6 @@ export class CreateServiceVersionHandler implements ICommandHandler<CreateServic
     }
 
     const serviceVersion = this.serviceVersions.create();
-
-    const parsed = parseDefinition(definition);
-    await validateDefinition(parsed);
 
     // Assign the object manually to avoid updating unexpected values.
     assignDefined(serviceVersion, { definition, environment, isActive, name, serviceId });

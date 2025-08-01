@@ -77,8 +77,8 @@ export class TeamDeploymentsController {
     return DeploymentDto.fromDomain(result.deployment);
   }
 
-  @Get(':deployment/status')
-  @ApiOperation({ operationId: 'getDeployments', description: 'Gets deployments status.' })
+  @Get(':deploymentId/status')
+  @ApiOperation({ operationId: 'getStatus', description: 'Gets deployments status.' })
   @ApiParam({
     name: 'deploymentId',
     description: 'The ID of the deployment.',

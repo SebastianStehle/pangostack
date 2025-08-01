@@ -2,7 +2,6 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceEntity, ServiceRepository } from 'src/domain/database';
 import { ServicePublic } from '../interfaces';
-import { parseDefinition } from '../workflows/model';
 import { buildServicePublic } from './utils';
 
 export class GetServicesPublic {
@@ -30,12 +29,7 @@ export class GetServicesPublicHandler implements IQueryHandler<GetServicesPublic
         continue;
       }
 
-      const definition = parseDefinition(version.definition);
-      if (!definition?.parameters || !definition?.usage) {
-        continue;
-      }
-
-      result.push(buildServicePublic(entity, version, definition));
+      result.push(buildServicePublic(entity, version));
     }
 
     return new GetServicesPublicResponse(result);

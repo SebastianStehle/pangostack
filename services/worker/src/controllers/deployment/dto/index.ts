@@ -14,13 +14,13 @@ export class ResourceDeleteRequestDto {
   resourceId: string;
 
   @ApiProperty({
-    description: 'The name of the resource type.',
+    description: 'The type of the resource.',
     required: true,
     type: String,
   })
   @IsString()
   @IsNotEmpty()
-  resourceName: string;
+  resourceType: string;
 
   @ApiProperty({
     description: 'The parameters.',
@@ -154,13 +154,13 @@ export class ResourceApplyRequestDto {
   resourceId: string;
 
   @ApiProperty({
-    description: 'The name of the resource type.',
+    description: 'The type of the resource.',
     required: true,
     type: String,
   })
   @IsString()
   @IsNotEmpty()
-  resourceName: string;
+  resourceType: string;
 
   @ApiProperty({
     description: 'The parameters.',
@@ -171,6 +171,31 @@ export class ResourceApplyRequestDto {
   parameters: Record<string, any>;
 }
 
+export class ConnectInfoDto {
+  @ApiProperty({
+    description: 'The value.',
+    required: true,
+    type: String,
+  })
+  value: string;
+
+  @ApiProperty({
+    description: 'The label.',
+    required: true,
+    type: String,
+  })
+  label: string;
+
+  static fromDomain(source: { value: string; label: string }) {
+    const result = new ConnectInfoDto();
+    result.value = source.value;
+    result.label = source.label;
+
+    return result;
+  }
+}
+
+@ApiExtraModels(ConnectInfoDto)
 export class ResourceApplyResponseDto {
   @ApiProperty({
     description: 'The context values that will be added or overwritten to the deployment.',
@@ -187,10 +212,26 @@ export class ResourceApplyResponseDto {
   })
   log: string;
 
+  @ApiProperty({
+    description: 'Provides values how to connect to the resource, for example Api Keys.',
+    required: true,
+    additionalProperties: {
+      $ref: getSchemaPath(ConnectInfoDto),
+    },
+  })
+  // Provides values how to connect to the resource, for example api Keys.
+  connection: Record<string, ConnectInfoDto>;
+
   static fromDomain(source: ResourceApplyResult) {
     const result = new ResourceApplyResponseDto();
-    result.context = source.context;
     result.log = source.log;
+    result.context = source.context;
+    result.connection = {};
+
+    for (const [key, value] of Object.entries(source.connection)) {
+      result.connection[key] = ConnectInfoDto.fromDomain(value);
+    }
+
     return result;
   }
 }
