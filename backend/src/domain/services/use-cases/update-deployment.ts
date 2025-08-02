@@ -12,8 +12,8 @@ import {
 } from 'src/domain/database';
 import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database/entities/deployment-update';
 import { User } from 'src/domain/users';
+import { WorkflowService } from 'src/domain/workflows';
 import { Deployment } from '../interfaces';
-import { WorkflowRunner } from '../workflows/runner';
 import { buildDeployment } from './utils';
 
 export class UpdateDeployment {
@@ -42,7 +42,7 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
     private readonly serviceVersions: ServiceVersionRepository,
     @InjectRepository(WorkerEntity)
     private readonly workerRepository: WorkerRepository,
-    private readonly runner: WorkflowRunner,
+    private readonly workflows: WorkflowService,
   ) {}
 
   async execute(command: UpdateDeployment): Promise<UpdateDeploymentResponse> {
@@ -110,7 +110,7 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
     update.serviceVersionId = version.id;
     await this.deploymentUpdates.save(update);
 
-    await this.runner.deploy(deployment, update, lastUpdate, teamId, worker);
+    await this.workflows.deploy(deployment, update, lastUpdate, teamId, worker);
     return { deployment: buildDeployment(deployment, update) };
   }
 }

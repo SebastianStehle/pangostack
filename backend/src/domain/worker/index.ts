@@ -1,5 +1,5 @@
 import * as https from 'https';
-import { Configuration, DeploymentApi, FetchError, RequiredError, ResponseError, StatusApi } from '../generated';
+import { Configuration, DeploymentApi, FetchError, RequiredError, ResponseError, StatusApi } from './generated';
 
 export class WorkerClient {
   public readonly deployment: DeploymentApi;

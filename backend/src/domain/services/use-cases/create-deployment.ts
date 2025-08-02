@@ -16,7 +16,7 @@ import {
 } from 'src/domain/database';
 import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database/entities/deployment-update';
 import { User } from 'src/domain/users';
-import { WorkflowRunner } from '../workflows/runner';
+import { WorkflowService } from 'src/domain/workflows';
 import { buildDeployment } from './utils';
 
 export class CreateDeployment {
@@ -46,8 +46,8 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     private readonly serviceVersions: ServiceVersionRepository,
     @InjectRepository(WorkerEntity)
     private readonly workers: WorkerRepository,
+    private readonly workflows: WorkflowService,
     private readonly billingService: BillingService,
-    private readonly runner: WorkflowRunner,
   ) {}
 
   async execute(command: CreateDeployment): Promise<CreateDeploymentResponse> {
@@ -101,7 +101,7 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     update.serviceVersionId = version.id;
     await this.deploymentUpdates.save(update);
 
-    await this.runner.deploy(deployment, update, null, teamdId, worker);
+    await this.workflows.deploy(deployment, update, null, teamdId, worker);
     return new CreateDeploymentResponse(buildDeployment(deployment, update));
   }
 }

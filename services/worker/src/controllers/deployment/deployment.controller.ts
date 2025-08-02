@@ -1,22 +1,22 @@
 import { BadRequestException, Body, Controller, Delete, Get, Inject, Post, ValidationError } from '@nestjs/common';
 import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { isBoolean, isNumber, isString } from 'class-validator';
-import { Resource, RESOURCE_TOKEN, ResourceDescriptor } from 'src/resources/interface';
+import { Resource, ResourceDescriptor, RESOURCES_TOKEN } from 'src/resources/interface';
 import { ResourceApplyRequestDto, ResourceApplyResponseDto, ResourcesDeleteRequestDto, ResourcesTypesDto, ResourceTypeDto } from './dto';
 
 @Controller('deployment')
 @ApiTags('deployment')
 export class DeploymentController {
   constructor(
-    @Inject(RESOURCE_TOKEN)
-    private readonly resources: Resource[],
+    @Inject(RESOURCES_TOKEN)
+    private readonly resources: Map<string, Resource>,
   ) {}
 
   @Post('')
   @ApiOperation({ operationId: 'applyResource', description: 'Applies the resource' })
   @ApiOkResponse({ type: ResourceApplyResponseDto })
   async applyResource(@Body() body: ResourceApplyRequestDto) {
-    const resource = this.resources.find((x) => x.descriptor.name === body.resourceType);
+    const resource = this.resources.get(body.resourceType);
     if (!resource) {
       throw new BadRequestException(`Unknown resouce type ${body.resourceType}`);
     }
@@ -35,18 +35,19 @@ export class DeploymentController {
   async deleteResources(@Body() body: ResourcesDeleteRequestDto) {
     // Validate the request first.
     for (const identifier of body.resources) {
-      const resource = this.resources.find((x) => x.descriptor.name === identifier.resourceType);
-      if (!resource) {
+      if (!this.resources.has(identifier.resourceType)) {
         throw new BadRequestException(`Unknown resouce type ${identifier.resourceType}`);
       }
     }
 
     // Now we know that the resource will always exist.
-    for (const identifier of body.resources) {
-      const resource = this.resources.find((x) => x.descriptor.name === identifier.resourceType);
+    await Promise.all(
+      body.resources.map((identifier) => {
+        const resource = this.resources.get(identifier.resourceType);
 
-      await resource.delete(identifier.resourceId, identifier);
-    }
+        return resource.delete(identifier.resourceId, identifier);
+      }),
+    );
   }
 
   @Get('types')
@@ -55,7 +56,7 @@ export class DeploymentController {
   getActions() {
     const result = new ResourcesTypesDto();
 
-    for (const resource of this.resources) {
+    for (const [, resource] of this.resources) {
       result.items.push(ResourceTypeDto.fromDomain(resource.descriptor));
     }
 

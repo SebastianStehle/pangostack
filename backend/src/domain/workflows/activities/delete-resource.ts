@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database/entities/deployment-update';
 import { evaluateParameters, ResourceDefinition } from 'src/domain/definitions';
-import { WorkerClient } from '../worker-client';
+import { WorkerClient } from 'src/domain/worker';
 
 export interface DeleteResourceParam {
   deploymentId: number;

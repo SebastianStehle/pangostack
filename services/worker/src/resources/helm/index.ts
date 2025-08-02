@@ -13,6 +13,7 @@ import {
   ResourceNodeStatus,
   ResourceRequest,
   ResourceStatusResult,
+  ResourceUsage,
   ResourceWorkloadStatus,
 } from '../interface';
 
@@ -138,6 +139,10 @@ export class HelmResource implements Resource {
     }
   }
 
+  usage(): Promise<ResourceUsage> {
+    return Promise.resolve({ totalStorageGB: 0 });
+  }
+
   async status(id: string, request: ResourceRequest): Promise<ResourceStatusResult> {
     const { config } = request.parameters as { config: string };
     const k8 = await this.getK8Service(config);
@@ -164,7 +169,6 @@ export class HelmResource implements Resource {
         if (selector) {
           const matchingPods = pods.items.filter((pod) => matchesSelector(pod.metadata?.labels, selector));
           for (const pod of matchingPods) {
-            console.log('GOT POD');
             const node: ResourceNodeStatus = { name: pod.metadata.name, isReady: isPodReady(pod.status) };
 
             workloadResult.nodes.push(node);

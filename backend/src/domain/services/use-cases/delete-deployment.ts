@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not } from 'typeorm';
 import { DeploymentEntity, DeploymentRepository, WorkerEntity, WorkerRepository } from 'src/domain/database';
 import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database/entities/deployment-update';
-import { WorkflowRunner } from '../workflows/runner';
+import { WorkflowService } from 'src/domain/workflows';
 
 export class DeleteDeployment {
   constructor(public readonly id: number) {}
@@ -19,7 +19,7 @@ export class DeleteDeploymentHandler implements ICommandHandler<DeleteDeployment
     private readonly deploymentUpdates: DeploymentUpdateRepository,
     @InjectRepository(WorkerEntity)
     private readonly workerRepository: WorkerRepository,
-    private readonly runner: WorkflowRunner,
+    private readonly workflows: WorkflowService,
   ) {}
 
   async execute(command: DeleteDeployment): Promise<any> {
@@ -44,7 +44,7 @@ export class DeleteDeploymentHandler implements ICommandHandler<DeleteDeployment
       throw new NotFoundException('No worker registered.');
     }
 
-    await this.runner.delete(deployment, lastUpdate, worker);
+    await this.workflows.delete(deployment, lastUpdate, worker);
     return { deployment };
   }
 }

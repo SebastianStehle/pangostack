@@ -3,24 +3,26 @@ import { Worker } from '@temporalio/worker';
 import { WorkflowIdReusePolicy } from '@temporalio/workflow';
 import { DeploymentEntity, WorkerEntity } from 'src/domain/database';
 import { DeploymentUpdateEntity } from 'src/domain/database/entities/deployment-update';
-import { TemporalService } from '../services/temporal.service';
-import * as activities from './activities';
-import * as workflows from './workflows';
+import * as activities from '../activities';
+import * as workflows from '../workflows';
+import { TemporalService } from './temporal.service';
 
 @Injectable()
-export class WorkflowRunner implements OnApplicationBootstrap {
+export class WorkflowService implements OnApplicationBootstrap {
   constructor(
     private readonly temporal: TemporalService,
     private readonly createSubscription: activities.CreateSubscriptionActivity,
+    private readonly deleteResource: activities.DeleteResourceActivity,
     private readonly deployResource: activities.DeployResourceActivity,
     private readonly updateDeployment: activities.UpdateDeploymentActivity,
   ) {}
 
   async onApplicationBootstrap() {
     const worker = await Worker.create({
-      workflowsPath: require.resolve('./workflows'),
+      workflowsPath: require.resolve('./../workflows'),
       activities: {
         createSubscription: this.createSubscription.execute.bind(this.createSubscription),
+        deleteResource: this.deleteResource.execute.bind(this.deleteResource),
         deployResource: this.deployResource.execute.bind(this.deployResource),
         updateDeployment: this.updateDeployment.execute.bind(this.updateDeployment),
       },

@@ -4,8 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not } from 'typeorm';
 import { DeploymentEntity, DeploymentRepository, WorkerEntity, WorkerRepository } from 'src/domain/database';
 import { evaluateParameters } from 'src/domain/definitions';
+import { WorkerClient } from 'src/domain/worker';
 import { ResourceStatus } from '../interfaces';
-import { WorkerClient } from '../workflows/worker-client';
 
 export class GetDeploymentStatus {
   constructor(public readonly deploymentId: number) {}

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import VultrNode from '@vultr/vultr-node';
-import { Resource, ResourceApplyResult, ResourceDescriptor, ResourceRequest, ResourceStatusResult } from '../interface';
+import { Resource, ResourceApplyResult, ResourceDescriptor, ResourceRequest, ResourceStatusResult, ResourceUsage } from '../interface';
 
 @Injectable()
 export class VultrStorageResource implements Resource {
@@ -73,24 +73,23 @@ export class VultrStorageResource implements Resource {
       apiKey,
     });
 
-    let cursor: string | null = null;
-    while (true) {
-      const response = await vultr.blockStorage.listStorages({ cursor });
-
-      for (const storage of response.object_storages) {
-        if (storage.label === id) {
-          await vultr.blockStorage.deleteStorage({ id: storage.id });
-          break;
-        }
-      }
-
-      const newCursor = response.meta.links.next;
-      if (!cursor || newCursor === cursor) {
-        break;
-      }
-
-      cursor = newCursor;
+    const storage = await findStorage(vultr, id);
+    if (!storage) {
+      return;
     }
+
+    await vultr.blockStorage.deleteStorage({ id: storage.id });
+  }
+
+  async usage(id: string, request: ResourceRequest): Promise<ResourceUsage> {
+    const { apiKey } = request.parameters as { apiKey: string };
+
+    const vultr = VultrNode.initialize({
+      apiKey,
+    });
+
+    const storage = await findStorage(vultr, id);
+    return { totalStorageGB: storage?.size_gb || 0 };
   }
 
   async status(id: string, request: ResourceRequest): Promise<ResourceStatusResult> {
@@ -100,55 +99,64 @@ export class VultrStorageResource implements Resource {
       apiKey,
     });
 
-    let cursor: string | null = null;
-    while (true) {
-      const response = await vultr.blockStorage.listStorages({ cursor });
-
-      for (const storage of response.object_storages) {
-        if (storage.label === id) {
-          const status: ResourceStatusResult = {
-            workloads: [
+    const storage = await findStorage(vultr, id);
+    if (storage) {
+      const status: ResourceStatusResult = {
+        workloads: [
+          {
+            name: 'Storage Account',
+            nodes: [
               {
                 name: 'Storage Account',
-                nodes: [
-                  {
-                    name: 'Storage Account',
-                    isReady: true,
-                  },
-                ],
+                isReady: true,
               },
             ],
-          };
+          },
+        ],
+      };
 
-          return status;
-        }
+      return status;
+    } else {
+      const status: ResourceStatusResult = {
+        workloads: [
+          {
+            name: 'Storage Account',
+            nodes: [
+              {
+                name: 'Storage Account',
+                isReady: false,
+                message: 'Storage account not found',
+              },
+            ],
+          },
+        ],
+      };
 
-        break;
+      return status;
+    }
+  }
+}
+
+async function findStorage(vultr: ReturnType<typeof VultrNode.initialize>, id: string) {
+  let cursor: string | null = null;
+  while (true) {
+    const response = await vultr.blockStorage.listStorages({ cursor });
+
+    for (const storage of response.object_storages) {
+      if (storage.label === id) {
+        return storage;
       }
 
-      const newCursor = response.meta.links.next;
-      if (!cursor || newCursor === cursor) {
-        break;
-      }
-
-      cursor = newCursor;
+      break;
     }
 
-    const status: ResourceStatusResult = {
-      workloads: [
-        {
-          name: 'Storage Account',
-          nodes: [
-            {
-              name: 'Storage Account',
-              isReady: false,
-              message: 'Storage account not found',
-            },
-          ],
-        },
-      ],
-    };
+    const newCursor = response.meta.links.next;
+    if (!cursor || newCursor === cursor) {
+      break;
+    }
 
-    return status;
+    cursor = newCursor;
   }
+
+  return null;
 }

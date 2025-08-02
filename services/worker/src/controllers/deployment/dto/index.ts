@@ -14,7 +14,7 @@ export class ResourceDeleteRequestDto {
   resourceId: string;
 
   @ApiProperty({
-    description: 'The type of the resource.',
+    description: 'The type of the resource',
     required: true,
     type: String,
   })
@@ -23,7 +23,7 @@ export class ResourceDeleteRequestDto {
   resourceType: string;
 
   @ApiProperty({
-    description: 'The parameters.',
+    description: 'The parameters',
     required: true,
     additionalProperties: true,
   })
@@ -33,7 +33,7 @@ export class ResourceDeleteRequestDto {
 
 export class ResourcesDeleteRequestDto {
   @ApiProperty({
-    description: 'The deployment ids.',
+    description: 'The deployment ids',
     required: true,
     type: [ResourceDeleteRequestDto],
   })
@@ -45,41 +45,41 @@ export class ResourcesDeleteRequestDto {
 
 export class ResourceParameterDto {
   @ApiProperty({
-    description: 'The type.',
+    description: 'The type',
     required: true,
     enum: ['boolean', 'number', 'string'],
   })
   type: 'boolean' | 'number' | 'string';
 
   @ApiProperty({
-    description: 'True, if required.',
+    description: 'True, if required',
     required: false,
   })
   required?: boolean;
 
   @ApiProperty({
-    description: 'The description of the argument.',
+    description: 'The description of the argument',
     required: false,
     nullable: true,
   })
   description?: string;
 
   @ApiProperty({
-    description: 'The minimum length.',
+    description: 'The minimum length',
     required: false,
     nullable: true,
   })
   minLength?: number;
 
   @ApiProperty({
-    description: 'The maximum length.',
+    description: 'The maximum length',
     required: false,
     nullable: true,
   })
   maxLength?: number;
 
   @ApiProperty({
-    description: 'The enum values.',
+    description: 'The enum values',
     required: false,
     type: [String],
   })
@@ -100,19 +100,19 @@ export class ResourceParameterDto {
 @ApiExtraModels(ResourceParameterDto)
 export class ResourceTypeDto {
   @ApiProperty({
-    description: 'The name of the resource.',
+    description: 'The name of the resource',
     required: true,
   })
   name: string;
 
   @ApiProperty({
-    description: 'The description of the resource.',
+    description: 'The description of the resource',
     required: true,
   })
   description: string;
 
   @ApiProperty({
-    description: 'The parameters.',
+    description: 'The parameters',
     required: true,
     additionalProperties: {
       $ref: getSchemaPath(ResourceParameterDto),
@@ -136,7 +136,7 @@ export class ResourceTypeDto {
 
 export class ResourcesTypesDto {
   @ApiProperty({
-    description: 'The available resources.',
+    description: 'The available resources',
     required: true,
     type: [ResourceTypeDto],
   })
@@ -154,7 +154,7 @@ export class ResourceApplyRequestDto {
   resourceId: string;
 
   @ApiProperty({
-    description: 'The type of the resource.',
+    description: 'The type of the resource',
     required: true,
     type: String,
   })
@@ -163,7 +163,7 @@ export class ResourceApplyRequestDto {
   resourceType: string;
 
   @ApiProperty({
-    description: 'The parameters.',
+    description: 'The parameters',
     required: true,
     additionalProperties: true,
   })
@@ -173,14 +173,14 @@ export class ResourceApplyRequestDto {
 
 export class ConnectInfoDto {
   @ApiProperty({
-    description: 'The value.',
+    description: 'The value',
     required: true,
     type: String,
   })
   value: string;
 
   @ApiProperty({
-    description: 'The label.',
+    description: 'The label',
     required: true,
     type: String,
   })
@@ -198,7 +198,7 @@ export class ConnectInfoDto {
 @ApiExtraModels(ConnectInfoDto)
 export class ResourceApplyResponseDto {
   @ApiProperty({
-    description: 'The context values that will be added or overwritten to the deployment.',
+    description: 'The context values that will be added or overwritten to the deployment',
     required: true,
     additionalProperties: true,
   })
@@ -213,7 +213,7 @@ export class ResourceApplyResponseDto {
   log: string;
 
   @ApiProperty({
-    description: 'Provides values how to connect to the resource, for example Api Keys.',
+    description: 'Provides values how to connect to the resource, for example Api Keys',
     required: true,
     additionalProperties: {
       $ref: getSchemaPath(ConnectInfoDto),

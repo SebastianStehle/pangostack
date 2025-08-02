@@ -36,6 +36,7 @@ import {
 import { ServicesModule } from './domain/services';
 import { SettingsModule } from './domain/settings';
 import { UsersModule } from './domain/users/module';
+import { WorkflowModule } from './domain/workflows';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { UsersModule } from './domain/users/module';
     ServicesModule,
     SettingsModule,
     UsersModule,
+    WorkflowModule,
     TypeOrmModule.forFeature([TeamEntity, UserEntity]),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

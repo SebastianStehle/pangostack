@@ -1,9 +1,9 @@
 import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsArray, IsNotEmpty, IsObject, IsString, ValidateNested } from 'class-validator';
-import { ResourceNodeStatus, ResourceStatusResult, ResourceWorkloadStatus } from 'src/resources/interface';
+import { ResourceNodeStatus, ResourceStatusResult, ResourceUsage, ResourceWorkloadStatus } from 'src/resources/interface';
 
-export class StatusRequestResourceDto {
+export class ResourceRequestDto {
   @ApiProperty({
     description: 'The resource ID',
     required: true,
@@ -14,7 +14,7 @@ export class StatusRequestResourceDto {
   resourceId: string;
 
   @ApiProperty({
-    description: 'The name of the resource type.',
+    description: 'The name of the resource type',
     required: true,
     type: String,
   })
@@ -23,7 +23,7 @@ export class StatusRequestResourceDto {
   resourceType: string;
 
   @ApiProperty({
-    description: 'The parameters.',
+    description: 'The parameters',
     required: true,
     additionalProperties: true,
   })
@@ -35,29 +35,29 @@ export class StatusRequestDto {
   @ApiProperty({
     description: 'The resource identifiers',
     required: true,
-    type: [StatusRequestResourceDto],
+    type: [ResourceRequestDto],
   })
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => StatusRequestResourceDto)
-  resources: StatusRequestResourceDto[];
+  @Type(() => ResourceRequestDto)
+  resources: ResourceRequestDto[];
 }
 
 export class ResourceNodeStatusDto {
   @ApiProperty({
-    description: 'The name of the node.',
+    description: 'The name of the node',
     required: true,
   })
   name: string;
 
   @ApiProperty({
-    description: 'Indicates if the node can be used.',
+    description: 'Indicates if the node can be used',
     required: true,
   })
   isReady: boolean;
 
   @ApiProperty({
-    description: 'The message to describe the status.',
+    description: 'The message to describe the status',
     required: false,
     nullable: true,
   })
@@ -74,13 +74,13 @@ export class ResourceNodeStatusDto {
 
 export class ResourceWorkloadStatusDto {
   @ApiProperty({
-    description: 'The name of the workload.',
+    description: 'The name of the workload',
     required: true,
   })
   name: string;
 
   @ApiProperty({
-    description: 'All nodes within the workload.',
+    description: 'All nodes within the workload',
     required: true,
     type: [ResourceNodeStatusDto],
   })
@@ -103,7 +103,7 @@ export class ResourceStatusDto {
   resourceId: string;
 
   @ApiProperty({
-    description: 'The type of the resource.',
+    description: 'The type of the resource',
     required: true,
     type: String,
   })
@@ -133,4 +133,56 @@ export class StatusResultDto {
     type: [ResourceStatusDto],
   })
   resources: ResourceStatusDto[] = [];
+}
+
+export class UageRequestDto {
+  @ApiProperty({
+    description: 'The resource identifiers',
+    required: true,
+    type: [ResourceRequestDto],
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResourceRequestDto)
+  resources: ResourceRequestDto[];
+}
+
+export class ResourceUsageDto {
+  @ApiProperty({
+    description: 'The resource ID',
+    required: true,
+    type: String,
+  })
+  resourceId: string;
+
+  @ApiProperty({
+    description: 'The type of the resource',
+    required: true,
+    type: String,
+  })
+  resourceType: string;
+
+  @ApiProperty({
+    description: 'The total storage in GB',
+    required: true,
+  })
+  totalStorageGB: number;
+
+  static fromDomain(source: ResourceUsage, id: string, type: string) {
+    const result = new ResourceUsageDto();
+    result.resourceId = id;
+    result.resourceType = type;
+    result.totalStorageGB = source.totalStorageGB;
+    return result;
+  }
+}
+
+@ApiExtraModels(ResourceUsageDto)
+export class UsageResultDto {
+  @ApiProperty({
+    description: 'The usages',
+    required: true,
+    type: [ResourceUsageDto],
+  })
+  resources: ResourceUsageDto[] = [];
 }
