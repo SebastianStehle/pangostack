@@ -1,21 +1,27 @@
-import { Injectable } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database';
-import { DeploymentUsageEntity, DeploymentUsageRepository } from 'src/domain/database/entities/deployment-usage';
+import { addHours, differenceInHours } from 'date-fns';
+import {
+  DeploymentUpdateEntity,
+  DeploymentUpdateRepository,
+  DeploymentUsageEntity,
+  DeploymentUsageRepository,
+} from 'src/domain/database';
 import { evaluateParameters, evaluateUsage } from 'src/domain/definitions';
-import { WorkerClient } from 'src/domain/worker';
+import { WorkerClient } from 'src/domain/worker/worker-client';
+import { atHourUtc, formatDate } from 'src/lib';
 import { Activity } from '../registration';
 
-export interface TrackDeploymentParam {
-  trackDate: Date;
-  trackHour: number;
+export interface TrackDeploymentUsageParam {
   deploymentId: number;
+  trackDate: string;
+  trackHour: number;
   workerApiKey: string;
   workerEndpoint: string;
 }
 
-@Injectable()
-export class TrackDeploymentActivity implements Activity<TrackDeploymentParam> {
+@Activity(trackDeploymentUsage)
+export class TrackDeploymentUsageActivity implements Activity<TrackDeploymentUsageParam> {
   constructor(
     @InjectRepository(DeploymentUpdateEntity)
     private readonly deploymentUpdates: DeploymentUpdateRepository,
@@ -23,12 +29,30 @@ export class TrackDeploymentActivity implements Activity<TrackDeploymentParam> {
     private readonly deploymentUsages: DeploymentUsageRepository,
   ) {}
 
-  async execute({ deploymentId, trackDate: date, trackHour: hour, workerApiKey, workerEndpoint }: TrackDeploymentParam) {
+  async execute({ deploymentId, trackDate, trackHour, workerApiKey, workerEndpoint }: TrackDeploymentUsageParam) {
     const update = await this.deploymentUpdates.findOne({
       where: { deploymentId, status: 'Completed' },
       order: { id: 'DESC' },
-      relations: ['serverVersion'],
+      relations: ['serviceVersion'],
     });
+
+    if (!update) {
+      throw new NotFoundException(`Uppdate for deployment ${deploymentId} not found`);
+    }
+
+    const lastUsage = await this.deploymentUsages.findOne({
+      where: { deploymentId },
+      order: { trackDate: 'DESC', trackHour: 'DESC' },
+    });
+
+    const targetDateTime = atHourUtc(trackDate, trackHour);
+
+    let startDateTime: Date;
+    if (lastUsage) {
+      startDateTime = atHourUtc(lastUsage.trackDate, lastUsage.trackHour + 1);
+    } else {
+      startDateTime = targetDateTime;
+    }
 
     const definition = update.serviceVersion.definition;
     const context = { env: {}, context: {}, parameters: update.parameters };
@@ -42,23 +66,31 @@ export class TrackDeploymentActivity implements Activity<TrackDeploymentParam> {
       })),
     });
 
-    const { totalCpus, totalMemoryGb, totalVolumeSizeGb } = evaluateUsage(update.serviceVersion.definition, context);
+    const { totalCores, totalMemoryGB, totalVolumeGB } = evaluateUsage(update.serviceVersion.definition, context);
     // The storage needs to be measured.
-    const totalStorageGb = usageFromWorker.resources.reduce((a, c) => a + c.totalStorageGB, 0);
+    const totalStorageGB = usageFromWorker.resources.reduce((a, c) => a + c.totalStorageGB, 0);
 
-    const usage = this.deploymentUsages.create();
-    usage.deploymentId = deploymentId;
-    usage.trackDate = date;
-    usage.trackHour = hour;
-    usage.totalCpus = totalCpus;
-    usage.totalMemoryGb = totalMemoryGb;
-    usage.totalVolumeGb = totalVolumeSizeGb;
-    usage.totalStorage = totalStorageGb;
-    await this.deploymentUsages.save(usage);
+    const hoursToFill = differenceInHours(targetDateTime, startDateTime);
+
+    for (let i = 0; i <= hoursToFill; i++) {
+      const currentDateTime = addHours(startDateTime, i);
+
+      const currentDate = formatDate(currentDateTime);
+      const currentHour = currentDateTime.getHours();
+
+      await this.deploymentUsages.save({
+        deploymentId,
+        trackDate: currentDate,
+        trackHour: currentHour,
+        totalCores,
+        totalMemoryGB,
+        totalVolumeGB,
+        totalStorageGB,
+      } as Partial<DeploymentUsageEntity>);
+    }
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function trackDeployment(_: TrackDeploymentParam): Promise<any> {
-  return true;
+export async function trackDeploymentUsage(param: TrackDeploymentUsageParam): Promise<any> {
+  return param;
 }

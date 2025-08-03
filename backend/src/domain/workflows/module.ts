@@ -1,30 +1,47 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DeploymentUpdateEntity } from 'src/domain/database';
+import {
+  BilledDeploymentEntity,
+  DeploymentEntity,
+  DeploymentUpdateEntity,
+  DeploymentUsageEntity,
+  WorkerEntity,
+} from 'src/domain/database';
 import { BillingModule } from '../billing';
 import {
+  ChargeDeploymentActivity,
   CreateSubscriptionActivity,
   DeleteResourceActivity,
   DeployResourceActivity,
   GetDeploymentsActivity,
   GetWorkerActivity,
-  TrackDeploymentActivity,
+  TrackDeploymentUsageActivity,
   UpdateDeploymentActivity,
 } from './activities';
 import { ActivityExplorerService } from './registration';
-import { TemporalService, WorkflowService } from './services';
+import { TemporalService, WorkflowService } from '../services/services';
 
 @Module({
-  imports: [BillingModule, TypeOrmModule.forFeature([DeploymentUpdateEntity])],
+  imports: [
+    BillingModule,
+    TypeOrmModule.forFeature([
+      BilledDeploymentEntity,
+      DeploymentEntity,
+      DeploymentUpdateEntity,
+      DeploymentUsageEntity,
+      WorkerEntity,
+    ]),
+  ],
   providers: [
     ActivityExplorerService,
+    ChargeDeploymentActivity,
     CreateSubscriptionActivity,
     DeleteResourceActivity,
     DeployResourceActivity,
     GetDeploymentsActivity,
     GetWorkerActivity,
     TemporalService,
-    TrackDeploymentActivity,
+    TrackDeploymentUsageActivity,
     UpdateDeploymentActivity,
     WorkflowService,
   ],

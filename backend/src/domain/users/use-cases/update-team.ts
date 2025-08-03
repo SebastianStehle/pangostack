@@ -30,7 +30,7 @@ export class UpdateTeamHandler implements ICommandHandler<UpdateTeam, UpdateTeam
     const { id, values } = request;
     const { name } = values;
 
-    const team = await this.teams.findOne({ where: { id }, relations: ['users', 'users.user'] });
+    let team = await this.teams.findOne({ where: { id }, relations: ['users', 'users.user'] });
     if (!team) {
       throw new NotFoundException(`Team ${id} not found.`);
     }
@@ -38,10 +38,9 @@ export class UpdateTeamHandler implements ICommandHandler<UpdateTeam, UpdateTeam
     // Assign the object manually to avoid updating unexpected values.
     assignDefined(team, { name });
 
-    // Use the save method otherwise we would not get previous values.
-    const updated = await this.teams.save(team);
-    const result = buildTeam(updated);
+    // Reassign the entity to get database generated values.
+    team = await this.teams.save(team);
 
-    return new UpdateTeamResponse(result);
+    return new UpdateTeamResponse(buildTeam(team));
   }
 }

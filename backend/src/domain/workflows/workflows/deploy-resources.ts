@@ -13,10 +13,17 @@ export interface DeployResourcesParam {
   workerEndpoint: string;
 }
 
-const { createSubscription, deleteResource, deployResource, updateDeployment } = proxyActivities<typeof activities>({
-  startToCloseTimeout: '30 minutes',
+const { createSubscription, deleteResource, deployResource } = proxyActivities<typeof activities>({
+  startToCloseTimeout: '5m',
   retry: {
     maximumAttempts: 5,
+  },
+});
+
+const { updateDeployment } = proxyActivities<typeof activities>({
+  startToCloseTimeout: '30s',
+  retry: {
+    maximumAttempts: 3,
   },
 });
 

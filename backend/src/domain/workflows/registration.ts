@@ -39,17 +39,13 @@ export class ActivityExplorerService {
           continue;
         }
 
-        const methods = Object.getOwnPropertyNames(instance.constructor.prototype);
-        for (const method of methods) {
-          const metadata = Reflect.getMetadata(ACTIVITY_METADATA, instance, method);
-
-          if (!metadata) {
-            continue;
-          }
-
-          const activityMethod = (instance as Activity<any>).execute.bind(instance);
-          allActivities[metadata.name] = activityMethod;
+        const metadata = Reflect.getMetadata(ACTIVITY_METADATA, instance.constructor);
+        if (!metadata) {
+          continue;
         }
+
+        const executeMethod = (instance as Activity<any>).execute.bind(instance);
+        allActivities[metadata.name] = executeMethod;
       }
     }
 

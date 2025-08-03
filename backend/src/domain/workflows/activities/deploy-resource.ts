@@ -3,19 +3,18 @@ import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database';
 import { evaluateParameters, ResourceDefinition } from 'src/domain/definitions';
-import { WorkerClient } from 'src/domain/worker';
+import { WorkerClient } from 'src/domain/worker/worker-client';
 import { Activity } from '../registration';
-import { deleteResource } from './delete-resource';
 
 export interface DeployResourceParam {
   deploymentId: number;
   resource: ResourceDefinition;
-  updateId: number;
   workerApiKey: string;
   workerEndpoint: string;
+  updateId: number;
 }
 
-@Activity(deleteResource)
+@Activity(deployResource)
 export class DeployResourceActivity implements Activity<DeployResourceParam> {
   private readonly logger = new Logger(DeployResourceActivity.name);
 

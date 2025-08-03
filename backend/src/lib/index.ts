@@ -4,4 +4,5 @@ export * from './expression';
 export * from './errors';
 export * from './format';
 export * from './pipes';
+export * from './time';
 export * from './types';

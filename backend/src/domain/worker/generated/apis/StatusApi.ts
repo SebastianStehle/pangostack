@@ -15,15 +15,25 @@
 
 import * as runtime from '../runtime';
 import type {
+  StatusRequestDto,
+  StatusResultDto,
   UageRequestDto,
   UsageResultDto,
 } from '../models/index';
 import {
+    StatusRequestDtoFromJSON,
+    StatusRequestDtoToJSON,
+    StatusResultDtoFromJSON,
+    StatusResultDtoToJSON,
     UageRequestDtoFromJSON,
     UageRequestDtoToJSON,
     UsageResultDtoFromJSON,
     UsageResultDtoToJSON,
 } from '../models/index';
+
+export interface PostStatusRequest {
+    statusRequestDto: StatusRequestDto;
+}
 
 export interface PostUsageRequest {
     uageRequestDto: UageRequestDto;
@@ -33,6 +43,44 @@ export interface PostUsageRequest {
  * 
  */
 export class StatusApi extends runtime.BaseAPI {
+
+    /**
+     * Gets the status for all specified deployment IDs
+     * 
+     */
+    async postStatusRaw(requestParameters: PostStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<StatusResultDto>> {
+        if (requestParameters['statusRequestDto'] == null) {
+            throw new runtime.RequiredError(
+                'statusRequestDto',
+                'Required parameter "statusRequestDto" was null or undefined when calling postStatus().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/status`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: StatusRequestDtoToJSON(requestParameters['statusRequestDto']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => StatusResultDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Gets the status for all specified deployment IDs
+     * 
+     */
+    async postStatus(statusRequestDto: StatusRequestDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<StatusResultDto> {
+        const response = await this.postStatusRaw({ statusRequestDto: statusRequestDto }, initOverrides);
+        return await response.value();
+    }
 
     /**
      * Gets the usages for all specified deployment IDs
@@ -53,7 +101,7 @@ export class StatusApi extends runtime.BaseAPI {
         headerParameters['Content-Type'] = 'application/json';
 
         const response = await this.request({
-            path: `/status`,
+            path: `/status/usage`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,

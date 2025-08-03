@@ -37,6 +37,7 @@ export class CreateDeploymentResponse {
 @CommandHandler(CreateDeployment)
 export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment, CreateDeploymentResponse> {
   constructor(
+    private readonly billingService: BillingService,
     @InjectRepository(DeploymentEntity)
     private readonly deployments: DeploymentRepository,
     @InjectRepository(DeploymentUpdateEntity)
@@ -48,7 +49,6 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     @InjectRepository(WorkerEntity)
     private readonly workers: WorkerRepository,
     private readonly workflows: WorkflowService,
-    private readonly billingService: BillingService,
   ) {}
 
   async execute(command: CreateDeployment): Promise<CreateDeploymentResponse> {
@@ -80,29 +80,29 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     // The environment settings from the version overwrite the service.
     const environment = { ...service.environment, ...version.environment };
 
-    const deployment = this.deployments.create();
-    deployment.name = name;
-    deployment.createdAt = undefined;
-    deployment.createdBy = user?.id || 'UNKNOWN';
-    deployment.teamId = teamdId;
-    deployment.updatedAt = undefined;
-    deployment.updatedBy = user?.id || 'UNKNOWN';
-    await this.deployments.save(deployment);
+    const deployment = await this.deployments.save({
+      name,
+      createdAt: undefined,
+      createdBy: user?.id || 'UNKNOWN',
+      teamId: teamdId,
+      updatedAt: undefined,
+      updatedBy: user?.id || 'UNKNOWN',
+    });
 
-    // Assign the references as well, so that it we can access them.
-    const update = this.deploymentUpdates.create();
-    update.createdAt = undefined;
-    update.createdBy = user?.id || 'UNKNOWN';
-    update.context = {};
-    update.deployment = deployment;
-    update.deploymentId = deployment.id;
-    update.environment = environment;
-    update.parameters = parameters;
-    update.serviceVersion = version;
-    update.serviceVersionId = version.id;
-    await this.deploymentUpdates.save(update);
+    const update = await this.deploymentUpdates.save({
+      createdAt: undefined,
+      createdBy: user?.id || 'UNKNOWN',
+      context: {},
+      deployment,
+      deploymentId: deployment.id,
+      environment,
+      parameters,
+      serviceVersion: version,
+      serviceVersionId: version.id,
+    });
 
-    await this.workflows.createDeployment(deployment, update, null, teamdId, worker);
+    await this.workflows.createDeployment(deployment.id, update, null, teamdId, worker);
+    await this.workflows.createSubscription(deployment.id, teamdId);
     return new CreateDeploymentResponse(buildDeployment(deployment, update));
   }
 }

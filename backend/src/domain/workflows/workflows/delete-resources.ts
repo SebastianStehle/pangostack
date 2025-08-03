@@ -11,7 +11,7 @@ export interface DeleteResourcesParam {
 }
 
 const { deleteResource } = proxyActivities<typeof activities>({
-  startToCloseTimeout: '30 minutes',
+  startToCloseTimeout: '5m',
   retry: {
     maximumAttempts: 5,
   },

@@ -31,32 +31,25 @@ export class CreateServiceHandler implements ICommandHandler<CreateService, Crea
       fixedPrice,
       isPublic,
       name,
-      pricePerCpuHour,
-      pricePerVolumeGbHour,
-      pricePerMemoryGbHour,
-      pricePerStorageGbMonth,
+      pricePerCoreHour,
+      pricePerVolumeGBHour,
+      pricePerMemoryGBHour,
+      pricePerStorageGBMonth,
     } = values;
 
-    const service = this.services.create();
-
-    // Assign the object manually to avoid updating unexpected values.
-    assignDefined(service, {
+    const service = await this.services.save({
       currency,
       description,
       environment,
       fixedPrice,
       isPublic,
       name,
-      pricePerCpuHour,
-      pricePerVolumeGbHour,
-      pricePerMemoryGbHour,
-      pricePerStorageGbMonth,
+      pricePerCoreHour,
+      pricePerVolumeGBHour,
+      pricePerMemoryGBHour,
+      pricePerStorageGBMonth,
     });
 
-    // Use the save method otherwise we would not get previous values.
-    const created = await this.services.save(service);
-    const result = buildService(created);
-
-    return new CreateServiceResponse(result);
+    return new CreateServiceResponse(buildService(service));
   }
 }

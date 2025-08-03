@@ -5,7 +5,7 @@ export const billingConfig = registerAs('billing', () => ({
   chargebee: {
     site: process.env.BILLING_CHARGEBEE_SITE,
     apiKey: process.env.BILLING_CHARGEBEE_APIKEY,
-    addOnIdCPU: process.env.BILLING_CHARGEBEE_ADDON_ID_CPU,
+    addOnIdCore: process.env.BILLING_CHARGEBEE_ADDON_ID_CORE,
     addOnIdMemory: process.env.BILLING_CHARGEBEE_ADDON_ID_MEMORY,
     addOnIdStorage: process.env.BILLING_CHARGEBEE_ADDON_ID_STORAGE,
     addOnIdVolume: process.env.BILLING_CHARGEBEE_ADDON_ID_VOLUME,

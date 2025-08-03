@@ -46,22 +46,16 @@ export class SetTeamUserHandler implements ICommandHandler<SetTeamUser, any> {
       throw new BadRequestException('You cannot add yourself or change your own role.');
     }
 
-    let entity = await this.teamUsers.findOneBy({ teamId: id, userId });
+    const teamUser = await this.teamUsers.findOneBy({ teamId: id, userId });
     if (user) {
-      entity.role = role;
+      teamUser.role = role;
+      await this.teamUsers.save(teamUser);
     } else {
-      entity = this.teamUsers.create();
-      entity.userId = userId;
-      entity.teamId = id;
-      entity.role = role;
+      this.teamUsers.save({ teamId: id, role, userId });
     }
 
-    await this.teamUsers.save(entity);
+    const withUsers = await this.teams.findOne({ where: { id }, relations: ['users', 'users.user'] });
 
-    // Reload the team to ge tupdates relations.
-    const updated = await this.teams.findOne({ where: { id }, relations: ['users', 'users.user'] });
-    const result = buildTeam(updated);
-
-    return new SetTeamUserResponse(result);
+    return new SetTeamUserResponse(buildTeam(withUsers));
   }
 }

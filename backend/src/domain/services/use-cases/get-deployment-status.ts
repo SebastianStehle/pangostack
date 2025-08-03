@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not } from 'typeorm';
 import { DeploymentEntity, DeploymentRepository, WorkerEntity, WorkerRepository } from 'src/domain/database';
 import { evaluateParameters } from 'src/domain/definitions';
-import { WorkerClient } from 'src/domain/worker';
+import { WorkerClient } from 'src/domain/worker/worker-client';
 import { ResourceStatus } from '../interfaces';
 
 export class GetDeploymentStatus {
@@ -48,11 +48,13 @@ export class GetDeploymentStatusHandler implements IQueryHandler<GetDeploymentSt
 
     const workerClient = new WorkerClient(worker.endpoint, worker.apiKey);
 
+    const context = { env: lastUpdate.environment, context: lastUpdate.context, parameters: lastUpdate.parameters };
+
     const statuses = await workerClient.status.postStatus({
       resources: lastUpdate.serviceVersion.definition.resources.map((resource) => ({
         resourceId: `deployment_${deploymentId}_${resource.id}`,
         resourceType: resource.type,
-        parameters: evaluateParameters(resource, lastUpdate.environment, {}),
+        parameters: evaluateParameters(resource, context),
       })),
     });
 

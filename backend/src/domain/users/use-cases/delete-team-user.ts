@@ -43,10 +43,8 @@ export class DeleteTeamUserHandler implements ICommandHandler<DeleteTeamUser, De
       throw new NotFoundException(`Team User ${id}, ${userId} not found.`);
     }
 
-    // Reload the team to ge tupdates relations.
-    const updated = await this.teams.findOne({ where: { id }, relations: ['users', 'users.user'] });
-    const response = buildTeam(updated);
+    const withUsers = await this.teams.findOne({ where: { id }, relations: ['users', 'users.user'] });
 
-    return new DeleteTeamUserResponse(response);
+    return new DeleteTeamUserResponse(buildTeam(withUsers));
   }
 }

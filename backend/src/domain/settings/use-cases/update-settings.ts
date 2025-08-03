@@ -22,9 +22,9 @@ export class UpdateSettingsHandler implements ICommandHandler<UpdateSettings, Up
   async execute(request: UpdateSettings): Promise<UpdateSettingsResponse> {
     const { update } = request;
 
-    const updated = await this.settings.save({ id: 1, ...update });
-    const result = buildSettings(updated);
+    // Reassign the entity to get database generated values.
+    const setting = await this.settings.save({ id: 1, ...update });
 
-    return new UpdateSettingsResponse(result);
+    return new UpdateSettingsResponse(buildSettings(setting));
   }
 }

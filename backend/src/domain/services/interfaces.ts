@@ -65,17 +65,17 @@ export interface Service {
   // The currency.
   currency: string;
 
-  // The price per CPU and hour in the selected currency.
-  pricePerCpuHour: number;
+  // The price per Core and hour in the selected currency.
+  pricePerCoreHour: number;
 
   // The price per Memory in GB and hour in the selected currency.
-  pricePerMemoryGbHour: number;
+  pricePerMemoryGBHour: number;
 
   // The price per Storage in GB and hour in the selected currency.
-  pricePerStorageGbMonth: number;
+  pricePerStorageGBMonth: number;
 
   // The price per Disk in GB and hour in the selected currency.
-  pricePerVolumeGbHour: number;
+  pricePerVolumeGBHour: number;
 
   // The additional fixed price.
   fixedPrice: number;
@@ -103,17 +103,17 @@ export interface ServicePublic {
   // The currency.
   currency: string;
 
-  // The price per CPU and hour in the selected currency.
-  pricePerCpuHour: number;
+  // The price per Core and hour in the selected currency.
+  pricePerCoreHour: number;
 
   // The price per Memory in GB and hour in the selected currency.
-  pricePerMemoryGbHour: number;
+  pricePerMemoryGBHour: number;
 
   // The price per Storage in GB and hour in the selected currency.
-  pricePerStorageGbMonth: number;
+  pricePerStorageGBMonth: number;
 
   // The price per Disk in GB and hour in the selected currency.
-  pricePerVolumeGbHour: number;
+  pricePerVolumeGBHour: number;
 
   // The additional fixed price.
   fixedPrice: number;

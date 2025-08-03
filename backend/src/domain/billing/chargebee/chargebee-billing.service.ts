@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Chargebee, { Invoice as ChargebeeInvoice, Customer, HostedPage, PortalSession } from 'chargebee';
+import { endOfDayTimestamp, startOfDayTimestamp } from 'src/lib';
 import { BillingService, Charges, Invoice, InvoiceStatus } from '../interface';
 
 interface ChargebeeConfig {
   apiKey: string;
   planId: string;
-  addOnIdCPU: string;
+  addOnIdCores: string;
   addOnIdStorage: string;
   addOnIdMemory: string;
   addOnIdVolume: string;
@@ -55,6 +56,9 @@ export class ChargebeeBillingService implements BillingService {
       throw new Error(`Cannot find subscription for deployment ${deploymentId}.`);
     }
 
+    const date_from = startOfDayTimestamp(charges.dateFrom);
+    const date_to = endOfDayTimestamp(charges.dateTo);
+
     const addCharge = async (addonId: string, units: number, pricePerUnit: number) => {
       if (units === 0 || pricePerUnit === 0) {
         return;
@@ -64,21 +68,21 @@ export class ChargebeeBillingService implements BillingService {
         addon_id: addonId,
         addon_quantity: units,
         addon_unit_price: pricePerUnit * 100,
-        date_from: charges.dateFrom.getTime(),
-        date_to: charges.dateTo.getTime(),
+        date_from,
+        date_to,
       });
     };
 
-    await addCharge(this.config.addOnIdCPU, charges.totalCpuHours, charges.pricePerCpuHour);
-    await addCharge(this.config.addOnIdMemory, charges.totalMemoryGbHours, charges.pricePerMemoryGbHour);
-    await addCharge(this.config.addOnIdVolume, charges.totalVolumeGbHours, charges.pricePerVolumeGbHour);
-    await addCharge(this.config.addOnIdStorage, charges.totalStorageGB, charges.pricePerStorageGbMonth);
+    await addCharge(this.config.addOnIdCores, charges.totalCoreHours, charges.pricePerCoreHour);
+    await addCharge(this.config.addOnIdMemory, charges.totalMemoryGBHours, charges.pricePerMemoryGBHour);
+    await addCharge(this.config.addOnIdVolume, charges.totalVolumeGBHours, charges.pricePerVolumeGBHour);
+    await addCharge(this.config.addOnIdStorage, charges.totalStorageGB, charges.pricePerStorageGBMonth);
 
     if (charges.fixedPrice) {
       await this.chargebee.subscription.addChargeAtTermEnd(subscription.id, {
         amount: charges.fixedPrice * 100,
-        date_from: charges.dateFrom.getTime(),
-        date_to: charges.dateTo.getTime(),
+        date_from,
+        date_to,
         description: this.config.fixedPriceDescription,
       });
     }

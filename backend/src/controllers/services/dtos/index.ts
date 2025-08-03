@@ -41,12 +41,12 @@ export class UpsertServiceDto {
   currency: string;
 
   @ApiProperty({
-    description: 'The price per CPU and hour in the selected currency.',
+    description: 'The price per Core and hour in the selected currency.',
     required: true,
   })
   @IsDefined()
   @IsNumber()
-  pricePerCpuHour: number;
+  pricePerCoreHour: number;
 
   @ApiProperty({
     description: 'The price per Memory in GB and hour in the selected currency.',
@@ -54,7 +54,7 @@ export class UpsertServiceDto {
   })
   @IsDefined()
   @IsNumber()
-  pricePerMemoryGbHour: number;
+  pricePerMemoryGBHour: number;
 
   @ApiProperty({
     description: 'The price per Storage in GB and hour in the selected currency.',
@@ -62,7 +62,7 @@ export class UpsertServiceDto {
   })
   @IsDefined()
   @IsNumber()
-  pricePerStorageGbMonth: number;
+  pricePerStorageGBMonth: number;
 
   @ApiProperty({
     description: 'The price per Disk in GB and hour in the selected currency.',
@@ -70,7 +70,7 @@ export class UpsertServiceDto {
   })
   @IsDefined()
   @IsNumber()
-  pricePerVolumeGbHour: number;
+  pricePerVolumeGBHour: number;
 
   @ApiProperty({
     description: 'The additional fixed price.',
@@ -135,28 +135,28 @@ export class ServiceDto {
   currency: string;
 
   @ApiProperty({
-    description: 'The price per CPU and hour in the selected currency.',
+    description: 'The price per Core and hour in the selected currency.',
     required: true,
   })
-  pricePerCpuHour: number;
+  pricePerCoreHour: number;
 
   @ApiProperty({
     description: 'The price per Memory in GB and hour in the selected currency.',
     required: true,
   })
-  pricePerMemoryGbHour: number;
-
-  @ApiProperty({
-    description: 'The price per Storage in GB and hour in the selected currency.',
-    required: true,
-  })
-  pricePerStorageGbMonth: number;
+  pricePerMemoryGBHour: number;
 
   @ApiProperty({
     description: 'The price per Disk in GB and hour in the selected currency.',
     required: true,
   })
-  pricePerVolumeGbHour: number;
+  pricePerVolumeGBHour: number;
+
+  @ApiProperty({
+    description: 'The price per Storage in GB and month in the selected currency.',
+    required: true,
+  })
+  pricePerStorageGBMonth: number;
 
   @ApiProperty({
     description: 'The additional fixed price.',
@@ -188,10 +188,10 @@ export class ServiceDto {
     result.latestVersion = source.latestVersion;
     result.name = source.name;
     result.numDeployments = source.numDeployments;
-    result.pricePerCpuHour = source.pricePerCpuHour;
-    result.pricePerVolumeGbHour = source.pricePerVolumeGbHour;
-    result.pricePerMemoryGbHour = source.pricePerMemoryGbHour;
-    result.pricePerStorageGbMonth = source.pricePerStorageGbMonth;
+    result.pricePerCoreHour = source.pricePerCoreHour;
+    result.pricePerVolumeGBHour = source.pricePerVolumeGBHour;
+    result.pricePerMemoryGBHour = source.pricePerMemoryGBHour;
+    result.pricePerStorageGBMonth = source.pricePerStorageGBMonth;
     return result;
   }
 }
@@ -481,28 +481,28 @@ export class ServicePublicDto {
   currency: string;
 
   @ApiProperty({
-    description: 'The price per CPU and hour in the selected currency.',
+    description: 'The price per Core and hour in the selected currency.',
     required: true,
   })
-  pricePerCpuHour: number;
+  pricePerCoreHour: number;
 
   @ApiProperty({
     description: 'The price per Memory in GB and hour in the selected currency.',
     required: true,
   })
-  pricePerMemoryGbHour: number;
+  pricePerMemoryGBHour: number;
 
   @ApiProperty({
     description: 'The price per Storage in GB and hour in the selected currency.',
     required: true,
   })
-  pricePerStorageGbMonth: number;
+  pricePerStorageGBMonth: number;
 
   @ApiProperty({
     description: 'The price per Disk in GB and hour in the selected currency.',
     required: true,
   })
-  pricePerVolumeGbHour: number;
+  pricePerVolumeGBHour: number;
 
   @ApiProperty({
     description: 'The additional fixed price.',
@@ -518,28 +518,28 @@ export class ServicePublicDto {
   parameters: ParameterDefinitionDto[];
 
   @ApiProperty({
-    description: 'The expression to calculate the total number of CPUs.',
+    description: 'The expression to calculate the total number of Core.',
     required: true,
   })
-  totalCpus: string;
+  totalCores: string;
 
   @ApiProperty({
     description: 'The expression to calculate the total memory.',
     required: true,
   })
-  totalMemory: string;
+  totalMemoryGB: string;
 
   @ApiProperty({
     description: 'The expression to calculate the total volume size.',
     required: true,
   })
-  totalVolumeSize: string;
+  totalVolumeGB: string;
 
   @ApiProperty({
     description: 'The expression to calculate the total storage.',
     required: true,
   })
-  totalStorage: string;
+  totalStorageGB: string;
 
   static fromDomain(source: ServicePublic): ServicePublicDto {
     const result = new ServicePublicDto();
@@ -549,14 +549,13 @@ export class ServicePublicDto {
     result.fixedPrice = source.fixedPrice;
     result.name = source.name;
     result.parameters = source.parameters.map(ParameterDefinitionDto.fromDomain);
-    result.pricePerCpuHour = source.pricePerCpuHour;
-    result.pricePerVolumeGbHour = source.pricePerVolumeGbHour;
-    result.pricePerMemoryGbHour = source.pricePerMemoryGbHour;
-    result.pricePerStorageGbMonth = source.pricePerStorageGbMonth;
-    result.totalCpus = source.usage.totalCpus;
-    result.totalMemory = source.usage.totalMemoryGb;
-    result.totalStorage = source.usage.totalStorage;
-    result.totalVolumeSize = source.usage.totalVolumeGb;
+    result.pricePerCoreHour = source.pricePerCoreHour;
+    result.pricePerMemoryGBHour = source.pricePerMemoryGBHour;
+    result.pricePerStorageGBMonth = source.pricePerStorageGBMonth;
+    result.pricePerVolumeGBHour = source.pricePerVolumeGBHour;
+    result.totalCores = source.usage.totalCores;
+    result.totalMemoryGB = source.usage.totalMemoryGB;
+    result.totalVolumeGB = source.usage.totalVolumeGB;
     result.version = source.version;
     return result;
   }

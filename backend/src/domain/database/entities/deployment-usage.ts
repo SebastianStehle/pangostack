@@ -15,21 +15,21 @@ export class DeploymentUsageEntity {
   @JoinColumn({ name: 'deploymentId' })
   deployment: DeploymentEntity;
 
-  @Column()
-  trackDate: Date;
+  @Column('date')
+  trackDate: string;
 
   @Column()
   trackHour: number;
 
   @Column()
-  totalCpus: number;
+  totalCores: number;
 
   @Column()
-  totalMemoryGb: number;
+  totalMemoryGB: number;
 
   @Column()
-  totalVolumeGb: number;
+  totalVolumeGB: number;
 
   @Column()
-  totalStorage: number;
+  totalStorageGB: number;
 }

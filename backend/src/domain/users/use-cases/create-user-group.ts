@@ -1,7 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserGroupEntity, UserGroupRepository } from 'src/domain/database';
-import { assignDefined } from 'src/lib';
 import { UserGroup } from '../interfaces';
 import { buildUserGroup } from './utils';
 
@@ -26,15 +25,8 @@ export class CreateUserGroupHandler implements ICommandHandler<CreateUserGroup, 
     const { values } = request;
     const { name } = values;
 
-    const userGroup = this.userGroups.create();
+    const userGroup = await this.userGroups.save({ name });
 
-    // Assign the object manually to avoid updating unexpected values.
-    assignDefined(userGroup, { name });
-
-    // Use the save method otherwise we would not get previous values.
-    const created = await this.userGroups.save(userGroup);
-    const result = buildUserGroup(created);
-
-    return new CreateUserGroupResponse(result);
+    return new CreateUserGroupResponse(buildUserGroup(userGroup));
   }
 }

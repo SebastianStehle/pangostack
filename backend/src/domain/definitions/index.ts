@@ -98,15 +98,15 @@ class ResourceDefinitionClass {
 class UsageDefinitionClass {
   @IsDefined()
   @IsString()
-  totalCpus: string;
+  totalCores: string;
 
   @IsDefined()
   @IsString()
-  totalMemoryGb: string;
+  totalMemoryGB: string;
 
   @IsDefined()
   @IsString()
-  totalVolumeGb: string;
+  totalVolumeGB: string;
 }
 
 class ServiceDefinitionClass {
@@ -188,11 +188,11 @@ export function evaluateUsage(service: ServiceDefinition, context: DefinitionCon
     return parsed;
   };
 
-  const totalCpus = evaluate(service.usage.totalCpus);
-  const totalMemoryGb = evaluate(service.usage.totalMemoryGb);
-  const totalVolumeGb = evaluate(service.usage.totalVolumeGb);
+  const totalCores = evaluate(service.usage.totalCores);
+  const totalMemoryGB = evaluate(service.usage.totalMemoryGB);
+  const totalVolumeGB = evaluate(service.usage.totalVolumeGB);
 
-  return { totalCpus, totalMemoryGb, totalVolumeSizeGb: totalVolumeGb };
+  return { totalCores, totalMemoryGB, totalVolumeGB };
 }
 
 export function validateDefinitionValue(service: ServiceDefinition, target: Record<string, any>) {

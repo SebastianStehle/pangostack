@@ -1,9 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import * as uuid from 'uuid';
 import { UserEntity, UserRepository } from 'src/domain/database';
-import { assignDefined } from 'src/lib';
 import { User } from '../interfaces';
 import { buildUser } from './utils';
 
@@ -28,19 +26,15 @@ export class CreateUserHandler implements ICommandHandler<CreateUser, CreateUser
     const { values } = request;
     const { apiKey, email, name, password, roles, userGroupId } = values;
 
-    const user = this.users.create({ id: uuid.v4() });
+    const user = await this.users.save({
+      apiKey,
+      email,
+      name,
+      passwordHash: password ? await bcrypt.hash(password, 10) : null,
+      roles,
+      userGroupId,
+    });
 
-    if (password) {
-      user.passwordHash = await bcrypt.hash(password, 10);
-    }
-
-    // Assign the object manually to avoid updating unexpected values.
-    assignDefined(user, { apiKey, email, name, userGroupId, roles });
-
-    // Use the save method otherwise we would not get previous values.
-    const created = await this.users.save(user);
-    const result = buildUser(created);
-
-    return new CreateUserResponse(result);
+    return new CreateUserResponse(buildUser(user));
   }
 }

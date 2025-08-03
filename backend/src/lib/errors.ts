@@ -1,5 +1,4 @@
 import { ValidationError } from 'class-validator';
-import { iterate } from 'iterare';
 
 export class InternalError {
   public readonly message: string;
@@ -21,13 +20,22 @@ export class InternalError {
 }
 
 export function flattenValidationErrors(validationErrors: ValidationError[]): string[] {
-  return iterate(validationErrors)
-    .map((error) => mapChildrenToValidationErrors(error))
-    .flatten()
-    .filter((item) => !!item.constraints)
-    .map((item) => Object.values(item.constraints!))
-    .flatten()
-    .toArray();
+  const result: string[] = [];
+
+  for (const error of validationErrors) {
+    const children = mapChildrenToValidationErrors(error);
+
+    for (const childError of children) {
+      if (!childError.constraints) {
+        continue;
+      }
+
+      const messages = Object.values(childError.constraints);
+      result.push(...messages);
+    }
+  }
+
+  return result;
 }
 
 function mapChildrenToValidationErrors(error: ValidationError, parentPath?: string): ValidationError[] {

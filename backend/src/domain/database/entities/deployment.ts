@@ -9,8 +9,10 @@ import {
   Repository,
   UpdateDateColumn,
 } from 'typeorm';
+import { BilledDeploymentEntity } from './billed-deployment';
 import { DeploymentLogEntity } from './deployment-log';
 import { DeploymentUpdateEntity } from './deployment-update';
+import { DeploymentUsageEntity } from './deployment-usage';
 import { TeamEntity } from './team';
 
 export type DeploymentRepository = Repository<DeploymentEntity>;
@@ -30,7 +32,13 @@ export class DeploymentEntity {
   @OneToMany(() => DeploymentLogEntity, (log) => log.deployment)
   log: DeploymentLogEntity[];
 
-  @OneToMany(() => DeploymentUpdateEntity, (updates) => updates.deployment)
+  @OneToMany(() => BilledDeploymentEntity, (billed) => billed.deployment)
+  billed: DeploymentUpdateEntity[];
+
+  @OneToMany(() => DeploymentUsageEntity, (usage) => usage.deployment)
+  usages: DeploymentUsageEntity[];
+
+  @OneToMany(() => DeploymentUpdateEntity, (update) => update.deployment)
   updates: DeploymentUpdateEntity[];
 
   @Column({ length: 100, nullable: true })

@@ -28,7 +28,6 @@ export class UpdateDeploymentActivity implements Activity<UpdateDeploymentParam>
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function updateDeployment(_: UpdateDeploymentParam): Promise<any> {
-  return true;
+export async function updateDeployment(param: UpdateDeploymentParam): Promise<any> {
+  return param;
 }

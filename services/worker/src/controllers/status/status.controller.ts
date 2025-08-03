@@ -40,7 +40,7 @@ export class StatusController {
     return result;
   }
 
-  @Post('')
+  @Post('usage')
   @ApiOperation({ operationId: 'postUsage', description: 'Gets the usages for all specified deployment IDs' })
   @ApiOkResponse({ type: UsageResultDto })
   async postUsage(@Body() body: UageRequestDto) {

@@ -27,7 +27,7 @@ export class ServiceEntity {
     scale: 4,
     transformer: DecimalToNumberTransformer,
   })
-  pricePerCpuHour: number = 0;
+  pricePerCoreHour: number = 0;
 
   @Column('decimal', {
     default: 0,
@@ -35,7 +35,7 @@ export class ServiceEntity {
     scale: 4,
     transformer: DecimalToNumberTransformer,
   })
-  pricePerMemoryGbHour: number = 0;
+  pricePerMemoryGBHour: number = 0;
 
   @Column('decimal', {
     default: 0,
@@ -43,7 +43,7 @@ export class ServiceEntity {
     scale: 4,
     transformer: DecimalToNumberTransformer,
   })
-  pricePerStorageGbMonth: number = 0;
+  pricePerStorageGBMonth: number = 0;
 
   @Column('decimal', {
     default: 0,
@@ -51,7 +51,7 @@ export class ServiceEntity {
     scale: 4,
     transformer: DecimalToNumberTransformer,
   })
-  pricePerVolumeGbHour: number = 0;
+  pricePerVolumeGBHour: number = 0;
 
   @Column('decimal', {
     default: 0,

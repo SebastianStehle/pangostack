@@ -2,7 +2,6 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TeamEntity, TeamRepository, TeamUserEntity } from 'src/domain/database';
-import { assignDefined } from 'src/lib';
 import { Team, User } from '../interfaces';
 import { buildTeam } from './utils';
 
@@ -32,25 +31,18 @@ export class CreateTeamHandler implements ICommandHandler<CreateTeam, CreateTeam
     const { values, user } = request;
     const { name } = values;
 
-    const teams = this.teams.create();
+    const team = await this.teams.save({ name });
 
-    // Assign the object manually to avoid updating unexpected values.
-    assignDefined(teams, { name });
+    await this.teamUsers.save({
+      team,
+      teamId: team.id,
+      role: 'default',
+      user: undefined!,
+      userId: user.id,
+    });
 
-    // Use the save method otherwise we would not get previous values.
-    const created = await this.teams.save(teams);
-    const teamUser = this.teamUsers.create();
-    teamUser.user = undefined!;
-    teamUser.userId = user.id;
-    teamUser.team = created;
-    teamUser.teamId = created.id;
-    teamUser.role = 'default';
-    await this.teamUsers.save(teamUser);
+    const withUsers = await this.teams.findOne({ where: { id: team.id }, relations: ['users', 'users.user'] });
 
-    // Reload the team to ge tupdates relations.
-    const updated = await this.teams.findOne({ where: { id: created.id }, relations: ['users', 'users.user'] });
-    const result = buildTeam(updated);
-
-    return new CreateTeamResponse(result);
+    return new CreateTeamResponse(buildTeam(withUsers));
   }
 }

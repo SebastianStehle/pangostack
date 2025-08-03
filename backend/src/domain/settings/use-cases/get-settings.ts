@@ -19,8 +19,7 @@ export class GetSettingsHandler implements IQueryHandler<GetSettings, GetSetting
 
   async execute(): Promise<GetSettingsResponse> {
     const setting = await this.settings.findOneBy({ id: 1 });
-    const result = buildSettings(setting || ({} as any));
 
-    return new GetSettingsResponse(result);
+    return new GetSettingsResponse(buildSettings(setting || ({} as any)));
   }
 }

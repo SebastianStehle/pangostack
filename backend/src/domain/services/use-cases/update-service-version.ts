@@ -30,24 +30,21 @@ export class UpdateServiceVersionHandler implements ICommandHandler<UpdateServic
     const { id, values } = request;
     const { definition, environment, isActive } = values;
 
-    const serviceVersion = await this.serviceVersions.findOne({ where: { id }, relations: ['deploymentUpdates', 'service'] });
-    if (!serviceVersion) {
+    let version = await this.serviceVersions.findOne({ where: { id }, relations: ['deploymentUpdates', 'service'] });
+    if (!version) {
       throw new NotFoundException(`Service Update ${id} not found.`);
     }
 
     // If the service is active, we can only update the active state so that we do not mess up existing deployments.
-    if (serviceVersion.service.isPublic) {
-      // Assign the object manually to avoid updating unexpected values.
-      assignDefined(serviceVersion, { isActive, environment });
+    if (version.service.isPublic) {
+      assignDefined(version, { isActive, environment });
     } else {
-      // Assign the object manually to avoid updating unexpected values.
-      assignDefined(serviceVersion, { definition, environment, isActive });
+      assignDefined(version, { definition, environment, isActive });
     }
 
-    // Use the save method otherwise we would not get previous values.
-    const created = await this.serviceVersions.save(serviceVersion);
-    const result = buildServiceVersion(created, false);
+    // Reassign the entity to get database generated values.
+    version = await this.serviceVersions.save(version);
 
-    return new UpdateServiceVersionResponse(result);
+    return new UpdateServiceVersionResponse(buildServiceVersion(version, false));
   }
 }

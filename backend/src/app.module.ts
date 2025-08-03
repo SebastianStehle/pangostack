@@ -18,11 +18,13 @@ import { UsersController } from './controllers/users/users.controller';
 import { AuthModule } from './domain/auth/module';
 import { billingConfig, BillingModule } from './domain/billing';
 import {
+  BilledDeploymentEntity,
   BlobEntity,
   CacheEntity,
   DeploymentEntity,
   DeploymentLogEntity,
   DeploymentUpdateEntity,
+  DeploymentUsageEntity,
   ServiceEntity,
   ServiceVersionEntity,
   SessionEntity,
@@ -60,10 +62,12 @@ import { WorkflowModule } from './domain/workflows';
         retryAttempts: 10,
         retryDelay: 100,
         entities: [
+          BilledDeploymentEntity,
           BlobEntity,
           CacheEntity,
           DeploymentEntity,
           DeploymentLogEntity,
+          DeploymentUsageEntity,
           DeploymentUpdateEntity,
           ServiceEntity,
           ServiceVersionEntity,

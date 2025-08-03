@@ -30,7 +30,7 @@ export class UpdateUserGroupHandler implements ICommandHandler<UpdateUserGroup, 
     const { id, values } = request;
     const { name } = values;
 
-    const userGroup = await this.userGroups.findOneBy({ id });
+    let userGroup = await this.userGroups.findOneBy({ id });
     if (!userGroup) {
       throw new NotFoundException(`User group ${id} not found.`);
     }
@@ -42,10 +42,9 @@ export class UpdateUserGroupHandler implements ICommandHandler<UpdateUserGroup, 
     // Assign the object manually to avoid updating unexpected values.
     assignDefined(userGroup, { name });
 
-    // Use the save method otherwise we would not get previous values.
-    const updated = await this.userGroups.save(userGroup);
-    const result = buildUserGroup(updated);
+    // Reassign the entity to get database generated values.
+    userGroup = await this.userGroups.save(userGroup);
 
-    return new UpdateUserGroupResponse(result);
+    return new UpdateUserGroupResponse(buildUserGroup(userGroup));
   }
 }

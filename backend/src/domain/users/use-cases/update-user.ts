@@ -31,7 +31,7 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUser, UpdateUser
     const { id, values } = request;
     const { apiKey, email, name, password, roles, userGroupId } = values;
 
-    const user = await this.users.findOneBy({ id });
+    let user = await this.users.findOneBy({ id });
     if (!user) {
       throw new NotFoundException(`User ${id} not found.`);
     }
@@ -43,10 +43,9 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUser, UpdateUser
     // Assign the object manually to avoid updating unexpected values.
     assignDefined(user, { apiKey, email, name, roles, userGroupId });
 
-    // Use the save method otherwise we would not get previous values.
-    const updated = await this.users.save(user);
-    const result = buildUser(updated);
+    // Reassign the entity to get database generated values.
+    user = await this.users.save(user);
 
-    return new UpdateUserResponse(result);
+    return new UpdateUserResponse(buildUser(user));
   }
 }
