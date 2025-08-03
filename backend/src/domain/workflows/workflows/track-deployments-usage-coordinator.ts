@@ -1,32 +1,34 @@
-/*import { WorkflowExecutionAlreadyStartedError } from '@temporalio/common';
-import { executeChild, WorkflowIdReusePolicy } from '@temporalio/workflow';
+import { executeChild, log, sleep } from '@temporalio/workflow';
+import { parseCronExpression } from 'cron-schedule';
 import { todayUtcDate } from 'src/lib/time';
 import { trackDeploymentsUsage } from './track-deployments-usage';
 
 export async function trackDeploymentsUsageCoordinator(): Promise<void> {
-  const trackDate = todayUtcDate();
-  const trackHour = new Date().getUTCHours();
+  const cronExpression = parseCronExpression('*/5 * * * *');
+  while (true) {
+    try {
+      const trackDate = todayUtcDate();
+      const trackHour = new Date().getUTCHours();
 
-  try {
-    await executeChild(trackDeploymentsUsage, {
-      workflowId: `track-usage-${trackDate}-update-${trackHour}`,
-      workflowIdReusePolicy: WorkflowIdReusePolicy.ALLOW_DUPLICATE,
-      args: [
-        {
-          trackDate,
-          trackHour,
-        },
-      ],
-    });
-  } catch (ex) {
-    if (!is(ex, WorkflowExecutionAlreadyStartedError)) {
-      throw ex;
+      await executeChild(trackDeploymentsUsage, {
+        workflowId: `track-usage-${trackDate}-update-${trackHour}`,
+        args: [
+          {
+            trackDate,
+            trackHour,
+          },
+        ],
+      });
+    } catch (ex) {
+      log.error('Failed to execute child workflow', { ex });
+    }
+
+    const now = new Date();
+    const next = cronExpression.getNextDate(now);
+
+    const delayMs = next.getTime() - now.getTime();
+    if (delayMs > 0) {
+      await sleep(delayMs);
     }
   }
 }
-
-function is<TClass>(x: any, c: new (...args: any[]) => TClass): x is TClass {
-  return x instanceof c;
-}*/
-
-export const FOO = '123';

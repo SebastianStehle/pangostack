@@ -19,7 +19,7 @@ import {
   UpdateDeploymentActivity,
 } from './activities';
 import { ActivityExplorerService } from './registration';
-import { TemporalService, WorkflowService } from '../services/services';
+import { TemporalService, WorkflowService } from './services';
 
 @Module({
   imports: [

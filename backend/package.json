@@ -55,6 +55,7 @@
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.6",
     "cron-parser": "^5.3.0",
+    "cron-schedule": "^5.0.4",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "express-session": "^1.18.0",

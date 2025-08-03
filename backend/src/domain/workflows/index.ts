@@ -1,2 +1,2 @@
 export * from './module';
-export * from '../services/services/workflow.service';
+export * from './services/workflow.service';

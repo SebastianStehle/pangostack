@@ -4,9 +4,9 @@ import { Worker } from '@temporalio/worker';
 import { WorkflowIdReusePolicy } from '@temporalio/workflow';
 import { WorkerEntity } from 'src/domain/database';
 import { DeploymentUpdateEntity } from 'src/domain/database';
-import { ActivityExplorerService } from '../../workflows/registration';
-import * as workflows from '../../workflows/workflows';
-import { DEPLOYMENT_ACTION_SIGNAL, DeploymentSignal } from '../../workflows/workflows/signals';
+import { ActivityExplorerService } from '../registration';
+import * as workflows from '../workflows';
+import { DEPLOYMENT_ACTION_SIGNAL, DeploymentSignal } from '../workflows/signals';
 import { TemporalService } from './temporal.service';
 
 @Injectable()
@@ -40,8 +40,7 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
     this.workers.push(usageWorker.runUntil(this.signal.promise));
 
     const client = this.temporal.client;
-    await client.workflow.start(workflows.trackDeploymentsUsage, {
-      cronSchedule: '* * * * *',
+    await client.workflow.start(workflows.trackDeploymentsUsageCoordinator, {
       workflowId: 'track-usage',
       workflowIdConflictPolicy: WorkflowIdConflictPolicy.TERMINATE_EXISTING,
       args: [],

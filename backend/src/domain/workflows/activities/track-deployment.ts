@@ -8,7 +8,7 @@ import {
   DeploymentUsageRepository,
 } from 'src/domain/database';
 import { evaluateParameters, evaluateUsage } from 'src/domain/definitions';
-import { WorkerClient } from 'src/domain/worker/worker-client';
+import { WorkerClient } from 'src/domain/worker';
 import { atHourUtc, formatDate } from 'src/lib';
 import { Activity } from '../registration';
 

@@ -2,7 +2,7 @@ import { NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database';
 import { evaluateParameters, ResourceDefinition } from 'src/domain/definitions';
-import { WorkerClient } from 'src/domain/worker/worker-client';
+import { WorkerClient } from 'src/domain/worker';
 import { Activity } from '../registration';
 
 export interface DeleteResourceParam {

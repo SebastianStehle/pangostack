@@ -1,6 +1,10 @@
 import { log, proxyActivities } from '@temporalio/workflow';
-import { todayUtcDate } from 'src/lib/time';
 import type * as activities from '../activities';
+
+interface TrackDeploymentsUsageParmas {
+  trackDate: string;
+  trackHour: number;
+}
 
 const { getWorker, getDeployments, trackDeploymentUsage } = proxyActivities<typeof activities>({
   startToCloseTimeout: '30s',
@@ -9,12 +13,9 @@ const { getWorker, getDeployments, trackDeploymentUsage } = proxyActivities<type
   },
 });
 
-export async function trackDeploymentsUsage(): Promise<void> {
+export async function trackDeploymentsUsage({ trackDate, trackHour }: TrackDeploymentsUsageParmas): Promise<void> {
   const { workerApiKey, workerEndpoint } = await getWorker({});
   const deployments = await getDeployments({});
-
-  const trackDate = todayUtcDate();
-  const trackHour = new Date().getUTCHours();
 
   for (const deploymentId of deployments) {
     try {
