@@ -16,44 +16,44 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface StatusRequestResourceDto
+ * @interface ResourceApplyRequestDto
  */
-export interface StatusRequestResourceDto {
+export interface ResourceApplyRequestDto {
     /**
      * The resource ID
      * @type {string}
-     * @memberof StatusRequestResourceDto
+     * @memberof ResourceApplyRequestDto
      */
     resourceId: string;
     /**
-     * The name of the resource type.
+     * The type of the resource
      * @type {string}
-     * @memberof StatusRequestResourceDto
+     * @memberof ResourceApplyRequestDto
      */
     resourceType: string;
     /**
-     * The parameters.
+     * The parameters
      * @type {{ [key: string]: any; }}
-     * @memberof StatusRequestResourceDto
+     * @memberof ResourceApplyRequestDto
      */
     parameters: { [key: string]: any; };
 }
 
 /**
- * Check if a given object implements the StatusRequestResourceDto interface.
+ * Check if a given object implements the ResourceApplyRequestDto interface.
  */
-export function instanceOfStatusRequestResourceDto(value: object): boolean {
+export function instanceOfResourceApplyRequestDto(value: object): boolean {
     if (!('resourceId' in value)) return false;
     if (!('resourceType' in value)) return false;
     if (!('parameters' in value)) return false;
     return true;
 }
 
-export function StatusRequestResourceDtoFromJSON(json: any): StatusRequestResourceDto {
-    return StatusRequestResourceDtoFromJSONTyped(json, false);
+export function ResourceApplyRequestDtoFromJSON(json: any): ResourceApplyRequestDto {
+    return ResourceApplyRequestDtoFromJSONTyped(json, false);
 }
 
-export function StatusRequestResourceDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): StatusRequestResourceDto {
+export function ResourceApplyRequestDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): ResourceApplyRequestDto {
     if (json == null) {
         return json;
     }
@@ -65,7 +65,7 @@ export function StatusRequestResourceDtoFromJSONTyped(json: any, ignoreDiscrimin
     };
 }
 
-export function StatusRequestResourceDtoToJSON(value?: StatusRequestResourceDto | null): any {
+export function ResourceApplyRequestDtoToJSON(value?: ResourceApplyRequestDto | null): any {
     if (value == null) {
         return value;
     }

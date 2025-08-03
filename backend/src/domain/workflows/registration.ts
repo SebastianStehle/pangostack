@@ -1,0 +1,59 @@
+/* eslint-disable @typescript-eslint/ban-types */
+import { Injectable } from '@nestjs/common';
+import { ModulesContainer } from '@nestjs/core';
+
+export const ACTIVITY_METADATA = 'ACTIVITY';
+
+export const Activity = (activityFunction: Function): ClassDecorator => {
+  return (target: object) => {
+    Reflect.defineMetadata(ACTIVITY_METADATA, { name: activityFunction.name }, target);
+  };
+};
+
+export interface Activity<T, R = any> {
+  execute: (param: T) => Promise<R>;
+}
+
+@Injectable()
+export class ActivityExplorerService {
+  private cached: Record<string, any>;
+
+  constructor(private readonly modulesContainer: ModulesContainer) {}
+
+  get activities() {
+    if (this.cached) {
+      return this.cached;
+    }
+
+    const allActivities: Record<string, any>[] = [];
+    for (const module of this.modulesContainer.values()) {
+      const providers = module.providers;
+
+      for (const wrapper of providers.values()) {
+        if (!wrapper) {
+          continue;
+        }
+
+        const instance = wrapper.instance;
+        if (!instance || !instance.constructor) {
+          continue;
+        }
+
+        const methods = Object.getOwnPropertyNames(instance.constructor.prototype);
+        for (const method of methods) {
+          const metadata = Reflect.getMetadata(ACTIVITY_METADATA, instance, method);
+
+          if (!metadata) {
+            continue;
+          }
+
+          const activityMethod = (instance as Activity<any>).execute.bind(instance);
+          allActivities[metadata.name] = activityMethod;
+        }
+      }
+    }
+
+    this.cached = allActivities;
+    return this.cached;
+  }
+}

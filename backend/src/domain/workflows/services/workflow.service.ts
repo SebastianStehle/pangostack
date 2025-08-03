@@ -2,8 +2,8 @@ import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { Worker } from '@temporalio/worker';
 import { WorkflowIdReusePolicy } from '@temporalio/workflow';
 import { DeploymentEntity, WorkerEntity } from 'src/domain/database';
-import { DeploymentUpdateEntity } from 'src/domain/database/entities/deployment-update';
-import * as activities from '../activities';
+import { DeploymentUpdateEntity } from 'src/domain/database';
+import { ActivityExplorerService } from '../registration';
 import * as workflows from '../workflows';
 import { TemporalService } from './temporal.service';
 
@@ -11,28 +11,38 @@ import { TemporalService } from './temporal.service';
 export class WorkflowService implements OnApplicationBootstrap {
   constructor(
     private readonly temporal: TemporalService,
-    private readonly createSubscription: activities.CreateSubscriptionActivity,
-    private readonly deleteResource: activities.DeleteResourceActivity,
-    private readonly deployResource: activities.DeployResourceActivity,
-    private readonly updateDeployment: activities.UpdateDeploymentActivity,
+    private readonly explorer: ActivityExplorerService,
   ) {}
 
   async onApplicationBootstrap() {
-    const worker = await Worker.create({
+    const activities = this.explorer.activities;
+
+    const deploymentWorker = await Worker.create({
       workflowsPath: require.resolve('./../workflows'),
-      activities: {
-        createSubscription: this.createSubscription.execute.bind(this.createSubscription),
-        deleteResource: this.deleteResource.execute.bind(this.deleteResource),
-        deployResource: this.deployResource.execute.bind(this.deployResource),
-        updateDeployment: this.updateDeployment.execute.bind(this.updateDeployment),
-      },
+      activities,
       taskQueue: `deployments`,
     });
 
-    worker.run();
+    deploymentWorker.run();
+
+    const usageWorker = await Worker.create({
+      workflowsPath: require.resolve('./../workflows'),
+      activities,
+      taskQueue: `usage`,
+    });
+
+    usageWorker.run();
+
+    const client = this.temporal.client;
+    await client.workflow.start(workflows.trackUsage, {
+      cronSchedule: '0 * * * *',
+      workflowId: 'track-usage',
+      args: [],
+      taskQueue: `usage`,
+    });
   }
 
-  async deploy(
+  async createDeployment(
     deployment: DeploymentEntity,
     deploymentUpdate: DeploymentUpdateEntity,
     previousUpdate: DeploymentUpdateEntity | null,
@@ -40,8 +50,7 @@ export class WorkflowService implements OnApplicationBootstrap {
     worker: WorkerEntity,
   ) {
     const client = this.temporal.client;
-
-    await client.workflow.start(workflows.deployAll, {
+    await client.workflow.start(workflows.deployResources, {
       workflowId: `deployment-${deployment.id}`,
       workflowIdReusePolicy: WorkflowIdReusePolicy.ALLOW_DUPLICATE,
       args: [
@@ -60,10 +69,9 @@ export class WorkflowService implements OnApplicationBootstrap {
     });
   }
 
-  async delete(deployment: DeploymentEntity, deploymentUpdate: DeploymentUpdateEntity, worker: WorkerEntity) {
+  async deleteDeployment(deployment: DeploymentEntity, deploymentUpdate: DeploymentUpdateEntity, worker: WorkerEntity) {
     const client = this.temporal.client;
-
-    await client.workflow.start(workflows.deleteAll, {
+    await client.workflow.start(workflows.deleteResources, {
       workflowId: `deployment-${deployment.id}`,
       workflowIdReusePolicy: WorkflowIdReusePolicy.ALLOW_DUPLICATE,
       args: [

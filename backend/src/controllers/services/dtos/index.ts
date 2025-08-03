@@ -554,9 +554,9 @@ export class ServicePublicDto {
     result.pricePerMemoryGbHour = source.pricePerMemoryGbHour;
     result.pricePerStorageGbMonth = source.pricePerStorageGbMonth;
     result.totalCpus = source.usage.totalCpus;
-    result.totalMemory = source.usage.totalMemory;
+    result.totalMemory = source.usage.totalMemoryGb;
     result.totalStorage = source.usage.totalStorage;
-    result.totalVolumeSize = source.usage.totalVolumeSize;
+    result.totalVolumeSize = source.usage.totalVolumeGb;
     result.version = source.version;
     return result;
   }

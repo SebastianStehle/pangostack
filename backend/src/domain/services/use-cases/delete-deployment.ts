@@ -2,8 +2,14 @@ import { NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not } from 'typeorm';
-import { DeploymentEntity, DeploymentRepository, WorkerEntity, WorkerRepository } from 'src/domain/database';
-import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database/entities/deployment-update';
+import {
+  DeploymentEntity,
+  DeploymentRepository,
+  DeploymentUpdateEntity,
+  DeploymentUpdateRepository,
+  WorkerEntity,
+  WorkerRepository,
+} from 'src/domain/database';
 import { WorkflowService } from 'src/domain/workflows';
 
 export class DeleteDeployment {
@@ -44,7 +50,7 @@ export class DeleteDeploymentHandler implements ICommandHandler<DeleteDeployment
       throw new NotFoundException('No worker registered.');
     }
 
-    await this.workflows.delete(deployment, lastUpdate, worker);
+    await this.workflows.deleteDeployment(deployment, lastUpdate, worker);
     return { deployment };
   }
 }

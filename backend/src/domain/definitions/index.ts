@@ -102,15 +102,11 @@ class UsageDefinitionClass {
 
   @IsDefined()
   @IsString()
-  totalMemory: string;
+  totalMemoryGb: string;
 
   @IsDefined()
   @IsString()
-  totalVolumeSize: string;
-
-  @IsDefined()
-  @IsString()
-  totalStorage: string;
+  totalVolumeGb: string;
 }
 
 class ServiceDefinitionClass {
@@ -169,15 +165,34 @@ export async function validateDefinition(service: ServiceDefinition) {
   }
 }
 
-export function evaluateParameters(resource: ResourceDefinition, env: any, context: any) {
+type DefinitionContext = { env: any; context: any; parameters: any };
+
+export function evaluateParameters(resource: ResourceDefinition, context: DefinitionContext) {
   const params = { ...resource.parameters };
 
-  const expressionContext = { env, context, parameters: resource.parameters };
   for (const [key, value] of Object.entries(resource.parameters)) {
-    params[key] = evaluateExpression(value, expressionContext);
+    params[key] = evaluateExpression(value, context);
   }
 
   return params;
+}
+
+export function evaluateUsage(service: ServiceDefinition, context: DefinitionContext) {
+  const evaluate = (expression: string) => {
+    const result = evaluateExpression(expression, context);
+    const parsed = parseInt(result, 10);
+    if (isNaN(parsed)) {
+      return 0;
+    }
+
+    return parsed;
+  };
+
+  const totalCpus = evaluate(service.usage.totalCpus);
+  const totalMemoryGb = evaluate(service.usage.totalMemoryGb);
+  const totalVolumeGb = evaluate(service.usage.totalVolumeGb);
+
+  return { totalCpus, totalMemoryGb, totalVolumeSizeGb: totalVolumeGb };
 }
 
 export function validateDefinitionValue(service: ServiceDefinition, target: Record<string, any>) {

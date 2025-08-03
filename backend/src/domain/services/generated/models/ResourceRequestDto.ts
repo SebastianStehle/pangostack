@@ -16,44 +16,44 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface ResourceApplyRequestDto
+ * @interface ResourceRequestDto
  */
-export interface ResourceApplyRequestDto {
+export interface ResourceRequestDto {
     /**
      * The resource ID
      * @type {string}
-     * @memberof ResourceApplyRequestDto
+     * @memberof ResourceRequestDto
      */
     resourceId: string;
     /**
-     * The type of the resource
+     * The name of the resource type
      * @type {string}
-     * @memberof ResourceApplyRequestDto
+     * @memberof ResourceRequestDto
      */
     resourceType: string;
     /**
      * The parameters
      * @type {{ [key: string]: any; }}
-     * @memberof ResourceApplyRequestDto
+     * @memberof ResourceRequestDto
      */
     parameters: { [key: string]: any; };
 }
 
 /**
- * Check if a given object implements the ResourceApplyRequestDto interface.
+ * Check if a given object implements the ResourceRequestDto interface.
  */
-export function instanceOfResourceApplyRequestDto(value: object): boolean {
+export function instanceOfResourceRequestDto(value: object): boolean {
     if (!('resourceId' in value)) return false;
     if (!('resourceType' in value)) return false;
     if (!('parameters' in value)) return false;
     return true;
 }
 
-export function ResourceApplyRequestDtoFromJSON(json: any): ResourceApplyRequestDto {
-    return ResourceApplyRequestDtoFromJSONTyped(json, false);
+export function ResourceRequestDtoFromJSON(json: any): ResourceRequestDto {
+    return ResourceRequestDtoFromJSONTyped(json, false);
 }
 
-export function ResourceApplyRequestDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): ResourceApplyRequestDto {
+export function ResourceRequestDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): ResourceRequestDto {
     if (json == null) {
         return json;
     }
@@ -65,7 +65,7 @@ export function ResourceApplyRequestDtoFromJSONTyped(json: any, ignoreDiscrimina
     };
 }
 
-export function ResourceApplyRequestDtoToJSON(value?: ResourceApplyRequestDto | null): any {
+export function ResourceRequestDtoToJSON(value?: ResourceRequestDto | null): any {
     if (value == null) {
         return value;
     }

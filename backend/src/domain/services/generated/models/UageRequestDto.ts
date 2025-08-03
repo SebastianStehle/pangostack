@@ -23,30 +23,30 @@ import {
 /**
  * 
  * @export
- * @interface StatusRequestDto
+ * @interface UageRequestDto
  */
-export interface StatusRequestDto {
+export interface UageRequestDto {
     /**
      * The resource identifiers
      * @type {Array<ResourceRequestDto>}
-     * @memberof StatusRequestDto
+     * @memberof UageRequestDto
      */
     resources: Array<ResourceRequestDto>;
 }
 
 /**
- * Check if a given object implements the StatusRequestDto interface.
+ * Check if a given object implements the UageRequestDto interface.
  */
-export function instanceOfStatusRequestDto(value: object): boolean {
+export function instanceOfUageRequestDto(value: object): boolean {
     if (!('resources' in value)) return false;
     return true;
 }
 
-export function StatusRequestDtoFromJSON(json: any): StatusRequestDto {
-    return StatusRequestDtoFromJSONTyped(json, false);
+export function UageRequestDtoFromJSON(json: any): UageRequestDto {
+    return UageRequestDtoFromJSONTyped(json, false);
 }
 
-export function StatusRequestDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): StatusRequestDto {
+export function UageRequestDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): UageRequestDto {
     if (json == null) {
         return json;
     }
@@ -56,7 +56,7 @@ export function StatusRequestDtoFromJSONTyped(json: any, ignoreDiscriminator: bo
     };
 }
 
-export function StatusRequestDtoToJSON(value?: StatusRequestDto | null): any {
+export function UageRequestDtoToJSON(value?: UageRequestDto | null): any {
     if (value == null) {
         return value;
     }

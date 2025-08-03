@@ -1,16 +1,16 @@
-import { Injectable } from '@nestjs/common';
 import { BillingService } from 'src/domain/billing';
+import { Activity } from '../registration';
 
 export interface CreateSubscriptionParams {
   deploymentId: number;
   teamId: number;
 }
 
-@Injectable()
-export class CreateSubscriptionActivity {
+@Activity(createSubscription)
+export class CreateSubscriptionActivity implements Activity<CreateSubscriptionParams, any> {
   constructor(private readonly billingService: BillingService) {}
 
-  async execute({ deploymentId, teamId }: CreateSubscriptionParams): Promise<any> {
+  async execute({ deploymentId, teamId }: CreateSubscriptionParams) {
     await this.billingService.createSubscription(teamId, deploymentId);
   }
 }

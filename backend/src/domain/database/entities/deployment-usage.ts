@@ -16,19 +16,19 @@ export class DeploymentUsageEntity {
   deployment: DeploymentEntity;
 
   @Column()
-  date: Date;
+  trackDate: Date;
 
   @Column()
-  hour: number;
+  trackHour: number;
 
   @Column()
-  totalCpuHours: number;
+  totalCpus: number;
 
   @Column()
-  totalMemoryGbHours: number;
+  totalMemoryGb: number;
 
   @Column()
-  totalVolumeGbHours: number;
+  totalVolumeGb: number;
 
   @Column()
   totalStorage: number;

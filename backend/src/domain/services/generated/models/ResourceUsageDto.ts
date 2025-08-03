@@ -16,44 +16,44 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface ResourceApplyRequestDto
+ * @interface ResourceUsageDto
  */
-export interface ResourceApplyRequestDto {
+export interface ResourceUsageDto {
     /**
      * The resource ID
      * @type {string}
-     * @memberof ResourceApplyRequestDto
+     * @memberof ResourceUsageDto
      */
     resourceId: string;
     /**
      * The type of the resource
      * @type {string}
-     * @memberof ResourceApplyRequestDto
+     * @memberof ResourceUsageDto
      */
     resourceType: string;
     /**
-     * The parameters
-     * @type {{ [key: string]: any; }}
-     * @memberof ResourceApplyRequestDto
+     * The total storage in GB
+     * @type {number}
+     * @memberof ResourceUsageDto
      */
-    parameters: { [key: string]: any; };
+    totalStorageGB: number;
 }
 
 /**
- * Check if a given object implements the ResourceApplyRequestDto interface.
+ * Check if a given object implements the ResourceUsageDto interface.
  */
-export function instanceOfResourceApplyRequestDto(value: object): boolean {
+export function instanceOfResourceUsageDto(value: object): boolean {
     if (!('resourceId' in value)) return false;
     if (!('resourceType' in value)) return false;
-    if (!('parameters' in value)) return false;
+    if (!('totalStorageGB' in value)) return false;
     return true;
 }
 
-export function ResourceApplyRequestDtoFromJSON(json: any): ResourceApplyRequestDto {
-    return ResourceApplyRequestDtoFromJSONTyped(json, false);
+export function ResourceUsageDtoFromJSON(json: any): ResourceUsageDto {
+    return ResourceUsageDtoFromJSONTyped(json, false);
 }
 
-export function ResourceApplyRequestDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): ResourceApplyRequestDto {
+export function ResourceUsageDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): ResourceUsageDto {
     if (json == null) {
         return json;
     }
@@ -61,11 +61,11 @@ export function ResourceApplyRequestDtoFromJSONTyped(json: any, ignoreDiscrimina
         
         'resourceId': json['resourceId'],
         'resourceType': json['resourceType'],
-        'parameters': json['parameters'],
+        'totalStorageGB': json['totalStorageGB'],
     };
 }
 
-export function ResourceApplyRequestDtoToJSON(value?: ResourceApplyRequestDto | null): any {
+export function ResourceUsageDtoToJSON(value?: ResourceUsageDto | null): any {
     if (value == null) {
         return value;
     }
@@ -73,7 +73,7 @@ export function ResourceApplyRequestDtoToJSON(value?: ResourceApplyRequestDto | 
         
         'resourceId': value['resourceId'],
         'resourceType': value['resourceType'],
-        'parameters': value['parameters'],
+        'totalStorageGB': value['totalStorageGB'],
     };
 }
 

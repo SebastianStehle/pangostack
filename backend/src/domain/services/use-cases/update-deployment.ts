@@ -5,12 +5,13 @@ import { IsNull, Not } from 'typeorm';
 import {
   DeploymentEntity,
   DeploymentRepository,
+  DeploymentUpdateEntity,
+  DeploymentUpdateRepository,
   ServiceVersionEntity,
   ServiceVersionRepository,
   WorkerEntity,
   WorkerRepository,
 } from 'src/domain/database';
-import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database/entities/deployment-update';
 import { User } from 'src/domain/users';
 import { WorkflowService } from 'src/domain/workflows';
 import { Deployment } from '../interfaces';
@@ -110,7 +111,7 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
     update.serviceVersionId = version.id;
     await this.deploymentUpdates.save(update);
 
-    await this.workflows.deploy(deployment, update, lastUpdate, teamId, worker);
+    await this.workflows.createDeployment(deployment, update, lastUpdate, teamId, worker);
     return { deployment: buildDeployment(deployment, update) };
   }
 }

@@ -1,9 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database/entities/deployment-update';
+import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database';
 import { evaluateParameters, ResourceDefinition } from 'src/domain/definitions';
 import { WorkerClient } from 'src/domain/worker';
+import { Activity } from '../registration';
+import { deleteResource } from './delete-resource';
 
 export interface DeployResourceParam {
   deploymentId: number;
@@ -13,26 +15,28 @@ export interface DeployResourceParam {
   workerEndpoint: string;
 }
 
-@Injectable()
-export class DeployResourceActivity {
+@Activity(deleteResource)
+export class DeployResourceActivity implements Activity<DeployResourceParam> {
   private readonly logger = new Logger(DeployResourceActivity.name);
 
   constructor(
     @InjectRepository(DeploymentUpdateEntity)
-    private readonly deploymentUpdateRepository: DeploymentUpdateRepository,
+    private readonly deploymentUpdates: DeploymentUpdateRepository,
   ) {}
 
-  async execute({ deploymentId, resource, updateId, workerApiKey, workerEndpoint }: DeployResourceParam): Promise<any> {
-    const update = await this.deploymentUpdateRepository.findOneBy({ id: updateId });
+  async execute({ deploymentId, resource, updateId, workerApiKey, workerEndpoint }: DeployResourceParam) {
+    const update = await this.deploymentUpdates.findOneBy({ id: updateId });
     if (!update) {
       throw new NotFoundException(`Deployment Update ${updateId} not found.`);
     }
 
     update.status = 'Pending';
-    await this.deploymentUpdateRepository.save(update);
+    await this.deploymentUpdates.save(update);
+
+    const context = { env: update.environment, context: update.context, parameters: update.parameters };
 
     const resourceId = `deployment_${deploymentId}_${resource.id}`;
-    const resourceParams = evaluateParameters(resource, update.environment, update.context);
+    const resourceParams = evaluateParameters(resource, context);
 
     this.logger.log(`Deploying resource ${resource.id} for deployment ${deploymentId}`, {
       context: update.context,
@@ -62,7 +66,7 @@ export class DeployResourceActivity {
       update.log[resource.id] = response.log;
     }
 
-    await this.deploymentUpdateRepository.save(update);
+    await this.deploymentUpdates.save(update);
   }
 }
 

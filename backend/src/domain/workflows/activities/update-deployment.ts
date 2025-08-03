@@ -1,10 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  DeploymentUpdateEntity,
-  DeploymentUpdateRepository,
-  DeploymentUpdateStatus,
-} from 'src/domain/database/entities/deployment-update';
+import { DeploymentUpdateEntity, DeploymentUpdateRepository, DeploymentUpdateStatus } from 'src/domain/database';
+import { Activity } from '../registration';
 
 export interface UpdateDeploymentParam {
   updateId: number;
@@ -12,22 +9,22 @@ export interface UpdateDeploymentParam {
   error?: string;
 }
 
-@Injectable()
-export class UpdateDeploymentActivity {
+@Activity(updateDeployment)
+export class UpdateDeploymentActivity implements Activity<UpdateDeploymentParam> {
   constructor(
     @InjectRepository(DeploymentUpdateEntity)
-    private readonly deploymentUpdateRepository: DeploymentUpdateRepository,
+    private readonly deploymentUpdates: DeploymentUpdateRepository,
   ) {}
 
-  async execute({ updateId, status, error }: UpdateDeploymentParam): Promise<any> {
-    const update = await this.deploymentUpdateRepository.findOneBy({ id: updateId });
+  async execute({ updateId, status, error }: UpdateDeploymentParam) {
+    const update = await this.deploymentUpdates.findOneBy({ id: updateId });
     if (!update) {
       throw new NotFoundException(`Deployment Update ${updateId} not found.`);
     }
 
     update.status = status;
     update.error = error;
-    await this.deploymentUpdateRepository.save(update);
+    await this.deploymentUpdates.save(update);
   }
 }
 

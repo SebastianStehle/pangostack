@@ -2,7 +2,7 @@ import { proxyActivities } from '@temporalio/workflow';
 import { ResourceDefinition } from 'src/domain/definitions';
 import type * as activities from '../activities';
 
-export interface DeployAllParam {
+export interface DeployResourcesParam {
   deploymentId: number;
   previousResources: ResourceDefinition[] | null;
   previousUpdateId: number | null;
@@ -20,7 +20,7 @@ const { createSubscription, deleteResource, deployResource, updateDeployment } =
   },
 });
 
-export async function deployAll({
+export async function deployResources({
   deploymentId,
   previousResources,
   previousUpdateId,
@@ -29,7 +29,7 @@ export async function deployAll({
   updateId,
   workerApiKey,
   workerEndpoint,
-}: DeployAllParam): Promise<void> {
+}: DeployResourcesParam): Promise<void> {
   await createSubscription({ teamId, deploymentId });
 
   await updateDeployment({ updateId, status: 'Running' });

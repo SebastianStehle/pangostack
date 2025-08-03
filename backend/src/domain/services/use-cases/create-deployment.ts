@@ -7,6 +7,8 @@ import { BillingService } from 'src/domain/billing';
 import {
   DeploymentEntity,
   DeploymentRepository,
+  DeploymentUpdateEntity,
+  DeploymentUpdateRepository,
   ServiceEntity,
   ServiceRepository,
   ServiceVersionEntity,
@@ -14,7 +16,6 @@ import {
   WorkerEntity,
   WorkerRepository,
 } from 'src/domain/database';
-import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database/entities/deployment-update';
 import { User } from 'src/domain/users';
 import { WorkflowService } from 'src/domain/workflows';
 import { buildDeployment } from './utils';
@@ -101,7 +102,7 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     update.serviceVersionId = version.id;
     await this.deploymentUpdates.save(update);
 
-    await this.workflows.deploy(deployment, update, null, teamdId, worker);
+    await this.workflows.createDeployment(deployment, update, null, teamdId, worker);
     return new CreateDeploymentResponse(buildDeployment(deployment, update));
   }
 }
