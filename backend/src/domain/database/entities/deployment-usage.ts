@@ -1,25 +1,22 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Repository } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Repository } from 'typeorm';
 import { DeploymentEntity } from './deployment';
 
 export type DeploymentUsageRepository = Repository<DeploymentUsageEntity>;
 
 @Entity({ name: 'deployment-usage' })
 export class DeploymentUsageEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
+  @PrimaryColumn()
   deploymentId: number;
+
+  @PrimaryColumn('date')
+  trackDate: string;
+
+  @PrimaryColumn()
+  trackHour: number;
 
   @ManyToOne(() => DeploymentEntity, (deployment) => deployment.updates, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'deploymentId' })
   deployment: DeploymentEntity;
-
-  @Column('date')
-  trackDate: string;
-
-  @Column()
-  trackHour: number;
 
   @Column()
   totalCores: number;

@@ -1,9 +1,10 @@
 import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
-import { WorkflowIdConflictPolicy } from '@temporalio/common';
+import { ScheduleAlreadyRunning } from '@temporalio/client';
 import { Worker } from '@temporalio/worker';
 import { WorkflowIdReusePolicy } from '@temporalio/workflow';
 import { WorkerEntity } from 'src/domain/database';
 import { DeploymentUpdateEntity } from 'src/domain/database';
+import { is } from 'src/lib';
 import { ActivityExplorerService } from '../registration';
 import * as workflows from '../workflows';
 import { DEPLOYMENT_ACTION_SIGNAL, DeploymentSignal } from '../workflows/signals';
@@ -40,20 +41,55 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
     this.workers.push(usageWorker.runUntil(this.signal.promise));
 
     const client = this.temporal.client;
-    await client.workflow.start(workflows.trackDeploymentsUsageCoordinator, {
-      workflowId: 'track-usage',
-      workflowIdConflictPolicy: WorkflowIdConflictPolicy.TERMINATE_EXISTING,
-      args: [],
-      taskQueue: `billing`,
-    });
+    try {
+      await client.schedule.create({
+        scheduleId: 'track-deployments-usage-schedule',
+        spec: {
+          intervals: [
+            {
+              every: '1m',
+            },
+          ],
+        },
+        action: {
+          args: [],
+          type: 'startWorkflow',
+          workflowId: 'track-deployments-usage',
+          workflowType: workflows.trackDeploymentsUsage,
+          taskQueue: 'billing',
+        },
+        policies: {
+          catchupWindow: '30d',
+        },
+      });
+    } catch (ex) {
+      if (!is(ex, ScheduleAlreadyRunning)) {
+        throw ex;
+      }
+    }
 
-    await client.workflow.start(workflows.chargeDeployments, {
-      cronSchedule: '0 0 5 * *',
-      workflowId: 'charge-usage',
-      workflowIdConflictPolicy: WorkflowIdConflictPolicy.TERMINATE_EXISTING,
-      args: [],
-      taskQueue: `billing`,
-    });
+    try {
+      await client.schedule.create({
+        scheduleId: 'charge-deployments-schedule',
+        spec: {
+          intervals: [
+            {
+              every: '1m',
+            },
+          ],
+        },
+        action: {
+          type: 'startWorkflow',
+          workflowId: 'charge-deployments',
+          workflowType: workflows.chargeDeployments,
+          taskQueue: 'billing',
+        },
+      });
+    } catch (ex) {
+      if (!is(ex, ScheduleAlreadyRunning)) {
+        throw ex;
+      }
+    }
   }
 
   async onApplicationShutdown(signal: string) {

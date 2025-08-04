@@ -1,6 +1,6 @@
 import { Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { BillingService } from 'src/domain/billing';
+import { BillingService, Charges } from 'src/domain/billing';
 import {
   BilledDeploymentEntity,
   BilledDeploymentRepository,
@@ -51,7 +51,7 @@ export class ChargeDeploymentActivity implements Activity<ChargeDeploymentParam>
     });
 
     if (!update) {
-      throw new NotFoundException(`Uppdate for deployment ${deploymentId} not found`);
+      throw new NotFoundException(`Update for deployment ${deploymentId} not found`);
     }
 
     const deployment = await this.deployments.findOne({
@@ -78,7 +78,7 @@ export class ChargeDeploymentActivity implements Activity<ChargeDeploymentParam>
       .addSelect('MAX(d.totalStorageGB)', 'totalStorageGB')
       .where('d.trackDate BETWEEN :dateFrom AND :dateTo', { dateFrom, dateTo })
       .where('d.deploymentId = :deploymentId', { deploymentId })
-      .groupBy('du.deploymentId')
+      .groupBy('d.deploymentId')
       .getRawOne<AggregatedUsage>();
 
     const { totalCores, totalMemoryGB, totalStorageGB, totalVolumeGB } = results;
@@ -88,7 +88,7 @@ export class ChargeDeploymentActivity implements Activity<ChargeDeploymentParam>
 
     const service = update.serviceVersion.service;
 
-    await this.billingService.chargeDeployment(deployment.teamId, deploymentId, {
+    const charges: Charges = {
       dateFrom: dateFrom,
       dateTo: dateTo,
       fixedPrice: service.fixedPrice,
@@ -100,7 +100,10 @@ export class ChargeDeploymentActivity implements Activity<ChargeDeploymentParam>
       totalMemoryGBHours: totalMemoryGB,
       totalStorageGB: totalStorageGB,
       totalVolumeGBHours: totalVolumeGB,
-    });
+    };
+
+    this.logger.warn(`Deployment ${deploymentId} billed.`, { charges });
+    await this.billingService.chargeDeployment(deployment.teamId, deploymentId, charges);
 
     // Ensure that we bill every month only once per user.
     await this.billedDeployments.save({ deploymentId, dateFrom, dateTo });

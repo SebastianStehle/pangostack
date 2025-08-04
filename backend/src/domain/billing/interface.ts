@@ -55,6 +55,15 @@ export interface Charges {
   dateTo: string;
 }
 
+export class BillingError extends Error {
+  constructor(
+    message: string,
+    public readonly cause?: Error,
+  ) {
+    super(`${message}: ${cause?.message || 'Unknown cause'}`);
+  }
+}
+
 export abstract class BillingService {
   abstract getBillingPortalLink(teamId: number, redirectUrl?: string): Promise<string | null>;
 

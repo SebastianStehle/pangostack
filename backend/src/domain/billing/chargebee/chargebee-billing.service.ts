@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Chargebee, { Invoice as ChargebeeInvoice, Customer, HostedPage, PortalSession } from 'chargebee';
 import { endOfDayTimestamp, startOfDayTimestamp } from 'src/lib';
-import { BillingService, Charges, Invoice, InvoiceStatus } from '../interface';
+import { BillingError, BillingService, Charges, Invoice, InvoiceStatus } from '../interface';
 
 interface ChargebeeConfig {
   apiKey: string;
@@ -30,61 +30,83 @@ export class ChargebeeBillingService implements BillingService {
   }
 
   async createSubscription(teamId: number, deploymentId: number): Promise<any> {
-    const customer = await this.getOrCreateCustomer(teamId);
+    try {
+      const customer = await this.getOrCreateCustomer(teamId);
 
-    const { subscription } = await this.chargebee.subscription.retrieve(`deployment_${deploymentId}`);
-    if (subscription) {
-      return;
-    }
+      const { subscription } = await this.chargebee.subscription.retrieve(`deployment_${deploymentId}`);
+      if (subscription) {
+        return;
+      }
 
-    const result = await this.chargebee.subscription.create({
-      id: `deployment_${deploymentId}`,
-      customer,
-      plan_id: this.config.planId,
-    });
+      const result = await this.chargebee.subscription.create({
+        id: `deployment_${deploymentId}`,
+        customer,
+        plan_id: this.config.planId,
+      });
 
-    if (!result.subscription) {
-      throw new Error(`Failed to create or retrieve customer. Got statatus code ${result.httpStatusCode}.`);
+      if (!result.subscription) {
+        throw new Error(`Failed to create or retrieve customer. Got statatus code ${result.httpStatusCode}.`);
+      }
+    } catch (error: any) {
+      throw new BillingError(`Chargebee: Failed to create subscription for deployment ${deploymentId}`, error);
     }
   }
 
   async chargeDeployment(teamId: number, deploymentId: number, charges: Charges): Promise<any> {
-    const customer = await this.getOrCreateCustomer(teamId);
+    try {
+      const customer = await this.getOrCreateCustomer(teamId);
 
-    const { subscription } = await this.chargebee.subscription.retrieve(`deployment_${deploymentId}`);
-    if (!subscription || subscription.customer_id !== customer.id) {
-      throw new Error(`Cannot find subscription for deployment ${deploymentId}.`);
-    }
-
-    const date_from = startOfDayTimestamp(charges.dateFrom);
-    const date_to = endOfDayTimestamp(charges.dateTo);
-
-    const addCharge = async (addonId: string, units: number, pricePerUnit: number) => {
-      if (units === 0 || pricePerUnit === 0) {
-        return;
+      const { subscription } = await this.chargebee.subscription.retrieve(`deployment_${deploymentId}`);
+      if (!subscription || subscription.customer_id !== customer.id) {
+        throw new Error(`Cannot find subscription for deployment ${deploymentId}.`);
       }
 
-      await this.chargebee.subscription.chargeAddonAtTermEnd(subscription.id, {
-        addon_id: addonId,
-        addon_quantity: units,
-        addon_unit_price: pricePerUnit * 100,
-        date_from,
-        date_to,
-      });
-    };
+      let date_from = startOfDayTimestamp(charges.dateFrom);
+      let date_to = endOfDayTimestamp(charges.dateTo);
 
-    await addCharge(this.config.addOnIdCores, charges.totalCoreHours, charges.pricePerCoreHour);
-    await addCharge(this.config.addOnIdMemory, charges.totalMemoryGBHours, charges.pricePerMemoryGBHour);
-    await addCharge(this.config.addOnIdVolume, charges.totalVolumeGBHours, charges.pricePerVolumeGBHour);
-    await addCharge(this.config.addOnIdStorage, charges.totalStorageGB, charges.pricePerStorageGBMonth);
+      if (date_from < subscription.created_at) {
+        date_from = subscription.created_at + 1;
+      }
 
-    if (charges.fixedPrice) {
-      await this.chargebee.subscription.addChargeAtTermEnd(subscription.id, {
-        amount: charges.fixedPrice * 100,
-        date_from,
-        date_to,
-        description: this.config.fixedPriceDescription,
-      });
+      if (date_to < subscription.created_at) {
+        date_to = subscription.created_at + 1;
+      }
+
+      const addCharge = async (addonId: string, units: number, pricePerUnit: number) => {
+        console.log(`ADDON: ${addonId}, UNITS: ${units}, PER UNIT: ${pricePerUnit}`);
+        if (units === 0 || pricePerUnit === 0) {
+          return;
+        }
+        console.log(`ADDON2: ${addonId}, UNITS: ${units}, PER UNIT: ${pricePerUnit}`);
+
+        const result = await this.chargebee.subscription.chargeAddonAtTermEnd(subscription.id, {
+          addon_id: addonId,
+          addon_quantity: units,
+          addon_unit_price: pricePerUnit * 100,
+          date_from,
+          date_to,
+        });
+
+        if (result.httpStatusCode >= 400) {
+          throw new BillingError(`Failed to add addon, got status {result.httpStatusCode}`);
+        }
+      };
+
+      await addCharge(this.config.addOnIdCores, charges.totalCoreHours, charges.pricePerCoreHour);
+      await addCharge(this.config.addOnIdMemory, charges.totalMemoryGBHours, charges.pricePerMemoryGBHour);
+      await addCharge(this.config.addOnIdVolume, charges.totalVolumeGBHours, charges.pricePerVolumeGBHour);
+      await addCharge(this.config.addOnIdStorage, charges.totalStorageGB, charges.pricePerStorageGBMonth);
+
+      if (charges.fixedPrice) {
+        await this.chargebee.subscription.addChargeAtTermEnd(subscription.id, {
+          amount: charges.fixedPrice * 100,
+          date_from,
+          date_to,
+          description: this.config.fixedPriceDescription,
+        });
+      }
+    } catch (error: any) {
+      throw new BillingError(`Chargebee: Failed to charge deployment ${deploymentId}`, error);
     }
   }
 
@@ -110,6 +132,7 @@ export class ChargebeeBillingService implements BillingService {
       currency_code: 'EUR',
       charges: [{ description: 'Setup Fee', amount: 1 }],
     };
+
     if (isAllowedPort(redirectUrl)) {
       payload.redirect_url = redirectUrl;
     } else if (redirectUrl) {

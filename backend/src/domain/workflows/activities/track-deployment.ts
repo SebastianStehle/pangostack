@@ -1,6 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { addHours, differenceInHours } from 'date-fns';
 import {
   DeploymentUpdateEntity,
   DeploymentUpdateRepository,
@@ -9,7 +8,6 @@ import {
 } from 'src/domain/database';
 import { evaluateParameters, evaluateUsage } from 'src/domain/definitions';
 import { WorkerClient } from 'src/domain/worker';
-import { atHourUtc, formatDate } from 'src/lib';
 import { Activity } from '../registration';
 
 export interface TrackDeploymentUsageParam {
@@ -40,20 +38,6 @@ export class TrackDeploymentUsageActivity implements Activity<TrackDeploymentUsa
       throw new NotFoundException(`Uppdate for deployment ${deploymentId} not found`);
     }
 
-    const lastUsage = await this.deploymentUsages.findOne({
-      where: { deploymentId },
-      order: { trackDate: 'DESC', trackHour: 'DESC' },
-    });
-
-    const targetDateTime = atHourUtc(trackDate, trackHour);
-
-    let startDateTime: Date;
-    if (lastUsage) {
-      startDateTime = atHourUtc(lastUsage.trackDate, lastUsage.trackHour + 1);
-    } else {
-      startDateTime = targetDateTime;
-    }
-
     const definition = update.serviceVersion.definition;
     const context = { env: {}, context: {}, parameters: update.parameters };
     const worker = new WorkerClient(workerEndpoint, workerApiKey);
@@ -70,24 +54,15 @@ export class TrackDeploymentUsageActivity implements Activity<TrackDeploymentUsa
     // The storage needs to be measured.
     const totalStorageGB = usageFromWorker.resources.reduce((a, c) => a + c.totalStorageGB, 0);
 
-    const hoursToFill = differenceInHours(targetDateTime, startDateTime);
-
-    for (let i = 0; i <= hoursToFill; i++) {
-      const currentDateTime = addHours(startDateTime, i);
-
-      const currentDate = formatDate(currentDateTime);
-      const currentHour = currentDateTime.getHours();
-
-      await this.deploymentUsages.save({
-        deploymentId,
-        trackDate: currentDate,
-        trackHour: currentHour,
-        totalCores,
-        totalMemoryGB,
-        totalVolumeGB,
-        totalStorageGB,
-      } as Partial<DeploymentUsageEntity>);
-    }
+    await this.deploymentUsages.save({
+      deploymentId,
+      trackDate,
+      trackHour,
+      totalCores,
+      totalMemoryGB,
+      totalVolumeGB,
+      totalStorageGB,
+    } as Partial<DeploymentUsageEntity>);
   }
 }
 

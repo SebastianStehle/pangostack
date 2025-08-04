@@ -1,4 +1,4 @@
-import { log, proxyActivities } from '@temporalio/workflow';
+import { ActivityFailure, log, proxyActivities } from '@temporalio/workflow';
 import { lastMonthEndUtcDate, lastMonthStartUtcDate } from 'src/lib/time';
 import type * as activities from '../activities';
 
@@ -17,8 +17,13 @@ export async function chargeDeployments(): Promise<void> {
   for (const deploymentId of deployments) {
     try {
       await chargeDeployment({ deploymentId, dateFrom, dateTo });
-    } catch (err: any) {
-      log.error(`Failed to track deployment ${deploymentId}:`, err);
+    } catch (ex: any) {
+      let cause = ex;
+      if (ex instanceof ActivityFailure) {
+        cause = ex.failure?.cause || cause;
+      }
+
+      log.error(`Failed to charge deployment ${deploymentId}.`, { cause });
     }
   }
 }
