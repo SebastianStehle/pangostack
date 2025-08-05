@@ -24,8 +24,8 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder() //
-    .setTitle('UberSaas')
-    .setDescription('UberSaas Worker')
+    .setTitle('OmniSaaS')
+    .setDescription('Worker')
     .setVersion('1.0')
     .build();
 

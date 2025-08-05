@@ -7,9 +7,9 @@ import { execa } from 'execa';
 import { v4 as uuidv4 } from 'uuid';
 import { stringify as toYAML } from 'yaml';
 import {
+  defineResource,
   Resource,
   ResourceApplyResult,
-  ResourceDescriptor,
   ResourceNodeStatus,
   ResourceRequest,
   ResourceStatusResult,
@@ -17,9 +17,17 @@ import {
   ResourceWorkloadStatus,
 } from '../interface';
 
+type Parameters = {
+  config: string;
+  repositoryUrl: string;
+  repositoryName: string;
+  chartName: string;
+  chartVersion: string;
+};
+
 @Injectable()
 export class HelmResource implements Resource {
-  descriptor: ResourceDescriptor = {
+  descriptor = defineResource<Parameters>({
     name: 'helm',
     description: 'Creates a vultr storage account',
     parameters: {
@@ -49,16 +57,10 @@ export class HelmResource implements Resource {
         required: true,
       },
     },
-  };
+  });
 
-  async apply(id: string, request: ResourceRequest): Promise<ResourceApplyResult> {
-    const { config, repositoryUrl, repositoryName, chartName, chartVersion, ...others } = request.parameters as {
-      config: string;
-      repositoryUrl: string;
-      repositoryName: string;
-      chartName: string;
-      chartVersion: string;
-    };
+  async apply(id: string, request: ResourceRequest<Parameters>): Promise<ResourceApplyResult> {
+    const { config, repositoryUrl, repositoryName, chartName, chartVersion, ...others } = request.parameters;
 
     const k8 = await this.getK8Service(config);
     try {
@@ -123,10 +125,8 @@ export class HelmResource implements Resource {
     }
   }
 
-  async delete(id: string, request: ResourceRequest): Promise<void> {
-    const { config } = request.parameters as {
-      config: string;
-    };
+  async delete(id: string, request: ResourceRequest<Parameters>): Promise<void> {
+    const { config } = request.parameters;
 
     const k8 = await this.getK8Service(config);
     try {
@@ -143,8 +143,8 @@ export class HelmResource implements Resource {
     return Promise.resolve({ totalStorageGB: 0 });
   }
 
-  async status(id: string, request: ResourceRequest): Promise<ResourceStatusResult> {
-    const { config } = request.parameters as { config: string };
+  async status(id: string, request: ResourceRequest<Parameters>): Promise<ResourceStatusResult> {
+    const { config } = request.parameters;
     const k8 = await this.getK8Service(config);
 
     const result: ResourceStatusResult = { workloads: [] };

@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import VultrNode from '@vultr/vultr-node';
-import { Resource, ResourceApplyResult, ResourceDescriptor, ResourceRequest, ResourceStatusResult, ResourceUsage } from '../interface';
+import { initialize as initializeVultrClient } from '@vultr/vultr-node';
+import { defineResource, Resource, ResourceApplyResult, ResourceRequest, ResourceStatusResult, ResourceUsage } from '../interface';
+
+type Parameters = { apiKey: string; cluster: string; tier: string };
 
 @Injectable()
 export class VultrStorageResource implements Resource {
-  descriptor: ResourceDescriptor = {
+  descriptor = defineResource<Parameters>({
     name: 'vultr-storage',
     description: 'Creates a vultr storage account',
     parameters: {
@@ -18,18 +20,18 @@ export class VultrStorageResource implements Resource {
         type: 'string',
         required: true,
       },
-      The: {
+      tier: {
         description: 'The tier of the storage account',
         type: 'string',
         required: true,
       },
     },
-  };
+  });
 
-  async apply(id: string, request: ResourceRequest): Promise<ResourceApplyResult> {
-    const { apiKey, cluster, tier } = request.parameters as { apiKey: string; cluster: string; tier: string };
+  async apply(id: string, request: ResourceRequest<Parameters>): Promise<ResourceApplyResult> {
+    const { apiKey, cluster, tier } = request.parameters;
 
-    const vultr = VultrNode.initialize({
+    const vultr = initializeVultrClient({
       apiKey,
     });
 
@@ -66,10 +68,10 @@ export class VultrStorageResource implements Resource {
     }
   }
 
-  async delete(id: string, request: ResourceRequest) {
-    const { apiKey } = request.parameters as { apiKey: string };
+  async delete(id: string, request: ResourceRequest<Parameters>) {
+    const { apiKey } = request.parameters;
 
-    const vultr = VultrNode.initialize({
+    const vultr = initializeVultrClient({
       apiKey,
     });
 
@@ -81,10 +83,10 @@ export class VultrStorageResource implements Resource {
     await vultr.blockStorage.deleteStorage({ id: storage.id });
   }
 
-  async usage(id: string, request: ResourceRequest): Promise<ResourceUsage> {
-    const { apiKey } = request.parameters as { apiKey: string };
+  async usage(id: string, request: ResourceRequest<Parameters>): Promise<ResourceUsage> {
+    const { apiKey } = request.parameters;
 
-    const vultr = VultrNode.initialize({
+    const vultr = initializeVultrClient({
       apiKey,
     });
 
@@ -95,7 +97,7 @@ export class VultrStorageResource implements Resource {
   async status(id: string, request: ResourceRequest): Promise<ResourceStatusResult> {
     const { apiKey } = request.parameters as { apiKey: string };
 
-    const vultr = VultrNode.initialize({
+    const vultr = initializeVultrClient({
       apiKey,
     });
 
@@ -137,7 +139,7 @@ export class VultrStorageResource implements Resource {
   }
 }
 
-async function findStorage(vultr: ReturnType<typeof VultrNode.initialize>, id: string) {
+async function findStorage(vultr: ReturnType<typeof initializeVultrClient>, id: string) {
   let cursor: string | null = null;
   while (true) {
     const response = await vultr.blockStorage.listStorages({ cursor });

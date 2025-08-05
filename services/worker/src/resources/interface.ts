@@ -29,9 +29,23 @@ export class ResourceDescriptor {
   parameters: Record<string, ResourceParameterDescriptor>;
 }
 
-export interface ResourceRequest {
+type PrimitiveToDescriptorType<T> = T extends string ? 'string' : T extends number ? 'number' : T extends boolean ? 'boolean' : never;
+
+type ParametersFromType<T> = {
+  [K in keyof T]: ResourceParameterDescriptor & {
+    type: PrimitiveToDescriptorType<T[K]>;
+  };
+};
+
+export function defineResource<T extends Record<string, string | number | boolean>>(
+  input: Omit<ResourceDescriptor, 'parameters'> & { parameters: ParametersFromType<T> },
+): ResourceDescriptor {
+  return input;
+}
+
+export interface ResourceRequest<T = Record<string, boolean | number | string | null>> {
   // Parameters to apply to the resource
-  parameters: Record<string, boolean | number | string | null>;
+  parameters: T;
 }
 
 export interface ResourceApplyResult {
@@ -84,6 +98,8 @@ export interface Resource {
   status(id: string, request: ResourceRequest): Promise<ResourceStatusResult>;
 
   usage(id: string, request: ResourceRequest): Promise<ResourceUsage>;
+
+  describe?(): Promise<any>;
 }
 
 export const RESOURCES_TOKEN = 'RESOURCE';
