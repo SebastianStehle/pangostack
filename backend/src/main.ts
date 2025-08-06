@@ -22,7 +22,6 @@ async function bootstrap() {
   app.use(appSession(app));
   app.use(appCookies());
   app.useGlobalPipes(new ValidationPipe());
-
   await app.listen(3000, '0.0.0.0');
 }
 bootstrap();

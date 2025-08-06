@@ -1,6 +1,6 @@
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsNotEmpty, IsObject, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsDefined, IsNotEmpty, IsObject, IsString, ValidateNested } from 'class-validator';
 import { ResourceApplyResult, ResourceDescriptor, ResourceParameterDescriptor } from 'src/resources/interface';
 
 export class ResourceDeleteRequestDto {
@@ -9,6 +9,7 @@ export class ResourceDeleteRequestDto {
     required: true,
     type: String,
   })
+  @IsDefined()
   @IsString()
   @IsNotEmpty()
   resourceId: string;
@@ -18,6 +19,7 @@ export class ResourceDeleteRequestDto {
     required: true,
     type: String,
   })
+  @IsDefined()
   @IsString()
   @IsNotEmpty()
   resourceType: string;
@@ -27,8 +29,18 @@ export class ResourceDeleteRequestDto {
     required: true,
     additionalProperties: true,
   })
+  @IsDefined()
   @IsObject()
   parameters: Record<string, any>;
+
+  @ApiProperty({
+    description: 'The context values that will be added or overwritten to the deployment',
+    required: true,
+    additionalProperties: true,
+  })
+  @IsDefined()
+  @IsObject()
+  context: Record<string, any>;
 }
 
 export class ResourcesDeleteRequestDto {
@@ -37,6 +49,7 @@ export class ResourcesDeleteRequestDto {
     required: true,
     type: [ResourceDeleteRequestDto],
   })
+  @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ResourceDeleteRequestDto)
@@ -149,6 +162,7 @@ export class ResourceApplyRequestDto {
     required: true,
     type: String,
   })
+  @IsDefined()
   @IsString()
   @IsNotEmpty()
   resourceId: string;
@@ -158,6 +172,7 @@ export class ResourceApplyRequestDto {
     required: true,
     type: String,
   })
+  @IsDefined()
   @IsString()
   @IsNotEmpty()
   resourceType: string;
@@ -167,29 +182,44 @@ export class ResourceApplyRequestDto {
     required: true,
     additionalProperties: true,
   })
+  @IsDefined()
   @IsObject()
   parameters: Record<string, any>;
+
+  @ApiProperty({
+    description: 'The context values that will be added or overwritten to the deployment',
+    required: true,
+    additionalProperties: true,
+  })
+  @IsDefined()
+  @IsObject()
+  context: Record<string, any>;
 }
 
 export class ConnectInfoDto {
   @ApiProperty({
     description: 'The value',
     required: true,
-    type: String,
   })
   value: string;
 
   @ApiProperty({
     description: 'The label',
     required: true,
-    type: String,
   })
   label: string;
 
-  static fromDomain(source: { value: string; label: string }) {
+  @ApiProperty({
+    description: 'Indicates if the info is public',
+    required: true,
+  })
+  public: boolean;
+
+  static fromDomain(source: { value: string; label: string; public: boolean }) {
     const result = new ConnectInfoDto();
     result.value = source.value;
     result.label = source.label;
+    result.public = source.public;
 
     return result;
   }

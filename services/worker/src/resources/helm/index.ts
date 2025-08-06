@@ -108,10 +108,12 @@ export class HelmResource implements Resource {
             namespace: {
               value: namespace,
               label: 'Namespace',
+              public: true,
             },
             config: {
               value: config,
               label: 'Kubernetes Config',
+              public: true,
             },
           },
         };

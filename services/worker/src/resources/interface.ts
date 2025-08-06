@@ -46,6 +46,9 @@ export function defineResource<T extends Record<string, string | number | boolea
 export interface ResourceRequest<T = Record<string, boolean | number | string | null>> {
   // Parameters to apply to the resource
   parameters: T;
+
+  // Context values added or overwritten in the deployment
+  context: Record<string, string>;
 }
 
 export interface ResourceApplyResult {
@@ -53,7 +56,7 @@ export interface ResourceApplyResult {
   context: Record<string, string>;
 
   // Provides values how to connect to the resource, for example Api Keys.
-  connection: Record<string, { value: string; label: string }>;
+  connection: Record<string, { value: string; label: string; public: boolean }>;
 
   // Optional log output
   log?: string;

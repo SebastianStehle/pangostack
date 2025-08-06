@@ -1,14 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { initialize as initializeVultrClient } from '@vultr/vultr-node';
+import { NodeSSH } from 'node-ssh';
+import { deployDocker, getContainers, pollUntil } from 'src/lib';
 import { defineResource, Resource, ResourceApplyResult, ResourceRequest, ResourceStatusResult, ResourceUsage } from '../interface';
 
-type Parameters = { apiKey: string; region: string; plan: string; app: number };
+type Parameters = { apiKey: string; region: string; plan: string; app: string; dockerComposeUrl: string };
+
+// 5 minutes
+const DEFAULT_TIMEOUT = 10 * 60 * 1000;
 
 @Injectable()
-export class VultrInstanceResource implements Resource {
+export class VultrDockerResource implements Resource {
   descriptor = defineResource<Parameters>({
-    name: 'vultr-instance',
-    description: 'Creates a vultr instance',
+    name: 'vultr-docker',
+    description: 'Creates a vultr instance with docker compose',
     parameters: {
       apiKey: {
         description: 'The API Key',
@@ -27,7 +32,12 @@ export class VultrInstanceResource implements Resource {
       },
       app: {
         description: 'The ID of the app from the marketplace',
-        type: 'number',
+        type: 'string',
+        required: true,
+      },
+      dockerComposeUrl: {
+        description: 'The URL of the docker compose file',
+        type: 'string',
         required: true,
       },
     },
@@ -45,48 +55,49 @@ export class VultrInstanceResource implements Resource {
   }
 
   async apply(id: string, request: ResourceRequest<Parameters>): Promise<ResourceApplyResult> {
-    const { apiKey, region, plan, app, ...others } = request.parameters;
+    const { apiKey, dockerComposeUrl, region, plan, app, ...others } = request.parameters;
 
     const vultr = initializeVultrClient({
       apiKey,
     });
 
-    let instance = await findInstance(vultr, id);
+    const context = request.context;
 
+    let instance = await findInstance(vultr, id);
     if (instance) {
       await vultr.instances.updateInstance({ 'instance-id': id, plan });
     } else {
-      instance = await vultr.instances.createInstance({
-        app_id: app,
+      const response = await vultr.instances.createInstance({
+        image_id: app.toString(),
         plan,
         region,
-        app_variables: others,
+        label: id,
       });
+
+      instance = response.instance;
+      context[`${id}_password`] = instance.default_password;
     }
 
-    const statusTimeout = 5 * 60 * 1000;
-    const statusStart = new Date();
-    while (true) {
-      instance = await vultr.instances.getInstance(instance.id);
+    const password = context[`${id}_password`];
 
-      if (instance.server_status === 'ok' && !!instance.main_ip) {
-        break;
-      }
+    await waitForInstance(vultr, instance);
 
-      const now = new Date();
-      if (now.getTime() - statusStart.getTime() > statusTimeout) {
-        throw new Error('Timeout: Instance did not become ready within 5 minutes.');
-      }
+    console.log(password);
+    const ssh = new NodeSSH();
+    await pollUntil(DEFAULT_TIMEOUT, async () => {
+      await ssh.connect({ host: instance.main_ip, password, username: 'root' });
+      return true;
+    });
 
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-    }
+    await deployDocker(ssh, dockerComposeUrl, others, DEFAULT_TIMEOUT);
 
     return {
-      context: {},
+      context,
       connection: {
         ip: {
           value: instance.main_ip,
           label: 'IP Address',
+          public: true,
         },
       },
     };
@@ -120,16 +131,16 @@ export class VultrInstanceResource implements Resource {
 
     const instance = await findInstance(vultr, id);
     if (instance) {
+      const ssh = new NodeSSH();
+      await ssh.connect({ host: instance.main_ip, username: 'root', password: request.context[`${id}_password`] });
+
+      const containers = await getContainers(ssh);
+
       const status: ResourceStatusResult = {
         workloads: [
           {
-            name: 'Instance',
-            nodes: [
-              {
-                name: 'Virtual Machine',
-                isReady: instance.status === 'ok' && !!instance.main_ip,
-              },
-            ],
+            name: 'Virtual Machine',
+            nodes: containers,
           },
         ],
       };
@@ -156,17 +167,38 @@ export class VultrInstanceResource implements Resource {
   }
 }
 
+async function waitForInstance(vultr: ReturnType<typeof initializeVultrClient>, instance: any) {
+  const instanceId = instance.id;
+
+  const statusTimeout = 5 * 60 * 1000;
+  const statusStart = new Date();
+
+  while (true) {
+    const found = await vultr.instances.getInstance({ 'instance-id': instanceId });
+    instance = found.instance;
+
+    if (instance.server_status === 'ok' && !!instance.main_ip) {
+      break;
+    }
+
+    const now = new Date();
+    if (now.getTime() - statusStart.getTime() > statusTimeout) {
+      throw new Error('Timeout: Instance did not become ready within 5 minutes.');
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+  }
+}
+
 async function findInstance(vultr: ReturnType<typeof initializeVultrClient>, id: string) {
   let cursor: string | null = null;
   while (true) {
     const response = await vultr.instances.listInstances({ cursor });
 
-    for (const instance of response.object_storages) {
+    for (const instance of response.instances) {
       if (instance.label === id) {
         return instance;
       }
-
-      break;
     }
 
     const newCursor = response.meta.links.next;

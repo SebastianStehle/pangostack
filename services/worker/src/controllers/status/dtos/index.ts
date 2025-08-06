@@ -29,6 +29,13 @@ export class ResourceRequestDto {
   })
   @IsObject()
   parameters: Record<string, any>;
+
+  @ApiProperty({
+    description: 'The context values that will be added or overwritten to the deployment',
+    required: true,
+    additionalProperties: true,
+  })
+  context: Record<string, any>;
 }
 
 export class StatusRequestDto {

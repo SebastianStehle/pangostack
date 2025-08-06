@@ -52,14 +52,17 @@ export class VultrStorageResource implements Resource {
           hostName: {
             value: result.s3_hostname,
             label: 'Host Name',
+            public: true,
           },
           accessKey: {
             value: result.s3_access_key,
             label: 'Access Key',
+            public: true,
           },
           secretKey: {
             value: result.s3_secret_key,
             label: 'Secret Key',
+            public: true,
           },
         },
       };
@@ -148,8 +151,6 @@ async function findStorage(vultr: ReturnType<typeof initializeVultrClient>, id: 
       if (storage.label === id) {
         return storage;
       }
-
-      break;
     }
 
     const newCursor = response.meta.links.next;

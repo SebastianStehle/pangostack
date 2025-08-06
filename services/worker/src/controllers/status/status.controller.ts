@@ -15,6 +15,7 @@ export class StatusController {
   @ApiOperation({ operationId: 'postStatus', description: 'Gets the status for all specified deployment IDs' })
   @ApiOkResponse({ type: StatusResultDto })
   async postStatus(@Body() body: StatusRequestDto) {
+    throw new Error('FOOBAR');
     // Validate the request first.
     for (const identifier of body.resources) {
       if (!this.resources.has(identifier.resourceType)) {
@@ -24,14 +25,11 @@ export class StatusController {
 
     // Execute all status calls in parallel
     const responses = await Promise.all(
-      body.resources.map(async (identifier) => {
-        const resource = this.resources.get(identifier.resourceType)!;
+      body.resources.map(async (resource) => {
+        const resourceService = this.resources.get(resource.resourceType)!;
+        const resourceStatus = await resourceService.status(resource.resourceId, resource);
 
-        const resourceStatus = await resource.status(identifier.resourceId, {
-          parameters: identifier.parameters,
-        });
-
-        return ResourceStatusDto.fromDomain(resourceStatus, identifier.resourceId, identifier.resourceType);
+        return ResourceStatusDto.fromDomain(resourceStatus, resource.resourceId, resource.resourceType);
       }),
     );
 
@@ -45,22 +43,19 @@ export class StatusController {
   @ApiOkResponse({ type: UsageResultDto })
   async postUsage(@Body() body: UageRequestDto) {
     // Validate the request first.
-    for (const identifier of body.resources) {
-      if (!this.resources.has(identifier.resourceType)) {
-        throw new BadRequestException(`Unknown resouce type ${identifier.resourceType}`);
+    for (const resource of body.resources) {
+      if (!this.resources.has(resource.resourceType)) {
+        throw new BadRequestException(`Unknown resouce type ${resource.resourceType}`);
       }
     }
 
     // Execute all usage calls in parallel
     const responses = await Promise.all(
-      body.resources.map(async (identifier) => {
-        const resource = this.resources.get(identifier.resourceType)!;
+      body.resources.map(async (resource) => {
+        const resourceService = this.resources.get(resource.resourceType)!;
+        const resourceUsage = await resourceService.usage(resource.resourceId, resource);
 
-        const resourceUsage = await resource.usage(identifier.resourceId, {
-          parameters: identifier.parameters,
-        });
-
-        return ResourceUsageDto.fromDomain(resourceUsage, identifier.resourceId, identifier.resourceType);
+        return ResourceUsageDto.fromDomain(resourceUsage, resource.resourceId, resource.resourceType);
       }),
     );
 
