@@ -7,7 +7,7 @@ export class BlobEntity {
   @PrimaryColumn()
   id: string;
 
-  @Column()
+  @Column({ length: 50 })
   type: string;
 
   @Column('text')

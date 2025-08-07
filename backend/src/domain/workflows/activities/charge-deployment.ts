@@ -13,19 +13,19 @@ import {
 } from 'src/domain/database';
 import { Activity } from '../registration';
 
-export interface ChargeDeploymentParam {
+export type ChargeDeploymentParam = {
   dateFrom: string;
   dateTo: string;
   deploymentId: number;
-}
+};
 
-interface AggregatedUsage {
+export type AggregatedUsage = {
   deploymentId: number;
   totalCores: number;
   totalMemoryGB: number;
   totalVolumeGB: number;
   totalStorageGB: number;
-}
+};
 
 @Activity(chargeDeployment)
 export class ChargeDeploymentActivity implements Activity<ChargeDeploymentParam> {
@@ -65,20 +65,20 @@ export class ChargeDeploymentActivity implements Activity<ChargeDeploymentParam>
 
     const billed = await this.billedDeployments.findOneBy({ deploymentId, dateFrom, dateTo });
     if (billed) {
-      this.logger.warn(`Deployment ${deploymentId} has already been billed.`);
+      this.logger.warn(`Deployment ${deploymentId} has already been billeusage.`);
       return;
     }
 
     const results = await this.deploymentUsages
-      .createQueryBuilder('d')
-      .select('d.deploymentId', 'deploymentId')
-      .addSelect('SUM(d.totalCores)', 'totalCores')
-      .addSelect('SUM(d.totalMemoryGB)', 'totalMemoryGB')
-      .addSelect('SUM(d.totalVolumeGB)', 'totalVolumeGB')
-      .addSelect('MAX(d.totalStorageGB)', 'totalStorageGB')
-      .where('d.trackDate BETWEEN :dateFrom AND :dateTo', { dateFrom, dateTo })
-      .where('d.deploymentId = :deploymentId', { deploymentId })
-      .groupBy('d.deploymentId')
+      .createQueryBuilder('usage')
+      .select('usage.deploymentId', 'deploymentId')
+      .addSelect('SUM(usage.totalCores)', 'totalCores')
+      .addSelect('SUM(usage.totalMemoryGB)', 'totalMemoryGB')
+      .addSelect('SUM(usage.totalVolumeGB)', 'totalVolumeGB')
+      .addSelect('MAX(usage.totalStorageGB)', 'totalStorageGB')
+      .where('usage.trackDate BETWEEN :dateFrom AND :dateTo', { dateFrom, dateTo })
+      .where('usage.deploymentId = :deploymentId', { deploymentId })
+      .groupBy('usage.deploymentId')
       .getRawOne<AggregatedUsage>();
 
     const { totalCores, totalMemoryGB, totalStorageGB, totalVolumeGB } = results;
@@ -102,7 +102,7 @@ export class ChargeDeploymentActivity implements Activity<ChargeDeploymentParam>
       totalVolumeGBHours: totalVolumeGB,
     };
 
-    this.logger.warn(`Deployment ${deploymentId} billed.`, { charges });
+    this.logger.log(`Deployment ${deploymentId} charged.`, { charges });
     await this.billingService.chargeDeployment(deployment.teamId, deploymentId, charges);
 
     // Ensure that we bill every month only once per user.

@@ -3,11 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeploymentUpdateEntity, DeploymentUpdateRepository, DeploymentUpdateStatus } from 'src/domain/database';
 import { Activity } from '../registration';
 
-export interface UpdateDeploymentParam {
-  updateId: number;
-  status: DeploymentUpdateStatus;
-  error?: string;
-}
+export type UpdateDeploymentParam = { updateId: number; status: DeploymentUpdateStatus; error?: string };
 
 @Activity(updateDeployment)
 export class UpdateDeploymentActivity implements Activity<UpdateDeploymentParam> {

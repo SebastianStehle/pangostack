@@ -10,13 +10,13 @@ import { evaluateParameters, evaluateUsage } from 'src/domain/definitions';
 import { WorkerClient } from 'src/domain/worker';
 import { Activity } from '../registration';
 
-export interface TrackDeploymentUsageParam {
+export type TrackDeploymentUsageParam = {
   deploymentId: number;
   trackDate: string;
   trackHour: number;
   workerApiKey: string;
   workerEndpoint: string;
-}
+};
 
 @Activity(trackDeploymentUsage)
 export class TrackDeploymentUsageActivity implements Activity<TrackDeploymentUsageParam> {
@@ -51,7 +51,8 @@ export class TrackDeploymentUsageActivity implements Activity<TrackDeploymentUsa
     });
 
     const { totalCores, totalMemoryGB, totalVolumeGB } = evaluateUsage(update.serviceVersion.definition, context);
-    // The storage needs to be measured.
+
+    // The storage needs to be measured directly from the provider.
     const totalStorageGB = usageFromWorker.resources.reduce((a, c) => a + c.totalStorageGB, 0);
 
     await this.deploymentUsages.save({

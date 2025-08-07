@@ -4,7 +4,7 @@ import { IsNull, Not } from 'typeorm';
 import { WorkerEntity, WorkerRepository } from 'src/domain/database';
 import { Activity } from '../registration';
 
-export interface GetWorkerParam {}
+export type GetWorkerParam = object;
 
 export type GetWorkerResult = { workerApiKey: string; workerEndpoint: string };
 

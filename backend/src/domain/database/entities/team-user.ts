@@ -6,7 +6,7 @@ export type TeamUserRepository = Repository<TeamUserEntity>;
 
 @Entity({ name: 'team-users' })
 export class TeamUserEntity {
-  @PrimaryColumn()
+  @PrimaryColumn({ length: 50 })
   userId: string;
 
   @PrimaryColumn()

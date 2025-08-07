@@ -6,13 +6,13 @@ import { evaluateParameters, ResourceDefinition } from 'src/domain/definitions';
 import { WorkerClient } from 'src/domain/worker';
 import { Activity } from '../registration';
 
-export interface DeployResourceParam {
+export type DeployResourceParam = {
   deploymentId: number;
   resource: ResourceDefinition;
   workerApiKey: string;
   workerEndpoint: string;
   updateId: number;
-}
+};
 
 @Activity(deployResource)
 export class DeployResourceActivity implements Activity<DeployResourceParam> {

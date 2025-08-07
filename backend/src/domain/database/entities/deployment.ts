@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { BilledDeploymentEntity } from './billed-deployment';
+import { DeploymentCheckEntity } from './deployment-check';
 import { DeploymentLogEntity } from './deployment-log';
 import { DeploymentUpdateEntity } from './deployment-update';
 import { DeploymentUsageEntity } from './deployment-usage';
@@ -41,18 +42,21 @@ export class DeploymentEntity {
   @OneToMany(() => DeploymentUpdateEntity, (update) => update.deployment)
   updates: DeploymentUpdateEntity[];
 
+  @OneToMany(() => DeploymentCheckEntity, (check) => check.deployment)
+  checks: DeploymentCheckEntity[];
+
   @Column({ length: 100, nullable: true })
   name?: string | null;
 
   @CreateDateColumn()
   createdAt: Date;
 
-  @Column()
+  @Column({ length: 50 })
   createdBy: string;
 
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column()
+  @Column({ length: 50 })
   updatedBy: string;
 }

@@ -6,6 +6,7 @@ import {
   isBoolean,
   IsBoolean,
   IsDefined,
+  IsEnum,
   IsIn,
   isNumber,
   IsNumber,
@@ -48,7 +49,9 @@ class ParameterDefinitionClass {
 
   @IsOptional()
   @IsArray()
-  allowedValues?: any[];
+  @ValidateNested({ each: true })
+  @Type(() => ParameterAllowedvalueClass)
+  allowedValues?: ParameterAllowedvalueClass[];
 
   @IsOptional()
   @IsNumber()
@@ -77,6 +80,44 @@ class ParameterDefinitionClass {
   section?: string;
 }
 
+class ParameterAllowedvalueClass {
+  @IsDefined()
+  @IsString()
+  value: any;
+
+  @IsDefined()
+  @IsString()
+  label: string;
+
+  @IsOptional()
+  @IsString()
+  hint?: string;
+}
+
+class ResourceHealtCheckClass {
+  @IsDefined()
+  @IsString()
+  name: string;
+
+  @IsDefined()
+  @IsString()
+  url: string;
+
+  @IsDefined()
+  @IsEnum(['http'])
+  type: 'http';
+}
+
+class ResourceMappingClass {
+  @IsDefined()
+  @IsString()
+  value: string;
+
+  @IsDefined()
+  @IsObject()
+  map: Record<string, string>;
+}
+
 class ResourceDefinitionClass {
   @IsDefined()
   @IsString()
@@ -93,12 +134,24 @@ class ResourceDefinitionClass {
   @IsDefined()
   @IsObject()
   parameters: Record<string, string>;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResourceHealtCheckClass)
+  healthChecks?: ResourceHealtCheckClass[];
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested({ each: true })
+  @Type(() => ResourceMappingClass)
+  mappings: Record<string, ResourceMappingClass>;
 }
 
 class UsageDefinitionClass {
   @IsDefined()
   @IsString()
-  totalCores: string;
+  totalCores: snumbertring;
 
   @IsDefined()
   @IsString()
@@ -110,6 +163,10 @@ class UsageDefinitionClass {
 }
 
 class ServiceDefinitionClass {
+  @IsOptional()
+  @IsString()
+  afterInstallationInstruction?: string;
+
   @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
@@ -128,8 +185,11 @@ class ServiceDefinitionClass {
   usage: UsageDefinitionClass;
 }
 
+export type ParameterAllowedvalue = InstanceType<typeof ParameterAllowedvalueClass>;
 export type ParameterDefinition = InstanceType<typeof ParameterDefinitionClass>;
 export type ResourceDefinition = InstanceType<typeof ResourceDefinitionClass>;
+export type ResourceHealtCheck = InstanceType<typeof ResourceHealtCheckClass>;
+export type ResourceMapping = InstanceType<typeof ResourceMappingClass>;
 export type ResourcesDefinition = Pick<ServiceDefinition, 'resources'>;
 export type ServiceDefinition = InstanceType<typeof ServiceDefinitionClass>;
 export type UsageDefinition = InstanceType<typeof UsageDefinitionClass>;
@@ -167,11 +227,35 @@ export async function validateDefinition(service: ServiceDefinition) {
 
 type DefinitionContext = { env: any; context: any; parameters: any };
 
+export function evaluateHealthChecks(resource: ResourceDefinition, context: DefinitionContext): ResourceHealtCheck[] {
+  if (!resource.healthChecks || resource.healthChecks.length === 0) {
+    return [];
+  }
+
+  return resource.healthChecks.map((healthCheck) => {
+    const cloned: ResourceHealtCheck = { ...healthCheck };
+
+    cloned.url = evaluateExpression(cloned.url, context);
+    return cloned;
+  });
+}
+
 export function evaluateParameters(resource: ResourceDefinition, context: DefinitionContext) {
   const params = { ...resource.parameters };
 
   for (const [key, value] of Object.entries(resource.parameters)) {
     params[key] = evaluateExpression(value, context);
+  }
+
+  if (resource.mappings) {
+    for (const [key, mapping] of Object.entries(resource.mappings)) {
+      const value = evaluateExpression(mapping.value, context);
+
+      const mapped = mapping.map[value];
+      if (mapped) {
+        params[key] = mapped;
+      }
+    }
   }
 
   return params;
@@ -246,7 +330,7 @@ export function validateDefinitionValue(service: ServiceDefinition, target: Reco
           if (definition.maxValue && value > definition.maxValue) {
             error.constraints['maxValue'] = `Value must be at most ${definition.maxValue}`;
           }
-          if (definition.allowedValues && definition.allowedValues.indexOf(value) < 0) {
+          if (definition.allowedValues && !definition.allowedValues.find((x) => x.value === value)) {
             error.constraints['enum'] = `Value must be at one of the allowed values`;
           }
         }
@@ -260,7 +344,7 @@ export function validateDefinitionValue(service: ServiceDefinition, target: Reco
           if (definition.maxLength && value.length > definition.maxLength) {
             error.constraints['maxLength'] = `Value must be at most ${definition.maxLength} characters long`;
           }
-          if (definition.allowedValues && definition.allowedValues.indexOf(value) < 0) {
+          if (definition.allowedValues && !definition.allowedValues.find((x) => x.value === value)) {
             error.constraints['enum'] = `Value must be at one of the allowed values`;
           }
         }

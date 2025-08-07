@@ -10,11 +10,14 @@ import {
 import { BillingModule } from '../billing';
 import {
   ChargeDeploymentActivity,
+  CleanupDeploymentsChecksActivity,
+  CleanupDeploymentUsagesActivity,
   CreateSubscriptionActivity,
   DeleteResourceActivity,
   DeployResourceActivity,
   GetDeploymentsActivity,
   GetWorkerActivity,
+  TrackDeploymentHealthActivity,
   TrackDeploymentUsageActivity,
   UpdateDeploymentActivity,
 } from './activities';
@@ -35,12 +38,15 @@ import { TemporalService, WorkflowService } from './services';
   providers: [
     ActivityExplorerService,
     ChargeDeploymentActivity,
+    CleanupDeploymentsChecksActivity,
+    CleanupDeploymentUsagesActivity,
     CreateSubscriptionActivity,
     DeleteResourceActivity,
     DeployResourceActivity,
     GetDeploymentsActivity,
     GetWorkerActivity,
     TemporalService,
+    TrackDeploymentHealthActivity,
     TrackDeploymentUsageActivity,
     UpdateDeploymentActivity,
     WorkflowService,

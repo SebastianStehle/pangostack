@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
-import { ScheduleAlreadyRunning } from '@temporalio/client';
-import { Worker } from '@temporalio/worker';
+import { Client, ScheduleAlreadyRunning } from '@temporalio/client';
+import { NativeConnection, Worker } from '@temporalio/worker';
 import { WorkflowIdReusePolicy } from '@temporalio/workflow';
 import { WorkerEntity } from 'src/domain/database';
 import { DeploymentUpdateEntity } from 'src/domain/database';
@@ -22,27 +22,107 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
   ) {}
 
   async onApplicationBootstrap() {
-    const activities = this.explorer.activities;
+    const [connection, client] = await this.temporal.getClient();
 
+    await this.configureDeployment(connection, client, this.explorer.activities);
+    await this.configureBilling(connection, client, this.explorer.activities);
+    await this.configureChecks(connection, client, this.explorer.activities);
+  }
+
+  private async configureDeployment(connection: NativeConnection, client: Client, activities: Record<string, any>) {
     const deploymentWorker = await Worker.create({
       workflowsPath: require.resolve('./../workflows'),
       activities,
       taskQueue: `deployments`,
+      connection: connection,
     });
 
     this.workers.push(deploymentWorker.runUntil(this.signal.promise));
 
+    await this.tryRegister(() =>
+      client.schedule.create({
+        scheduleId: 'cleanup-deployments-usage',
+        spec: {
+          intervals: [
+            {
+              every: '12h',
+            },
+          ],
+        },
+        action: {
+          args: [],
+          type: 'startWorkflow',
+          workflowId: 'cleanup-deployments-usages',
+          workflowType: workflows.cleanupDeploymentsUsages,
+          taskQueue: 'deployments',
+        },
+      }),
+    );
+  }
+
+  private async configureChecks(connection: NativeConnection, client: Client, activities: Record<string, any>) {
+    const checksWorker = await Worker.create({
+      workflowsPath: require.resolve('./../workflows'),
+      activities,
+      taskQueue: `checks`,
+      connection: connection,
+    });
+
+    this.workers.push(checksWorker.runUntil(this.signal.promise));
+
+    await this.tryRegister(() =>
+      client.schedule.create({
+        scheduleId: 'track-deployments-healths',
+        spec: {
+          intervals: [
+            {
+              every: '15m',
+            },
+          ],
+        },
+        action: {
+          args: [],
+          type: 'startWorkflow',
+          workflowId: 'track-deployments-healths',
+          workflowType: workflows.trackDeploymentsHealths,
+          taskQueue: 'checks',
+        },
+      }),
+    );
+
+    await this.tryRegister(() =>
+      client.schedule.create({
+        scheduleId: 'cleanup-deployments-checks',
+        spec: {
+          intervals: [
+            {
+              every: '12h',
+            },
+          ],
+        },
+        action: {
+          args: [],
+          type: 'startWorkflow',
+          workflowId: 'cleanup-deployments-checks',
+          workflowType: workflows.cleanupDeploymentsUsages,
+          taskQueue: 'checks',
+        },
+      }),
+    );
+  }
+
+  private async configureBilling(connection: NativeConnection, client: Client, activities: Record<string, any>) {
     const usageWorker = await Worker.create({
       workflowsPath: require.resolve('./../workflows'),
       activities,
       taskQueue: `billing`,
+      connection,
     });
 
     this.workers.push(usageWorker.runUntil(this.signal.promise));
 
-    const client = this.temporal.client;
-    try {
-      await client.schedule.create({
+    await this.tryRegister(() =>
+      client.schedule.create({
         scheduleId: 'track-deployments-usage-schedule',
         spec: {
           intervals: [
@@ -61,15 +141,11 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
         policies: {
           catchupWindow: '30d',
         },
-      });
-    } catch (ex) {
-      if (!is(ex, ScheduleAlreadyRunning)) {
-        throw ex;
-      }
-    }
+      }),
+    );
 
-    try {
-      await client.schedule.create({
+    await this.tryRegister(() =>
+      client.schedule.create({
         scheduleId: 'charge-deployments-schedule',
         spec: {
           intervals: [
@@ -84,7 +160,13 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
           workflowType: workflows.chargeDeployments,
           taskQueue: 'billing',
         },
-      });
+      }),
+    );
+  }
+
+  private async tryRegister(action: () => Promise<any>) {
+    try {
+      await action();
     } catch (ex) {
       if (!is(ex, ScheduleAlreadyRunning)) {
         throw ex;
@@ -101,7 +183,8 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
   }
 
   async createSubscription(deploymentId: number, teamId: number) {
-    const client = this.temporal.client;
+    const [, client] = await this.temporal.getClient();
+
     await client.workflow.start(workflows.createSubscription, {
       args: [{ deploymentId, teamId }],
       taskQueue: `deployments`,
@@ -117,7 +200,7 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
     teamId: number,
     worker: WorkerEntity,
   ) {
-    const client = this.temporal.client;
+    const [, client] = await this.temporal.getClient();
 
     await client.workflow.signalWithStart<typeof workflows.deploymentCoordinator, [DeploymentSignal]>(
       workflows.deploymentCoordinator,
@@ -146,7 +229,7 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
   }
 
   async deleteDeployment(deploymentId: number, deploymentUpdate: DeploymentUpdateEntity, worker: WorkerEntity) {
-    const client = this.temporal.client;
+    const [, client] = await this.temporal.getClient();
 
     await client.workflow.signalWithStart<typeof workflows.deploymentCoordinator, [DeploymentSignal]>(
       workflows.deploymentCoordinator,

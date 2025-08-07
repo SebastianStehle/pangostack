@@ -1,11 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { Client } from '@temporalio/client';
+import { NativeConnection } from '@temporalio/worker';
 
 @Injectable()
 export class TemporalService {
-  readonly client: Client;
+  private readonly connection = this.createConnection();
+  private readonly client = this.createClient();
 
-  constructor() {
-    this.client = new Client();
+  public async getClient(): Promise<[NativeConnection, Client]> {
+    return [await this.connection, await this.client];
+  }
+
+  private async createConnection(): Promise<NativeConnection> {
+    return NativeConnection.connect();
+  }
+
+  private async createClient(): Promise<Client> {
+    return new Client({ connection: await this.connection });
   }
 }

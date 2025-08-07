@@ -1,6 +1,7 @@
 export * from './billed-deployment';
 export * from './blob';
 export * from './cache';
+export * from './deployment-check';
 export * from './deployment-log';
 export * from './deployment-update';
 export * from './deployment-usage';

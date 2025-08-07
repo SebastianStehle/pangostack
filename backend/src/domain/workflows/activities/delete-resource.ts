@@ -5,13 +5,13 @@ import { evaluateParameters, ResourceDefinition } from 'src/domain/definitions';
 import { WorkerClient } from 'src/domain/worker';
 import { Activity } from '../registration';
 
-export interface DeleteResourceParam {
+export type DeleteResourceParam = {
   deploymentId: number;
   resource: ResourceDefinition;
   updateId: number;
   workerApiKey: string;
   workerEndpoint: string;
-}
+};
 
 @Activity(deleteResource)
 export class DeleteResourceActivity implements Activity<DeleteResourceParam> {

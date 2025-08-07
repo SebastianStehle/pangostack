@@ -1,10 +1,10 @@
 import { BillingService } from 'src/domain/billing';
 import { Activity } from '../registration';
 
-export interface CreateSubscriptionParams {
+export type CreateSubscriptionParams = {
   deploymentId: number;
   teamId: number;
-}
+};
 
 @Activity(createSubscription)
 export class CreateSubscriptionActivity implements Activity<CreateSubscriptionParams, any> {

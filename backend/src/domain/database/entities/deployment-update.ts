@@ -38,7 +38,7 @@ export class DeploymentUpdateEntity {
   @Column('simple-json')
   log: Record<string, string> = {};
 
-  @Column()
+  @Column({ length: 20 })
   status: DeploymentUpdateStatus = 'Pending';
 
   @Column('text', { nullable: true })
@@ -47,7 +47,7 @@ export class DeploymentUpdateEntity {
   @CreateDateColumn()
   createdAt: Date;
 
-  @Column()
+  @Column({ length: 50 })
   createdBy: string;
 }
 

@@ -157,3 +157,31 @@ export class ResourceStatus {
   // The workflows that have been created.
   workloads: ResourceWorkloadStatus[] = [];
 }
+
+export interface CheckSummary {
+  // The date for which the summary has been created.
+  date: string;
+
+  // The total number of failures on this date.
+  totalFailures: number;
+
+  // The total number of successes on this date.
+  totalSuccesses: number;
+}
+
+export interface UsageSummary {
+  // The date for which the summary has been created.
+  date: string;
+
+  // The total cores at the specified date.
+  totalCores: number;
+
+  // The total memory at the specified date.
+  totalMemoryGB: number;
+
+  // The total volume at the specified date.
+  totalVolumeGB: number;
+
+  // The total storage at this date.
+  totalStorageGB: number;
+}

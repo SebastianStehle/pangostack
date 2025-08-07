@@ -2,7 +2,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeploymentEntity, DeploymentRepository } from 'src/domain/database';
 import { Activity } from '../registration';
 
-export interface GetDeploymentsParam {}
+export type GetDeploymentsParam = object;
 
 @Activity(getDeployments)
 export class GetDeploymentsActivity implements Activity<GetDeploymentsParam, number[]> {

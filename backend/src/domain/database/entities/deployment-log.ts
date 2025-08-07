@@ -15,7 +15,7 @@ export class DeploymentLogEntity {
   @JoinColumn({ name: 'deploymentId' })
   deployment: DeploymentEntity;
 
-  @Column()
+  @Column({ length: 50 })
   textkey: string;
 
   @Column('text')
@@ -24,6 +24,6 @@ export class DeploymentLogEntity {
   @CreateDateColumn()
   createdAt: Date;
 
-  @Column()
-  createdBy: number;
+  @Column({ length: 50 })
+  createdBy: string;
 }
