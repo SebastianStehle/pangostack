@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceEntity, ServiceRepository } from 'src/domain/database';
 
 export class DeleteService {
-  constructor(public readonly id: number) {}
+  constructor(public readonly serviceId: number) {}
 }
 
 @CommandHandler(DeleteService)
@@ -15,11 +15,11 @@ export class DeleteServiceHandler implements ICommandHandler<DeleteService, any>
   ) {}
 
   async execute(command: DeleteService): Promise<any> {
-    const { id } = command;
+    const { serviceId } = command;
 
-    const { affected } = await this.services.delete({ id });
+    const { affected } = await this.services.delete({ id: serviceId });
     if (!affected) {
-      throw new NotFoundException(`Service ${id} not found.`);
+      throw new NotFoundException(`Service ${serviceId} not found.`);
     }
   }
 }

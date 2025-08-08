@@ -1,3 +1,5 @@
+/* eslint-disable */
+// @ts-nocheck
 //@ts-nocheck
 /* tslint:disable */
 /* eslint-disable */
@@ -46,16 +48,16 @@ export interface UserGroupDto {
     isBuiltIn: boolean;
     /**
      * The monthly allowed tokens for all users in the group.
-     * @type {number}
+     * @type {object}
      * @memberof UserGroupDto
      */
-    monthlyTokens?: number;
+    monthlyTokens?: object;
     /**
      * The monthly allowed tokens per user in the group.
-     * @type {number}
+     * @type {object}
      * @memberof UserGroupDto
      */
-    monthlyUserTokens?: number;
+    monthlyUserTokens?: object;
     /**
      * Indicates if the file upload should be hidden.
      * @type {boolean}

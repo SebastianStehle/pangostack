@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Chargebee, { Invoice as ChargebeeInvoice, Customer, HostedPage, PortalSession } from 'chargebee';
 import { endOfDayTimestamp, startOfDayTimestamp } from 'src/lib';
-import { BillingError, BillingService, Charges, Invoice, InvoiceStatus } from '../interface';
+import { BillingError, BillingService, Charges, CreateSubscriptionResult, Invoice, InvoiceStatus } from '../interface';
+import { findCustomer, findSubscription } from './utils';
 
 interface ChargebeeConfig {
   apiKey: string;
@@ -29,28 +30,65 @@ export class ChargebeeBillingService implements BillingService {
     }
   }
 
-  hasSubscription(): Promise<boolean> {
-    throw new Error('Method not implemented.');
+  async hasSubscription(teamId: number, deploymentId: number): Promise<boolean> {
+    const subscriptionId = `deployment_${deploymentId}`;
+    const subscription = await findSubscription(this.chargebee, subscriptionId);
+
+    return !!subscription && subscription.customer_id !== teamId.toString();
   }
 
-  async createSubscription(teamId: number, deploymentId: number): Promise<any> {
+  async createSubscription(
+    teamId: number,
+    deploymentId: number,
+    confirmUrl: string,
+    cancelUrl: string,
+  ): Promise<CreateSubscriptionResult> {
     try {
       const customer = await this.getOrCreateCustomer(teamId);
 
-      const { subscription } = await this.chargebee.subscription.retrieve(`deployment_${deploymentId}`);
+      const subscriptionId = `deployment_${deploymentId}`;
+      const subscription = await findSubscription(this.chargebee, subscriptionId);
       if (subscription) {
-        return;
+        return true;
       }
 
-      const result = await this.chargebee.subscription.create({
-        id: `deployment_${deploymentId}`,
-        customer,
-        plan_id: this.config.planId,
-      });
+      const createSession = async () => {
+        const payload: HostedPage.CheckoutNewInputParam = {
+          cancel_url: cancelUrl,
+          customer: { id: customer.id },
+          redirect_url: confirmUrl,
+          subscription: {
+            id: subscriptionId,
+            plan_id: this.config.planId,
+            plan_quantity: undefined,
+          },
+        };
 
-      if (!result.subscription) {
-        throw new Error(`Failed to create or retrieve customer. Got statatus code ${result.httpStatusCode}.`);
+        const session = await this.chargebee.hostedPage.checkoutNew(payload);
+        return session;
+      };
+
+      if (customer.card_status !== 'valid' || !customer.billing_address?.country) {
+        const session = await createSession();
+        return { redirectTo: session.hosted_page.url! };
       }
+
+      try {
+        const result = await this.chargebee.subscription.createForCustomer(customer.id, {
+          id: subscriptionId,
+          plan_id: this.config.planId,
+          plan_quantity: undefined,
+        });
+
+        if (!result.subscription) {
+          throw new Error(`Failed to create or retrieve customer. Got statatus code ${result.httpStatusCode}.`);
+        }
+      } catch {
+        const session = await createSession();
+        return { redirectTo: session.hosted_page.url! };
+      }
+
+      return true;
     } catch (error: any) {
       throw new BillingError(`Chargebee: Failed to create subscription for deployment ${deploymentId}`, error);
     }
@@ -60,7 +98,8 @@ export class ChargebeeBillingService implements BillingService {
     try {
       const customer = await this.getOrCreateCustomer(teamId);
 
-      const { subscription } = await this.chargebee.subscription.retrieve(`deployment_${deploymentId}`);
+      const subscriptionId = `deployment_${deploymentId}`;
+      const subscription = await findSubscription(this.chargebee, subscriptionId);
       if (!subscription || subscription.customer_id !== customer.id) {
         throw new Error(`Cannot find subscription for deployment ${deploymentId}.`);
       }
@@ -77,11 +116,9 @@ export class ChargebeeBillingService implements BillingService {
       }
 
       const addCharge = async (addonId: string, units: number, pricePerUnit: number) => {
-        console.log(`ADDON: ${addonId}, UNITS: ${units}, PER UNIT: ${pricePerUnit}`);
         if (units === 0 || pricePerUnit === 0) {
           return;
         }
-        console.log(`ADDON2: ${addonId}, UNITS: ${units}, PER UNIT: ${pricePerUnit}`);
 
         const result = await this.chargebee.subscription.chargeAddonAtTermEnd(subscription.id, {
           addon_id: addonId,
@@ -128,36 +165,6 @@ export class ChargebeeBillingService implements BillingService {
     return session.portal_session.access_url;
   }
 
-  async getCardDetailsLink(teamId: number, redirectUrl?: string): Promise<string> {
-    const customer = await this.getOrCreateCustomer(teamId);
-
-    const payload: HostedPage.CheckoutOneTimeInputParam = {
-      customer,
-      currency_code: 'EUR',
-      charges: [{ description: 'Setup Fee', amount: 1 }],
-    };
-
-    if (isAllowedPort(redirectUrl)) {
-      payload.redirect_url = redirectUrl;
-    } else if (redirectUrl) {
-      payload.redirect_url = 'http://invalid.com';
-    }
-
-    const session = await this.chargebee.hostedPage.checkoutOneTime(payload);
-    return session.hosted_page.url!;
-  }
-
-  async hasPaymentDetails(teamId: number): Promise<boolean> {
-    try {
-      const customer = await this.getOrCreateCustomer(teamId);
-
-      return customer && customer.card_status === 'valid' && customer.billing_address?.validation_status === 'valid';
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
-  }
-
   async getInvoices(teamId: number, deploymentId?: number): Promise<Invoice[]> {
     const result: Invoice[] = [];
     const customer = await this.getOrCreateCustomer(teamId);
@@ -171,6 +178,10 @@ export class ChargebeeBillingService implements BillingService {
       const response = await this.chargebee.invoice.list(query);
 
       for (const { invoice } of response.list) {
+        if (invoice.total === 0) {
+          continue;
+        }
+
         const pdfResponse = await this.chargebee.invoice.pdf(invoice.id);
 
         let status: InvoiceStatus = 'Paid';
@@ -209,20 +220,15 @@ export class ChargebeeBillingService implements BillingService {
   private async getOrCreateCustomer(teamId: number): Promise<Customer> {
     const id = `team_${teamId}`;
 
-    try {
-      const { customer: retrievedCustomer } = await this.chargebee.customer.retrieve(id);
-      if (retrievedCustomer) {
-        return retrievedCustomer;
-      }
-    } catch (error: any) {
-      if (error.http_status_code !== 404) {
-        throw error;
-      }
+    const customer1 = await findCustomer(this.chargebee, id);
+    if (customer1) {
+      return customer1;
     }
 
     try {
       const { customer: createdCustomer } = await this.chargebee.customer.create({ id });
       if (createdCustomer) {
+        console.log(createdCustomer.id);
         return createdCustomer;
       }
     } catch (error: any) {
@@ -231,12 +237,12 @@ export class ChargebeeBillingService implements BillingService {
       }
     }
 
-    const { customer: resolvedCustomer, httpStatusCode } = await this.chargebee.customer.retrieve(id);
-    if (resolvedCustomer) {
-      return resolvedCustomer;
+    const customer2 = await findCustomer(this.chargebee, id);
+    if (customer2) {
+      return customer2;
     }
 
-    throw new Error(`Failed to create or retrieve customer. Got statatus code ${httpStatusCode}.`);
+    throw new Error(`Failed to create or retrieve customer.`);
   }
 }
 
@@ -251,7 +257,6 @@ function isAllowedPort(source?: string): boolean {
     const url = new URL(source);
 
     const port = url.port ? parseInt(url.port) : url.protocol === 'https:' ? 443 : 80;
-    console.log(port);
     return ALLOWED_PORTS.includes(port);
   } catch (e) {
     return false;

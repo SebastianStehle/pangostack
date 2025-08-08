@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
@@ -18,12 +18,15 @@ const RESOLVER = yupResolver<any>(SCHEME);
 export function TeamCreatePage() {
   const navigate = useTransientNavigate();
   const clients = useClients();
+  const queries = useQueryClient();
 
   const creating = useMutation({
     mutationFn: (request: UpsertTeamDto) => {
       return clients.teams.postTeam(request);
     },
     onSuccess: (team) => {
+      queries.invalidateQueries({ queryKey: ['teams'] });
+
       toast(texts.common.saved, { type: 'success' });
       navigate(`/teams/${team.id}`);
     },

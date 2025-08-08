@@ -1,3 +1,5 @@
+/* eslint-disable */
+// @ts-nocheck
 //@ts-nocheck
 /* tslint:disable */
 /* eslint-disable */
@@ -58,29 +60,29 @@ export interface ServicePublicDto {
      */
     currency: string;
     /**
-     * The price per CPU and hour in the selected currency.
+     * The price per Core and hour in the selected currency.
      * @type {number}
      * @memberof ServicePublicDto
      */
-    pricePerCpuHour: number;
+    pricePerCoreHour: number;
     /**
      * The price per Memory in GB and hour in the selected currency.
      * @type {number}
      * @memberof ServicePublicDto
      */
-    pricePerMemoryGbHour: number;
+    pricePerMemoryGBHour: number;
     /**
      * The price per Storage in GB and hour in the selected currency.
      * @type {number}
      * @memberof ServicePublicDto
      */
-    pricePerStorageGbMonth: number;
+    pricePerStorageGBMonth: number;
     /**
      * The price per Disk in GB and hour in the selected currency.
      * @type {number}
      * @memberof ServicePublicDto
      */
-    pricePerVolumeGbHour: number;
+    pricePerVolumeGBHour: number;
     /**
      * The additional fixed price.
      * @type {number}
@@ -94,29 +96,29 @@ export interface ServicePublicDto {
      */
     parameters: Array<ParameterDefinitionDto>;
     /**
-     * The expression to calculate the total number of CPUs.
+     * The expression to calculate the total number of Core.
      * @type {string}
      * @memberof ServicePublicDto
      */
-    totalCpus: string;
+    totalCores: string;
     /**
      * The expression to calculate the total memory.
      * @type {string}
      * @memberof ServicePublicDto
      */
-    totalMemory: string;
+    totalMemoryGB: string;
     /**
      * The expression to calculate the total volume size.
      * @type {string}
      * @memberof ServicePublicDto
      */
-    totalVolumeSize: string;
+    totalVolumeGB: string;
     /**
      * The expression to calculate the total storage.
      * @type {string}
      * @memberof ServicePublicDto
      */
-    totalStorage: string;
+    totalStorageGB: string;
 }
 
 /**
@@ -129,16 +131,16 @@ export function instanceOfServicePublicDto(value: object): boolean {
     isInstance = isInstance && "description" in value;
     isInstance = isInstance && "version" in value;
     isInstance = isInstance && "currency" in value;
-    isInstance = isInstance && "pricePerCpuHour" in value;
-    isInstance = isInstance && "pricePerMemoryGbHour" in value;
-    isInstance = isInstance && "pricePerStorageGbMonth" in value;
-    isInstance = isInstance && "pricePerVolumeGbHour" in value;
+    isInstance = isInstance && "pricePerCoreHour" in value;
+    isInstance = isInstance && "pricePerMemoryGBHour" in value;
+    isInstance = isInstance && "pricePerStorageGBMonth" in value;
+    isInstance = isInstance && "pricePerVolumeGBHour" in value;
     isInstance = isInstance && "fixedPrice" in value;
     isInstance = isInstance && "parameters" in value;
-    isInstance = isInstance && "totalCpus" in value;
-    isInstance = isInstance && "totalMemory" in value;
-    isInstance = isInstance && "totalVolumeSize" in value;
-    isInstance = isInstance && "totalStorage" in value;
+    isInstance = isInstance && "totalCores" in value;
+    isInstance = isInstance && "totalMemoryGB" in value;
+    isInstance = isInstance && "totalVolumeGB" in value;
+    isInstance = isInstance && "totalStorageGB" in value;
 
     return isInstance;
 }
@@ -158,16 +160,16 @@ export function ServicePublicDtoFromJSONTyped(json: any, ignoreDiscriminator: bo
         'description': json['description'],
         'version': json['version'],
         'currency': json['currency'],
-        'pricePerCpuHour': json['pricePerCpuHour'],
-        'pricePerMemoryGbHour': json['pricePerMemoryGbHour'],
-        'pricePerStorageGbMonth': json['pricePerStorageGbMonth'],
-        'pricePerVolumeGbHour': json['pricePerVolumeGbHour'],
+        'pricePerCoreHour': json['pricePerCoreHour'],
+        'pricePerMemoryGBHour': json['pricePerMemoryGBHour'],
+        'pricePerStorageGBMonth': json['pricePerStorageGBMonth'],
+        'pricePerVolumeGBHour': json['pricePerVolumeGBHour'],
         'fixedPrice': json['fixedPrice'],
         'parameters': ((json['parameters'] as Array<any>).map(ParameterDefinitionDtoFromJSON)),
-        'totalCpus': json['totalCpus'],
-        'totalMemory': json['totalMemory'],
-        'totalVolumeSize': json['totalVolumeSize'],
-        'totalStorage': json['totalStorage'],
+        'totalCores': json['totalCores'],
+        'totalMemoryGB': json['totalMemoryGB'],
+        'totalVolumeGB': json['totalVolumeGB'],
+        'totalStorageGB': json['totalStorageGB'],
     };
 }
 
@@ -185,16 +187,16 @@ export function ServicePublicDtoToJSON(value?: ServicePublicDto | null): any {
         'description': value.description,
         'version': value.version,
         'currency': value.currency,
-        'pricePerCpuHour': value.pricePerCpuHour,
-        'pricePerMemoryGbHour': value.pricePerMemoryGbHour,
-        'pricePerStorageGbMonth': value.pricePerStorageGbMonth,
-        'pricePerVolumeGbHour': value.pricePerVolumeGbHour,
+        'pricePerCoreHour': value.pricePerCoreHour,
+        'pricePerMemoryGBHour': value.pricePerMemoryGBHour,
+        'pricePerStorageGBMonth': value.pricePerStorageGBMonth,
+        'pricePerVolumeGBHour': value.pricePerVolumeGBHour,
         'fixedPrice': value.fixedPrice,
         'parameters': ((value.parameters as Array<any>).map(ParameterDefinitionDtoToJSON)),
-        'totalCpus': value.totalCpus,
-        'totalMemory': value.totalMemory,
-        'totalVolumeSize': value.totalVolumeSize,
-        'totalStorage': value.totalStorage,
+        'totalCores': value.totalCores,
+        'totalMemoryGB': value.totalMemoryGB,
+        'totalVolumeGB': value.totalVolumeGB,
+        'totalStorageGB': value.totalStorageGB,
     };
 }
 

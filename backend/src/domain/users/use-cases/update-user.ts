@@ -11,7 +11,7 @@ type Values = Partial<Pick<User, 'apiKey' | 'name' | 'email' | 'roles' | 'userGr
 
 export class UpdateUser {
   constructor(
-    public readonly id: string,
+    public readonly userId: string,
     public readonly values: Values,
   ) {}
 }
@@ -28,12 +28,12 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUser, UpdateUser
   ) {}
 
   async execute(request: UpdateUser): Promise<UpdateUserResponse> {
-    const { id, values } = request;
+    const { userId, values } = request;
     const { apiKey, email, name, password, roles, userGroupId } = values;
 
-    const user = await this.users.findOneBy({ id });
+    const user = await this.users.findOneBy({ id: userId });
     if (!user) {
-      throw new NotFoundException(`User ${id} not found.`);
+      throw new NotFoundException(`User ${userId} not found.`);
     }
 
     if (password) {

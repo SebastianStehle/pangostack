@@ -1,6 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDefined, IsNumber, IsObject, IsOptional, MaxLength } from 'class-validator';
-import { Deployment, ResourceNodeStatus, ResourceStatus, ResourceWorkloadStatus } from 'src/domain/services';
+import {
+  CheckSummary,
+  Deployment,
+  ResourceNodeStatus,
+  ResourceStatus,
+  ResourceWorkloadStatus,
+  UsageSummary,
+} from 'src/domain/services';
 
 export class CreateDeploymentDto {
   @ApiProperty({
@@ -33,6 +40,7 @@ export class CreateDeploymentDto {
   @ApiProperty({
     description: 'The URL to call after the deployment has been created.',
     nullable: true,
+    type: String,
   })
   @IsOptional()
   confirmUrl?: string | null;
@@ -40,6 +48,7 @@ export class CreateDeploymentDto {
   @ApiProperty({
     description: 'The URL to call after the deployment has been cancelled.',
     nullable: true,
+    type: String,
   })
   @IsOptional()
   cancelUrl?: string | null;
@@ -84,6 +93,7 @@ export class DeploymentCreatedDto {
   @ApiProperty({
     description: 'The redirect URL if the deployment cannot be completed automatically.',
     nullable: true,
+    type: String,
   })
   redirectUrl?: string | null;
 }
@@ -163,6 +173,7 @@ export class ResourceNodeStatusDto {
   @ApiProperty({
     description: 'The message to describe the status.',
     nullable: true,
+    type: String,
   })
   message?: string | null;
 
@@ -247,6 +258,106 @@ export class DeploymentStatusDto {
   static fromDomain(source: ResourceStatus[]) {
     const result = new DeploymentStatusDto();
     result.resources = source.map(ResourceStatusDto.fromDomain);
+    return result;
+  }
+}
+
+export class DeploymentCheckSummaryDto {
+  @ApiProperty({
+    description: 'The date for which the summary has been created',
+    required: true,
+  })
+  date: string;
+
+  @ApiProperty({
+    description: 'The total number of failures on this date',
+    required: true,
+  })
+  totalFailures: number;
+
+  @ApiProperty({
+    description: 'The total number of successes on this date',
+    required: true,
+  })
+  totalSuccesses: number;
+
+  static fromDomain(source: CheckSummary) {
+    const result = new DeploymentCheckSummaryDto();
+    result.date = source.date;
+    result.totalFailures = source.totalFailures;
+    result.totalSuccesses = source.totalSuccesses;
+    return result;
+  }
+}
+
+export class DeploymentCheckSummariesDto {
+  @ApiProperty({
+    description: 'The summary per date',
+    required: true,
+    type: [DeploymentCheckSummaryDto],
+  })
+  checks: DeploymentCheckSummaryDto[] = [];
+
+  static fromDomain(source: CheckSummary[]) {
+    const result = new DeploymentCheckSummariesDto();
+    result.checks = source.map(DeploymentCheckSummaryDto.fromDomain);
+    return result;
+  }
+}
+
+export class DeploymentUsageSummaryDto {
+  @ApiProperty({
+    description: 'The date for which the summary has been created',
+    required: true,
+  })
+  date: string;
+
+  @ApiProperty({
+    description: 'The total cores at the specified date',
+    required: true,
+  })
+  totalCores: number;
+
+  @ApiProperty({
+    description: 'The total memory at the specified date (in GB)',
+    required: true,
+  })
+  totalMemoryGB: number;
+
+  @ApiProperty({
+    description: 'The total volume at the specified date (in GB)',
+    required: true,
+  })
+  totalVolumeGB: number;
+
+  @ApiProperty({
+    description: 'The total storage at the specified date (in GB)',
+    required: true,
+  })
+  totalStorageGB: number;
+
+  static fromDomain(source: UsageSummary): DeploymentUsageSummaryDto {
+    const result = new DeploymentUsageSummaryDto();
+    result.date = source.date;
+    result.totalCores = source.totalCores;
+    result.totalMemoryGB = source.totalMemoryGB;
+    result.totalVolumeGB = source.totalVolumeGB;
+    result.totalStorageGB = source.totalStorageGB;
+    return result;
+  }
+}
+
+export class DeploymentUsageSummariesDto {
+  @ApiProperty({
+    description: 'The usage summary per date',
+    required: true,
+    type: [DeploymentUsageSummaryDto],
+  })
+  summaries: DeploymentUsageSummaryDto[] = [];
+
+  static fromDomain(source: UsageSummary[]): DeploymentUsageSummariesDto {
+    const result = new DeploymentUsageSummariesDto();
+    result.summaries = source.map(DeploymentUsageSummaryDto.fromDomain);
     return result;
   }
 }

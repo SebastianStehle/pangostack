@@ -10,7 +10,7 @@ type Values = Partial<Pick<Team, 'name'>>;
 
 export class UpdateTeam {
   constructor(
-    public readonly id: number,
+    public readonly teamId: number,
     public readonly values: Values,
   ) {}
 }
@@ -27,12 +27,12 @@ export class UpdateTeamHandler implements ICommandHandler<UpdateTeam, UpdateTeam
   ) {}
 
   async execute(request: UpdateTeam): Promise<UpdateTeamResponse> {
-    const { id, values } = request;
+    const { teamId, values } = request;
     const { name } = values;
 
-    const team = await this.teams.findOne({ where: { id }, relations: ['users', 'users.user'] });
+    const team = await this.teams.findOne({ where: { id: teamId }, relations: ['users', 'users.user'] });
     if (!team) {
-      throw new NotFoundException(`Team ${id} not found.`);
+      throw new NotFoundException(`Team ${teamId} not found.`);
     }
 
     // Assign the object manually to avoid updating unexpected values.

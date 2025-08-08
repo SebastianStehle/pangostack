@@ -60,11 +60,11 @@ export class BillingError extends Error {
     message: string,
     public readonly cause?: Error,
   ) {
-    super(`${message}: ${cause?.message || 'Unknown cause'}`);
+    super(`${message}: ${cause?.constructor.name || 'Type'}, ${cause?.message || 'Unknown cause'}`);
   }
 }
 
-type CreateSubscriptionResult = true | { redirectTo: string };
+export type CreateSubscriptionResult = true | { redirectTo: string };
 
 export abstract class BillingService {
   abstract getBillingPortalLink(teamId: number, redirectUrl?: string): Promise<string | null>;

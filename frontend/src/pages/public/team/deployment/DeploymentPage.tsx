@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import { useClients } from 'src/api';
 import { Icon, TransientNavLink } from 'src/components';
 import { texts } from 'src/texts';
+import { HealthChart } from './HealthChart';
+import { UsageChart } from './UsageChart';
 
 export const DeploymentPage = () => {
   const { deploymentId, teamId } = useParams();
@@ -25,6 +27,10 @@ export const DeploymentPage = () => {
 
         <h3 className="grow text-xl">{texts.deployments.headline}</h3>
       </div>
+
+      <UsageChart teamId={+teamId!} deploymentId={+deploymentId!} />
+
+      <HealthChart teamId={+teamId!} deploymentId={+deploymentId!} />
 
       {status.length}
     </>

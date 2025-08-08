@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserGroupEntity, UserGroupRepository } from 'src/domain/database';
 
 export class DeleteUserGroup {
-  constructor(public readonly id: string) {}
+  constructor(public readonly userGroupId: string) {}
 }
 
 @CommandHandler(DeleteUserGroup)
@@ -15,20 +15,20 @@ export class DeleteUserGroupHandler implements ICommandHandler<DeleteUserGroup, 
   ) {}
 
   async execute(command: DeleteUserGroup): Promise<any> {
-    const { id } = command;
+    const { userGroupId } = command;
 
-    const userGroup = await this.userGroups.findOneBy({ id });
+    const userGroup = await this.userGroups.findOneBy({ id: userGroupId });
     if (!userGroup) {
-      throw new NotFoundException(`User group ${id} not found.`);
+      throw new NotFoundException(`User group ${userGroupId} not found.`);
     }
 
     if (userGroup.isBuiltIn) {
       throw new BadRequestException('Cannot delete builtin user group.');
     }
 
-    const { affected } = await this.userGroups.delete({ id });
+    const { affected } = await this.userGroups.delete({ id: userGroupId });
     if (!affected) {
-      throw new NotFoundException(`User group ${id} not found.`);
+      throw new NotFoundException(`User group ${userGroupId} not found.`);
     }
   }
 }

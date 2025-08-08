@@ -10,17 +10,29 @@ import {
   CreateDeployment,
   CreateDeploymentResponse,
   DeleteDeployment,
+  GetDeploymentChecks,
+  GetDeploymentChecksResponse,
   GetDeploymentStatus,
   GetDeploymentStatusResponse,
+  GetDeploymentUsages,
+  GetDeploymentUsagesResponse,
   GetTeamDeployments,
   GetTeamDeploymentsResponse,
   UpdateDeployment,
   UpdateDeploymentResponse,
+  UrlService,
 } from 'src/domain/services';
-import { UrlService } from 'src/domain/services/services/url.service';
 import { IntParam, isString } from 'src/lib';
 import { TeamPermissionGuard } from '../TeamPermissionGuard';
-import { CreateDeploymentDto, DeploymentCreatedDto, DeploymentDto, DeploymentsDto, DeploymentStatusDto } from './dtos';
+import {
+  CreateDeploymentDto,
+  DeploymentCheckSummariesDto,
+  DeploymentCreatedDto,
+  DeploymentDto,
+  DeploymentsDto,
+  DeploymentStatusDto,
+  DeploymentUsageSummariesDto,
+} from './dtos';
 
 @Controller('teams/:teamId/deployments')
 @ApiParam({
@@ -89,10 +101,58 @@ export class TeamDeploymentsController {
   @ApiOkResponse({ type: DeploymentStatusDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard, TeamPermissionGuard)
-  async getDeploymentStatus(@IntParam('teamId') teamId: number, @IntParam('deploymentId') deploymentId: number) {
+  async getStatus(@IntParam('teamId') teamId: number, @IntParam('deploymentId') deploymentId: number) {
     const result: GetDeploymentStatusResponse = await this.queryBus.execute(new GetDeploymentStatus(teamId, deploymentId));
 
     return DeploymentStatusDto.fromDomain(result.resources);
+  }
+
+  @Get(':deploymentId/checks')
+  @ApiOperation({ operationId: 'getDeploymentChecks', description: 'Gets deployments status.' })
+  @ApiParam({
+    name: 'deploymentId',
+    description: 'The ID of the deployment.',
+    required: true,
+    type: 'number',
+  })
+  @ApiOkResponse({ type: DeploymentCheckSummariesDto })
+  @Role(BUILTIN_USER_GROUP_DEFAULT)
+  @UseGuards(RoleGuard, TeamPermissionGuard)
+  async getChecks(
+    @IntParam('teamId') teamId: number,
+    @IntParam('deploymentId') deploymentId: number,
+    @Query('fromDate') fromDate: string,
+    @Query('toDate') toDate: string,
+  ) {
+    const result: GetDeploymentChecksResponse = await this.queryBus.execute(
+      new GetDeploymentChecks(teamId, deploymentId, fromDate, toDate),
+    );
+
+    return DeploymentCheckSummariesDto.fromDomain(result.checks);
+  }
+
+  @Get(':deploymentId/usage')
+  @ApiOperation({ operationId: 'getDeploymentUsage', description: 'Gets usage summaries.' })
+  @ApiParam({
+    name: 'deploymentId',
+    description: 'The ID of the deployment.',
+    required: true,
+    type: 'number',
+  })
+  @ApiOkResponse({ type: DeploymentUsageSummariesDto })
+  @Role(BUILTIN_USER_GROUP_DEFAULT)
+  @UseGuards(RoleGuard, TeamPermissionGuard)
+  async getUsage(
+    @IntParam('teamId') teamId: number,
+    @IntParam('deploymentId') deploymentId: number,
+    @Query('fromDate') fromDate: string,
+    @Query('toDate') toDate: string,
+  ) {
+    const result: GetDeploymentUsagesResponse = await this.queryBus.execute(
+      new GetDeploymentUsages(teamId, deploymentId, fromDate, toDate),
+    );
+
+    return DeploymentUsageSummariesDto.fromDomain(result.usages);
   }
 
   @Put(':deploymentId')
@@ -143,7 +203,7 @@ export class TeamDeploymentsController {
     @Query('token') token: string,
     @Query('redirectUrl') redirectUrl?: string,
   ) {
-    await this.queryBus.execute(new ConfirmDeployment(teamId, deploymentId, token));
+    await this.commandBus.execute(new ConfirmDeployment(teamId, deploymentId, token));
 
     if (redirectUrl && !this.urlService.isValidRedirectUrl(redirectUrl)) {
       return Redirect(redirectUrl);
@@ -160,7 +220,7 @@ export class TeamDeploymentsController {
     @Query('token') token: string,
     @Query('redirectUrl') redirectUrl?: string,
   ) {
-    await this.queryBus.execute(new CancelDeployment(teamId, deploymentId, token));
+    await this.commandBus.execute(new CancelDeployment(teamId, deploymentId, token));
 
     if (redirectUrl && !this.urlService.isValidRedirectUrl(redirectUrl)) {
       return Redirect(redirectUrl);

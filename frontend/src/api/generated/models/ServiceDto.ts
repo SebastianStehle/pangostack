@@ -1,3 +1,5 @@
+/* eslint-disable */
+// @ts-nocheck
 //@ts-nocheck
 /* tslint:disable */
 /* eslint-disable */
@@ -63,29 +65,29 @@ export interface ServiceDto {
      */
     currency: string;
     /**
-     * The price per CPU and hour in the selected currency.
+     * The price per Core and hour in the selected currency.
      * @type {number}
      * @memberof ServiceDto
      */
-    pricePerCpuHour: number;
+    pricePerCoreHour: number;
     /**
      * The price per Memory in GB and hour in the selected currency.
      * @type {number}
      * @memberof ServiceDto
      */
-    pricePerMemoryGbHour: number;
-    /**
-     * The price per Storage in GB and hour in the selected currency.
-     * @type {number}
-     * @memberof ServiceDto
-     */
-    pricePerStorageGbMonth: number;
+    pricePerMemoryGBHour: number;
     /**
      * The price per Disk in GB and hour in the selected currency.
      * @type {number}
      * @memberof ServiceDto
      */
-    pricePerVolumeGbHour: number;
+    pricePerVolumeGBHour: number;
+    /**
+     * The price per Storage in GB and month in the selected currency.
+     * @type {number}
+     * @memberof ServiceDto
+     */
+    pricePerStorageGBMonth: number;
     /**
      * The additional fixed price.
      * @type {number}
@@ -117,10 +119,10 @@ export function instanceOfServiceDto(value: object): boolean {
     isInstance = isInstance && "numDeployments" in value;
     isInstance = isInstance && "environment" in value;
     isInstance = isInstance && "currency" in value;
-    isInstance = isInstance && "pricePerCpuHour" in value;
-    isInstance = isInstance && "pricePerMemoryGbHour" in value;
-    isInstance = isInstance && "pricePerStorageGbMonth" in value;
-    isInstance = isInstance && "pricePerVolumeGbHour" in value;
+    isInstance = isInstance && "pricePerCoreHour" in value;
+    isInstance = isInstance && "pricePerMemoryGBHour" in value;
+    isInstance = isInstance && "pricePerVolumeGBHour" in value;
+    isInstance = isInstance && "pricePerStorageGBMonth" in value;
     isInstance = isInstance && "fixedPrice" in value;
     isInstance = isInstance && "isActive" in value;
     isInstance = isInstance && "isPublic" in value;
@@ -145,10 +147,10 @@ export function ServiceDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         'latestVersion': !exists(json, 'latestVersion') ? undefined : json['latestVersion'],
         'environment': json['environment'],
         'currency': json['currency'],
-        'pricePerCpuHour': json['pricePerCpuHour'],
-        'pricePerMemoryGbHour': json['pricePerMemoryGbHour'],
-        'pricePerStorageGbMonth': json['pricePerStorageGbMonth'],
-        'pricePerVolumeGbHour': json['pricePerVolumeGbHour'],
+        'pricePerCoreHour': json['pricePerCoreHour'],
+        'pricePerMemoryGBHour': json['pricePerMemoryGBHour'],
+        'pricePerVolumeGBHour': json['pricePerVolumeGBHour'],
+        'pricePerStorageGBMonth': json['pricePerStorageGBMonth'],
         'fixedPrice': json['fixedPrice'],
         'isActive': json['isActive'],
         'isPublic': json['isPublic'],
@@ -171,10 +173,10 @@ export function ServiceDtoToJSON(value?: ServiceDto | null): any {
         'latestVersion': value.latestVersion,
         'environment': value.environment,
         'currency': value.currency,
-        'pricePerCpuHour': value.pricePerCpuHour,
-        'pricePerMemoryGbHour': value.pricePerMemoryGbHour,
-        'pricePerStorageGbMonth': value.pricePerStorageGbMonth,
-        'pricePerVolumeGbHour': value.pricePerVolumeGbHour,
+        'pricePerCoreHour': value.pricePerCoreHour,
+        'pricePerMemoryGBHour': value.pricePerMemoryGBHour,
+        'pricePerVolumeGBHour': value.pricePerVolumeGBHour,
+        'pricePerStorageGBMonth': value.pricePerStorageGBMonth,
         'fixedPrice': value.fixedPrice,
         'isActive': value.isActive,
         'isPublic': value.isPublic,

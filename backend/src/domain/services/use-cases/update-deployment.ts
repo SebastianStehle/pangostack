@@ -48,20 +48,20 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
   ) {}
 
   async execute(command: UpdateDeployment): Promise<UpdateDeploymentResponse> {
-    const { deploymentId: id, name, parameters, teamId, user, versionId } = command;
+    const { deploymentId, name, parameters, teamId, user, versionId } = command;
 
-    const deployment = await this.deployments.findOne({ where: { id, teamId }, relations: ['version', 'version.service'] });
+    const deployment = await this.deployments.findOne({ where: { id: deploymentId, teamId } });
     if (!deployment) {
-      throw new NotFoundException(`Deployment ${id} not found`);
+      throw new NotFoundException(`Deployment ${deploymentId} not found`);
     }
 
     const lastUpdate = await this.deploymentUpdates.findOne({
-      where: { deploymentId: id },
+      where: { deploymentId },
       order: { id: 'DESC' },
       relations: ['serviceVersion'],
     });
     if (!lastUpdate) {
-      throw new NotFoundException(`Deployment ${id} was never really created`);
+      throw new NotFoundException(`Deployment ${deploymentId} was never really created`);
     }
 
     let version = lastUpdate.serviceVersion;

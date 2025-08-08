@@ -1,3 +1,5 @@
+/* eslint-disable */
+// @ts-nocheck
 //@ts-nocheck
 /* tslint:disable */
 /* eslint-disable */
@@ -16,20 +18,12 @@
 
 import * as runtime from '../runtime';
 import type {
-  BillingStatusDto,
   InvoicesDto,
 } from '../models/index';
 import {
-    BillingStatusDtoFromJSON,
-    BillingStatusDtoToJSON,
     InvoicesDtoFromJSON,
     InvoicesDtoToJSON,
 } from '../models/index';
-
-export interface GetBillingStatusRequest {
-    teamId: number;
-    redirectUrl: string;
-}
 
 export interface GetDeploymentInvoicesRequest {
     teamId: number;
@@ -44,50 +38,6 @@ export interface GetInvoicesRequest {
  * 
  */
 export class BillingApi extends runtime.BaseAPI {
-
-    /**
-     * Gets the status of the billing setup.
-     * 
-     */
-    async getBillingStatusRaw(requestParameters: GetBillingStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BillingStatusDto>> {
-        if (requestParameters.teamId === null || requestParameters.teamId === undefined) {
-            throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling getBillingStatus.');
-        }
-
-        if (requestParameters.redirectUrl === null || requestParameters.redirectUrl === undefined) {
-            throw new runtime.RequiredError('redirectUrl','Required parameter requestParameters.redirectUrl was null or undefined when calling getBillingStatus.');
-        }
-
-        const queryParameters: any = {};
-
-        if (requestParameters.redirectUrl !== undefined) {
-            queryParameters['redirectUrl'] = requestParameters.redirectUrl;
-        }
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        if (this.configuration && this.configuration.apiKey) {
-            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
-        }
-
-        const response = await this.request({
-            path: `/teams/{teamId}/billing/status`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => BillingStatusDtoFromJSON(jsonValue));
-    }
-
-    /**
-     * Gets the status of the billing setup.
-     * 
-     */
-    async getBillingStatus(teamId: number, redirectUrl: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BillingStatusDto> {
-        const response = await this.getBillingStatusRaw({ teamId: teamId, redirectUrl: redirectUrl }, initOverrides);
-        return await response.value();
-    }
 
     /**
      * Gets all deployment invoices.

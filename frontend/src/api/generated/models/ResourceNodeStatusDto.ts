@@ -1,3 +1,5 @@
+/* eslint-disable */
+// @ts-nocheck
 //@ts-nocheck
 /* tslint:disable */
 /* eslint-disable */
@@ -37,7 +39,7 @@ export interface ResourceNodeStatusDto {
      * @type {string}
      * @memberof ResourceNodeStatusDto
      */
-    message?: string | null;
+    message: string | null;
 }
 
 /**
@@ -47,6 +49,7 @@ export function instanceOfResourceNodeStatusDto(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "name" in value;
     isInstance = isInstance && "isReady" in value;
+    isInstance = isInstance && "message" in value;
 
     return isInstance;
 }
@@ -63,7 +66,7 @@ export function ResourceNodeStatusDtoFromJSONTyped(json: any, ignoreDiscriminato
         
         'name': json['name'],
         'isReady': json['isReady'],
-        'message': !exists(json, 'message') ? undefined : json['message'],
+        'message': json['message'],
     };
 }
 

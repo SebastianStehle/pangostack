@@ -5,7 +5,7 @@ import { UserGroup } from '../interfaces';
 import { buildUserGroup } from './utils';
 
 export class GetUserGroup {
-  constructor(public readonly id: string) {}
+  constructor(public readonly userId: string) {}
 }
 
 export class GetUserGroupResponse {
@@ -20,9 +20,9 @@ export class GetUserGroupHandler implements IQueryHandler<GetUserGroup, GetUserG
   ) {}
 
   async execute(request: GetUserGroup): Promise<GetUserGroupResponse> {
-    const { id } = request;
+    const { userId } = request;
 
-    const userGroup = await this.userGroups.findOneBy({ id });
+    const userGroup = await this.userGroups.findOneBy({ id: userId });
     const result = userGroup ? buildUserGroup(userGroup) : undefined;
 
     return new GetUserGroupResponse(result);

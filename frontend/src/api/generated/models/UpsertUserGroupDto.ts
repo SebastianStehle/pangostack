@@ -1,3 +1,5 @@
+/* eslint-disable */
+// @ts-nocheck
 //@ts-nocheck
 /* tslint:disable */
 /* eslint-disable */
@@ -28,16 +30,16 @@ export interface UpsertUserGroupDto {
     name: string;
     /**
      * The monthly allowed tokens for all users in the group.
-     * @type {number}
+     * @type {object}
      * @memberof UpsertUserGroupDto
      */
-    monthlyTokens?: number;
+    monthlyTokens?: object;
     /**
      * The monthly allowed tokens per user in the group.
-     * @type {number}
+     * @type {object}
      * @memberof UpsertUserGroupDto
      */
-    monthlyUserTokens?: number;
+    monthlyUserTokens?: object;
     /**
      * Indicates if the file upload should be hidden.
      * @type {boolean}

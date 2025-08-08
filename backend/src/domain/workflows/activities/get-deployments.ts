@@ -12,7 +12,7 @@ export class GetDeploymentsActivity implements Activity<GetDeploymentsParam, num
   ) {}
 
   async execute() {
-    const deployments = await this.deployments.find();
+    const deployments = await this.deployments.find({ where: { status: 'Created' } });
 
     return deployments.map((x) => x.id);
   }

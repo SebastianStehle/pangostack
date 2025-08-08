@@ -10,7 +10,7 @@ type Values = Partial<Pick<UserGroup, 'name'>>;
 
 export class UpdateUserGroup {
   constructor(
-    public readonly id: string,
+    public readonly userId: string,
     public readonly values: Values,
   ) {}
 }
@@ -27,12 +27,12 @@ export class UpdateUserGroupHandler implements ICommandHandler<UpdateUserGroup, 
   ) {}
 
   async execute(request: UpdateUserGroup): Promise<UpdateUserGroupResponse> {
-    const { id, values } = request;
+    const { userId, values } = request;
     const { name } = values;
 
-    const userGroup = await this.userGroups.findOneBy({ id });
+    const userGroup = await this.userGroups.findOneBy({ id: userId });
     if (!userGroup) {
-      throw new NotFoundException(`User group ${id} not found.`);
+      throw new NotFoundException(`User group ${userId} not found.`);
     }
 
     if (userGroup.isBuiltIn) {

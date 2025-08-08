@@ -1,16 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate, useParams, useResolvedPath } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useClients } from 'src/api';
 import { Icon, TransientNavLink } from 'src/components';
-import { useEventCallback } from 'src/hooks';
 import { formatDateTime } from 'src/lib';
 import { texts } from 'src/texts';
 
 export const DeploymentsPage = () => {
   const { teamId } = useParams();
-  const navigate = useNavigate();
-  const deployPath = useResolvedPath('../deployments/new');
-  const deployUrl = `${location.origin || window.location.origin}${deployPath.pathname}`;
   const clients = useClients();
 
   const { data: loadedDeployments } = useQuery({
@@ -21,24 +17,14 @@ export const DeploymentsPage = () => {
 
   const deployments = loadedDeployments?.items || [];
 
-  const createDeployment = useEventCallback(async () => {
-    const billingStatus = await clients.billing.getBillingStatus(+teamId!, deployUrl);
-
-    if (billingStatus.portalLink) {
-      window.location.href = billingStatus.portalLink;
-    } else {
-      navigate(deployPath.pathname);
-    }
-  });
-
   return (
     <>
       <div className="mb-8 flex h-10 items-center gap-4">
         <h3 className="grow text-xl">{texts.deployments.headline}</h3>
 
-        <button className="btn btn-success" onClick={createDeployment}>
+        <TransientNavLink className="btn btn-success" to="new">
           <Icon icon="plus" /> {texts.deployments.create}
-        </button>
+        </TransientNavLink>
       </div>
 
       <div className="flex flex-col gap-2">

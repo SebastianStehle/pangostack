@@ -7,7 +7,7 @@ import { buildTeam } from './utils';
 
 export class DeleteTeamUser {
   constructor(
-    public readonly id: number,
+    public readonly teamId: number,
     public readonly userId: string,
     public readonly user: User,
   ) {}
@@ -27,23 +27,23 @@ export class DeleteTeamUserHandler implements ICommandHandler<DeleteTeamUser, De
   ) {}
 
   async execute(command: DeleteTeamUser): Promise<DeleteTeamUserResponse> {
-    const { id, user, userId } = command;
+    const { teamId, user, userId } = command;
 
-    const team = await this.teams.findOne({ where: { id }, relations: ['users', 'users.user'] });
+    const team = await this.teams.findOne({ where: { id: teamId }, relations: ['users', 'users.user'] });
     if (!team) {
-      throw new NotFoundException(`Team ${id} not found.`);
+      throw new NotFoundException(`Team ${teamId} not found.`);
     }
 
     if (user.id === userId) {
       throw new BadRequestException('You cannot remove yourself');
     }
 
-    const { affected } = await this.teamUsers.delete({ teamId: id, userId });
+    const { affected } = await this.teamUsers.delete({ teamId: teamId, userId });
     if (!affected) {
-      throw new NotFoundException(`Team User ${id}, ${userId} not found.`);
+      throw new NotFoundException(`Team User ${teamId}, ${userId} not found.`);
     }
 
-    const withUsers = await this.teams.findOneOrFail({ where: { id }, relations: ['users', 'users.user'] });
+    const withUsers = await this.teams.findOneOrFail({ where: { id: teamId }, relations: ['users', 'users.user'] });
 
     return new DeleteTeamUserResponse(buildTeam(withUsers));
   }

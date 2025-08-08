@@ -10,7 +10,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --fix",
     "preview": "vite preview",
-    "generate-api": "npx rimraf ./src/api/generated && npx cross-env JAVA_OPTS=\"-Dio.swagger.parser.util.RemoteUrl.trustAll=true -Dio.swagger.v3.parser.util.RemoteUrl.trustAll=true\" npx @openapitools/openapi-generator-cli generate -g typescript-fetch --additional-properties=useSingleRequestParameter=false,ensureUniqueParams=false -i https://localhost:3000/api-json -o ./src/api/generated && node gen-helper.mjs"
+    "generate-api": "npx rimraf ./src/api/generated && npx cross-env JAVA_OPTS=\"-Dio.swagger.parser.util.RemoteUrl.trustAll=true -Dio.swagger.v3.parser.util.RemoteUrl.trustAll=true\" npx @openapitools/openapi-generator-cli generate -g typescript-fetch --additional-properties=useSingleRequestParameter=false,ensureUniqueParams=false -i https://localhost:3000/api-json -o ./src/api/generated && node gen-helper.mjs && node ./scripts/add-ts-ignore.js"
   },
   "dependencies": {
     "@floating-ui/react-dom": "^2.0.8",

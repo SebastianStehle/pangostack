@@ -6,6 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "dev": "nest start --watch",
     "mkcert:install": "mkcert --install",
     "mkcert:create": "mkcert -cert-file dev/local-dev.pem -key-file dev/local-dev-key.pem localhost",
     "build": "nest build",

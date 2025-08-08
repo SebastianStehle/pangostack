@@ -8,7 +8,7 @@ export class UrlService {
   constructor(configService: ConfigService) {
     let baseUrl = configService.get('baseUrl');
     if (!baseUrl) {
-      baseUrl = 'https://localhost';
+      baseUrl = 'https://localhost:3000';
     }
 
     this.baseUrl = baseUrl;

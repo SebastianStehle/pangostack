@@ -45,13 +45,17 @@ export class GetDeploymentUsagesHandler implements IQueryHandler<GetDeploymentUs
 
     const rawUsages = await this.deploymentUsages
       .createQueryBuilder('usage')
-      .select('usage.deploymentId', 'deploymentId')
+      .select('usage.trackDate', 'date')
       .addSelect('SUM(usage.totalCores)', 'totalCores')
       .addSelect('SUM(usage.totalMemoryGB)', 'totalMemoryGB')
       .addSelect('SUM(usage.totalVolumeGB)', 'totalVolumeGB')
       .addSelect('MAX(usage.totalStorageGB)', 'totalStorageGB')
-      .where('usage.trackDate BETWEEN :dateFrom AND :dateTo', { dateFrom, dateTo })
-      .where('usage.deploymentId = :deploymentId', { deploymentId })
+      .where('usage.trackDate BETWEEN :dateFrom AND :dateTo AND usage.deploymentId = :deploymentId', {
+        dateFrom,
+        dateTo,
+        deploymentId,
+      })
+      .groupBy('usage.deploymentId')
       .groupBy('usage.trackDate')
       .getRawMany<UsageSummary>();
 

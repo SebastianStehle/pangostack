@@ -5,7 +5,7 @@ import { saveAndFind } from 'src/lib';
 
 export class UploadBlob {
   constructor(
-    public readonly id: string,
+    public readonly blobId: string,
     public readonly buffer: Buffer,
     public readonly mimeType: string,
     public readonly fileName: string,
@@ -21,10 +21,10 @@ export class UploadBlobHandler implements ICommandHandler<UploadBlob> {
   ) {}
 
   async execute(request: UploadBlob): Promise<any> {
-    const { id, mimeType: type } = request;
+    const { blobId, mimeType: type } = request;
 
     const buffer = request.buffer.toString('base64');
 
-    await saveAndFind(this.blobs, { id, type, buffer });
+    await saveAndFind(this.blobs, { id: blobId, type, buffer });
   }
 }

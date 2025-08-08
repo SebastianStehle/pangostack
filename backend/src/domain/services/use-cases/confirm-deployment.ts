@@ -37,10 +37,7 @@ export class ConfirmDeploymentHandler implements ICommandHandler<ConfirmDeployme
   async execute(command: ConfirmDeployment): Promise<any> {
     const { deploymentId, teamId, token } = command;
 
-    const deployment = await this.deployments.findOne({
-      where: { id: deploymentId, teamId },
-      relations: ['version', 'version.service'],
-    });
+    const deployment = await this.deployments.findOne({ where: { id: deploymentId, teamId } });
     if (!deployment) {
       throw new NotFoundException(`Deployment ${deploymentId} not found`);
     }
@@ -64,7 +61,7 @@ export class ConfirmDeploymentHandler implements ICommandHandler<ConfirmDeployme
     const lastUpdate = await this.deploymentUpdates.findOne({
       where: { deploymentId },
       order: { id: 'DESC' },
-      relations: ['serviceVersion'],
+      relations: ['serviceVersion', 'serviceVersion.service'],
     });
     if (!lastUpdate) {
       throw new NotFoundException(`Deployment ${deploymentId} was never really created`);

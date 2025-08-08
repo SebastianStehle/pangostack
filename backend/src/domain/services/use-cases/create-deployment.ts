@@ -79,9 +79,6 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
       throw new NotFoundException('No worker registered.');
     }
 
-    // The environment settings from the version overwrite the service.
-    const environment = { ...service.environment, ...version.environment };
-
     const confirmToken = uuid.v4();
     const deployment = await saveAndFind(this.deployments, {
       name,
@@ -94,31 +91,38 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
       updatedBy: user?.id || 'UNKNOWN',
     });
 
-    const susbcriptionResult = await this.billingService.createSubscription(
+    const subscriptionResult = await this.billingService.createSubscription(
       teamId,
       deployment.id,
       this.urlService.confirmUrl(teamId, deployment.id, confirmToken, confirmUrl),
       this.urlService.cancelUrl(teamId, deployment.id, confirmToken, cancelUrl),
     );
 
-    if (susbcriptionResult !== true) {
-      return new CreateDeploymentResponse(susbcriptionResult.redirectTo);
+    // The environment settings from the version overwrite the service.
+    const environment = { ...service.environment, ...version.environment };
+
+    const update = await saveAndFind(
+      this.deploymentUpdates,
+      {
+        createdAt: undefined,
+        createdBy: user?.id || 'UNKNOWN',
+        context: {},
+        deployment,
+        deploymentId: deployment.id,
+        environment,
+        parameters,
+        serviceVersion: version,
+        serviceVersionId: version.id,
+      },
+      { relations: ['serviceVersion', 'serviceVersion.service'] },
+    );
+
+    if (subscriptionResult !== true) {
+      return new CreateDeploymentResponse(subscriptionResult.redirectTo);
     }
 
     deployment.status = 'Created';
     await this.deployments.save(deployment);
-
-    const update = await saveAndFind(this.deploymentUpdates, {
-      createdAt: undefined,
-      createdBy: user?.id || 'UNKNOWN',
-      context: {},
-      deployment,
-      deploymentId: deployment.id,
-      environment,
-      parameters,
-      serviceVersion: version,
-      serviceVersionId: version.id,
-    });
 
     await this.workflows.createDeployment(deployment.id, update, null, worker);
     return new CreateDeploymentResponse(buildDeployment(deployment, update));

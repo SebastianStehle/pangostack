@@ -1,3 +1,5 @@
+/* eslint-disable */
+// @ts-nocheck
 //@ts-nocheck
 /* tslint:disable */
 /* eslint-disable */
@@ -38,6 +40,18 @@ export interface CreateDeploymentDto {
      * @memberof CreateDeploymentDto
      */
     parameters: { [key: string]: any; };
+    /**
+     * The URL to call after the deployment has been created.
+     * @type {string}
+     * @memberof CreateDeploymentDto
+     */
+    confirmUrl: string | null;
+    /**
+     * The URL to call after the deployment has been cancelled.
+     * @type {string}
+     * @memberof CreateDeploymentDto
+     */
+    cancelUrl: string | null;
 }
 
 /**
@@ -48,6 +62,8 @@ export function instanceOfCreateDeploymentDto(value: object): boolean {
     isInstance = isInstance && "name" in value;
     isInstance = isInstance && "serviceId" in value;
     isInstance = isInstance && "parameters" in value;
+    isInstance = isInstance && "confirmUrl" in value;
+    isInstance = isInstance && "cancelUrl" in value;
 
     return isInstance;
 }
@@ -65,6 +81,8 @@ export function CreateDeploymentDtoFromJSONTyped(json: any, ignoreDiscriminator:
         'name': json['name'],
         'serviceId': json['serviceId'],
         'parameters': json['parameters'],
+        'confirmUrl': json['confirmUrl'],
+        'cancelUrl': json['cancelUrl'],
     };
 }
 
@@ -80,6 +98,8 @@ export function CreateDeploymentDtoToJSON(value?: CreateDeploymentDto | null): a
         'name': value.name,
         'serviceId': value.serviceId,
         'parameters': value.parameters,
+        'confirmUrl': value.confirmUrl,
+        'cancelUrl': value.cancelUrl,
     };
 }
 

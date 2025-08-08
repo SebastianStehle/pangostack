@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BlobEntity, BlobRepository } from 'src/domain/database';
 
 export class GetBlob {
-  constructor(public readonly id: string) {}
+  constructor(public readonly blobId: string) {}
 }
 
 export class GetBlobResponse {
@@ -18,9 +18,9 @@ export class GetBlobHandler implements IQueryHandler<GetBlob, GetBlobResponse> {
   ) {}
 
   async execute(request: GetBlob): Promise<GetBlobResponse> {
-    const { id } = request;
+    const { blobId } = request;
 
-    const blob = await this.blobs.findOneBy({ id });
+    const blob = await this.blobs.findOneBy({ id: blobId });
     if (!blob) {
       return new GetBlobResponse();
     }

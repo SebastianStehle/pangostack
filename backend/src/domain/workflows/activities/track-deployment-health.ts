@@ -21,14 +21,21 @@ export class TrackDeploymentHealthActivity implements Activity<TrackDeploymentHe
   ) {}
 
   async execute({ deploymentId }: TrackDeploymentHealthParam) {
-    const update = await this.deploymentUpdates.findOne({
-      where: { deploymentId, status: 'Completed' },
+    const updates = await this.deploymentUpdates.find({
+      where: { deploymentId },
       order: { id: 'DESC' },
       relations: ['serviceVersion'],
     });
 
-    if (!update) {
+    if (updates.length === 0) {
+      // Throw an error to make the tracking easier.
       throw new NotFoundException(`Update for deployment ${deploymentId} not found`);
+    }
+
+    const update = updates.find((x) => x.status === 'Completed');
+    if (!update) {
+      // Deployment has not been completed yet. This is normal behavior.
+      return;
     }
 
     const definition = update.serviceVersion.definition;

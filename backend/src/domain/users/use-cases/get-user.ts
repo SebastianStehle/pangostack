@@ -5,7 +5,7 @@ import { User } from '../interfaces';
 import { buildUser } from './utils';
 
 export class GetUser {
-  constructor(public readonly id: string) {}
+  constructor(public readonly userId: string) {}
 }
 
 export class GetUserResponse {
@@ -20,9 +20,9 @@ export class GetUserHandler implements IQueryHandler<GetUser, GetUserResponse> {
   ) {}
 
   async execute(query: GetUser): Promise<GetUserResponse> {
-    const { id } = query;
+    const { userId } = query;
 
-    const user = await this.users.findOneBy({ id });
+    const user = await this.users.findOneBy({ id: userId });
     const result = user ? buildUser(user) : undefined;
 
     return new GetUserResponse(result);

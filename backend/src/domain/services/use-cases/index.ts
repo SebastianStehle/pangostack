@@ -7,6 +7,8 @@ export * from './delete-deployment';
 export * from './delete-service-version';
 export * from './delete-service';
 export * from './get-deployment-status';
+export * from './get-deployment-checks';
+export * from './get-deployment-usages';
 export * from './get-service-versions';
 export * from './get-services-public';
 export * from './get-services';

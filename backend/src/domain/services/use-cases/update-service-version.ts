@@ -10,7 +10,7 @@ type Values = Optional<Pick<ServiceVersion, 'definition' | 'environment' | 'isAc
 
 export class UpdateServiceVersion {
   constructor(
-    public readonly id: number,
+    public readonly serviceId: number,
     public readonly values: Values,
   ) {}
 }
@@ -27,12 +27,12 @@ export class UpdateServiceVersionHandler implements ICommandHandler<UpdateServic
   ) {}
 
   async execute(request: UpdateServiceVersion): Promise<UpdateServiceVersionResponse> {
-    const { id, values } = request;
+    const { serviceId, values } = request;
     const { definition, environment, isActive } = values;
 
-    const version = await this.serviceVersions.findOne({ where: { id }, relations: ['deploymentUpdates', 'service'] });
+    const version = await this.serviceVersions.findOne({ where: { id: serviceId }, relations: ['deploymentUpdates', 'service'] });
     if (!version) {
-      throw new NotFoundException(`Service Update ${id} not found.`);
+      throw new NotFoundException(`Service Update ${serviceId} not found.`);
     }
 
     // If the service is active, we can only update the active state so that we do not mess up existing deployments.

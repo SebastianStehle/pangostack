@@ -20,10 +20,20 @@ export const DeployPage = () => {
 
   const creating = useMutation({
     mutationFn: ({ name, parameters }: DeploymentUpdate) => {
-      return clients.deployments.postDeployment(+teamId!, { name, parameters, serviceId: service!.id });
+      return clients.deployments.postDeployment(+teamId!, {
+        name,
+        parameters,
+        serviceId: service!.id,
+        confirmUrl: '/deployments',
+        cancelUrl: '/deployments',
+      });
     },
-    onSuccess: () => {
-      toast(texts.common.saved, { type: 'success' });
+    onSuccess: (result) => {
+      if (result.redirectUrl) {
+        window.location.href = result.redirectUrl;
+      } else {
+        toast(texts.common.saved, { type: 'success' });
+      }
     },
   });
 

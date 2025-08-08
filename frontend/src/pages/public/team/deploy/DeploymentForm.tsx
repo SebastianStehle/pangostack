@@ -38,8 +38,10 @@ export function DeploymentForm(props: DeploymentFormProps) {
     const shape: ObjectShape = {};
 
     for (const parameter of service.parameters) {
+      const label = parameter.label || parameter.name;
+
       if (parameter.type === 'boolean') {
-        let boolean = Yup.bool();
+        let boolean = Yup.bool().label(label);
 
         if (parameter.required) {
           boolean = boolean.required();
@@ -47,7 +49,7 @@ export function DeploymentForm(props: DeploymentFormProps) {
 
         shape[parameter.name] = boolean;
       } else if (parameter.type === 'number') {
-        let number = Yup.number();
+        let number = Yup.number().label(label);
 
         if (parameter.required) {
           number = number.required();
@@ -63,7 +65,7 @@ export function DeploymentForm(props: DeploymentFormProps) {
 
         shape[parameter.name] = number;
       } else if (parameter.type === 'string') {
-        let string = Yup.string();
+        let string = Yup.string().label(label);
 
         if (parameter.required) {
           string = string.required();

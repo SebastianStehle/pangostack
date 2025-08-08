@@ -1,3 +1,5 @@
+/* eslint-disable */
+// @ts-nocheck
 //@ts-nocheck
 /* tslint:disable */
 /* eslint-disable */
@@ -45,29 +47,29 @@ export interface UpsertServiceDto {
      */
     currency: string;
     /**
-     * The price per CPU and hour in the selected currency.
+     * The price per Core and hour in the selected currency.
      * @type {number}
      * @memberof UpsertServiceDto
      */
-    pricePerCpuHour: number;
+    pricePerCoreHour: number;
     /**
      * The price per Memory in GB and hour in the selected currency.
      * @type {number}
      * @memberof UpsertServiceDto
      */
-    pricePerMemoryGbHour: number;
+    pricePerMemoryGBHour: number;
     /**
      * The price per Storage in GB and hour in the selected currency.
      * @type {number}
      * @memberof UpsertServiceDto
      */
-    pricePerStorageGbMonth: number;
+    pricePerStorageGBMonth: number;
     /**
      * The price per Disk in GB and hour in the selected currency.
      * @type {number}
      * @memberof UpsertServiceDto
      */
-    pricePerVolumeGbHour: number;
+    pricePerVolumeGBHour: number;
     /**
      * The additional fixed price.
      * @type {number}
@@ -91,10 +93,10 @@ export function instanceOfUpsertServiceDto(value: object): boolean {
     isInstance = isInstance && "description" in value;
     isInstance = isInstance && "environment" in value;
     isInstance = isInstance && "currency" in value;
-    isInstance = isInstance && "pricePerCpuHour" in value;
-    isInstance = isInstance && "pricePerMemoryGbHour" in value;
-    isInstance = isInstance && "pricePerStorageGbMonth" in value;
-    isInstance = isInstance && "pricePerVolumeGbHour" in value;
+    isInstance = isInstance && "pricePerCoreHour" in value;
+    isInstance = isInstance && "pricePerMemoryGBHour" in value;
+    isInstance = isInstance && "pricePerStorageGBMonth" in value;
+    isInstance = isInstance && "pricePerVolumeGBHour" in value;
     isInstance = isInstance && "fixedPrice" in value;
     isInstance = isInstance && "isPublic" in value;
 
@@ -115,10 +117,10 @@ export function UpsertServiceDtoFromJSONTyped(json: any, ignoreDiscriminator: bo
         'description': json['description'],
         'environment': json['environment'],
         'currency': json['currency'],
-        'pricePerCpuHour': json['pricePerCpuHour'],
-        'pricePerMemoryGbHour': json['pricePerMemoryGbHour'],
-        'pricePerStorageGbMonth': json['pricePerStorageGbMonth'],
-        'pricePerVolumeGbHour': json['pricePerVolumeGbHour'],
+        'pricePerCoreHour': json['pricePerCoreHour'],
+        'pricePerMemoryGBHour': json['pricePerMemoryGBHour'],
+        'pricePerStorageGBMonth': json['pricePerStorageGBMonth'],
+        'pricePerVolumeGBHour': json['pricePerVolumeGBHour'],
         'fixedPrice': json['fixedPrice'],
         'isPublic': json['isPublic'],
     };
@@ -137,10 +139,10 @@ export function UpsertServiceDtoToJSON(value?: UpsertServiceDto | null): any {
         'description': value.description,
         'environment': value.environment,
         'currency': value.currency,
-        'pricePerCpuHour': value.pricePerCpuHour,
-        'pricePerMemoryGbHour': value.pricePerMemoryGbHour,
-        'pricePerStorageGbMonth': value.pricePerStorageGbMonth,
-        'pricePerVolumeGbHour': value.pricePerVolumeGbHour,
+        'pricePerCoreHour': value.pricePerCoreHour,
+        'pricePerMemoryGBHour': value.pricePerMemoryGBHour,
+        'pricePerStorageGBMonth': value.pricePerStorageGBMonth,
+        'pricePerVolumeGBHour': value.pricePerVolumeGBHour,
         'fixedPrice': value.fixedPrice,
         'isPublic': value.isPublic,
     };

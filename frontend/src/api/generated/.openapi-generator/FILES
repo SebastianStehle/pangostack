@@ -10,11 +10,15 @@ apis/index.ts
 index.ts
 models/AuthProviderDto.ts
 models/AuthSettingsDto.ts
-models/BillingStatusDto.ts
 models/CreateDeploymentDto.ts
 models/CreateServiceVersionDto.ts
+models/DeploymentCheckSummariesDto.ts
+models/DeploymentCheckSummaryDto.ts
+models/DeploymentCreatedDto.ts
 models/DeploymentDto.ts
 models/DeploymentStatusDto.ts
+models/DeploymentUsageSummariesDto.ts
+models/DeploymentUsageSummaryDto.ts
 models/DeploymentsDto.ts
 models/InvoiceDto.ts
 models/InvoicesDto.ts

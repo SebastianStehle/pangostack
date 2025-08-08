@@ -28,14 +28,21 @@ export class TrackDeploymentUsageActivity implements Activity<TrackDeploymentUsa
   ) {}
 
   async execute({ deploymentId, trackDate, trackHour, workerApiKey, workerEndpoint }: TrackDeploymentUsageParam) {
-    const update = await this.deploymentUpdates.findOne({
-      where: { deploymentId, status: 'Completed' },
+    const updates = await this.deploymentUpdates.find({
+      where: { deploymentId },
       order: { id: 'DESC' },
       relations: ['serviceVersion'],
     });
 
+    if (updates.length === 0) {
+      // Throw an error to make the tracking easier.
+      throw new NotFoundException(`Update for deployment ${deploymentId} not found`);
+    }
+
+    const update = updates.find((x) => x.status === 'Completed');
     if (!update) {
-      throw new NotFoundException(`Uppdate for deployment ${deploymentId} not found`);
+      // Deployment has not been completed yet. This is normal behavior.
+      return;
     }
 
     const definition = update.serviceVersion.definition;

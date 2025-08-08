@@ -21,15 +21,12 @@ export class CancelDeploymentHandler implements ICommandHandler<CancelDeployment
   async execute(command: CancelDeployment): Promise<any> {
     const { deploymentId, teamId, token } = command;
 
-    const deployment = await this.deployments.findOne({
-      where: { id: deploymentId, teamId },
-      relations: ['version', 'version.service'],
-    });
+    const deployment = await this.deployments.findOne({ where: { id: deploymentId, teamId } });
     if (!deployment) {
       throw new NotFoundException(`Deployment ${deploymentId} not found`);
     }
 
-    if (deployment.status !== 'Created' || deployment.confirmToken !== token) {
+    if (deployment.status === 'Created' || deployment.confirmToken !== token) {
       throw new ForbiddenException();
     }
 

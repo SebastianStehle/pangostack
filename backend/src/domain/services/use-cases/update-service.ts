@@ -10,7 +10,7 @@ type Values = Omit<Service, 'id' | 'isActive' | 'lastVersion' | 'numDeployments'
 
 export class UpdateService {
   constructor(
-    public readonly id: number,
+    public readonly serviceId: number,
     public readonly values: Values,
   ) {}
 }
@@ -27,7 +27,7 @@ export class UpdateServiceHandler implements ICommandHandler<UpdateService, Upda
   ) {}
 
   async execute(request: UpdateService): Promise<UpdateServiceResponse> {
-    const { id, values } = request;
+    const { serviceId, values } = request;
     const {
       currency,
       description,
@@ -41,9 +41,12 @@ export class UpdateServiceHandler implements ICommandHandler<UpdateService, Upda
       pricePerStorageGBMonth,
     } = values;
 
-    const service = await this.services.findOne({ where: { id }, relations: ['versions', 'versions.deploymentUpdates'] });
+    const service = await this.services.findOne({
+      where: { id: serviceId },
+      relations: ['versions', 'versions.deploymentUpdates'],
+    });
     if (!service) {
-      throw new NotFoundException(`Service ${id} not found.`);
+      throw new NotFoundException(`Service ${serviceId} not found.`);
     }
 
     // Assign the object manually to avoid updating unexpected values.

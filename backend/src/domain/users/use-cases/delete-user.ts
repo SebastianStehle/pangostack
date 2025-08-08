@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity, UserRepository } from 'src/domain/database';
 
 export class DeleteUser {
-  constructor(public readonly id: string) {}
+  constructor(public readonly userId: string) {}
 }
 
 @CommandHandler(DeleteUser)
@@ -15,11 +15,11 @@ export class DeleteUserHandler implements ICommandHandler<DeleteUser, any> {
   ) {}
 
   async execute(command: DeleteUser): Promise<any> {
-    const { id } = command;
+    const { userId } = command;
 
-    const { affected } = await this.users.delete({ id });
+    const { affected } = await this.users.delete({ id: userId });
     if (!affected) {
-      throw new NotFoundException(`User ${id} not found.`);
+      throw new NotFoundException(`User ${userId} not found.`);
     }
   }
 }
