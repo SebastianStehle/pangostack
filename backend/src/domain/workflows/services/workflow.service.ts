@@ -1,7 +1,6 @@
 import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { Client, ScheduleAlreadyRunning } from '@temporalio/client';
 import { NativeConnection, Worker } from '@temporalio/worker';
-import { WorkflowIdReusePolicy } from '@temporalio/workflow';
 import { WorkerEntity } from 'src/domain/database';
 import { DeploymentUpdateEntity } from 'src/domain/database';
 import { is } from 'src/lib';
@@ -182,22 +181,10 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
     this.logger.log(`Workers shut down successfully.`);
   }
 
-  async createSubscription(deploymentId: number, teamId: number) {
-    const [, client] = await this.temporal.getClient();
-
-    await client.workflow.start(workflows.createSubscription, {
-      args: [{ deploymentId, teamId }],
-      taskQueue: `deployments`,
-      workflowId: `subscribe-${deploymentId}`,
-      workflowIdReusePolicy: WorkflowIdReusePolicy.REJECT_DUPLICATE,
-    });
-  }
-
   async createDeployment(
     deploymentId: number,
     deploymentUpdate: DeploymentUpdateEntity,
     previousUpdate: DeploymentUpdateEntity | null,
-    teamId: number,
     worker: WorkerEntity,
   ) {
     const [, client] = await this.temporal.getClient();
@@ -214,7 +201,6 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
             previousUpdateId: deploymentUpdate?.id || null,
             previousResources: previousUpdate?.serviceVersion.definition.resources || null,
             resources: deploymentUpdate.serviceVersion.definition.resources,
-            teamId,
             updateId: deploymentUpdate.id,
             workerApiKey: worker.apiKey,
             workerEndpoint: worker.endpoint,
@@ -244,7 +230,6 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
             updateId: deploymentUpdate.id,
             workerApiKey: worker.apiKey,
             workerEndpoint: worker.endpoint,
-            teamId: 0,
           },
         ],
         taskQueue: `deployments`,

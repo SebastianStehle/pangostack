@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BlobEntity, BlobRepository } from 'src/domain/database';
+import { saveAndFind } from 'src/lib';
 
 export class UploadBlob {
   constructor(
@@ -12,22 +13,18 @@ export class UploadBlob {
   ) {}
 }
 
-export class UploadBlobResponse {}
-
 @CommandHandler(UploadBlob)
-export class UploadBlobHandler implements ICommandHandler<UploadBlob, UploadBlobResponse> {
+export class UploadBlobHandler implements ICommandHandler<UploadBlob> {
   constructor(
     @InjectRepository(BlobEntity)
     private readonly blobs: BlobRepository,
   ) {}
 
-  async execute(request: UploadBlob): Promise<UploadBlobResponse> {
+  async execute(request: UploadBlob): Promise<any> {
     const { id, mimeType: type } = request;
 
     const buffer = request.buffer.toString('base64');
 
-    await this.blobs.save({ id, type, buffer });
-
-    return new UploadBlobResponse();
+    await saveAndFind(this.blobs, { id, type, buffer });
   }
 }

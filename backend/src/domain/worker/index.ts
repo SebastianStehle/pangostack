@@ -7,11 +7,11 @@ export class WorkerClient {
 
   constructor(
     public readonly basePath: string,
-    public readonly apiKey: string,
+    public readonly apiKey?: string,
   ) {
     const configuration = new Configuration({
       headers: {
-        ['X-ApiKey']: apiKey,
+        ['X-ApiKey']: apiKey || '',
       },
       fetchApi: async (request, init) => {
         const agent = new https.Agent({
@@ -105,6 +105,6 @@ export async function buildError(error: unknown) {
 
     return new WorkerResponseError(statusCode, body, error);
   } else {
-    return new WorkerResponseError(undefined, undefined, error as any);
+    return new WorkerResponseError(0, undefined, error as any);
   }
 }

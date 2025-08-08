@@ -1,9 +1,20 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DeploymentEntity, DeploymentUpdateEntity, ServiceEntity, ServiceVersionEntity, WorkerEntity } from 'src/domain/database';
+import {
+  DeploymentCheckEntity,
+  DeploymentEntity,
+  DeploymentUpdateEntity,
+  ServiceEntity,
+  ServiceVersionEntity,
+  WorkerEntity,
+} from 'src/domain/database';
 import { BillingModule } from '../billing';
 import { WorkflowModule } from '../workflows';
+import { UrlService } from './services/url.service';
 import {
+  CancelDeploymentHandler,
+  ConfirmDeploymentHandler,
   CreateDeploymentHandler,
   CreateServiceHandler,
   CreateServiceVersionHandler,
@@ -23,10 +34,20 @@ import {
 @Module({
   imports: [
     BillingModule,
-    TypeOrmModule.forFeature([ServiceEntity, ServiceVersionEntity, DeploymentUpdateEntity, DeploymentEntity, WorkerEntity]),
+    ConfigModule,
+    TypeOrmModule.forFeature([
+      DeploymentCheckEntity,
+      DeploymentEntity,
+      DeploymentUpdateEntity,
+      ServiceEntity,
+      ServiceVersionEntity,
+      WorkerEntity,
+    ]),
     WorkflowModule,
   ],
   providers: [
+    CancelDeploymentHandler,
+    ConfirmDeploymentHandler,
     CreateDeploymentHandler,
     CreateServiceHandler,
     CreateServiceVersionHandler,
@@ -34,13 +55,15 @@ import {
     DeleteServiceHandler,
     DeleteServiceVersionHandler,
     GetDeploymentStatusHandler,
-    GetTeamDeploymentsHandler,
     GetServicesHandler,
     GetServicesPublicHandler,
     GetServiceVersionsHandler,
+    GetTeamDeploymentsHandler,
     UpdateDeploymentHandler,
     UpdateServiceHandler,
     UpdateServiceVersionHandler,
+    UrlService,
   ],
+  exports: [UrlService],
 })
 export class ServicesModule {}

@@ -9,7 +9,7 @@ export type DeleteResourceParam = {
   deploymentId: number;
   resource: ResourceDefinition;
   updateId: number;
-  workerApiKey: string;
+  workerApiKey?: string;
   workerEndpoint: string;
 };
 
@@ -35,6 +35,7 @@ export class DeleteResourceActivity implements Activity<DeleteResourceParam> {
     await workerClient.deployment.deleteResources({
       resources: [
         {
+          context: update.resourceContexts[resource.id] || {},
           resourceId,
           resourceType: resource.type,
           parameters: resourceParams,

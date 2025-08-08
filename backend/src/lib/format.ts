@@ -11,7 +11,7 @@ export function prettyFormat(): Format {
         return info;
       }
 
-      info.message = message.replace(/{(.*?)}/g, (match, placeholder) => {
+      info.message = message.replace(/{(.*?)}/g, (_, placeholder) => {
         return info[placeholder] || placeholder;
       });
 

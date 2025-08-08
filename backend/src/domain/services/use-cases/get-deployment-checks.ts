@@ -7,6 +7,7 @@ import { CheckSummary } from '../interfaces';
 
 export class GetDeploymentChecks {
   constructor(
+    public readonly teamId: number,
     public readonly deploymentId: number,
     public readonly dateFrom: string,
     public readonly dateTo: string,
@@ -27,13 +28,13 @@ export class GetDeploymentChecksHandler implements IQueryHandler<GetDeploymentCh
   ) {}
 
   async execute(query: GetDeploymentChecks): Promise<GetDeploymentChecksResponse> {
-    const { dateFrom, dateTo, deploymentId } = query;
+    const { dateFrom, dateTo, deploymentId, teamId } = query;
 
     // Also valdiates the dates, therefore call this method first.
     const dates = getDatesInRange(dateFrom, dateTo, 90);
 
     const deployment = await this.deployments.findOne({
-      where: { id: deploymentId },
+      where: { id: deploymentId, teamId },
       relations: ['updates', 'updates.serviceVersion'],
     });
 

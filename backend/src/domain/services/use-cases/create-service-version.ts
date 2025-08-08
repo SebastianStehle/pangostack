@@ -2,6 +2,7 @@ import { NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceEntity, ServiceRepository, ServiceVersionEntity, ServiceVersionRepository } from 'src/domain/database';
+import { saveAndFind } from 'src/lib';
 import { ServiceVersion } from '../interfaces';
 import { buildServiceVersion } from './utils';
 
@@ -36,7 +37,7 @@ export class CreateServiceVersionHandler implements ICommandHandler<CreateServic
       throw new NotFoundException(`Service ${serviceId} not found.`);
     }
 
-    const version = await this.serviceVersions.save({ definition, environment, isActive, name, serviceId });
+    const version = await saveAndFind(this.serviceVersions, { definition, environment, isActive, name, serviceId });
 
     return new CreateServiceVersionResponse(buildServiceVersion(version, false));
   }

@@ -31,8 +31,8 @@ export class UserEntity {
   @Column('simple-json', { nullable: true })
   roles?: string[];
 
-  @Column({ nullable: true })
-  passwordHash?: string;
+  @Column('varchar', { nullable: true })
+  passwordHash?: string | null;
 
   @Column({ nullable: true })
   userGroupId: string;

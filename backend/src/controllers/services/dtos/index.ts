@@ -181,7 +181,7 @@ export class ServiceDto {
     result.id = source.id;
     result.currency = source.currency;
     result.description = source.description;
-    result.environment = source.environment;
+    result.environment = source.environment || {};
     result.fixedPrice = source.fixedPrice;
     result.isActive = source.isActive;
     result.isPublic = source.isPublic;

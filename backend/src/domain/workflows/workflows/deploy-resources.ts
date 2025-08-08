@@ -4,16 +4,15 @@ import type * as activities from '../activities';
 
 export interface DeployResourcesParam {
   deploymentId: number;
-  previousResources: ResourceDefinition[] | null;
-  previousUpdateId: number | null;
+  previousResources?: ResourceDefinition[] | null;
+  previousUpdateId?: number | null;
   resources: ResourceDefinition[];
-  teamId: number;
   updateId: number;
-  workerApiKey: string;
+  workerApiKey?: string;
   workerEndpoint: string;
 }
 
-const { createSubscription, deleteResource, deployResource } = proxyActivities<typeof activities>({
+const { deleteResource, deployResource } = proxyActivities<typeof activities>({
   startToCloseTimeout: '5m',
   retry: {
     maximumAttempts: 5,
@@ -32,20 +31,17 @@ export async function deployResources({
   previousResources,
   previousUpdateId,
   resources,
-  teamId,
   updateId,
   workerApiKey,
   workerEndpoint,
-}: DeployResourcesParam): Promise<void> {
-  await createSubscription({ teamId, deploymentId });
-
+}: DeployResourcesParam): Promise<any> {
   await updateDeployment({ updateId, status: 'Running' });
 
   try {
     if (previousResources) {
       for (const resource of previousResources) {
         const inPrevious = previousResources.find((x) => x.id === resource.id);
-        if (!inPrevious) {
+        if (!inPrevious && previousUpdateId) {
           await deleteResource({
             deploymentId,
             resource,

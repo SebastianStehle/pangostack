@@ -3,16 +3,12 @@ import { BillingService, Invoice } from '../interface';
 
 @Injectable()
 export class NoopBillingService implements BillingService {
-  getCardDetailsLink(): Promise<string | null> {
-    return Promise.resolve(null);
+  hasSubscription(): Promise<boolean> {
+    return Promise.resolve(true);
   }
 
   getBillingPortalLink(): Promise<string | null> {
     return Promise.resolve(null);
-  }
-
-  hasPaymentDetails(): Promise<boolean> {
-    return Promise.resolve(true);
   }
 
   createSubscription(): Promise<any> {

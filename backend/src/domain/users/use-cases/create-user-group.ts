@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserGroupEntity, UserGroupRepository } from 'src/domain/database';
+import { saveAndFind } from 'src/lib';
 import { UserGroup } from '../interfaces';
 import { buildUserGroup } from './utils';
 
@@ -25,7 +26,7 @@ export class CreateUserGroupHandler implements ICommandHandler<CreateUserGroup, 
     const { values } = request;
     const { name } = values;
 
-    const userGroup = await this.userGroups.save({ name });
+    const userGroup = await saveAndFind(this.userGroups, { name });
 
     return new CreateUserGroupResponse(buildUserGroup(userGroup));
   }

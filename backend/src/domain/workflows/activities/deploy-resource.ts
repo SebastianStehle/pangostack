@@ -9,7 +9,7 @@ import { Activity } from '../registration';
 export type DeployResourceParam = {
   deploymentId: number;
   resource: ResourceDefinition;
-  workerApiKey: string;
+  workerApiKey?: string;
   workerEndpoint: string;
   updateId: number;
 };
@@ -48,12 +48,14 @@ export class DeployResourceActivity implements Activity<DeployResourceParam> {
 
     const workerClient = new WorkerClient(workerEndpoint, workerApiKey);
     const response = await workerClient.deployment.applyResource({
+      context: update.resourceContexts[resource.id] || {},
       resourceId,
       resourceType: resource.type,
       parameters: resourceParams,
     });
 
-    update.connections[resource.id] = response.connection;
+    update.resourceConnections[resource.id] = response.connection;
+    update.resourceContexts[resource.id] = response.context;
 
     if (response.context) {
       for (const [key, value] of Object.entries(response.context)) {

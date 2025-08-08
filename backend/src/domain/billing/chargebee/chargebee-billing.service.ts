@@ -29,6 +29,10 @@ export class ChargebeeBillingService implements BillingService {
     }
   }
 
+  hasSubscription(): Promise<boolean> {
+    throw new Error('Method not implemented.');
+  }
+
   async createSubscription(teamId: number, deploymentId: number): Promise<any> {
     try {
       const customer = await this.getOrCreateCustomer(teamId);
@@ -64,12 +68,12 @@ export class ChargebeeBillingService implements BillingService {
       let date_from = startOfDayTimestamp(charges.dateFrom);
       let date_to = endOfDayTimestamp(charges.dateTo);
 
-      if (date_from < subscription.created_at) {
-        date_from = subscription.created_at + 1;
+      if (date_from < subscription.created_at!) {
+        date_from = subscription.created_at! + 1;
       }
 
-      if (date_to < subscription.created_at) {
-        date_to = subscription.created_at + 1;
+      if (date_to < subscription.created_at!) {
+        date_to = subscription.created_at! + 1;
       }
 
       const addCharge = async (addonId: string, units: number, pricePerUnit: number) => {
@@ -87,7 +91,7 @@ export class ChargebeeBillingService implements BillingService {
           date_to,
         });
 
-        if (result.httpStatusCode >= 400) {
+        if (result.httpStatusCode && result.httpStatusCode >= 400) {
           throw new BillingError(`Failed to add addon, got status {result.httpStatusCode}`);
         }
       };
@@ -140,14 +144,14 @@ export class ChargebeeBillingService implements BillingService {
     }
 
     const session = await this.chargebee.hostedPage.checkoutOneTime(payload);
-    return session.hosted_page.url;
+    return session.hosted_page.url!;
   }
 
   async hasPaymentDetails(teamId: number): Promise<boolean> {
     try {
       const customer = await this.getOrCreateCustomer(teamId);
 
-      return customer && customer.card_status === 'valid' && customer.billing_address.validation_status === 'valid';
+      return customer && customer.card_status === 'valid' && customer.billing_address?.validation_status === 'valid';
     } catch (error) {
       console.log(error);
       throw error;

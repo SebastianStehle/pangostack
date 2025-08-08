@@ -52,17 +52,17 @@ export class VultrStorageResource implements Resource {
           hostName: {
             value: result.s3_hostname,
             label: 'Host Name',
-            public: true,
+            isPublic: true,
           },
           accessKey: {
             value: result.s3_access_key,
             label: 'Access Key',
-            public: true,
+            isPublic: true,
           },
           secretKey: {
             value: result.s3_secret_key,
             label: 'Secret Key',
-            public: true,
+            isPublic: true,
           },
         },
       };
@@ -97,8 +97,8 @@ export class VultrStorageResource implements Resource {
     return { totalStorageGB: storage?.size_gb || 0 };
   }
 
-  async status(id: string, request: ResourceRequest): Promise<ResourceStatusResult> {
-    const { apiKey } = request.parameters as { apiKey: string };
+  async status(id: string, request: ResourceRequest<Parameters>): Promise<ResourceStatusResult> {
+    const { apiKey } = request.parameters;
 
     const vultr = initializeVultrClient({
       apiKey,

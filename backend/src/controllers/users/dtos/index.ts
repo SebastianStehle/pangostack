@@ -111,7 +111,7 @@ export class UserDto {
     result.id = source.id;
     result.apiKey = source.apiKey;
     result.email = source.email;
-    result.hasPassword = source.hasPassword;
+    result.hasPassword = !!source.hasPassword;
     result.name = source.name;
     result.roles = source.roles;
     result.userGroupId = source.userGroupId;

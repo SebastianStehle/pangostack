@@ -22,7 +22,7 @@ export class OAuthStrategy extends PassportStrategy(Strategy, 'oauth2') {
     this.userInfoURL = authService.config.oauth?.userInfoURL || 'INVALID';
   }
 
-  userProfile(accessToken: string, done: (error?: Error, result?: any) => void) {
+  userProfile(accessToken: string, done: (error?: Error | null, result?: any) => void) {
     this._oauth2.useAuthorizationHeaderforGET(true);
     this._oauth2.get(this.userInfoURL, accessToken, function (err, body) {
       let json;
@@ -40,14 +40,6 @@ export class OAuthStrategy extends PassportStrategy(Strategy, 'oauth2') {
           return done(new Error(`Error: ${json.error_description}. Status Code: ${json.error}.`));
         }
         return done(new InternalError('Failed to fetch user profile', { cause: err }));
-      }
-
-      if (err) {
-        if (err.data) {
-          try {
-            json = JSON.parse(err.data);
-          } catch (_) {}
-        }
       }
 
       try {

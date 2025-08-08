@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceEntity, ServiceRepository } from 'src/domain/database';
-import { assignDefined } from 'src/lib';
+import { saveAndFind } from 'src/lib';
 import { Service } from '../interfaces';
 import { buildService } from './utils';
 
@@ -37,7 +37,7 @@ export class CreateServiceHandler implements ICommandHandler<CreateService, Crea
       pricePerStorageGBMonth,
     } = values;
 
-    const service = await this.services.save({
+    const service = await saveAndFind(this.services, {
       currency,
       description,
       environment,

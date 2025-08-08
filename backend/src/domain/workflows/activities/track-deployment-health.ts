@@ -67,7 +67,8 @@ export class TrackDeploymentHealthActivity implements Activity<TrackDeploymentHe
 
     const status = numFailed > 0 ? 'Failed' : 'Succeeded';
 
-    await this.deploymentChecks.save({ deploymentId, status, log: log.join('\n') });
+    const deploymentCheck = this.deploymentChecks.create({ deploymentId, status, log: log.join('\n') });
+    await this.deploymentChecks.save(deploymentCheck);
   }
 }
 

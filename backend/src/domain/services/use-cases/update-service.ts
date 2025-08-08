@@ -41,7 +41,7 @@ export class UpdateServiceHandler implements ICommandHandler<UpdateService, Upda
       pricePerStorageGBMonth,
     } = values;
 
-    let service = await this.services.findOne({ where: { id }, relations: ['versions', 'versions.deploymentUpdates'] });
+    const service = await this.services.findOne({ where: { id }, relations: ['versions', 'versions.deploymentUpdates'] });
     if (!service) {
       throw new NotFoundException(`Service ${id} not found.`);
     }
@@ -59,9 +59,7 @@ export class UpdateServiceHandler implements ICommandHandler<UpdateService, Upda
       pricePerMemoryGBHour,
       pricePerStorageGBMonth,
     });
-
-    // Reassign the entity to get database generated values..
-    service = await this.services.save(service);
+    await this.services.save(service);
 
     return new UpdateServiceResponse(buildService(service));
   }

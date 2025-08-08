@@ -14,7 +14,11 @@ export async function deploymentCoordinator({ deploymentId }: { deploymentId: nu
 
   while (queue.length > 0) {
     const newAction = queue.shift();
-    const { action, previousResources, previousUpdateId, resources, teamId, updateId, workerApiKey, workerEndpoint } = newAction;
+    if (!newAction) {
+      break;
+    }
+
+    const { action, previousResources, previousUpdateId, resources, updateId, workerApiKey, workerEndpoint } = newAction;
 
     if (action === 'Update') {
       await executeChild(deployResources, {
@@ -25,7 +29,6 @@ export async function deploymentCoordinator({ deploymentId }: { deploymentId: nu
             previousUpdateId,
             deploymentId,
             resources,
-            teamId,
             updateId,
             workerApiKey,
             workerEndpoint,

@@ -6,6 +6,8 @@ import { defineResource, Resource, ResourceApplyResult, ResourceRequest, Resourc
 
 type Parameters = { apiKey: string; region: string; plan: string; app: string; dockerComposeUrl: string };
 
+type Context = { password: string };
+
 // 5 minutes
 const DEFAULT_TIMEOUT = 10 * 60 * 1000;
 
@@ -54,7 +56,7 @@ export class VultrDockerResource implements Resource {
     return { plans, regions };
   }
 
-  async apply(id: string, request: ResourceRequest<Parameters>): Promise<ResourceApplyResult> {
+  async apply(id: string, request: ResourceRequest<Parameters, Context>): Promise<ResourceApplyResult> {
     const { apiKey, dockerComposeUrl, region, plan, app, ...others } = request.parameters;
 
     const vultr = initializeVultrClient({
@@ -75,17 +77,14 @@ export class VultrDockerResource implements Resource {
       });
 
       instance = response.instance;
-      context[`${id}_password`] = instance.default_password;
+      context.password = instance.default_password;
     }
-
-    const password = context[`${id}_password`];
 
     await waitForInstance(vultr, instance);
 
-    console.log(password);
     const ssh = new NodeSSH();
     await pollUntil(DEFAULT_TIMEOUT, async () => {
-      await ssh.connect({ host: instance.main_ip, password, username: 'root' });
+      await ssh.connect({ host: instance.main_ip, password: context.password!, username: 'root' });
       return true;
     });
 
@@ -97,7 +96,7 @@ export class VultrDockerResource implements Resource {
         ip: {
           value: instance.main_ip,
           label: 'IP Address',
-          public: true,
+          isPublic: true,
         },
       },
     };
@@ -122,8 +121,8 @@ export class VultrDockerResource implements Resource {
     return Promise.resolve({ totalStorageGB: 0 });
   }
 
-  async status(id: string, request: ResourceRequest): Promise<ResourceStatusResult> {
-    const { apiKey } = request.parameters as { apiKey: string };
+  async status(id: string, request: ResourceRequest<Parameters, Context>): Promise<ResourceStatusResult> {
+    const { apiKey } = request.parameters;
 
     const vultr = initializeVultrClient({
       apiKey,
@@ -132,7 +131,7 @@ export class VultrDockerResource implements Resource {
     const instance = await findInstance(vultr, id);
     if (instance) {
       const ssh = new NodeSSH();
-      await ssh.connect({ host: instance.main_ip, username: 'root', password: request.context[`${id}_password`] });
+      await ssh.connect({ host: instance.main_ip, username: 'root', password: request.context.password! });
 
       const containers = await getContainers(ssh);
 

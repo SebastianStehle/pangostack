@@ -26,14 +26,15 @@ export class CreateUserHandler implements ICommandHandler<CreateUser, CreateUser
     const { values } = request;
     const { apiKey, email, name, password, roles, userGroupId } = values;
 
-    const user = await this.users.save({
+    const user = this.users.create({
       apiKey,
       email,
       name,
-      passwordHash: password ? await bcrypt.hash(password, 10) : null,
+      passwordHash: password ? await bcrypt.hash(password, 10) : null!,
       roles,
       userGroupId,
     });
+    await this.users.save(user);
 
     return new CreateUserResponse(buildUser(user));
   }

@@ -40,7 +40,7 @@ export class AuthSettingsDto {
   static fromDomain(source: AuthConfig) {
     const result = new AuthSettingsDto();
     result.providers = [];
-    result.enablePasswordAuth = source.enablePassword;
+    result.enablePasswordAuth = !!source.enablePassword;
 
     if (source.github) {
       result.providers.push({
@@ -115,7 +115,7 @@ export class ProfileDto {
     description: 'The URL to an external picture.',
     required: false,
   })
-  picture: string;
+  picture?: string;
 
   @ApiProperty({
     description: 'Indicates if the user is an admin.',

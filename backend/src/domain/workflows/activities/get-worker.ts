@@ -6,7 +6,7 @@ import { Activity } from '../registration';
 
 export type GetWorkerParam = object;
 
-export type GetWorkerResult = { workerApiKey: string; workerEndpoint: string };
+export type GetWorkerResult = { workerApiKey?: string; workerEndpoint: string };
 
 @Activity(getWorker)
 export class GetWorkerActivity implements Activity<GetWorkerParam, GetWorkerResult> {

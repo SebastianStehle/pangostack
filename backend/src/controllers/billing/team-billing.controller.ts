@@ -1,11 +1,11 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiParam, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
 import { BillingService } from 'src/domain/billing';
 import { BUILTIN_USER_GROUP_DEFAULT } from 'src/domain/database';
 import { IntParam } from 'src/lib';
 import { TeamPermissionGuard } from '../TeamPermissionGuard';
-import { BillingStatusDto, InvoicesDto } from './dtos';
+import { InvoicesDto } from './dtos';
 
 @Controller('teams/:teamId')
 @ApiParam({
@@ -19,21 +19,6 @@ import { BillingStatusDto, InvoicesDto } from './dtos';
 @UseGuards(LocalAuthGuard)
 export class TeamBillingController {
   constructor(private readonly billingService: BillingService) {}
-
-  @Get('billing/status')
-  @ApiOperation({ operationId: 'getBillingStatus', description: 'Gets the status of the billing setup.' })
-  @ApiOkResponse({ type: BillingStatusDto })
-  @Role(BUILTIN_USER_GROUP_DEFAULT)
-  @UseGuards(RoleGuard, TeamPermissionGuard)
-  async getBillingStatus(@IntParam('teamId') teamId: number, @Query('redirectUrl') redirectUrl?: string) {
-    const hasCard = await this.billingService.hasPaymentDetails(teamId);
-    if (hasCard) {
-      return BillingStatusDto.valid();
-    }
-
-    const link = await this.billingService.getCardDetailsLink(teamId, redirectUrl);
-    return BillingStatusDto.invalid(link);
-  }
 
   @Get('invoices')
   @ApiOperation({ operationId: 'getInvoices', description: 'Gets all invoices.' })

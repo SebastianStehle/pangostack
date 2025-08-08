@@ -151,7 +151,7 @@ class ResourceDefinitionClass {
 class UsageDefinitionClass {
   @IsDefined()
   @IsString()
-  totalCores: snumbertring;
+  totalCores: string;
 
   @IsDefined()
   @IsString()
@@ -198,7 +198,11 @@ export function definitionToYaml(definition: ServiceDefinition) {
   return stringify(definition);
 }
 
-export function yamlToDefinition(yaml: string): ServiceDefinition {
+export function yamlToDefinition(yaml: string | undefined | null): ServiceDefinition {
+  if (!yaml) {
+    return new ServiceDefinitionClass();
+  }
+
   try {
     const definitionJson = parse(yaml);
     const definitionClass = plainToInstance(ServiceDefinitionClass, definitionJson);
@@ -287,13 +291,14 @@ export function validateDefinitionValue(service: ServiceDefinition, target: Reco
     const valueRaw = target[key];
     let value = valueRaw;
 
+    const constraints: Record<string, any> = {};
     const error: ValidationError = {
       property: `parameters.${key}`,
-      constraints: {},
+      constraints,
     };
 
     if (!valueExists && definition.required) {
-      error.constraints['isDefined'] = 'Value is required but was not provided';
+      constraints!['isDefined'] = 'Value is required but was not provided';
     }
 
     if (valueExists) {
@@ -314,7 +319,7 @@ export function validateDefinitionValue(service: ServiceDefinition, target: Reco
         }
 
         if (!isBoolean(value)) {
-          error.constraints['isBoolean'] = 'Value must be a boolean';
+          constraints['isBoolean'] = 'Value must be a boolean';
         }
       } else if (definition.type === 'number') {
         if (typeof value === 'string' && !isNaN(+value)) {
@@ -322,36 +327,36 @@ export function validateDefinitionValue(service: ServiceDefinition, target: Reco
         }
 
         if (!isNumber(value)) {
-          error.constraints['isNumber'] = 'Value must be a number';
+          constraints['isNumber'] = 'Value must be a number';
         } else {
           if (definition.minValue && value < definition.minValue) {
-            error.constraints['minValue'] = `Value must be at least ${definition.minValue}`;
+            constraints['minValue'] = `Value must be at least ${definition.minValue}`;
           }
           if (definition.maxValue && value > definition.maxValue) {
-            error.constraints['maxValue'] = `Value must be at most ${definition.maxValue}`;
+            constraints['maxValue'] = `Value must be at most ${definition.maxValue}`;
           }
           if (definition.allowedValues && !definition.allowedValues.find((x) => x.value === value)) {
-            error.constraints['enum'] = `Value must be at one of the allowed values`;
+            constraints['enum'] = `Value must be at one of the allowed values`;
           }
         }
       } else if (definition.type === 'string') {
         if (!isString(value)) {
-          error.constraints['isString'] = 'Value must be a string';
+          constraints['isString'] = 'Value must be a string';
         } else {
           if (definition.minLength && value.length < definition.minLength) {
-            error.constraints['minLength'] = `Value must be at least ${definition.minLength} characters long`;
+            constraints['minLength'] = `Value must be at least ${definition.minLength} characters long`;
           }
           if (definition.maxLength && value.length > definition.maxLength) {
-            error.constraints['maxLength'] = `Value must be at most ${definition.maxLength} characters long`;
+            constraints['maxLength'] = `Value must be at most ${definition.maxLength} characters long`;
           }
           if (definition.allowedValues && !definition.allowedValues.find((x) => x.value === value)) {
-            error.constraints['enum'] = `Value must be at one of the allowed values`;
+            constraints['enum'] = `Value must be at one of the allowed values`;
           }
         }
       }
     }
 
-    if (Object.keys(error.constraints).length > 0) {
+    if (Object.keys(constraints).length > 0) {
       errors.push(error);
     }
   }

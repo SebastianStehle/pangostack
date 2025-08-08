@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 import * as uuid from 'uuid';
+import { saveAndFind } from 'src/lib';
 import {
   BUILTIN_USER_GROUP_ADMIN,
   BUILTIN_USER_GROUP_DEFAULT,
@@ -133,7 +134,7 @@ export class AuthService implements OnModuleInit {
 
       this.logger.log(`Created user with email '${email}'.`);
     } else {
-      await this.users.save({
+      await saveAndFind(this.users, {
         id: uuid.v4(),
         apiKey,
         email,
@@ -215,7 +216,7 @@ export class AuthService implements OnModuleInit {
     }
 
     await new Promise((resolve) => {
-      req.session.user = fromDB;
+      req.session.user = fromDB!;
       req.session.save(resolve);
     });
   }

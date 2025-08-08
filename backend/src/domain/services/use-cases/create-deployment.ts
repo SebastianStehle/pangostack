@@ -1,8 +1,8 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not } from 'typeorm';
-import { DeploymentDto } from 'src/controllers/deployments/dtos';
+import * as uuid from 'uuid';
 import { BillingService } from 'src/domain/billing';
 import {
   DeploymentEntity,
@@ -18,20 +18,25 @@ import {
 } from 'src/domain/database';
 import { User } from 'src/domain/users';
 import { WorkflowService } from 'src/domain/workflows';
+import { saveAndFind } from 'src/lib';
+import { Deployment } from '../interfaces';
+import { UrlService } from '../services/url.service';
 import { buildDeployment } from './utils';
 
 export class CreateDeployment {
   constructor(
-    public readonly teamdId: number,
+    public readonly teamId: number,
     public readonly name: string | undefined,
     public readonly serviceId: number,
     public readonly parameters: Record<string, string>,
+    public readonly confirmUrl: string | undefined | null,
+    public readonly cancelUrl: string | undefined | null,
     public readonly user: User,
   ) {}
 }
 
 export class CreateDeploymentResponse {
-  constructor(public readonly deployment: DeploymentDto) {}
+  constructor(public readonly deploymentOrRedirectUrl: Deployment | string) {}
 }
 
 @CommandHandler(CreateDeployment)
@@ -49,14 +54,11 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     @InjectRepository(WorkerEntity)
     private readonly workers: WorkerRepository,
     private readonly workflows: WorkflowService,
+    private readonly urlService: UrlService,
   ) {}
 
   async execute(command: CreateDeployment): Promise<CreateDeploymentResponse> {
-    const { name, parameters, serviceId, teamdId, user } = command;
-
-    if (!(await this.billingService.hasPaymentDetails(teamdId))) {
-      throw new BadRequestException('No billing information configured.');
-    }
+    const { confirmUrl, cancelUrl, name, parameters, serviceId, teamId, user } = command;
 
     const service = await this.services.findOneBy({ id: serviceId });
     if (!service) {
@@ -80,16 +82,33 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     // The environment settings from the version overwrite the service.
     const environment = { ...service.environment, ...version.environment };
 
-    const deployment = await this.deployments.save({
+    const confirmToken = uuid.v4();
+    const deployment = await saveAndFind(this.deployments, {
       name,
+      confirmToken,
       createdAt: undefined,
       createdBy: user?.id || 'UNKNOWN',
-      teamId: teamdId,
+      status: 'Pending',
+      teamId: teamId,
       updatedAt: undefined,
       updatedBy: user?.id || 'UNKNOWN',
     });
 
-    const update = await this.deploymentUpdates.save({
+    const susbcriptionResult = await this.billingService.createSubscription(
+      teamId,
+      deployment.id,
+      this.urlService.confirmUrl(teamId, deployment.id, confirmToken, confirmUrl),
+      this.urlService.cancelUrl(teamId, deployment.id, confirmToken, cancelUrl),
+    );
+
+    if (susbcriptionResult !== true) {
+      return new CreateDeploymentResponse(susbcriptionResult.redirectTo);
+    }
+
+    deployment.status = 'Created';
+    await this.deployments.save(deployment);
+
+    const update = await saveAndFind(this.deploymentUpdates, {
       createdAt: undefined,
       createdBy: user?.id || 'UNKNOWN',
       context: {},
@@ -101,8 +120,7 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
       serviceVersionId: version.id,
     });
 
-    await this.workflows.createDeployment(deployment.id, update, null, teamdId, worker);
-    await this.workflows.createSubscription(deployment.id, teamdId);
+    await this.workflows.createDeployment(deployment.id, update, null, worker);
     return new CreateDeploymentResponse(buildDeployment(deployment, update));
   }
 }

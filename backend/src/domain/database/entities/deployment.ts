@@ -45,8 +45,14 @@ export class DeploymentEntity {
   @OneToMany(() => DeploymentCheckEntity, (check) => check.deployment)
   checks: DeploymentCheckEntity[];
 
-  @Column({ length: 100, nullable: true })
+  @Column('varchar', { length: 100, nullable: true })
   name?: string | null;
+
+  @Column({ length: 100, default: 'Created' })
+  status: 'Pending' | 'Created';
+
+  @Column('varchar', { nullable: true })
+  confirmToken?: string | null;
 
   @CreateDateColumn()
   createdAt: Date;

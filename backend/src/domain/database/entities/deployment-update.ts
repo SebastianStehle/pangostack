@@ -24,7 +24,10 @@ export class DeploymentUpdateEntity {
   serviceVersion: ServiceVersionEntity;
 
   @Column('simple-json', { default: {} })
-  connections: Record<string, Record<string, { value: string; label: string }>> = {};
+  resourceConnections: Record<string, Record<string, ConnectionInfo>> = {};
+
+  @Column('simple-json', { default: {} })
+  resourceContexts: Record<string, Record<string, string>> = {};
 
   @Column('simple-json')
   context: Record<string, string> = {};
@@ -38,7 +41,7 @@ export class DeploymentUpdateEntity {
   @Column('simple-json')
   log: Record<string, string> = {};
 
-  @Column({ length: 20 })
+  @Column({ length: 20, default: 'Pending' })
   status: DeploymentUpdateStatus = 'Pending';
 
   @Column('text', { nullable: true })
@@ -50,5 +53,7 @@ export class DeploymentUpdateEntity {
   @Column({ length: 50 })
   createdBy: string;
 }
+
+export type ConnectionInfo = { value: string; isPublic: boolean; label: string };
 
 export type DeploymentUpdateStatus = 'Pending' | 'Running' | 'Completed' | 'Failed';

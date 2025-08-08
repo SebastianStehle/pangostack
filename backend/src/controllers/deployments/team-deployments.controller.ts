@@ -1,10 +1,12 @@
-import { Body, Controller, Delete, Get, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Put, Query, Redirect, Req, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiParam, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
 import { BUILTIN_USER_GROUP_DEFAULT } from 'src/domain/database';
 import {
+  CancelDeployment,
+  ConfirmDeployment,
   CreateDeployment,
   CreateDeploymentResponse,
   DeleteDeployment,
@@ -15,9 +17,10 @@ import {
   UpdateDeployment,
   UpdateDeploymentResponse,
 } from 'src/domain/services';
-import { IntParam } from 'src/lib';
+import { UrlService } from 'src/domain/services/services/url.service';
+import { IntParam, isString } from 'src/lib';
 import { TeamPermissionGuard } from '../TeamPermissionGuard';
-import { CreateDeploymentDto, DeploymentDto, DeploymentsDto, DeploymentStatusDto } from './dtos';
+import { CreateDeploymentDto, DeploymentCreatedDto, DeploymentDto, DeploymentsDto, DeploymentStatusDto } from './dtos';
 
 @Controller('teams/:teamId/deployments')
 @ApiParam({
@@ -33,6 +36,7 @@ export class TeamDeploymentsController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
+    private readonly urlService: UrlService,
   ) {}
 
   @Get('')
@@ -48,14 +52,30 @@ export class TeamDeploymentsController {
 
   @Post('')
   @ApiOperation({ operationId: 'postDeployment', description: 'Creates a deployment.' })
-  @ApiOkResponse({ type: DeploymentDto })
+  @ApiOkResponse({ type: DeploymentCreatedDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard, TeamPermissionGuard)
   async postDeployment(@Req() req: Request, @IntParam('teamId') teamId: number, @Body() body: CreateDeploymentDto) {
-    const command = new CreateDeployment(teamId, body.name, body.serviceId, body.parameters, req.user);
+    const command = new CreateDeployment(
+      teamId,
+      body.name,
+      body.serviceId,
+      body.parameters,
+      body.confirmUrl,
+      body.cancelUrl,
+      req.user,
+    );
+
     const result: CreateDeploymentResponse = await this.commandBus.execute(command);
 
-    return DeploymentDto.fromDomain(result.deployment);
+    const response = new DeploymentCreatedDto();
+    if (isString(result.deploymentOrRedirectUrl)) {
+      response.redirectUrl = result.deploymentOrRedirectUrl;
+    } else {
+      response.deployment = DeploymentDto.fromDomain(result.deploymentOrRedirectUrl);
+    }
+
+    return response;
   }
 
   @Get(':deploymentId/status')
@@ -69,8 +89,8 @@ export class TeamDeploymentsController {
   @ApiOkResponse({ type: DeploymentStatusDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard, TeamPermissionGuard)
-  async getDeploymentStatus(@IntParam('deploymentId') deploymentId: number) {
-    const result: GetDeploymentStatusResponse = await this.queryBus.execute(new GetDeploymentStatus(deploymentId));
+  async getDeploymentStatus(@IntParam('teamId') teamId: number, @IntParam('deploymentId') deploymentId: number) {
+    const result: GetDeploymentStatusResponse = await this.queryBus.execute(new GetDeploymentStatus(teamId, deploymentId));
 
     return DeploymentStatusDto.fromDomain(result.resources);
   }
@@ -92,7 +112,7 @@ export class TeamDeploymentsController {
     @IntParam('deploymentId') deploymentId: number,
     @Body() body: CreateDeploymentDto,
   ) {
-    const command = new UpdateDeployment(deploymentId, teamId, body.name, body.parameters, body.serviceId, req.user);
+    const command = new UpdateDeployment(teamId, deploymentId, body.name, body.parameters, body.serviceId, req.user);
     const result: UpdateDeploymentResponse = await this.commandBus.execute(command);
 
     return DeploymentDto.fromDomain(result.deployment);
@@ -109,9 +129,43 @@ export class TeamDeploymentsController {
   @ApiNoContentResponse()
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard, TeamPermissionGuard)
-  async deleteDeployment(@IntParam('deploymentId') deploymentId: number) {
-    const command = new DeleteDeployment(deploymentId);
+  async deleteDeployment(@IntParam('teamId') teamId: number, @IntParam('deploymentId') deploymentId: number) {
+    const command = new DeleteDeployment(teamId, deploymentId);
 
     await this.commandBus.execute(command);
+  }
+
+  @Get(':deploymentId/confirm')
+  @UseGuards(TeamPermissionGuard)
+  async confirmDeployment(
+    @IntParam('teamId') teamId: number,
+    @IntParam('deploymentId') deploymentId: number,
+    @Query('token') token: string,
+    @Query('redirectUrl') redirectUrl?: string,
+  ) {
+    await this.queryBus.execute(new ConfirmDeployment(teamId, deploymentId, token));
+
+    if (redirectUrl && !this.urlService.isValidRedirectUrl(redirectUrl)) {
+      return Redirect(redirectUrl);
+    } else {
+      return Redirect('/');
+    }
+  }
+
+  @Get(':deploymentId/cancel')
+  @UseGuards(TeamPermissionGuard)
+  async cancelDeployment(
+    @IntParam('teamId') teamId: number,
+    @IntParam('deploymentId') deploymentId: number,
+    @Query('token') token: string,
+    @Query('redirectUrl') redirectUrl?: string,
+  ) {
+    await this.queryBus.execute(new CancelDeployment(teamId, deploymentId, token));
+
+    if (redirectUrl && !this.urlService.isValidRedirectUrl(redirectUrl)) {
+      return Redirect(redirectUrl);
+    } else {
+      return Redirect('/');
+    }
   }
 }

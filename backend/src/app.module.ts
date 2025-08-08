@@ -84,7 +84,7 @@ import { WorkflowModule } from './domain/workflows';
         synchronize: true,
       }),
       dataSourceFactory: async (options) => {
-        const dataSource = await new DataSource(options).initialize();
+        const dataSource = await new DataSource(options!).initialize();
         return dataSource;
       },
     }),

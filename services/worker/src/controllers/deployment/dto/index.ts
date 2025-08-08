@@ -213,13 +213,13 @@ export class ConnectInfoDto {
     description: 'Indicates if the info is public',
     required: true,
   })
-  public: boolean;
+  isPublic: boolean;
 
-  static fromDomain(source: { value: string; label: string; public: boolean }) {
+  static fromDomain(source: { value: string; label: string; isPublic: boolean }) {
     const result = new ConnectInfoDto();
     result.value = source.value;
     result.label = source.label;
-    result.public = source.public;
+    result.isPublic = source.isPublic;
 
     return result;
   }

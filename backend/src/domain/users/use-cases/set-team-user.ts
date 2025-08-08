@@ -7,7 +7,7 @@ import { buildTeam } from './utils';
 
 export class SetTeamUser {
   constructor(
-    public readonly id: number,
+    public readonly teamId: number,
     public readonly userId: string,
     public readonly user: User,
     public readonly role: string,
@@ -30,11 +30,11 @@ export class SetTeamUserHandler implements ICommandHandler<SetTeamUser, any> {
   ) {}
 
   async execute(command: SetTeamUser): Promise<SetTeamUserResponse> {
-    const { id, role, user, userId } = command;
+    const { teamId, role, user, userId } = command;
 
-    const team = await this.teams.findOne({ where: { id }, relations: ['users', 'users.user'] });
+    const team = await this.teams.findOne({ where: { id: teamId }, relations: ['users', 'users.user'] });
     if (!team) {
-      throw new NotFoundException(`Team ${id} not found.`);
+      throw new NotFoundException(`Team ${teamId} not found.`);
     }
 
     const setUser = await this.users.findOneBy({ id: userId });
@@ -46,15 +46,19 @@ export class SetTeamUserHandler implements ICommandHandler<SetTeamUser, any> {
       throw new BadRequestException('You cannot add yourself or change your own role.');
     }
 
-    const teamUser = await this.teamUsers.findOneBy({ teamId: id, userId });
-    if (user) {
+    let teamUser = await this.teamUsers.findOneBy({ teamId, userId });
+    if (teamUser) {
       teamUser.role = role;
-      await this.teamUsers.save(teamUser);
     } else {
-      this.teamUsers.save({ teamId: id, role, userId });
+      teamUser = this.teamUsers.create({ teamId, role, userId });
     }
 
-    const withUsers = await this.teams.findOne({ where: { id }, relations: ['users', 'users.user'] });
+    await this.teamUsers.save(teamUser);
+
+    const withUsers = await this.teams.findOne({ where: { id: teamId }, relations: ['users', 'users.user'] });
+    if (!withUsers) {
+      throw new NotFoundException(`Team ${teamId} was deleted in the meantime.`);
+    }
 
     return new SetTeamUserResponse(buildTeam(withUsers));
   }

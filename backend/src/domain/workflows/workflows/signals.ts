@@ -7,10 +7,9 @@ export interface DeploymentSignal {
   action: DeploymentAction;
   previousResources?: ResourceDefinition[] | null;
   previousUpdateId?: number | null;
-  resources?: ResourceDefinition[] | null;
-  teamId: number;
+  resources: ResourceDefinition[];
   updateId: number;
-  workerApiKey: string;
+  workerApiKey?: string;
   workerEndpoint: string;
 }
 

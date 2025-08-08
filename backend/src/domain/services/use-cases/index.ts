@@ -1,3 +1,5 @@
+export * from './cancel-deployment';
+export * from './confirm-deployment';
 export * from './create-deployment';
 export * from './create-service-version';
 export * from './create-service';

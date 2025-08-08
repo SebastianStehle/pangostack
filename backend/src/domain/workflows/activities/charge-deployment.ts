@@ -11,6 +11,7 @@ import {
   DeploymentUsageEntity,
   DeploymentUsageRepository,
 } from 'src/domain/database';
+import { saveAndFind } from 'src/lib';
 import { Activity } from '../registration';
 
 export type ChargeDeploymentParam = {
@@ -81,6 +82,10 @@ export class ChargeDeploymentActivity implements Activity<ChargeDeploymentParam>
       .groupBy('usage.deploymentId')
       .getRawOne<AggregatedUsage>();
 
+    if (!results) {
+      return;
+    }
+
     const { totalCores, totalMemoryGB, totalStorageGB, totalVolumeGB } = results;
     if (totalCores === 0 && totalMemoryGB === 0 && totalStorageGB === 0 && totalVolumeGB === 0) {
       return;
@@ -106,7 +111,7 @@ export class ChargeDeploymentActivity implements Activity<ChargeDeploymentParam>
     await this.billingService.chargeDeployment(deployment.teamId, deploymentId, charges);
 
     // Ensure that we bill every month only once per user.
-    await this.billedDeployments.save({ deploymentId, dateFrom, dateTo });
+    await saveAndFind(this.billedDeployments, { deploymentId, dateFrom, dateTo });
   }
 }
 

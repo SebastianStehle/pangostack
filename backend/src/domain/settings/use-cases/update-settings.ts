@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SettingEntity, SettingRepository } from 'src/domain/database';
+import { saveAndFind } from 'src/lib';
 import { Settings } from '../interfaces';
 import { buildSettings } from './utils';
 
@@ -22,8 +23,7 @@ export class UpdateSettingsHandler implements ICommandHandler<UpdateSettings, Up
   async execute(request: UpdateSettings): Promise<UpdateSettingsResponse> {
     const { update } = request;
 
-    // Reassign the entity to get database generated values.
-    const setting = await this.settings.save({ id: 1, ...update });
+    const setting = await saveAndFind(this.settings, { id: 1, ...update });
 
     return new UpdateSettingsResponse(buildSettings(setting));
   }

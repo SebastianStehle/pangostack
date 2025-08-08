@@ -1,8 +1,10 @@
+/* eslint-disable */
+// @ts-nocheck
 /* tslint:disable */
 /* eslint-disable */
 /**
- * UberSaas
- * UberSaas Worker
+ * OmniSaaS
+ * Worker
  *
  * The version of the OpenAPI document: 1.0
  * 
@@ -37,6 +39,12 @@ export interface ResourceApplyRequestDto {
      * @memberof ResourceApplyRequestDto
      */
     parameters: { [key: string]: any; };
+    /**
+     * The context values that will be added or overwritten to the deployment
+     * @type {{ [key: string]: any; }}
+     * @memberof ResourceApplyRequestDto
+     */
+    context: { [key: string]: any; };
 }
 
 /**
@@ -46,6 +54,7 @@ export function instanceOfResourceApplyRequestDto(value: object): boolean {
     if (!('resourceId' in value)) return false;
     if (!('resourceType' in value)) return false;
     if (!('parameters' in value)) return false;
+    if (!('context' in value)) return false;
     return true;
 }
 
@@ -62,6 +71,7 @@ export function ResourceApplyRequestDtoFromJSONTyped(json: any, ignoreDiscrimina
         'resourceId': json['resourceId'],
         'resourceType': json['resourceType'],
         'parameters': json['parameters'],
+        'context': json['context'],
     };
 }
 
@@ -74,6 +84,7 @@ export function ResourceApplyRequestDtoToJSON(value?: ResourceApplyRequestDto | 
         'resourceId': value['resourceId'],
         'resourceType': value['resourceType'],
         'parameters': value['parameters'],
+        'context': value['context'],
     };
 }
 

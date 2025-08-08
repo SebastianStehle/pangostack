@@ -14,13 +14,14 @@ import {
 } from 'src/domain/database';
 import { User } from 'src/domain/users';
 import { WorkflowService } from 'src/domain/workflows';
+import { saveAndFind } from 'src/lib';
 import { Deployment } from '../interfaces';
 import { buildDeployment } from './utils';
 
 export class UpdateDeployment {
   constructor(
-    public readonly id: number,
     public readonly teamId: number,
+    public readonly deploymentId: number,
     public readonly name: string | undefined,
     public readonly parameters: Record<string, string> | null,
     public readonly versionId: number | null,
@@ -47,7 +48,7 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
   ) {}
 
   async execute(command: UpdateDeployment): Promise<UpdateDeploymentResponse> {
-    const { id, name, parameters, teamId, user, versionId } = command;
+    const { deploymentId: id, name, parameters, teamId, user, versionId } = command;
 
     const deployment = await this.deployments.findOne({ where: { id, teamId }, relations: ['version', 'version.service'] });
     if (!deployment) {
@@ -98,7 +99,7 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
     // The environment settings from the version overwrite the service.
     const environment = { ...version.service.environment, ...version.environment };
 
-    const update = await this.deploymentUpdates.save({
+    const update = await saveAndFind(this.deploymentUpdates, {
       context: {},
       createdAt: undefined,
       createdBy: user?.id || 'UNKNOWN',
@@ -110,7 +111,7 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
       serviceVersionId: version.id,
     });
 
-    await this.workflows.createDeployment(deployment.id, update, lastUpdate, teamId, worker);
+    await this.workflows.createDeployment(deployment.id, update, lastUpdate, worker);
 
     return new UpdateDeploymentResponse(buildDeployment(deployment, update));
   }

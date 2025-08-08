@@ -30,7 +30,7 @@ export class UpdateServiceVersionHandler implements ICommandHandler<UpdateServic
     const { id, values } = request;
     const { definition, environment, isActive } = values;
 
-    let version = await this.serviceVersions.findOne({ where: { id }, relations: ['deploymentUpdates', 'service'] });
+    const version = await this.serviceVersions.findOne({ where: { id }, relations: ['deploymentUpdates', 'service'] });
     if (!version) {
       throw new NotFoundException(`Service Update ${id} not found.`);
     }
@@ -42,8 +42,7 @@ export class UpdateServiceVersionHandler implements ICommandHandler<UpdateServic
       assignDefined(version, { definition, environment, isActive });
     }
 
-    // Reassign the entity to get database generated values.
-    version = await this.serviceVersions.save(version);
+    await this.serviceVersions.save(version);
 
     return new UpdateServiceVersionResponse(buildServiceVersion(version, false));
   }

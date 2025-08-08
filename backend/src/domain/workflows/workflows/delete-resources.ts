@@ -6,7 +6,7 @@ export interface DeleteResourcesParam {
   deploymentId: number;
   resources: ResourceDefinition[];
   updateId: number;
-  workerApiKey: string;
+  workerApiKey?: string;
   workerEndpoint: string;
 }
 

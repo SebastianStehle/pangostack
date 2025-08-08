@@ -144,7 +144,7 @@ export interface ResourceWorkloadStatus {
   nodes: ResourceNodeStatus[];
 }
 
-export class ResourceStatus {
+export interface ResourceStatus {
   // The name of the resource.
   resourceId: string;
 
@@ -155,7 +155,7 @@ export class ResourceStatus {
   resourceName: string;
 
   // The workflows that have been created.
-  workloads: ResourceWorkloadStatus[] = [];
+  workloads: ResourceWorkloadStatus[];
 }
 
 export interface CheckSummary {

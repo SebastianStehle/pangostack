@@ -29,6 +29,20 @@ export class CreateDeploymentDto {
   @IsDefined()
   @IsObject()
   parameters: Record<string, any>;
+
+  @ApiProperty({
+    description: 'The URL to call after the deployment has been created.',
+    nullable: true,
+  })
+  @IsOptional()
+  confirmUrl?: string | null;
+
+  @ApiProperty({
+    description: 'The URL to call after the deployment has been cancelled.',
+    nullable: true,
+  })
+  @IsOptional()
+  cancelUrl?: string | null;
 }
 
 export class UpdateDeploymentDto {
@@ -58,6 +72,20 @@ export class UpdateDeploymentDto {
   @IsOptional()
   @IsObject()
   parameters?: Record<string, any>;
+}
+
+export class DeploymentCreatedDto {
+  @ApiProperty({
+    description: 'The created deployment.',
+    nullable: true,
+  })
+  deployment?: DeploymentDto | null;
+
+  @ApiProperty({
+    description: 'The redirect URL if the deployment cannot be completed automatically.',
+    nullable: true,
+  })
+  redirectUrl?: string | null;
 }
 
 export class DeploymentDto {
@@ -134,10 +162,9 @@ export class ResourceNodeStatusDto {
 
   @ApiProperty({
     description: 'The message to describe the status.',
-    required: false,
     nullable: true,
   })
-  message: string;
+  message?: string | null;
 
   static fromDomain(source: ResourceNodeStatus) {
     const result = new ResourceNodeStatusDto();

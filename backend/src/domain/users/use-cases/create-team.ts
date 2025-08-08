@@ -2,6 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TeamEntity, TeamRepository, TeamUserEntity } from 'src/domain/database';
+import { saveAndFind } from 'src/lib';
 import { Team, User } from '../interfaces';
 import { buildTeam } from './utils';
 
@@ -31,9 +32,9 @@ export class CreateTeamHandler implements ICommandHandler<CreateTeam, CreateTeam
     const { values, user } = request;
     const { name } = values;
 
-    const team = await this.teams.save({ name });
+    const team = await saveAndFind(this.teams, { name });
 
-    await this.teamUsers.save({
+    await saveAndFind(this.teamUsers, {
       team,
       teamId: team.id,
       role: 'default',
@@ -41,7 +42,7 @@ export class CreateTeamHandler implements ICommandHandler<CreateTeam, CreateTeam
       userId: user.id,
     });
 
-    const withUsers = await this.teams.findOne({ where: { id: team.id }, relations: ['users', 'users.user'] });
+    const withUsers = await this.teams.findOneOrFail({ where: { id: team.id }, relations: ['users', 'users.user'] });
 
     return new CreateTeamResponse(buildTeam(withUsers));
   }

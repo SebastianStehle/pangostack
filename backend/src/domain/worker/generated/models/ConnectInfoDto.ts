@@ -1,8 +1,10 @@
+/* eslint-disable */
+// @ts-nocheck
 /* tslint:disable */
 /* eslint-disable */
 /**
- * UberSaas
- * UberSaas Worker
+ * OmniSaaS
+ * Worker
  *
  * The version of the OpenAPI document: 1.0
  * 
@@ -31,6 +33,12 @@ export interface ConnectInfoDto {
      * @memberof ConnectInfoDto
      */
     label: string;
+    /**
+     * Indicates if the info is public
+     * @type {boolean}
+     * @memberof ConnectInfoDto
+     */
+    isPublic: boolean;
 }
 
 /**
@@ -39,6 +47,7 @@ export interface ConnectInfoDto {
 export function instanceOfConnectInfoDto(value: object): boolean {
     if (!('value' in value)) return false;
     if (!('label' in value)) return false;
+    if (!('isPublic' in value)) return false;
     return true;
 }
 
@@ -54,6 +63,7 @@ export function ConnectInfoDtoFromJSONTyped(json: any, ignoreDiscriminator: bool
         
         'value': json['value'],
         'label': json['label'],
+        'isPublic': json['isPublic'],
     };
 }
 
@@ -65,6 +75,7 @@ export function ConnectInfoDtoToJSON(value?: ConnectInfoDto | null): any {
         
         'value': value['value'],
         'label': value['label'],
+        'isPublic': value['isPublic'],
     };
 }
 

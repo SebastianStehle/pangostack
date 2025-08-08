@@ -8,7 +8,10 @@ import { WorkerClient } from 'src/domain/worker';
 import { ResourceStatus } from '../interfaces';
 
 export class GetDeploymentStatus {
-  constructor(public readonly deploymentId: number) {}
+  constructor(
+    public readonly teamId: number,
+    public readonly deploymentId: number,
+  ) {}
 }
 
 export class GetDeploymentStatusResponse {
@@ -25,10 +28,10 @@ export class GetDeploymentStatusHandler implements IQueryHandler<GetDeploymentSt
   ) {}
 
   async execute(query: GetDeploymentStatus): Promise<GetDeploymentStatusResponse> {
-    const { deploymentId } = query;
+    const { deploymentId, teamId } = query;
 
     const deployment = await this.deployments.findOne({
-      where: { id: deploymentId },
+      where: { id: deploymentId, teamId },
       relations: ['updates', 'updates.serviceVersion'],
     });
 
@@ -42,7 +45,7 @@ export class GetDeploymentStatusHandler implements IQueryHandler<GetDeploymentSt
     }
 
     const lastUpdate = deployment.updates.find((x) => x.status === 'Completed');
-    if (lastUpdate === null) {
+    if (!lastUpdate) {
       return new GetDeploymentStatusResponse([]);
     }
 
@@ -52,6 +55,7 @@ export class GetDeploymentStatusHandler implements IQueryHandler<GetDeploymentSt
 
     const statuses = await workerClient.status.postStatus({
       resources: lastUpdate.serviceVersion.definition.resources.map((resource) => ({
+        context: lastUpdate.resourceContexts[resource.id] || {},
         resourceId: `deployment_${deploymentId}_${resource.id}`,
         resourceType: resource.type,
         parameters: evaluateParameters(resource, context),

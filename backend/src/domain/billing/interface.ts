@@ -64,14 +64,19 @@ export class BillingError extends Error {
   }
 }
 
+type CreateSubscriptionResult = true | { redirectTo: string };
+
 export abstract class BillingService {
   abstract getBillingPortalLink(teamId: number, redirectUrl?: string): Promise<string | null>;
 
-  abstract getCardDetailsLink(teamId: number, redirectUrl?: string): Promise<string | null>;
+  abstract createSubscription(
+    teamId: number,
+    deploymentId: number,
+    confirmUrl: string,
+    cancelUrl: string,
+  ): Promise<CreateSubscriptionResult>;
 
-  abstract hasPaymentDetails(teamId: number): Promise<boolean>;
-
-  abstract createSubscription(teamId: number, deploymentId: number): Promise<any>;
+  abstract hasSubscription(teamId: number, deploymentid: number): Promise<boolean>;
 
   abstract chargeDeployment(teamId: number, deploymentId: number, charges: Charges): Promise<any>;
 

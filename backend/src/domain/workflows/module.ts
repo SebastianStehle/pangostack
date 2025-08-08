@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   BilledDeploymentEntity,
+  DeploymentCheckEntity,
   DeploymentEntity,
   DeploymentUpdateEntity,
   DeploymentUsageEntity,
@@ -12,7 +13,6 @@ import {
   ChargeDeploymentActivity,
   CleanupDeploymentsChecksActivity,
   CleanupDeploymentUsagesActivity,
-  CreateSubscriptionActivity,
   DeleteResourceActivity,
   DeployResourceActivity,
   GetDeploymentsActivity,
@@ -30,6 +30,7 @@ import { TemporalService, WorkflowService } from './services';
     TypeOrmModule.forFeature([
       BilledDeploymentEntity,
       DeploymentEntity,
+      DeploymentCheckEntity,
       DeploymentUpdateEntity,
       DeploymentUsageEntity,
       WorkerEntity,
@@ -40,7 +41,6 @@ import { TemporalService, WorkflowService } from './services';
     ChargeDeploymentActivity,
     CleanupDeploymentsChecksActivity,
     CleanupDeploymentUsagesActivity,
-    CreateSubscriptionActivity,
     DeleteResourceActivity,
     DeployResourceActivity,
     GetDeploymentsActivity,

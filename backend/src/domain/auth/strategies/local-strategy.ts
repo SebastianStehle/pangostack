@@ -19,7 +19,7 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
     super();
   }
 
-  async validate(request: Request): Promise<Partial<User>> {
+  async validate(request: Request): Promise<Partial<User | null>> {
     const apiKey = this.findApiKey(request);
 
     if (apiKey) {

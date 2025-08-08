@@ -14,7 +14,7 @@ export type TrackDeploymentUsageParam = {
   deploymentId: number;
   trackDate: string;
   trackHour: number;
-  workerApiKey: string;
+  workerApiKey?: string;
   workerEndpoint: string;
 };
 
@@ -44,6 +44,7 @@ export class TrackDeploymentUsageActivity implements Activity<TrackDeploymentUsa
 
     const usageFromWorker = await worker.status.postUsage({
       resources: definition.resources.map((resource) => ({
+        context: update.resourceContexts[resource.id] || {},
         resourceId: resource.id,
         resourceType: resource.type,
         parameters: evaluateParameters(resource, context),
@@ -55,7 +56,7 @@ export class TrackDeploymentUsageActivity implements Activity<TrackDeploymentUsa
     // The storage needs to be measured directly from the provider.
     const totalStorageGB = usageFromWorker.resources.reduce((a, c) => a + c.totalStorageGB, 0);
 
-    await this.deploymentUsages.save({
+    const deploymentUsage = this.deploymentUsages.create({
       deploymentId,
       trackDate,
       trackHour,
@@ -63,7 +64,9 @@ export class TrackDeploymentUsageActivity implements Activity<TrackDeploymentUsa
       totalMemoryGB,
       totalVolumeGB,
       totalStorageGB,
-    } as Partial<DeploymentUsageEntity>);
+    });
+
+    await this.deploymentUsages.save(deploymentUsage);
   }
 }
 

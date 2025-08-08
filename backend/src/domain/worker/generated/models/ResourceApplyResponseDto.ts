@@ -1,8 +1,10 @@
+/* eslint-disable */
+// @ts-nocheck
 /* tslint:disable */
 /* eslint-disable */
 /**
- * UberSaas
- * UberSaas Worker
+ * OmniSaaS
+ * Worker
  *
  * The version of the OpenAPI document: 1.0
  * 

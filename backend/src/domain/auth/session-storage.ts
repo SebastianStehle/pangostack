@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SessionData, Store } from 'express-session';
+import { saveAndFind } from 'src/lib';
 import { SessionEntity, SessionRepository } from '../database';
 
 @Injectable()
@@ -21,11 +22,11 @@ export class SessionStorage extends Store {
 
   async set(sid: string, session: SessionData, callback?: (err?: any) => void) {
     try {
-      await this.sessionRepository.save({ id: sid, value: session as any });
+      await saveAndFind(this.sessionRepository, { id: sid, value: session as any });
 
-      callback();
+      callback?.();
     } catch (err) {
-      callback(err);
+      callback?.(err);
     }
   }
 
@@ -33,9 +34,9 @@ export class SessionStorage extends Store {
     try {
       await this.sessionRepository.delete({ id: sid });
 
-      callback();
+      callback?.();
     } catch (err) {
-      callback(err);
+      callback?.(err);
     }
   }
 }
