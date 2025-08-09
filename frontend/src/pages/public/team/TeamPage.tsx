@@ -11,7 +11,7 @@ import { SettingsPage } from './settings/SettingsPage';
 
 export function TeamPage() {
   return (
-    <div className="-mt-22 container mx-auto max-w-[1000px] px-4">
+    <div className="container mx-auto -mt-22 max-w-[1000px] px-4">
       <ul className="menu menu-horizontal">
         <li>
           <TransientNavLink
@@ -37,7 +37,7 @@ export function TeamPage() {
             {texts.members.headline}
           </TransientNavLink>
         </li>
-        <li>
+        <li className="hidden">
           <TransientNavLink
             className={({ isActive }) => classNames('text-primary-content text-lg opacity-70', { 'opacity-100': isActive })}
             to="settings"
@@ -47,7 +47,7 @@ export function TeamPage() {
         </li>
       </ul>
 
-      <div className="card rounded-lg bg-white shadow-xl">
+      <div className="card mb-8 rounded-lg bg-white shadow-xl">
         <div className="card-body p-8">
           <Routes>
             <Route path="billing" element={<BillingPage />} />

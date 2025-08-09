@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { ServicePublicDto, useClients } from 'src/api';
 import { Icon, TransientNavLink } from 'src/components';
@@ -11,8 +11,9 @@ export const DeployPage = () => {
   const { teamId } = useParams();
   const [service, setService] = useState<ServicePublicDto>();
   const clients = useClients();
+  const navigate = useNavigate();
 
-  const { data: services } = useQuery({
+  const { data: loadedServices } = useQuery({
     queryKey: ['services-public'],
     queryFn: () => clients.services.getServicesPublic(),
     refetchOnWindowFocus: false,
@@ -32,6 +33,7 @@ export const DeployPage = () => {
       if (result.redirectUrl) {
         window.location.href = result.redirectUrl;
       } else {
+        navigate(`/teams/${teamId}/deployments/${result.deployment!.id}`);
         toast(texts.common.saved, { type: 'success' });
       }
     },
@@ -44,19 +46,19 @@ export const DeployPage = () => {
           <Icon icon="arrow-left" size={16} />
         </TransientNavLink>
 
-        <h3 className="grow text-xl">{texts.deployments.deployHeadline}</h3>
+        <h2 className="grow text-2xl">{texts.deployments.deployHeadline}</h2>
       </div>
 
       {service ? (
         <>
           <DeploymentForm service={service} onSubmit={creating.mutate} isPending={creating.isPending} />
         </>
-      ) : services != null ? (
+      ) : loadedServices != null ? (
         <>
           <p className="text-mdx mb-2">{texts.deployments.selectService}</p>
 
           <div className="flex flex-col gap-2">
-            {(services?.items || []).map((service) => (
+            {(loadedServices?.items || []).map((service) => (
               <div
                 key={service.id}
                 className="card card-border bg-base pointer border-slate-200 shadow-sm"

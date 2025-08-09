@@ -39,13 +39,13 @@ export interface UpsertUserDto {
      * @type {Array<string>}
      * @memberof UpsertUserDto
      */
-    roles: Array<string>;
+    roles: Array<string> | null;
     /**
      * The optional password.
      * @type {string}
      * @memberof UpsertUserDto
      */
-    password?: string;
+    password: string | null;
     /**
      * The user group ID.
      * @type {string}
@@ -57,7 +57,7 @@ export interface UpsertUserDto {
      * @type {string}
      * @memberof UpsertUserDto
      */
-    apiKey?: string;
+    apiKey: string | null;
 }
 
 /**
@@ -68,7 +68,9 @@ export function instanceOfUpsertUserDto(value: object): boolean {
     isInstance = isInstance && "name" in value;
     isInstance = isInstance && "email" in value;
     isInstance = isInstance && "roles" in value;
+    isInstance = isInstance && "password" in value;
     isInstance = isInstance && "userGroupId" in value;
+    isInstance = isInstance && "apiKey" in value;
 
     return isInstance;
 }
@@ -86,9 +88,9 @@ export function UpsertUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boole
         'name': json['name'],
         'email': json['email'],
         'roles': json['roles'],
-        'password': !exists(json, 'password') ? undefined : json['password'],
+        'password': json['password'],
         'userGroupId': json['userGroupId'],
-        'apiKey': !exists(json, 'apiKey') ? undefined : json['apiKey'],
+        'apiKey': json['apiKey'],
     };
 }
 

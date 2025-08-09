@@ -85,7 +85,7 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
       confirmToken,
       createdAt: undefined,
       createdBy: user?.id || 'UNKNOWN',
-      status: 'Pending',
+      status: 'Created',
       teamId: teamId,
       updatedAt: undefined,
       updatedBy: user?.id || 'UNKNOWN',
@@ -121,7 +121,7 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
       return new CreateDeploymentResponse(subscriptionResult.redirectTo);
     }
 
-    deployment.status = 'Created';
+    deployment.status = 'Pending';
     await this.deployments.save(deployment);
 
     await this.workflows.createDeployment(deployment.id, update, null, worker);

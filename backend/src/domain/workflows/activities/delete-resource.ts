@@ -1,13 +1,13 @@
 import { NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database';
-import { evaluateParameters, ResourceDefinition } from 'src/domain/definitions';
+import { evaluateParameters } from 'src/domain/definitions';
 import { WorkerClient } from 'src/domain/worker';
 import { Activity } from '../registration';
 
 export type DeleteResourceParam = {
   deploymentId: number;
-  resource: ResourceDefinition;
+  resourceId: string;
   updateId: number;
   workerApiKey?: string;
   workerEndpoint: string;
@@ -20,15 +20,20 @@ export class DeleteResourceActivity implements Activity<DeleteResourceParam> {
     private readonly deploymentUpdates: DeploymentUpdateRepository,
   ) {}
 
-  async execute({ deploymentId, resource, updateId, workerApiKey, workerEndpoint }: DeleteResourceParam) {
-    const update = await this.deploymentUpdates.findOneBy({ id: updateId });
+  async execute({ deploymentId, resourceId, updateId, workerApiKey, workerEndpoint }: DeleteResourceParam) {
+    const update = await this.deploymentUpdates.findOne({ where: { id: updateId }, relations: ['serviceVersion'] });
     if (!update) {
       throw new NotFoundException(`Deployment Update ${updateId} not found.`);
     }
 
+    const resource = update.serviceVersion.definition.resources.find((x) => x.id === resourceId);
+    if (!resource) {
+      throw new NotFoundException(`Deployment Update ${updateId} does not contain resource ${resourceId}.`);
+    }
+
     const context = { env: update.environment, context: update.context, parameters: update.parameters };
 
-    const resourceId = `deployment_${deploymentId}_${resource.id}`;
+    const resourceWorkerId = `deployment_${deploymentId}_${resource.id}`;
     const resourceParams = evaluateParameters(resource, context);
 
     const workerClient = new WorkerClient(workerEndpoint, workerApiKey);
@@ -36,7 +41,7 @@ export class DeleteResourceActivity implements Activity<DeleteResourceParam> {
       resources: [
         {
           context: update.resourceContexts[resource.id] || {},
-          resourceId,
+          resourceId: resourceWorkerId,
           resourceType: resource.type,
           parameters: resourceParams,
         },

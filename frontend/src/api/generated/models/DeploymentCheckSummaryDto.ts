@@ -23,19 +23,19 @@ import { exists, mapValues } from '../runtime';
  */
 export interface DeploymentCheckSummaryDto {
     /**
-     * The date for which the summary has been created
+     * The date for which the summary has been create.
      * @type {string}
      * @memberof DeploymentCheckSummaryDto
      */
     date: string;
     /**
-     * The total number of failures on this date
+     * The total number of failures on this dat.
      * @type {number}
      * @memberof DeploymentCheckSummaryDto
      */
     totalFailures: number;
     /**
-     * The total number of successes on this date
+     * The total number of successes on this dat.
      * @type {number}
      * @memberof DeploymentCheckSummaryDto
      */

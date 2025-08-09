@@ -31,55 +31,70 @@ export class LinkDto {
 export class SettingsDto {
   @ApiProperty({
     description: 'The name of the app.',
-    required: false,
+    nullable: true,
+    type: String,
   })
   @IsOptional()
   @IsString()
-  name?: string;
+  name?: string | null;
 
   @ApiProperty({
     description: 'The header color.',
-    required: false,
+    nullable: true,
+    type: String,
   })
   @IsOptional()
   @IsString()
-  primaryColor?: string;
+  primaryColor?: string | null;
 
   @ApiProperty({
     description: 'The primary color used for buttons and links.',
-    required: false,
+    nullable: true,
+    type: String,
   })
   @IsOptional()
   @IsString()
-  headerColor?: string;
+  headerColor?: string | null;
 
   @ApiProperty({
     description: 'The primary content color used for buttons and links.',
-    required: false,
+    nullable: true,
+    type: String,
   })
   @IsOptional()
   @IsString()
-  primaryContentColor?: string;
+  primaryContentColor?: string | null;
 
   @ApiProperty({
     description: 'The welcome text.',
-    required: false,
+    nullable: true,
+    type: String,
   })
   @IsOptional()
   @IsString()
-  welcomeText?: string;
+  welcomeText?: string | null;
 
   @ApiProperty({
     description: 'Some custom css.',
-    required: false,
+    nullable: true,
+    type: String,
   })
   @IsOptional()
   @IsString()
-  customCss?: string;
+  customCss?: string | null;
+
+  @ApiProperty({
+    description: 'The footer text, for example for copyright infos.',
+    nullable: true,
+    type: String,
+  })
+  @IsOptional()
+  @IsString()
+  footerText?: string | null;
 
   @ApiProperty({
     description: 'The footer links.',
-    required: false,
+    nullable: true,
     type: [LinkDto],
   })
   @IsOptional()
@@ -88,21 +103,13 @@ export class SettingsDto {
   @ArrayMaxSize(10)
   @ValidateNested({ each: true })
   @Type(() => LinkDto)
-  footerLinks?: LinkDto[];
-
-  @ApiProperty({
-    description: 'The footer text, for example for copyright infos.',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  footerText?: string;
+  footerLinks?: LinkDto[] | null;
 
   static fromDomain(source: Settings) {
     const result = new SettingsDto();
     result.name = source.name;
     result.headerColor = source.headerColor;
-    result.footerLinks = source.footerLinks?.map(LinkDto.fromDomain);
+    result.footerLinks = source.footerLinks?.map(LinkDto.fromDomain) || null;
     result.footerText = source.footerText;
     result.customCss = source.customCss;
     result.primaryColor = source.primaryColor;

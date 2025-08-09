@@ -30,7 +30,7 @@ import {
  */
 export interface ResourceStatusDto {
     /**
-     * The resource ID
+     * The resource I.
      * @type {string}
      * @memberof ResourceStatusDto
      */
@@ -48,7 +48,7 @@ export interface ResourceStatusDto {
      */
     resourceName: string;
     /**
-     * The workflows that have been created
+     * The workflows that have been create.
      * @type {Array<ResourceWorkloadStatusDto>}
      * @memberof ResourceStatusDto
      */

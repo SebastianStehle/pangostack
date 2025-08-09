@@ -22,7 +22,7 @@ export const ServicePage = () => {
         </div>
       </div>
 
-      <h3 className="mb-3 mt-10 text-xl">Deployments</h3>
+      <h3 className="mt-10 mb-3 text-xl">Deployments</h3>
       <div className="card bg-base-100 shadow-sm">
         <div className="card-body">
           <h2 className="card-title">Card Title</h2>

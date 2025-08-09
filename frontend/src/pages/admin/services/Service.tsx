@@ -31,7 +31,7 @@ export const Service = memo((props: ServiceProps) => {
         button={({ isOpen }) => (
           <button
             className={classNames(
-              'btn btn-ghost btn-sm invisible rounded-none bg-slate-100 hover:bg-slate-100 group-hover:visible',
+              'btn btn-ghost btn-sm invisible rounded-none bg-slate-100 group-hover:visible hover:bg-slate-100',
               { '!visible': isOpen },
             )}
           >

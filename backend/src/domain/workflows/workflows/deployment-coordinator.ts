@@ -18,17 +18,17 @@ export async function deploymentCoordinator({ deploymentId }: { deploymentId: nu
       break;
     }
 
-    const { action, previousResources, previousUpdateId, resources, updateId, workerApiKey, workerEndpoint } = newAction;
+    const { action, previousResourceIds, previousUpdateId, resourceIds, updateId, workerApiKey, workerEndpoint } = newAction;
 
     if (action === 'Update') {
       await executeChild(deployResources, {
         workflowId: `deployment-${deploymentId}-update-${updateId}`,
         args: [
           {
-            previousResources,
+            previousResourceIds,
             previousUpdateId,
             deploymentId,
-            resources,
+            resourceIds,
             updateId,
             workerApiKey,
             workerEndpoint,
@@ -41,7 +41,7 @@ export async function deploymentCoordinator({ deploymentId }: { deploymentId: nu
         args: [
           {
             deploymentId,
-            resources,
+            resourceIds,
             updateId,
             workerApiKey,
             workerEndpoint,

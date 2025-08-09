@@ -15,7 +15,7 @@ export function AdminPage() {
     <div className="flex h-screen flex-col">
       <div className="navbar bg-primary">
         <div className="flex-1">
-          <TransientNavLink to="/" className="btn btn-link no-underline! text-primary-content text-xl">
+          <TransientNavLink to="/" className="btn btn-link text-primary-content text-xl no-underline!">
             {theme.name}
           </TransientNavLink>
         </div>

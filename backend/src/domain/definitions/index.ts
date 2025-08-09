@@ -36,48 +36,56 @@ class ParameterDefinitionClass {
   required: boolean;
 
   @IsOptional()
-  @IsString()
-  label?: string;
+  @IsBoolean()
+  display?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  immutable?: boolean;
 
   @IsOptional()
   @IsString()
-  hint?: string;
+  label?: string | null;
+
+  @IsOptional()
+  @IsString()
+  hint?: string | null;
 
   @IsOptional()
   @IsNumber()
-  defaultValue?: any;
+  defaultValue?: any | null;
 
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ParameterAllowedvalueClass)
-  allowedValues?: ParameterAllowedvalueClass[];
+  allowedValues?: ParameterAllowedvalueClass[] | null;
 
   @IsOptional()
   @IsNumber()
   @Min(0)
-  minValue?: number;
+  minValue?: number | null;
 
   @IsOptional()
   @IsNumber()
-  maxValue?: number;
+  maxValue?: number | null;
 
   @IsOptional()
   @IsNumber()
-  step?: number;
+  step?: number | null;
 
   @IsOptional()
   @IsNumber()
   @Min(0)
-  minLength?: number;
+  minLength?: number | null;
 
   @IsOptional()
   @IsNumber()
-  maxLength?: number;
+  maxLength?: number | null;
 
   @IsOptional()
   @IsString()
-  section?: string;
+  section?: string | null;
 }
 
 class ParameterAllowedvalueClass {
@@ -104,6 +112,7 @@ class ResourceHealtCheckClass {
   url: string;
 
   @IsDefined()
+  @IsString()
   @IsEnum(['http'])
   type: 'http';
 }
@@ -121,11 +130,11 @@ class ResourceMappingClass {
 class ResourceDefinitionClass {
   @IsDefined()
   @IsString()
-  name: string;
+  id: string;
 
   @IsDefined()
   @IsString()
-  id: string;
+  name: string;
 
   @IsDefined()
   @IsString()
@@ -162,10 +171,35 @@ class UsageDefinitionClass {
   totalVolumeGB: string;
 }
 
+class ServicePriceClass {
+  @IsDefined()
+  @IsString()
+  target: string;
+
+  @IsDefined()
+  @IsString()
+  test: string;
+
+  @IsDefined()
+  @IsNumber()
+  amount: number;
+}
+
 class ServiceDefinitionClass {
   @IsOptional()
   @IsString()
-  afterInstallationInstruction?: string;
+  afterInstallationInstructions?: string;
+
+  @IsDefined()
+  @IsString()
+  @IsEnum(['fixed', 'pay_per_use'])
+  pricingModel: ServicePricingModel;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ServicePriceClass)
+  prices?: ServicePriceClass[];
 
   @IsDefined()
   @IsArray()
@@ -192,6 +226,8 @@ export type ResourceHealtCheck = InstanceType<typeof ResourceHealtCheckClass>;
 export type ResourceMapping = InstanceType<typeof ResourceMappingClass>;
 export type ResourcesDefinition = Pick<ServiceDefinition, 'resources'>;
 export type ServiceDefinition = InstanceType<typeof ServiceDefinitionClass>;
+export type ServicePrice = InstanceType<typeof ServicePriceClass>;
+export type ServicePricingModel = 'fixed' | 'pay_per_use';
 export type UsageDefinition = InstanceType<typeof UsageDefinitionClass>;
 
 export function definitionToYaml(definition: ServiceDefinition) {
@@ -244,11 +280,39 @@ export function evaluateHealthChecks(resource: ResourceDefinition, context: Defi
   });
 }
 
+export function evaluatePrices(service: ServiceDefinition, context: DefinitionContext): number {
+  if (!service.prices || service.prices.length === 0) {
+    return 0;
+  }
+
+  let total = 0;
+  for (const price of service.prices) {
+    const target = evaluateExpression(price.target, context);
+
+    if (target == price.test) {
+      total += price.amount;
+    }
+  }
+
+  return total;
+}
+
 export function evaluateParameters(resource: ResourceDefinition, context: DefinitionContext) {
-  const params = { ...resource.parameters };
+  const result: Record<string, any> = { ...resource.parameters };
 
   for (const [key, value] of Object.entries(resource.parameters)) {
-    params[key] = evaluateExpression(value, context);
+    let parsed = evaluateExpression(value, context) as string | null | undefined;
+
+    if (parsed === 'undefined') {
+      delete result[key];
+      continue;
+    }
+
+    if (parsed === 'null') {
+      parsed = null;
+    }
+
+    result[key] = parsed;
   }
 
   if (resource.mappings) {
@@ -257,12 +321,12 @@ export function evaluateParameters(resource: ResourceDefinition, context: Defini
 
       const mapped = mapping.map[value];
       if (mapped) {
-        params[key] = mapped;
+        result[key] = mapped;
       }
     }
   }
 
-  return params;
+  return result;
 }
 
 export function evaluateUsage(service: ServiceDefinition, context: DefinitionContext) {

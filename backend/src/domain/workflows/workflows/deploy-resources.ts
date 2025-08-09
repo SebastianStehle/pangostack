@@ -1,12 +1,11 @@
 import { proxyActivities } from '@temporalio/workflow';
-import { ResourceDefinition } from 'src/domain/definitions';
 import type * as activities from '../activities';
 
 export interface DeployResourcesParam {
   deploymentId: number;
-  previousResources?: ResourceDefinition[] | null;
+  previousResourceIds?: string[] | null;
   previousUpdateId?: number | null;
-  resources: ResourceDefinition[];
+  resourceIds: string[];
   updateId: number;
   workerApiKey?: string;
   workerEndpoint: string;
@@ -28,9 +27,9 @@ const { updateDeployment } = proxyActivities<typeof activities>({
 
 export async function deployResources({
   deploymentId,
-  previousResources,
+  previousResourceIds,
   previousUpdateId,
-  resources,
+  resourceIds,
   updateId,
   workerApiKey,
   workerEndpoint,
@@ -38,13 +37,13 @@ export async function deployResources({
   await updateDeployment({ updateId, status: 'Running' });
 
   try {
-    if (previousResources) {
-      for (const resource of previousResources) {
-        const inPrevious = previousResources.find((x) => x.id === resource.id);
+    if (previousResourceIds) {
+      for (const resourceId of previousResourceIds) {
+        const inPrevious = previousResourceIds.indexOf(resourceId) >= 0;
         if (!inPrevious && previousUpdateId) {
           await deleteResource({
             deploymentId,
-            resource,
+            resourceId,
             updateId: previousUpdateId,
             workerApiKey,
             workerEndpoint,
@@ -53,10 +52,10 @@ export async function deployResources({
       }
     }
 
-    for (const resource of resources) {
+    for (const resourceId of resourceIds) {
       await deployResource({
         deploymentId,
-        resource,
+        resourceId,
         updateId,
         workerApiKey,
         workerEndpoint,

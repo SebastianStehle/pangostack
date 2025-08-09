@@ -31,7 +31,7 @@ export function Links(props: LinksProps) {
       ))}
 
       {array.fields.length < 10 && (
-        <div className="flex flex-row gap-2 text-sm  text-slate-600">
+        <div className="flex flex-row gap-2 text-sm text-slate-600">
           <div className="w-1/3">
             <div className="rounded-box flex h-10 items-center bg-slate-200 px-4">{texts.common.title}</div>
           </div>

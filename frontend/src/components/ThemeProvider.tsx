@@ -1,16 +1,20 @@
 import { useQuery } from '@tanstack/react-query';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useClients } from 'src/api';
 import { Theme, ThemeContext } from 'src/hooks';
 import { texts } from 'src/texts';
 
-const defaultTheme = { name: texts.common.appName };
+const defaultTheme: { name: string | null } = { name: texts.common.appName };
 
 export function ThemeProvider(props: React.PropsWithChildren) {
   const { children } = props;
   const clientspi = useClients();
 
-  const { data: loadedSettings, refetch } = useQuery({
+  const {
+    data: loadedSettings,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: ['theme'],
     queryFn: () => clientspi.settings.getSettings(),
     refetchOnWindowFocus: false,
@@ -37,6 +41,12 @@ export function ThemeProvider(props: React.PropsWithChildren) {
       setTheme,
     };
   }, [refetch, setTheme, theme]);
+
+  useEffect(() => {
+    if (error) {
+      console.error(error);
+    }
+  }, [error]);
 
   if (!loadedSettings) {
     return null;

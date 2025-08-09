@@ -67,6 +67,14 @@ export class DeploymentController {
 function validate(descriptor: ResourceDescriptor, target: Record<string, any>) {
   const errors: ValidationError[] = [];
 
+  for (const [key, value] of Object.entries(target)) {
+    if (value === 'undefined') {
+      target[key] = undefined;
+    } else if (value === 'null') {
+      target[key] = null;
+    }
+  }
+
   for (const [key, definition] of Object.entries(descriptor.parameters)) {
     const valueExists = key in target;
     const valueRaw = target[key];

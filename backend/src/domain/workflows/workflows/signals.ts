@@ -1,13 +1,12 @@
 import { defineSignal } from '@temporalio/workflow';
-import { ResourceDefinition } from 'src/domain/definitions';
 
 type DeploymentAction = 'Update' | 'Destroy';
 
 export interface DeploymentSignal {
   action: DeploymentAction;
-  previousResources?: ResourceDefinition[] | null;
+  previousResourceIds?: string[] | null;
   previousUpdateId?: number | null;
-  resources: ResourceDefinition[];
+  resourceIds: string[];
   updateId: number;
   workerApiKey?: string;
   workerEndpoint: string;

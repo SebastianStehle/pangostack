@@ -1,10 +1,9 @@
 import { proxyActivities } from '@temporalio/workflow';
-import { ResourceDefinition } from 'src/domain/definitions';
 import type * as activities from '../activities';
 
 export interface DeleteResourcesParam {
   deploymentId: number;
-  resources: ResourceDefinition[];
+  resourceIds: string[];
   updateId: number;
   workerApiKey?: string;
   workerEndpoint: string;
@@ -19,16 +18,16 @@ const { deleteResource } = proxyActivities<typeof activities>({
 
 export async function deleteResources({
   deploymentId,
-  resources,
+  resourceIds,
   updateId,
   workerApiKey,
   workerEndpoint,
 }: DeleteResourcesParam): Promise<void> {
-  for (const resource of resources) {
+  for (const resourceId of resourceIds) {
     await deleteResource({
       workerApiKey,
       workerEndpoint,
-      resource,
+      resourceId,
       deploymentId,
       updateId,
     });

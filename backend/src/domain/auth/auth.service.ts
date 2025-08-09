@@ -190,7 +190,7 @@ export class AuthService implements OnModuleInit {
     }
 
     await new Promise((resolve) => {
-      req.session.user = user;
+      req.session.user = user as any;
       req.session.save(resolve);
     });
   }
@@ -216,7 +216,7 @@ export class AuthService implements OnModuleInit {
     }
 
     await new Promise((resolve) => {
-      req.session.user = fromDB!;
+      req.session.user = fromDB! as any;
       req.session.save(resolve);
     });
   }

@@ -3,7 +3,7 @@ import { memo, useMemo, useState } from 'react';
 
 export interface AvatarProps {
   // The user information.
-  user: { name: string; picture?: string };
+  user: { name: string; picture?: string | null };
 
   // The size of the avatar.
   size?: 'sm' | 'md';
@@ -37,7 +37,7 @@ export const Avatar = memo((props: AvatarProps) => {
   return usePicture ? (
     <div className="avatar flex">
       <div className={classNames(actualSize, 'rounded-full')}>
-        <img src={user.picture} alt={user.name} onError={() => setUsePicture(false)} />
+        <img src={user.picture!} alt={user.name} onError={() => setUsePicture(false)} />
       </div>
     </div>
   ) : (

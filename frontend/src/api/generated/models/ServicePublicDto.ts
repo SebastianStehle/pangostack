@@ -22,6 +22,12 @@ import {
     ParameterDefinitionDtoFromJSONTyped,
     ParameterDefinitionDtoToJSON,
 } from './ParameterDefinitionDto';
+import type { ServicePriceDto } from './ServicePriceDto';
+import {
+    ServicePriceDtoFromJSON,
+    ServicePriceDtoFromJSONTyped,
+    ServicePriceDtoToJSON,
+} from './ServicePriceDto';
 
 /**
  * 
@@ -90,11 +96,29 @@ export interface ServicePublicDto {
      */
     fixedPrice: number;
     /**
+     * The prices.
+     * @type {Array<ServicePriceDto>}
+     * @memberof ServicePublicDto
+     */
+    prices: Array<ServicePriceDto>;
+    /**
+     * The pricing model.
+     * @type {string}
+     * @memberof ServicePublicDto
+     */
+    pricingModel: ServicePublicDtoPricingModelEnum;
+    /**
      * The parameters.
      * @type {Array<ParameterDefinitionDto>}
      * @memberof ServicePublicDto
      */
     parameters: Array<ParameterDefinitionDto>;
+    /**
+     * The instructions to show after the installation has been made.
+     * @type {string}
+     * @memberof ServicePublicDto
+     */
+    afterInstallationInstructions: string | null;
     /**
      * The expression to calculate the total number of Core.
      * @type {string}
@@ -121,6 +145,17 @@ export interface ServicePublicDto {
     totalStorageGB: string;
 }
 
+
+/**
+ * @export
+ */
+export const ServicePublicDtoPricingModelEnum = {
+    Fixed: 'fixed',
+    PayPerUse: 'pay_per_use'
+} as const;
+export type ServicePublicDtoPricingModelEnum = typeof ServicePublicDtoPricingModelEnum[keyof typeof ServicePublicDtoPricingModelEnum];
+
+
 /**
  * Check if a given object implements the ServicePublicDto interface.
  */
@@ -136,7 +171,10 @@ export function instanceOfServicePublicDto(value: object): boolean {
     isInstance = isInstance && "pricePerStorageGBMonth" in value;
     isInstance = isInstance && "pricePerVolumeGBHour" in value;
     isInstance = isInstance && "fixedPrice" in value;
+    isInstance = isInstance && "prices" in value;
+    isInstance = isInstance && "pricingModel" in value;
     isInstance = isInstance && "parameters" in value;
+    isInstance = isInstance && "afterInstallationInstructions" in value;
     isInstance = isInstance && "totalCores" in value;
     isInstance = isInstance && "totalMemoryGB" in value;
     isInstance = isInstance && "totalVolumeGB" in value;
@@ -165,7 +203,10 @@ export function ServicePublicDtoFromJSONTyped(json: any, ignoreDiscriminator: bo
         'pricePerStorageGBMonth': json['pricePerStorageGBMonth'],
         'pricePerVolumeGBHour': json['pricePerVolumeGBHour'],
         'fixedPrice': json['fixedPrice'],
+        'prices': ((json['prices'] as Array<any>).map(ServicePriceDtoFromJSON)),
+        'pricingModel': json['pricingModel'],
         'parameters': ((json['parameters'] as Array<any>).map(ParameterDefinitionDtoFromJSON)),
+        'afterInstallationInstructions': json['afterInstallationInstructions'],
         'totalCores': json['totalCores'],
         'totalMemoryGB': json['totalMemoryGB'],
         'totalVolumeGB': json['totalVolumeGB'],
@@ -192,7 +233,10 @@ export function ServicePublicDtoToJSON(value?: ServicePublicDto | null): any {
         'pricePerStorageGBMonth': value.pricePerStorageGBMonth,
         'pricePerVolumeGBHour': value.pricePerVolumeGBHour,
         'fixedPrice': value.fixedPrice,
+        'prices': ((value.prices as Array<any>).map(ServicePriceDtoToJSON)),
+        'pricingModel': value.pricingModel,
         'parameters': ((value.parameters as Array<any>).map(ParameterDefinitionDtoToJSON)),
+        'afterInstallationInstructions': value.afterInstallationInstructions,
         'totalCores': value.totalCores,
         'totalMemoryGB': value.totalMemoryGB,
         'totalVolumeGB': value.totalVolumeGB,

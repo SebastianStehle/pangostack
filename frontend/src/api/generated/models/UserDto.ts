@@ -45,19 +45,19 @@ export interface UserDto {
      * @type {string}
      * @memberof UserDto
      */
-    picture?: string;
+    picture: string | null;
     /**
      * The API Key.
      * @type {string}
      * @memberof UserDto
      */
-    apiKey?: string;
+    apiKey: string | null;
     /**
      * The user roles.
      * @type {Array<string>}
      * @memberof UserDto
      */
-    roles?: Array<string>;
+    roles: Array<string> | null;
     /**
      * The user group ID.
      * @type {string}
@@ -80,6 +80,9 @@ export function instanceOfUserDto(value: object): boolean {
     isInstance = isInstance && "id" in value;
     isInstance = isInstance && "name" in value;
     isInstance = isInstance && "email" in value;
+    isInstance = isInstance && "picture" in value;
+    isInstance = isInstance && "apiKey" in value;
+    isInstance = isInstance && "roles" in value;
     isInstance = isInstance && "userGroupId" in value;
     isInstance = isInstance && "hasPassword" in value;
 
@@ -99,9 +102,9 @@ export function UserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): U
         'id': json['id'],
         'name': json['name'],
         'email': json['email'],
-        'picture': !exists(json, 'picture') ? undefined : json['picture'],
-        'apiKey': !exists(json, 'apiKey') ? undefined : json['apiKey'],
-        'roles': !exists(json, 'roles') ? undefined : json['roles'],
+        'picture': json['picture'],
+        'apiKey': json['apiKey'],
+        'roles': json['roles'],
         'userGroupId': json['userGroupId'],
         'hasPassword': json['hasPassword'],
     };

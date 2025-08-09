@@ -40,10 +40,10 @@ const DEFAULT_VALUE: Partial<ServiceDto> = {
   currency: 'USD',
   fixedPrice: 0,
   isPublic: true,
-  pricePerCpuHour: 0,
-  pricePerMemoryGbHour: 0,
-  pricePerStorageGbMonth: 0,
-  pricePerVolumeGbHour: 0,
+  pricePerCoreHour: 0,
+  pricePerMemoryGBHour: 0,
+  pricePerStorageGBMonth: 0,
+  pricePerVolumeGBHour: 0,
 };
 
 export interface UpsertServiceDialogProps {
@@ -90,7 +90,7 @@ export function UpsertServiceDialog(props: UpsertServiceDialogProps) {
             <>
               <div className="flex items-center gap-4">{target ? texts.services.update : texts.services.create}</div>
 
-              <div role="tablist" className="tabs tabs-md tabs-border -mb-6 -ms-4 mt-4">
+              <div role="tablist" className="tabs tabs-md tabs-border -ms-4 mt-4 -mb-6">
                 <a role="tab" className={classNames('tab', { 'tab-active': activeTab === 0 })} onClick={() => setActiveTab(0)}>
                   {texts.common.common}
                 </a>

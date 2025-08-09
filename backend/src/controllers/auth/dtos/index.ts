@@ -113,9 +113,10 @@ export class ProfileDto {
 
   @ApiProperty({
     description: 'The URL to an external picture.',
-    required: false,
+    nullable: true,
+    type: String,
   })
-  picture?: string;
+  picture?: string | null;
 
   @ApiProperty({
     description: 'Indicates if the user is an admin.',

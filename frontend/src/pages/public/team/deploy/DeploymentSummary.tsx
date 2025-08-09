@@ -13,10 +13,14 @@ export function DeploymentSummary(props: DeploymentSummaryProps) {
   const { service } = props;
   const values = useWatch();
 
-  const rows = useMemo(() => {
+  const payPerUse = useMemo(() => {
     const context = {
       parameters: values.parameters,
     };
+
+    if (service.pricingModel === 'fixed') {
+      return [];
+    }
 
     const buildRow = (label: string, formula: string, price: number, unitFactorLabel: string, factor: number, unit = '') => {
       const totalUnits = +evaluateExpression(formula, context);
@@ -60,9 +64,28 @@ export function DeploymentSummary(props: DeploymentSummaryProps) {
     ];
   }, [service, values]);
 
+  const plan = useMemo(() => {
+    const context = {
+      parameters: values.parameters,
+    };
+
+    const amount = service.prices
+      .map((price) => {
+        const target = evaluateExpression(price.target, context);
+        if (target === price.test) {
+          return price.amount;
+        } else {
+          return 0;
+        }
+      })
+      .reduce((a, c) => a + c, 0);
+
+    return amount;
+  }, [service.prices, values.parameters]);
+
   const total = useMemo(() => {
-    return rows.reduce((a, c) => a + c.totalPrice, 0) + service.fixedPrice;
-  }, [rows, service.fixedPrice]);
+    return payPerUse.reduce((a, c) => a + c.totalPrice, 0) + service.fixedPrice + plan;
+  }, [payPerUse, plan, service.fixedPrice]);
 
   return (
     <>
@@ -78,7 +101,7 @@ export function DeploymentSummary(props: DeploymentSummaryProps) {
           <col />
         </colgroup>
         <tbody>
-          {rows.map((row) => (
+          {payPerUse.map((row) => (
             <tr key={row.label}>
               <td className="px-0">{row.label}</td>
               <td className="px-0">{row.totalUnits}</td>
@@ -97,6 +120,15 @@ export function DeploymentSummary(props: DeploymentSummaryProps) {
             </td>
             <td className="px-0 text-right">{formatMoney(service.fixedPrice, service.currency)}</td>
           </tr>
+
+          {service.pricingModel === 'fixed' && (
+            <tr>
+              <td className="px-0" colSpan={7}>
+                {texts.deployments.fixedPrice}
+              </td>
+              <td className="px-0 text-right">{formatMoney(plan, service.currency)}</td>
+            </tr>
+          )}
 
           <tr>
             <th className="px-0" colSpan={7}>

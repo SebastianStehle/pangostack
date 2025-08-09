@@ -8,19 +8,19 @@ export interface Settings {
   primaryContentColor: string;
 
   // Some custom css.
-  customCss?: string;
+  customCss?: string | null;
 
   // The header color.
-  headerColor?: string;
+  headerColor?: string | null;
 
   // The footer link.
-  footerLinks?: SettingLink[];
+  footerLinks?: SettingLink[] | null;
 
   // The footer text, for example for copyright infos.
-  footerText?: string;
+  footerText?: string | null;
 
   // Welcome text for the login screen.
-  welcomeText?: string;
+  welcomeText?: string | null;
 
   // The name of the app.
   name: string;

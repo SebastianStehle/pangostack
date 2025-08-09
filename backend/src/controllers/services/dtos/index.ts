@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
-import { definitionToYaml, ParameterDefinition } from 'src/domain/definitions';
-import { Service, ServicePublic, ServiceVersion } from 'src/domain/services';
+import { definitionToYaml, ParameterAllowedvalue, ParameterDefinition, ServicePricingModel } from 'src/domain/definitions';
+import { Service, ServicePrice, ServicePublic, ServiceVersion } from 'src/domain/services';
 
 export class UpsertServiceDto {
   @ApiProperty({
@@ -116,9 +116,10 @@ export class ServiceDto {
 
   @ApiProperty({
     description: 'The latest version.',
-    required: false,
+    nullable: true,
+    type: String,
   })
-  latestVersion?: string;
+  latestVersion?: string | null;
 
   @ApiProperty({
     description: 'The environment settings.',
@@ -350,6 +351,35 @@ export class ServiceVersionsDto {
   }
 }
 
+class ParameterAllowedvalueDto {
+  @ApiProperty({
+    description: 'The value.',
+    required: true,
+  })
+  value: any;
+
+  @ApiProperty({
+    description: 'The display label.',
+    required: true,
+  })
+  label: string;
+
+  @ApiProperty({
+    description: 'The hints to explain the value.',
+    nullable: true,
+    type: String,
+  })
+  hint?: string | null;
+
+  static fromDomain(source: ParameterAllowedvalue): ParameterAllowedvalueDto {
+    const result = new ParameterAllowedvalueDto();
+    result.value = source.value;
+    result.label = source.label;
+    result.hint = source.hint;
+    return result;
+  }
+}
+
 export class ParameterDefinitionDto {
   @ApiProperty({
     description: 'The name of the parameter.',
@@ -371,80 +401,130 @@ export class ParameterDefinitionDto {
   required: boolean;
 
   @ApiProperty({
-    description: 'Gives the parameter a readable name.',
-    required: false,
+    description: 'Indicates if the parameter cannot be changed after creation.',
+    nullable: true,
   })
-  label?: string;
+  immutable?: boolean | null;
+
+  @ApiProperty({
+    description: 'Indicates if the parameter should be displayed.',
+    nullable: true,
+  })
+  display?: boolean | null;
+
+  @ApiProperty({
+    description: 'Gives the parameter a readable name.',
+    nullable: true,
+    type: String,
+  })
+  label?: string | null;
 
   @ApiProperty({
     description: 'Describes the parameter.',
-    required: false,
+    nullable: true,
+    type: String,
   })
-  hint?: string;
+  hint?: string | null;
 
   @ApiProperty({
     description: 'The default value of the parameter.',
-    required: false,
+    nullable: true,
   })
-  defaultValue?: any;
+  defaultValue?: any | null;
 
   @ApiProperty({
     description: 'Allowed values for the parameter.',
-    required: false,
-    type: [Object],
+    nullable: true,
+    type: [ParameterAllowedvalueDto],
   })
-  allowedValues?: any[];
+  allowedValues?: ParameterAllowedvalueDto[] | null;
 
   @ApiProperty({
     description: 'Minimum value for numeric parameters.',
-    required: false,
+    nullable: true,
+    type: Number,
   })
-  minValue?: number;
+  minValue?: number | null;
 
   @ApiProperty({
     description: 'Maximum value for numeric parameters.',
-    required: false,
+    nullable: true,
+    type: Number,
   })
-  maxValue?: number;
+  maxValue?: number | null;
 
   @ApiProperty({
     description: 'Minimum length for string parameters.',
-    required: false,
+    nullable: true,
+    type: Number,
   })
-  minLength?: number;
+  minLength?: number | null;
 
   @ApiProperty({
     description: 'The step when the control is a slider.',
-    required: false,
+    nullable: true,
+    type: Number,
   })
-  step?: number;
+  step?: number | null;
 
   @ApiProperty({
     description: 'Maximum length for string parameters.',
-    required: false,
+    nullable: true,
+    type: Number,
   })
-  maxLength?: number;
+  maxLength?: number | null;
 
   @ApiProperty({
     description: 'Optional section for grouping.',
-    required: false,
+    nullable: true,
+    type: Number,
   })
-  section?: string;
+  section?: string | null;
 
   static fromDomain(source: ParameterDefinition): ParameterDefinitionDto {
     const result = new ParameterDefinitionDto();
-    result.name = source.name;
-    result.allowedValues = source.allowedValues;
+    result.allowedValues = source.allowedValues?.map(ParameterAllowedvalueDto.fromDomain) || null;
     result.defaultValue = source.defaultValue;
+    result.display = source.display;
+    result.immutable = source.immutable;
     result.label = source.label;
     result.maxLength = source.maxLength;
     result.maxValue = source.maxValue;
     result.minLength = source.minLength;
     result.minValue = source.minValue;
+    result.name = source.name;
     result.required = source.required;
     result.section = source.section;
     result.step = source.step;
     result.type = source.type;
+    return result;
+  }
+}
+
+export class ServicePriceDto {
+  @ApiProperty({
+    description: 'The target value.',
+    required: true,
+  })
+  target: string;
+
+  @ApiProperty({
+    description: 'The test value.',
+    required: true,
+  })
+  test: string;
+
+  @ApiProperty({
+    description: 'The total amount in the currency of the service.',
+    required: true,
+  })
+  amount: number;
+
+  static fromDomain(source: ServicePrice): ServicePriceDto {
+    const result = new ServicePriceDto();
+    result.target = source.target;
+    result.test = source.test;
+    result.amount = source.amount;
     return result;
   }
 }
@@ -511,11 +591,32 @@ export class ServicePublicDto {
   fixedPrice: number;
 
   @ApiProperty({
+    description: 'The prices.',
+    required: true,
+    type: [ServicePriceDto],
+  })
+  prices?: ServicePriceDto[];
+
+  @ApiProperty({
+    description: 'The pricing model.',
+    required: true,
+    enum: ['fixed', 'pay_per_use'],
+  })
+  pricingModel: ServicePricingModel;
+
+  @ApiProperty({
     description: 'The parameters.',
     required: true,
     type: [ParameterDefinitionDto],
   })
   parameters: ParameterDefinitionDto[];
+
+  @ApiProperty({
+    description: 'The instructions to show after the installation has been made.',
+    nullable: true,
+    type: String,
+  })
+  afterInstallationInstructions?: string | null;
 
   @ApiProperty({
     description: 'The expression to calculate the total number of Core.',
@@ -544,6 +645,7 @@ export class ServicePublicDto {
   static fromDomain(source: ServicePublic): ServicePublicDto {
     const result = new ServicePublicDto();
     result.id = source.id;
+    result.afterInstallationInstructions = source.afterInstallationInstructions;
     result.currency = source.currency;
     result.description = source.description;
     result.fixedPrice = source.fixedPrice;
@@ -553,6 +655,8 @@ export class ServicePublicDto {
     result.pricePerMemoryGBHour = source.pricePerMemoryGBHour;
     result.pricePerStorageGBMonth = source.pricePerStorageGBMonth;
     result.pricePerVolumeGBHour = source.pricePerVolumeGBHour;
+    result.prices = source.prices?.map(ServicePriceDto.fromDomain) || [];
+    result.pricingModel = source.pricingModel;
     result.totalCores = source.usage.totalCores;
     result.totalMemoryGB = source.usage.totalMemoryGB;
     result.totalVolumeGB = source.usage.totalVolumeGB;

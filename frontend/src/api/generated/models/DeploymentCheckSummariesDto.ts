@@ -30,7 +30,7 @@ import {
  */
 export interface DeploymentCheckSummariesDto {
     /**
-     * The summary per date
+     * The summary per dat.
      * @type {Array<DeploymentCheckSummaryDto>}
      * @memberof DeploymentCheckSummariesDto
      */

@@ -9,19 +9,19 @@ export interface User {
   email: string;
 
   // The URL to an external picture.
-  picture?: string;
+  picture?: string | null;
 
   // The user group ID.
   userGroupId: string;
 
   // Indicates if the user has a password configured.
-  hasPassword?: boolean;
+  hasPassword: boolean;
 
   // The user roles.
-  roles?: string[];
+  roles?: string[] | null;
 
   // The API Key.
-  apiKey?: string;
+  apiKey?: string | null;
 }
 
 export interface UserGroup {

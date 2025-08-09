@@ -19,42 +19,50 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface UpsertUserGroupDto
+ * @interface DeploymentResourceDto
  */
-export interface UpsertUserGroupDto {
+export interface DeploymentResourceDto {
     /**
-     * The display name.
+     * The ID of the resource.
      * @type {string}
-     * @memberof UpsertUserGroupDto
+     * @memberof DeploymentResourceDto
+     */
+    id: string;
+    /**
+     * The name of the resource.
+     * @type {string}
+     * @memberof DeploymentResourceDto
      */
     name: string;
 }
 
 /**
- * Check if a given object implements the UpsertUserGroupDto interface.
+ * Check if a given object implements the DeploymentResourceDto interface.
  */
-export function instanceOfUpsertUserGroupDto(value: object): boolean {
+export function instanceOfDeploymentResourceDto(value: object): boolean {
     let isInstance = true;
+    isInstance = isInstance && "id" in value;
     isInstance = isInstance && "name" in value;
 
     return isInstance;
 }
 
-export function UpsertUserGroupDtoFromJSON(json: any): UpsertUserGroupDto {
-    return UpsertUserGroupDtoFromJSONTyped(json, false);
+export function DeploymentResourceDtoFromJSON(json: any): DeploymentResourceDto {
+    return DeploymentResourceDtoFromJSONTyped(json, false);
 }
 
-export function UpsertUserGroupDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): UpsertUserGroupDto {
+export function DeploymentResourceDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): DeploymentResourceDto {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
+        'id': json['id'],
         'name': json['name'],
     };
 }
 
-export function UpsertUserGroupDtoToJSON(value?: UpsertUserGroupDto | null): any {
+export function DeploymentResourceDtoToJSON(value?: DeploymentResourceDto | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -63,6 +71,7 @@ export function UpsertUserGroupDtoToJSON(value?: UpsertUserGroupDto | null): any
     }
     return {
         
+        'id': value.id,
         'name': value.name,
     };
 }

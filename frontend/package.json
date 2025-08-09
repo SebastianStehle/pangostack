@@ -44,7 +44,7 @@
     "react-textarea-autosize": "^8.5.3",
     "react-toastify": "^10.0.5",
     "react-tooltip": "^5.26.4",
-    "recharts": "^2.12.2",
+    "recharts": "^3.1.2",
     "rehype-external-links": "^3.0.0",
     "rxjs": "^7.8.1",
     "yup": "^1.4.0",

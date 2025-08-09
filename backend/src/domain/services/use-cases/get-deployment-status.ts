@@ -49,12 +49,13 @@ export class GetDeploymentStatusHandler implements IQueryHandler<GetDeploymentSt
       return new GetDeploymentStatusResponse([]);
     }
 
-    const workerClient = new WorkerClient(worker.endpoint, worker.apiKey);
-
+    const client = new WorkerClient(worker.endpoint, worker.apiKey);
     const context = { env: lastUpdate.environment, context: lastUpdate.context, parameters: lastUpdate.parameters };
 
-    const statuses = await workerClient.status.postStatus({
-      resources: lastUpdate.serviceVersion.definition.resources.map((resource) => ({
+    const resources = lastUpdate.serviceVersion.definition.resources;
+
+    const statuses = await client.status.postStatus({
+      resources: resources.map((resource) => ({
         context: lastUpdate.resourceContexts[resource.id] || {},
         resourceId: `deployment_${deploymentId}_${resource.id}`,
         resourceType: resource.type,
@@ -62,6 +63,13 @@ export class GetDeploymentStatusHandler implements IQueryHandler<GetDeploymentSt
       })),
     });
 
-    return new GetDeploymentStatusResponse(statuses.resources as any);
+    const mapped: ResourceStatus[] = statuses.resources.map((source, i) => ({
+      resourceId: resources[i].id,
+      resourceType: resources[i].type,
+      resourceName: resources[i].name,
+      workloads: source.workloads,
+    }));
+
+    return new GetDeploymentStatusResponse(mapped);
   }
 }

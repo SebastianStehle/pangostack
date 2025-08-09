@@ -66,7 +66,7 @@ export const CodeEditor = (props: CodeEditorProps) => {
     <div
       className={classNames({
         'border-[1px] border-slate-300': !isFullHeight,
-        'absolute bottom-0 left-0 right-0 top-0': isFullHeight,
+        'absolute top-0 right-0 bottom-0 left-0': isFullHeight,
       })}
     >
       <AceEditor

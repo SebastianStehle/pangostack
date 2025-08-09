@@ -16,6 +16,13 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { DeploymentCreatedDtoDeployment } from './DeploymentCreatedDtoDeployment';
+import {
+    DeploymentCreatedDtoDeploymentFromJSON,
+    DeploymentCreatedDtoDeploymentFromJSONTyped,
+    DeploymentCreatedDtoDeploymentToJSON,
+} from './DeploymentCreatedDtoDeployment';
+
 /**
  * 
  * @export
@@ -23,11 +30,11 @@ import { exists, mapValues } from '../runtime';
  */
 export interface DeploymentCreatedDto {
     /**
-     * The created deployment.
-     * @type {object}
+     * 
+     * @type {DeploymentCreatedDtoDeployment}
      * @memberof DeploymentCreatedDto
      */
-    deployment: object | null;
+    deployment: DeploymentCreatedDtoDeployment | null;
     /**
      * The redirect URL if the deployment cannot be completed automatically.
      * @type {string}
@@ -57,7 +64,7 @@ export function DeploymentCreatedDtoFromJSONTyped(json: any, ignoreDiscriminator
     }
     return {
         
-        'deployment': json['deployment'],
+        'deployment': DeploymentCreatedDtoDeploymentFromJSON(json['deployment']),
         'redirectUrl': json['redirectUrl'],
     };
 }
@@ -71,7 +78,7 @@ export function DeploymentCreatedDtoToJSON(value?: DeploymentCreatedDto | null):
     }
     return {
         
-        'deployment': value.deployment,
+        'deployment': DeploymentCreatedDtoDeploymentToJSON(value.deployment),
         'redirectUrl': value.redirectUrl,
     };
 }

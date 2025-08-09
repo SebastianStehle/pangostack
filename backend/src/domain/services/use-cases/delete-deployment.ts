@@ -34,7 +34,7 @@ export class DeleteDeploymentHandler implements ICommandHandler<DeleteDeployment
   async execute(command: DeleteDeployment): Promise<any> {
     const { deploymentId, teamId } = command;
 
-    const deployment = await this.deployments.findOne({ where: { id: deploymentId, teamId } });
+    const deployment = await this.deployments.findOne({ where: { id: deploymentId, teamId }, order: { id: 'DESC' } });
     if (!deployment) {
       throw new NotFoundException(`Deployment ${deploymentId} not found`);
     }

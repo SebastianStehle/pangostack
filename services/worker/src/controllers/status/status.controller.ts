@@ -15,7 +15,6 @@ export class StatusController {
   @ApiOperation({ operationId: 'postStatus', description: 'Gets the status for all specified deployment IDs' })
   @ApiOkResponse({ type: StatusResultDto })
   async postStatus(@Body() body: StatusRequestDto) {
-    throw new Error('FOOBAR');
     // Validate the request first.
     for (const identifier of body.resources) {
       if (!this.resources.has(identifier.resourceType)) {

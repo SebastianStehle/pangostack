@@ -16,6 +16,13 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { ParameterAllowedvalueDto } from './ParameterAllowedvalueDto';
+import {
+    ParameterAllowedvalueDtoFromJSON,
+    ParameterAllowedvalueDtoFromJSONTyped,
+    ParameterAllowedvalueDtoToJSON,
+} from './ParameterAllowedvalueDto';
+
 /**
  * 
  * @export
@@ -41,65 +48,77 @@ export interface ParameterDefinitionDto {
      */
     required: boolean;
     /**
+     * Indicates if the parameter cannot be changed after creation.
+     * @type {object}
+     * @memberof ParameterDefinitionDto
+     */
+    immutable: object | null;
+    /**
+     * Indicates if the parameter should be displayed.
+     * @type {object}
+     * @memberof ParameterDefinitionDto
+     */
+    display: object | null;
+    /**
      * Gives the parameter a readable name.
      * @type {string}
      * @memberof ParameterDefinitionDto
      */
-    label?: string;
+    label: string | null;
     /**
      * Describes the parameter.
      * @type {string}
      * @memberof ParameterDefinitionDto
      */
-    hint?: string;
+    hint: string | null;
     /**
      * The default value of the parameter.
      * @type {object}
      * @memberof ParameterDefinitionDto
      */
-    defaultValue?: object;
+    defaultValue: object | null;
     /**
      * Allowed values for the parameter.
-     * @type {Array<object>}
+     * @type {Array<ParameterAllowedvalueDto>}
      * @memberof ParameterDefinitionDto
      */
-    allowedValues?: Array<object>;
+    allowedValues: Array<ParameterAllowedvalueDto> | null;
     /**
      * Minimum value for numeric parameters.
      * @type {number}
      * @memberof ParameterDefinitionDto
      */
-    minValue?: number;
+    minValue: number | null;
     /**
      * Maximum value for numeric parameters.
      * @type {number}
      * @memberof ParameterDefinitionDto
      */
-    maxValue?: number;
+    maxValue: number | null;
     /**
      * Minimum length for string parameters.
      * @type {number}
      * @memberof ParameterDefinitionDto
      */
-    minLength?: number;
+    minLength: number | null;
     /**
      * The step when the control is a slider.
      * @type {number}
      * @memberof ParameterDefinitionDto
      */
-    step?: number;
+    step: number | null;
     /**
      * Maximum length for string parameters.
      * @type {number}
      * @memberof ParameterDefinitionDto
      */
-    maxLength?: number;
+    maxLength: number | null;
     /**
      * Optional section for grouping.
-     * @type {string}
+     * @type {number}
      * @memberof ParameterDefinitionDto
      */
-    section?: string;
+    section: number | null;
 }
 
 
@@ -122,6 +141,18 @@ export function instanceOfParameterDefinitionDto(value: object): boolean {
     isInstance = isInstance && "name" in value;
     isInstance = isInstance && "type" in value;
     isInstance = isInstance && "required" in value;
+    isInstance = isInstance && "immutable" in value;
+    isInstance = isInstance && "display" in value;
+    isInstance = isInstance && "label" in value;
+    isInstance = isInstance && "hint" in value;
+    isInstance = isInstance && "defaultValue" in value;
+    isInstance = isInstance && "allowedValues" in value;
+    isInstance = isInstance && "minValue" in value;
+    isInstance = isInstance && "maxValue" in value;
+    isInstance = isInstance && "minLength" in value;
+    isInstance = isInstance && "step" in value;
+    isInstance = isInstance && "maxLength" in value;
+    isInstance = isInstance && "section" in value;
 
     return isInstance;
 }
@@ -139,16 +170,18 @@ export function ParameterDefinitionDtoFromJSONTyped(json: any, ignoreDiscriminat
         'name': json['name'],
         'type': json['type'],
         'required': json['required'],
-        'label': !exists(json, 'label') ? undefined : json['label'],
-        'hint': !exists(json, 'hint') ? undefined : json['hint'],
-        'defaultValue': !exists(json, 'defaultValue') ? undefined : json['defaultValue'],
-        'allowedValues': !exists(json, 'allowedValues') ? undefined : json['allowedValues'],
-        'minValue': !exists(json, 'minValue') ? undefined : json['minValue'],
-        'maxValue': !exists(json, 'maxValue') ? undefined : json['maxValue'],
-        'minLength': !exists(json, 'minLength') ? undefined : json['minLength'],
-        'step': !exists(json, 'step') ? undefined : json['step'],
-        'maxLength': !exists(json, 'maxLength') ? undefined : json['maxLength'],
-        'section': !exists(json, 'section') ? undefined : json['section'],
+        'immutable': json['immutable'],
+        'display': json['display'],
+        'label': json['label'],
+        'hint': json['hint'],
+        'defaultValue': json['defaultValue'],
+        'allowedValues': (json['allowedValues'] === null ? null : (json['allowedValues'] as Array<any>).map(ParameterAllowedvalueDtoFromJSON)),
+        'minValue': json['minValue'],
+        'maxValue': json['maxValue'],
+        'minLength': json['minLength'],
+        'step': json['step'],
+        'maxLength': json['maxLength'],
+        'section': json['section'],
     };
 }
 
@@ -164,10 +197,12 @@ export function ParameterDefinitionDtoToJSON(value?: ParameterDefinitionDto | nu
         'name': value.name,
         'type': value.type,
         'required': value.required,
+        'immutable': value.immutable,
+        'display': value.display,
         'label': value.label,
         'hint': value.hint,
         'defaultValue': value.defaultValue,
-        'allowedValues': value.allowedValues,
+        'allowedValues': (value.allowedValues === null ? null : (value.allowedValues as Array<any>).map(ParameterAllowedvalueDtoToJSON)),
         'minValue': value.minValue,
         'maxValue': value.maxValue,
         'minLength': value.minLength,

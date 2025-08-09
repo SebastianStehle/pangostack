@@ -83,7 +83,7 @@ export const VersionPage = (props: VersionPageProps) => {
             </div>
 
             <div
-              className={classNames('sticky bottom-0 left-0 right-0 z-[100] -mx-4 mt-4  bg-slate-50 px-4 py-4', {
+              className={classNames('sticky right-0 bottom-0 left-0 z-[100] -mx-4 mt-4 bg-slate-50 px-4 py-4', {
                 'border-t-[1px] border-gray-300': isSticky,
               })}
             >

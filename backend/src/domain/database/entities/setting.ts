@@ -8,29 +8,29 @@ export class SettingEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 30, nullable: true })
+  @Column('varchar', { length: 30, nullable: true })
   name?: string;
 
-  @Column({ length: 20, nullable: true })
-  primaryColor?: string;
+  @Column('varchar', { length: 20, nullable: true })
+  primaryColor?: string | null;
 
-  @Column({ length: 20, nullable: true })
-  primaryContentColor?: string;
+  @Column('varchar', { length: 20, nullable: true })
+  primaryContentColor?: string | null;
 
-  @Column({ length: 20, nullable: true })
-  headerColor?: string;
-
-  @Column('text', { nullable: true })
-  welcomeText?: string;
+  @Column('varchar', { length: 20, nullable: true })
+  headerColor?: string | null;
 
   @Column('text', { nullable: true })
-  customCss?: string;
+  welcomeText?: string | null;
+
+  @Column('text', { nullable: true })
+  customCss?: string | null;
 
   @Column('simple-json', { nullable: true })
-  footerLinks?: SettingLink[];
+  footerLinks?: SettingLink[] | null;
 
   @Column('text', { nullable: true })
-  footerText?: string;
+  footerText?: string | null;
 
   @CreateDateColumn()
   createdAt: Date;

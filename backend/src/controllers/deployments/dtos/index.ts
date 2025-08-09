@@ -1,8 +1,10 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { IsDefined, IsNumber, IsObject, IsOptional, MaxLength } from 'class-validator';
+import { ConnectionInfo, DeploymentCheckStatus, DeploymentUpdateStatus } from 'src/domain/database';
 import {
   CheckSummary,
   Deployment,
+  DeploymentResource,
   ResourceNodeStatus,
   ResourceStatus,
   ResourceWorkloadStatus,
@@ -83,27 +85,68 @@ export class UpdateDeploymentDto {
   parameters?: Record<string, any>;
 }
 
-export class DeploymentCreatedDto {
+export class ConnectionInfoDto {
   @ApiProperty({
-    description: 'The created deployment.',
-    nullable: true,
+    description: 'The connection value (URL, endpoint, etc.).',
+    required: true,
   })
-  deployment?: DeploymentDto | null;
+  value: string;
 
   @ApiProperty({
-    description: 'The redirect URL if the deployment cannot be completed automatically.',
-    nullable: true,
-    type: String,
+    description: 'Whether this connection is publicly accessible.',
+    required: true,
   })
-  redirectUrl?: string | null;
+  isPublic: boolean;
+
+  @ApiProperty({
+    description: 'Human-readable label for this connection.',
+    required: true,
+  })
+  label: string;
+
+  static fromDomain(source: ConnectionInfo): ConnectionInfoDto {
+    const result = new ConnectionInfoDto();
+    result.value = source.value;
+    result.label = source.label;
+    return result;
+  }
 }
 
+export class DeploymentResourceDto {
+  @ApiProperty({
+    description: 'The ID of the resource.',
+    required: true,
+  })
+  id: string;
+
+  @ApiProperty({
+    description: 'The name of the resource.',
+    required: true,
+  })
+  name: string;
+
+  static fromDomain(source: DeploymentResource): DeploymentResourceDto {
+    const result = new DeploymentResourceDto();
+    result.id = source.id;
+    result.name = source.name;
+    return result;
+  }
+}
+
+@ApiExtraModels(ConnectionInfoDto)
 export class DeploymentDto {
   @ApiProperty({
     description: 'The ID of the deployment.',
     required: true,
   })
   id: number;
+
+  @ApiProperty({
+    description: 'The name of the deployment.',
+    nullable: true,
+    type: String,
+  })
+  name?: string | null;
 
   @ApiProperty({
     description: 'The ID of the service.',
@@ -131,13 +174,81 @@ export class DeploymentDto {
   })
   createdAt: Date;
 
+  @ApiProperty({
+    description: 'The connection infos organized by connection type and name.',
+    required: true,
+    type: 'object',
+    additionalProperties: {
+      type: 'object',
+      additionalProperties: {
+        $ref: getSchemaPath(ConnectionInfoDto),
+      },
+    },
+  })
+  connections: Record<string, Record<string, ConnectionInfoDto>>;
+
+  @ApiProperty({
+    description: 'Instructions to follow after installation.',
+    nullable: true,
+  })
+  afterInstallationInstructions?: string | null;
+
+  @ApiProperty({
+    description: 'The current status of the last deployment update.',
+    required: true,
+    enum: ['Pending', 'Running', 'Completed', 'Failed'],
+  })
+  status: DeploymentUpdateStatus;
+
+  @ApiProperty({
+    description: 'The current health status of the deployment.',
+    nullable: true,
+    type: String,
+    enum: ['Succeeded', 'Failed'],
+  })
+  healthStatus?: DeploymentCheckStatus | null;
+
+  @ApiProperty({
+    description: 'The current deployment parameters.',
+    required: true,
+    type: 'object',
+    additionalProperties: true,
+  })
+  parameters: Record<string, any>;
+
+  @ApiProperty({
+    description: 'The current resources.',
+    required: true,
+    type: [DeploymentResourceDto],
+  })
+  resources: DeploymentResourceDto[];
+
   static fromDomain(source: Deployment) {
+    console.log(source);
     const result = new DeploymentDto();
     result.id = source.id;
+    result.name = source.name;
+    result.afterInstallationInstructions = source.afterInstallationInstructions;
+    result.connections = {};
+    result.createdAt = source.createdAt;
+    result.healthStatus = source.healthStatus;
+    result.parameters = source.parameters;
+    result.resources = source.resources.map(DeploymentResourceDto.fromDomain);
     result.serviceId = source.serviceId;
     result.serviceName = source.serviceName;
     result.serviceVersion = source.serviceVersion;
-    result.createdAt = source.createdAt;
+    result.status = source.status;
+
+    for (const [connectionType, connections] of Object.entries(source.connections)) {
+      result.connections[connectionType] = {};
+
+      for (const [connectionName, connectionInfo] of Object.entries(connections)) {
+        if (connectionInfo.isPublic) {
+          result.connections[connectionType][connectionName] = ConnectionInfoDto.fromDomain(connectionInfo);
+        }
+      }
+    }
+
     return result;
   }
 }
@@ -210,7 +321,7 @@ export class ResourceWorkloadStatusDto {
 
 export class ResourceStatusDto {
   @ApiProperty({
-    description: 'The resource ID',
+    description: 'The resource I.',
     required: true,
     type: 'string',
   })
@@ -231,7 +342,7 @@ export class ResourceStatusDto {
   resourceName: string;
 
   @ApiProperty({
-    description: 'The workflows that have been created',
+    description: 'The workflows that have been create.',
     required: true,
     type: [ResourceWorkloadStatusDto],
   })
@@ -241,7 +352,7 @@ export class ResourceStatusDto {
     const result = new ResourceStatusDto();
     result.resourceId = source.resourceId;
     result.resourceName = source.resourceName;
-    result.resourceName = source.resourceType;
+    result.resourceType = source.resourceType;
     result.workloads = source.workloads.map(ResourceWorkloadStatusDto.fromDomain);
     return result;
   }
@@ -249,7 +360,7 @@ export class ResourceStatusDto {
 
 export class DeploymentStatusDto {
   @ApiProperty({
-    description: 'The resources',
+    description: 'The resource.',
     required: true,
     type: [ResourceStatusDto],
   })
@@ -264,19 +375,19 @@ export class DeploymentStatusDto {
 
 export class DeploymentCheckSummaryDto {
   @ApiProperty({
-    description: 'The date for which the summary has been created',
+    description: 'The date for which the summary has been create.',
     required: true,
   })
   date: string;
 
   @ApiProperty({
-    description: 'The total number of failures on this date',
+    description: 'The total number of failures on this dat.',
     required: true,
   })
   totalFailures: number;
 
   @ApiProperty({
-    description: 'The total number of successes on this date',
+    description: 'The total number of successes on this dat.',
     required: true,
   })
   totalSuccesses: number;
@@ -292,7 +403,7 @@ export class DeploymentCheckSummaryDto {
 
 export class DeploymentCheckSummariesDto {
   @ApiProperty({
-    description: 'The summary per date',
+    description: 'The summary per dat.',
     required: true,
     type: [DeploymentCheckSummaryDto],
   })
@@ -307,31 +418,31 @@ export class DeploymentCheckSummariesDto {
 
 export class DeploymentUsageSummaryDto {
   @ApiProperty({
-    description: 'The date for which the summary has been created',
+    description: 'The date for which the summary has been create.',
     required: true,
   })
   date: string;
 
   @ApiProperty({
-    description: 'The total cores at the specified date',
+    description: 'The total cores at the specified dat.',
     required: true,
   })
   totalCores: number;
 
   @ApiProperty({
-    description: 'The total memory at the specified date (in GB)',
+    description: 'The total memory at the specified date (in GB.',
     required: true,
   })
   totalMemoryGB: number;
 
   @ApiProperty({
-    description: 'The total volume at the specified date (in GB)',
+    description: 'The total volume at the specified date (in GB.',
     required: true,
   })
   totalVolumeGB: number;
 
   @ApiProperty({
-    description: 'The total storage at the specified date (in GB)',
+    description: 'The total storage at the specified date (in GB.',
     required: true,
   })
   totalStorageGB: number;
@@ -349,7 +460,7 @@ export class DeploymentUsageSummaryDto {
 
 export class DeploymentUsageSummariesDto {
   @ApiProperty({
-    description: 'The usage summary per date',
+    description: 'The usage summary per dat.',
     required: true,
     type: [DeploymentUsageSummaryDto],
   })
@@ -360,4 +471,20 @@ export class DeploymentUsageSummariesDto {
     result.summaries = source.map(DeploymentUsageSummaryDto.fromDomain);
     return result;
   }
+}
+
+export class DeploymentCreatedDto {
+  @ApiProperty({
+    description: 'The created deployment.',
+    nullable: true,
+    type: DeploymentDto,
+  })
+  deployment?: DeploymentDto | null;
+
+  @ApiProperty({
+    description: 'The redirect URL if the deployment cannot be completed automatically.',
+    nullable: true,
+    type: String,
+  })
+  redirectUrl?: string | null;
 }

@@ -25,7 +25,7 @@ export function LoginPage() {
           </div>
 
           <h2 className="text-slate-500">{theme.welcomeText || texts.login.welcome}</h2>
-          <h1 className="mb-12 mt-2 text-4xl">{texts.login.loginHint}</h1>
+          <h1 className="mt-2 mb-12 text-4xl">{texts.login.loginHint}</h1>
 
           <div>
             {!!authSettings?.providers?.length && (

@@ -37,8 +37,8 @@ export function Modal(props: ModalProps) {
 
   const render = () => {
     return (
-      <div className="z-100 fixed bottom-0 left-0 right-0 top-0 flex flex-col items-center px-4 py-6">
-        <div className="fixed bottom-0 left-0 right-0 top-0 z-40 bg-black/20"></div>
+      <div className="fixed top-0 right-0 bottom-0 left-0 z-100 flex flex-col items-center px-4 py-6">
+        <div className="fixed top-0 right-0 bottom-0 left-0 z-40 bg-black/20"></div>
         <div
           className={classNames(
             'z-50 flex min-h-0 flex-col overflow-hidden rounded-xl bg-white shadow-xl',
@@ -55,7 +55,7 @@ export function Modal(props: ModalProps) {
               </button>
             </div>
           )}
-          <div className={classNames('relative grow overflow-y-auto overflow-x-hidden px-8 py-8', { 'bg-gray-100': gray })}>
+          <div className={classNames('relative grow overflow-x-hidden overflow-y-auto px-8 py-8', { 'bg-gray-100': gray })}>
             {children}
           </div>
           {footer && (

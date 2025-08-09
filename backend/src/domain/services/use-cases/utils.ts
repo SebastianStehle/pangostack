@@ -1,11 +1,32 @@
-import { DeploymentEntity, DeploymentUpdateEntity, ServiceEntity, ServiceVersionEntity } from 'src/domain/database';
+import {
+  DeploymentCheckEntity,
+  DeploymentEntity,
+  DeploymentUpdateEntity,
+  ServiceEntity,
+  ServiceVersionEntity,
+} from 'src/domain/database';
 import { Deployment, Service, ServicePublic, ServiceVersion } from '../interfaces';
 
-export function buildDeployment(source: DeploymentEntity, update: DeploymentUpdateEntity): Deployment {
+export function buildDeployment(
+  source: DeploymentEntity,
+  lastUpdate: DeploymentUpdateEntity,
+  lastCheck?: DeploymentCheckEntity | null,
+): Deployment {
   const { id, createdAt } = source;
-  const service = update.serviceVersion.service;
 
-  return { id, serviceName: service.name, serviceId: service.id, serviceVersion: update.serviceVersion.name, createdAt };
+  return {
+    id,
+    afterInstallationInstructions: lastUpdate.serviceVersion.definition.afterInstallationInstructions,
+    connections: lastUpdate.resourceConnections,
+    createdAt,
+    healthStatus: lastCheck?.status,
+    parameters: lastUpdate.parameters,
+    resources: lastUpdate.serviceVersion.definition.resources,
+    serviceId: lastUpdate.serviceVersion.service.id,
+    serviceName: lastUpdate.serviceVersion.service.name,
+    serviceVersion: lastUpdate.serviceVersion.name,
+    status: lastUpdate.status,
+  };
 }
 
 export function buildServiceVersion(source: ServiceVersionEntity, isDefault: boolean): ServiceVersion {
@@ -21,7 +42,7 @@ export function buildServiceVersion(source: ServiceVersionEntity, isDefault: boo
   return { id, definition, environment, isActive, isDefault, name, numDeployments: handledDeployments.size };
 }
 
-export function buildServicePublic(source: ServiceEntity, version: ServiceVersionEntity): ServicePublic {
+export function buildServicePublic(source: ServiceEntity, serviceVersion: ServiceVersionEntity): ServicePublic {
   const {
     id,
     currency,
@@ -34,19 +55,24 @@ export function buildServicePublic(source: ServiceEntity, version: ServiceVersio
     pricePerStorageGBMonth,
   } = source;
 
+  const definition = serviceVersion.definition;
+
   return {
     id,
+    afterInstallationInstructions: definition.afterInstallationInstructions,
     currency,
     description,
     fixedPrice,
     name,
-    parameters: version.definition.parameters,
+    parameters: definition.parameters,
     pricePerCoreHour,
-    pricePerVolumeGBHour: pricePerVolumeGBHour,
     pricePerMemoryGBHour,
     pricePerStorageGBMonth,
-    version: version.name,
-    usage: version.definition.usage,
+    pricePerVolumeGBHour: pricePerVolumeGBHour,
+    prices: definition.prices,
+    pricingModel: definition.pricingModel,
+    usage: definition.usage,
+    version: name,
   };
 }
 

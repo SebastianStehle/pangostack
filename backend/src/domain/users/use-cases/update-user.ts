@@ -7,7 +7,7 @@ import { assignDefined } from 'src/lib';
 import { User } from '../interfaces';
 import { buildUser } from './utils';
 
-type Values = Partial<Pick<User, 'apiKey' | 'name' | 'email' | 'roles' | 'userGroupId'> & { password: string }>;
+type Values = Partial<Pick<User, 'apiKey' | 'name' | 'email' | 'roles' | 'userGroupId'> & { password?: string | null }>;
 
 export class UpdateUser {
   constructor(

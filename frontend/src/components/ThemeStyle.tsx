@@ -20,7 +20,7 @@ export function ThemeStyle() {
   );
 }
 
-function colorClass(className: string, color?: string) {
+function colorClass(className: string, color?: string | null) {
   return color
     ? `:root {
       --${className}: oklch(${convertColor(color)})

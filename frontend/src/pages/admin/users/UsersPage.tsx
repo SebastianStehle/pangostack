@@ -76,8 +76,8 @@ export function UsersPage() {
             <tbody>
               {users.map((user) => (
                 <tr className="cursor-pointer hover:bg-slate-50" key={user.id} onClick={() => setToUpdate(user)}>
-                  <td className="overflow-hidden font-semibold">{user.name}</td>
-                  <td className="overflow-hidden truncate">{user.email}</td>
+                  <td className="truncate overflow-hidden font-semibold">{user.name}</td>
+                  <td className="truncate overflow-hidden">{user.email}</td>
                   <td className="overflow-hidden">{userGroups.find((x) => x.id === user.userGroupId)?.name}</td>
                   <td className="overflow-hidden">{formatTags(user.roles)}</td>
                   <td className="overflow-hidden">{formatBoolean(!!user.apiKey)}</td>

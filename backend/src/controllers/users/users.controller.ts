@@ -81,7 +81,7 @@ export class UsersController {
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
   async postUser(@Body() body: UpsertUserDto) {
-    const command = new CreateUser(body);
+    const command = new CreateUser(body as any);
     const result: CreateUserResponse = await this.commandBus.execute(command);
 
     return UserDto.fromDomain(result.user);

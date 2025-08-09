@@ -46,22 +46,31 @@ export class TrackDeploymentUsageActivity implements Activity<TrackDeploymentUsa
     }
 
     const definition = update.serviceVersion.definition;
-    const context = { env: {}, context: {}, parameters: update.parameters };
-    const worker = new WorkerClient(workerEndpoint, workerApiKey);
+    const workerContext = { env: {}, context: {}, parameters: update.parameters };
+    const workerClient = new WorkerClient(workerEndpoint, workerApiKey);
 
-    const usageFromWorker = await worker.status.postUsage({
+    const usageFromWorker = await workerClient.status.postUsage({
       resources: definition.resources.map((resource) => ({
         context: update.resourceContexts[resource.id] || {},
         resourceId: resource.id,
         resourceType: resource.type,
-        parameters: evaluateParameters(resource, context),
+        parameters: evaluateParameters(resource, workerContext),
       })),
     });
 
-    const { totalCores, totalMemoryGB, totalVolumeGB } = evaluateUsage(update.serviceVersion.definition, context);
-
     // The storage needs to be measured directly from the provider.
     const totalStorageGB = usageFromWorker.resources.reduce((a, c) => a + c.totalStorageGB, 0);
+
+    if (totalStorageGB === 0 && update.serviceVersion.definition.pricingModel === 'fixed') {
+      // There is nothing to track as the pricing model is fixed.
+      return;
+    }
+
+    const { totalCores, totalMemoryGB, totalVolumeGB } = evaluateUsage(update.serviceVersion.definition, workerContext);
+
+    if (totalCores === 0 && totalMemoryGB === 0 && totalVolumeGB === 0 && totalStorageGB === 0) {
+      return;
+    }
 
     const deploymentUsage = this.deploymentUsages.create({
       deploymentId,

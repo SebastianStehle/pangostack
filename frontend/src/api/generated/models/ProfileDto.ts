@@ -45,7 +45,7 @@ export interface ProfileDto {
      * @type {string}
      * @memberof ProfileDto
      */
-    picture?: string;
+    picture: string | null;
     /**
      * Indicates if the user is an admin.
      * @type {boolean}
@@ -62,6 +62,7 @@ export function instanceOfProfileDto(value: object): boolean {
     isInstance = isInstance && "id" in value;
     isInstance = isInstance && "name" in value;
     isInstance = isInstance && "email" in value;
+    isInstance = isInstance && "picture" in value;
     isInstance = isInstance && "isAdmin" in value;
 
     return isInstance;
@@ -80,7 +81,7 @@ export function ProfileDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         'id': json['id'],
         'name': json['name'],
         'email': json['email'],
-        'picture': !exists(json, 'picture') ? undefined : json['picture'],
+        'picture': json['picture'],
         'isAdmin': json['isAdmin'],
     };
 }

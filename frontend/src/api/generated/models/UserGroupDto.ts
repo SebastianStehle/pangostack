@@ -46,24 +46,6 @@ export interface UserGroupDto {
      * @memberof UserGroupDto
      */
     isBuiltIn: boolean;
-    /**
-     * The monthly allowed tokens for all users in the group.
-     * @type {object}
-     * @memberof UserGroupDto
-     */
-    monthlyTokens?: object;
-    /**
-     * The monthly allowed tokens per user in the group.
-     * @type {object}
-     * @memberof UserGroupDto
-     */
-    monthlyUserTokens?: object;
-    /**
-     * Indicates if the file upload should be hidden.
-     * @type {boolean}
-     * @memberof UserGroupDto
-     */
-    hideFileUpload?: boolean;
 }
 
 /**
@@ -93,9 +75,6 @@ export function UserGroupDtoFromJSONTyped(json: any, ignoreDiscriminator: boolea
         'name': json['name'],
         'isAdmin': json['isAdmin'],
         'isBuiltIn': json['isBuiltIn'],
-        'monthlyTokens': !exists(json, 'monthlyTokens') ? undefined : json['monthlyTokens'],
-        'monthlyUserTokens': !exists(json, 'monthlyUserTokens') ? undefined : json['monthlyUserTokens'],
-        'hideFileUpload': !exists(json, 'hideFileUpload') ? undefined : json['hideFileUpload'],
     };
 }
 
@@ -112,9 +91,6 @@ export function UserGroupDtoToJSON(value?: UserGroupDto | null): any {
         'name': value.name,
         'isAdmin': value.isAdmin,
         'isBuiltIn': value.isBuiltIn,
-        'monthlyTokens': value.monthlyTokens,
-        'monthlyUserTokens': value.monthlyUserTokens,
-        'hideFileUpload': value.hideFileUpload,
     };
 }
 

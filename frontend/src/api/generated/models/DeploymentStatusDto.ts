@@ -30,7 +30,7 @@ import {
  */
 export interface DeploymentStatusDto {
     /**
-     * The resources
+     * The resource.
      * @type {Array<ResourceStatusDto>}
      * @memberof DeploymentStatusDto
      */

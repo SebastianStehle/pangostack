@@ -16,7 +16,7 @@ export function ThemePage() {
         </div>
       </div>
 
-      <h2 className="mb-2 mt-8 text-xl">{texts.theme.logo}</h2>
+      <h2 className="mt-8 mb-2 text-xl">{texts.theme.logo}</h2>
 
       <div className="card bg-base-100 shadow">
         <div className="card-body">

@@ -199,8 +199,8 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
           {
             action: 'Update',
             previousUpdateId: deploymentUpdate?.id || null,
-            previousResources: previousUpdate?.serviceVersion.definition.resources || null,
-            resources: deploymentUpdate.serviceVersion.definition.resources,
+            previousResourceIds: previousUpdate?.serviceVersion.definition.resources.map((x) => x.id) || null,
+            resourceIds: deploymentUpdate.serviceVersion.definition.resources.map((x) => x.id),
             updateId: deploymentUpdate.id,
             workerApiKey: worker.apiKey,
             workerEndpoint: worker.endpoint,
@@ -226,7 +226,7 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
         signalArgs: [
           {
             action: 'Destroy',
-            resources: deploymentUpdate.serviceVersion.definition.resources,
+            resourceIds: deploymentUpdate.serviceVersion.definition.resources.map((x) => x.id),
             updateId: deploymentUpdate.id,
             workerApiKey: worker.apiKey,
             workerEndpoint: worker.endpoint,

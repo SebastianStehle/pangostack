@@ -51,7 +51,7 @@ export interface ServiceDto {
      * @type {string}
      * @memberof ServiceDto
      */
-    latestVersion?: string;
+    latestVersion: string | null;
     /**
      * The environment settings.
      * @type {{ [key: string]: string; }}
@@ -117,6 +117,7 @@ export function instanceOfServiceDto(value: object): boolean {
     isInstance = isInstance && "name" in value;
     isInstance = isInstance && "description" in value;
     isInstance = isInstance && "numDeployments" in value;
+    isInstance = isInstance && "latestVersion" in value;
     isInstance = isInstance && "environment" in value;
     isInstance = isInstance && "currency" in value;
     isInstance = isInstance && "pricePerCoreHour" in value;
@@ -144,7 +145,7 @@ export function ServiceDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         'name': json['name'],
         'description': json['description'],
         'numDeployments': json['numDeployments'],
-        'latestVersion': !exists(json, 'latestVersion') ? undefined : json['latestVersion'],
+        'latestVersion': json['latestVersion'],
         'environment': json['environment'],
         'currency': json['currency'],
         'pricePerCoreHour': json['pricePerCoreHour'],

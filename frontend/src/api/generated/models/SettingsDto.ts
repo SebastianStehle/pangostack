@@ -34,49 +34,49 @@ export interface SettingsDto {
      * @type {string}
      * @memberof SettingsDto
      */
-    name?: string;
+    name: string | null;
     /**
      * The header color.
      * @type {string}
      * @memberof SettingsDto
      */
-    primaryColor?: string;
+    primaryColor: string | null;
     /**
      * The primary color used for buttons and links.
      * @type {string}
      * @memberof SettingsDto
      */
-    headerColor?: string;
+    headerColor: string | null;
     /**
      * The primary content color used for buttons and links.
      * @type {string}
      * @memberof SettingsDto
      */
-    primaryContentColor?: string;
+    primaryContentColor: string | null;
     /**
      * The welcome text.
      * @type {string}
      * @memberof SettingsDto
      */
-    welcomeText?: string;
+    welcomeText: string | null;
     /**
      * Some custom css.
      * @type {string}
      * @memberof SettingsDto
      */
-    customCss?: string;
-    /**
-     * The footer links.
-     * @type {Array<LinkDto>}
-     * @memberof SettingsDto
-     */
-    footerLinks?: Array<LinkDto>;
+    customCss: string | null;
     /**
      * The footer text, for example for copyright infos.
      * @type {string}
      * @memberof SettingsDto
      */
-    footerText?: string;
+    footerText: string | null;
+    /**
+     * The footer links.
+     * @type {Array<LinkDto>}
+     * @memberof SettingsDto
+     */
+    footerLinks: Array<LinkDto> | null;
 }
 
 /**
@@ -84,6 +84,14 @@ export interface SettingsDto {
  */
 export function instanceOfSettingsDto(value: object): boolean {
     let isInstance = true;
+    isInstance = isInstance && "name" in value;
+    isInstance = isInstance && "primaryColor" in value;
+    isInstance = isInstance && "headerColor" in value;
+    isInstance = isInstance && "primaryContentColor" in value;
+    isInstance = isInstance && "welcomeText" in value;
+    isInstance = isInstance && "customCss" in value;
+    isInstance = isInstance && "footerText" in value;
+    isInstance = isInstance && "footerLinks" in value;
 
     return isInstance;
 }
@@ -98,14 +106,14 @@ export function SettingsDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
     }
     return {
         
-        'name': !exists(json, 'name') ? undefined : json['name'],
-        'primaryColor': !exists(json, 'primaryColor') ? undefined : json['primaryColor'],
-        'headerColor': !exists(json, 'headerColor') ? undefined : json['headerColor'],
-        'primaryContentColor': !exists(json, 'primaryContentColor') ? undefined : json['primaryContentColor'],
-        'welcomeText': !exists(json, 'welcomeText') ? undefined : json['welcomeText'],
-        'customCss': !exists(json, 'customCss') ? undefined : json['customCss'],
-        'footerLinks': !exists(json, 'footerLinks') ? undefined : ((json['footerLinks'] as Array<any>).map(LinkDtoFromJSON)),
-        'footerText': !exists(json, 'footerText') ? undefined : json['footerText'],
+        'name': json['name'],
+        'primaryColor': json['primaryColor'],
+        'headerColor': json['headerColor'],
+        'primaryContentColor': json['primaryContentColor'],
+        'welcomeText': json['welcomeText'],
+        'customCss': json['customCss'],
+        'footerText': json['footerText'],
+        'footerLinks': (json['footerLinks'] === null ? null : (json['footerLinks'] as Array<any>).map(LinkDtoFromJSON)),
     };
 }
 
@@ -124,8 +132,8 @@ export function SettingsDtoToJSON(value?: SettingsDto | null): any {
         'primaryContentColor': value.primaryContentColor,
         'welcomeText': value.welcomeText,
         'customCss': value.customCss,
-        'footerLinks': value.footerLinks === undefined ? undefined : ((value.footerLinks as Array<any>).map(LinkDtoToJSON)),
         'footerText': value.footerText,
+        'footerLinks': (value.footerLinks === null ? null : (value.footerLinks as Array<any>).map(LinkDtoToJSON)),
     };
 }
 

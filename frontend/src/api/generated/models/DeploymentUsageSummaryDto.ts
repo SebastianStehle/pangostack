@@ -23,31 +23,31 @@ import { exists, mapValues } from '../runtime';
  */
 export interface DeploymentUsageSummaryDto {
     /**
-     * The date for which the summary has been created
+     * The date for which the summary has been create.
      * @type {string}
      * @memberof DeploymentUsageSummaryDto
      */
     date: string;
     /**
-     * The total cores at the specified date
+     * The total cores at the specified dat.
      * @type {number}
      * @memberof DeploymentUsageSummaryDto
      */
     totalCores: number;
     /**
-     * The total memory at the specified date (in GB)
+     * The total memory at the specified date (in GB.
      * @type {number}
      * @memberof DeploymentUsageSummaryDto
      */
     totalMemoryGB: number;
     /**
-     * The total volume at the specified date (in GB)
+     * The total volume at the specified date (in GB.
      * @type {number}
      * @memberof DeploymentUsageSummaryDto
      */
     totalVolumeGB: number;
     /**
-     * The total storage at the specified date (in GB)
+     * The total storage at the specified date (in GB.
      * @type {number}
      * @memberof DeploymentUsageSummaryDto
      */

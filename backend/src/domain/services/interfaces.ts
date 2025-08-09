@@ -1,4 +1,5 @@
-import { ParameterDefinition, ServiceDefinition, UsageDefinition } from '../definitions';
+import { ConnectionInfo, DeploymentCheckStatus, DeploymentUpdateStatus } from '../database';
+import { ParameterDefinition, ServiceDefinition, ServicePricingModel, UsageDefinition } from '../definitions';
 
 export interface Deployment {
   // The ID of the deployment.
@@ -6,6 +7,24 @@ export interface Deployment {
 
   // The name of the deployment.
   name?: string | null;
+
+  // The connection infos.
+  connections: Record<string, Record<string, ConnectionInfo>>;
+
+  // The installation instructions.
+  afterInstallationInstructions?: string | null;
+
+  // The current status of the last update.
+  status: DeploymentUpdateStatus;
+
+  // The current status of the last update.
+  healthStatus?: DeploymentCheckStatus;
+
+  // The resources.
+  resources: DeploymentResource[];
+
+  // The current parameters.
+  parameters: Record<string, any>;
 
   // The ID of the service.
   serviceId: number;
@@ -18,6 +37,14 @@ export interface Deployment {
 
   // When the service has been created.
   createdAt: Date;
+}
+
+export interface DeploymentResource {
+  // The ID of the resource.
+  id: string;
+
+  // The name of the resource.
+  name: string;
 }
 
 export interface ServiceVersion {
@@ -103,6 +130,15 @@ export interface ServicePublic {
   // The currency.
   currency: string;
 
+  // The prices.
+  prices?: ServicePrice[];
+
+  // The pricing model.
+  pricingModel: ServicePricingModel;
+
+  // The instructions to show after the installation has been made.
+  afterInstallationInstructions?: string | null;
+
   // The price per Core and hour in the selected currency.
   pricePerCoreHour: number;
 
@@ -123,6 +159,17 @@ export interface ServicePublic {
 
   // The usage definition.
   usage: UsageDefinition;
+}
+
+export interface ServicePrice {
+  // The target value.
+  target: string;
+
+  // The test value.
+  test: string;
+
+  // The total amount in the currency of the service.
+  amount: number;
 }
 
 export interface ResourceNodeStatus {

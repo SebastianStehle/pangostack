@@ -75,7 +75,7 @@ export class SettingsController {
   @UseGuards(LocalAuthGuard, RoleGuard)
   @ApiSecurity('x-api-key')
   async postSettings(@Body() request: SettingsDto) {
-    const result: UpdateSettingsResponse = await this.commandBus.execute(new UpdateSettings(request));
+    const result: UpdateSettingsResponse = await this.commandBus.execute(new UpdateSettings(request as any));
 
     return SettingsDto.fromDomain(result.settings);
   }

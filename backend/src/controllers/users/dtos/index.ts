@@ -23,7 +23,7 @@ export class UpsertUserDto {
 
   @ApiProperty({
     description: 'The user roles.',
-    required: true,
+    nullable: true,
     type: [String],
   })
   @IsOptional()
@@ -33,11 +33,12 @@ export class UpsertUserDto {
 
   @ApiProperty({
     description: 'The optional password.',
-    required: false,
+    nullable: true,
+    type: String,
   })
   @IsOptional()
   @IsString()
-  password?: string;
+  password?: string | null;
 
   @ApiProperty({
     description: 'The user group ID.',
@@ -49,11 +50,12 @@ export class UpsertUserDto {
 
   @ApiProperty({
     description: 'The API Key.',
-    required: false,
+    nullable: true,
+    type: String,
   })
   @IsOptional()
   @IsString()
-  apiKey?: string;
+  apiKey?: string | null;
 }
 
 export class UserDto {
@@ -77,22 +79,24 @@ export class UserDto {
 
   @ApiProperty({
     description: ' The URL to an external picture.',
-    required: false,
+    nullable: true,
+    type: String,
   })
-  picture?: string;
+  picture?: string | null;
 
   @ApiProperty({
     description: 'The API Key.',
-    required: false,
+    nullable: true,
+    type: String,
   })
-  apiKey?: string;
+  apiKey?: string | null;
 
   @ApiProperty({
     description: 'The user roles.',
-    required: false,
+    nullable: true,
     type: [String],
   })
-  roles?: string[];
+  roles?: string[] | null;
 
   @ApiProperty({
     description: 'The user group ID.',
@@ -151,24 +155,6 @@ export class UpsertUserGroupDto {
   @IsString()
   @MaxLength(100)
   name: string;
-
-  @ApiProperty({
-    description: 'The monthly allowed tokens for all users in the group.',
-    required: false,
-  })
-  monthlyTokens?: number | null;
-
-  @ApiProperty({
-    description: 'The monthly allowed tokens per user in the group.',
-    required: false,
-  })
-  monthlyUserTokens?: number | null;
-
-  @ApiProperty({
-    description: 'Indicates if the file upload should be hidden.',
-    required: false,
-  })
-  hideFileUpload: boolean;
 }
 
 export class UserGroupDto {
@@ -195,24 +181,6 @@ export class UserGroupDto {
     required: true,
   })
   isBuiltIn: boolean;
-
-  @ApiProperty({
-    description: 'The monthly allowed tokens for all users in the group.',
-    required: false,
-  })
-  monthlyTokens?: number | null;
-
-  @ApiProperty({
-    description: 'The monthly allowed tokens per user in the group.',
-    required: false,
-  })
-  monthlyUserTokens?: number | null;
-
-  @ApiProperty({
-    description: 'Indicates if the file upload should be hidden.',
-    required: false,
-  })
-  hideFileUpload: boolean;
 
   static fromDomain(source: UserGroup) {
     const result = new UserGroupDto();

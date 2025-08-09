@@ -25,14 +25,14 @@ export class UserEntity {
   @Column({ length: 100 })
   email: string;
 
-  @Column({ length: 100, nullable: true })
-  apiKey?: string;
-
-  @Column('simple-json', { nullable: true })
-  roles?: string[];
+  @Column('varchar', { length: 100, nullable: true })
+  apiKey?: string | null;
 
   @Column('varchar', { nullable: true })
   passwordHash?: string | null;
+
+  @Column('simple-json', { nullable: true })
+  roles?: string[] | null;
 
   @Column({ nullable: true })
   userGroupId: string;

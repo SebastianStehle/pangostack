@@ -24,10 +24,10 @@ export function PublicPage() {
 
   return (
     <div>
-      <div className="h-50 bg-header">
+      <div className="bg-header h-50">
         <div className="container mx-auto max-w-[1000px] px-4">
-          <div className=" flex max-w-[1000px] justify-between py-4">
-            <TransientNavLink to="/" className="btn btn-link no-underline! text-primary-content! text-2xl">
+          <div className="flex max-w-[1000px] justify-between py-4">
+            <TransientNavLink to="/" className="btn btn-link text-primary-content! text-2xl no-underline!">
               {theme.name}
             </TransientNavLink>
 

@@ -6,7 +6,7 @@ export interface Theme extends SettingsDto {
   logo?: File;
 
   // The pae title.
-  title?: string;
+  title?: string | null;
 }
 
 interface ThemeState {

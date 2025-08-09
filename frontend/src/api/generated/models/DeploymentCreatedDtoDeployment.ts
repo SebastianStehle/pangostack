@@ -30,81 +30,81 @@ import {
 } from './DeploymentResourceDto';
 
 /**
- * 
+ * The created deployment.
  * @export
- * @interface DeploymentDto
+ * @interface DeploymentCreatedDtoDeployment
  */
-export interface DeploymentDto {
+export interface DeploymentCreatedDtoDeployment {
     /**
      * The ID of the deployment.
      * @type {number}
-     * @memberof DeploymentDto
+     * @memberof DeploymentCreatedDtoDeployment
      */
     id: number;
     /**
      * The name of the deployment.
      * @type {string}
-     * @memberof DeploymentDto
+     * @memberof DeploymentCreatedDtoDeployment
      */
     name: string | null;
     /**
      * The ID of the service.
      * @type {number}
-     * @memberof DeploymentDto
+     * @memberof DeploymentCreatedDtoDeployment
      */
     serviceId: number;
     /**
      * The name of the service.
      * @type {string}
-     * @memberof DeploymentDto
+     * @memberof DeploymentCreatedDtoDeployment
      */
     serviceName: string;
     /**
      * The version of the service.
      * @type {string}
-     * @memberof DeploymentDto
+     * @memberof DeploymentCreatedDtoDeployment
      */
     serviceVersion: string;
     /**
      * The timestamp when the deployment has been created.
      * @type {Date}
-     * @memberof DeploymentDto
+     * @memberof DeploymentCreatedDtoDeployment
      */
     createdAt: Date;
     /**
      * The connection infos organized by connection type and name.
      * @type {{ [key: string]: { [key: string]: ConnectionInfoDto; }; }}
-     * @memberof DeploymentDto
+     * @memberof DeploymentCreatedDtoDeployment
      */
     connections: { [key: string]: { [key: string]: ConnectionInfoDto; }; };
     /**
      * Instructions to follow after installation.
      * @type {object}
-     * @memberof DeploymentDto
+     * @memberof DeploymentCreatedDtoDeployment
      */
     afterInstallationInstructions: object | null;
     /**
      * The current status of the last deployment update.
      * @type {string}
-     * @memberof DeploymentDto
+     * @memberof DeploymentCreatedDtoDeployment
      */
-    status: DeploymentDtoStatusEnum;
+    status: DeploymentCreatedDtoDeploymentStatusEnum;
     /**
      * The current health status of the deployment.
      * @type {string}
-     * @memberof DeploymentDto
+     * @memberof DeploymentCreatedDtoDeployment
      */
-    healthStatus: DeploymentDtoHealthStatusEnum | null;
+    healthStatus: DeploymentCreatedDtoDeploymentHealthStatusEnum | null;
     /**
      * The current deployment parameters.
      * @type {{ [key: string]: any; }}
-     * @memberof DeploymentDto
+     * @memberof DeploymentCreatedDtoDeployment
      */
     parameters: { [key: string]: any; };
     /**
      * The current resources.
      * @type {Array<DeploymentResourceDto>}
-     * @memberof DeploymentDto
+     * @memberof DeploymentCreatedDtoDeployment
      */
     resources: Array<DeploymentResourceDto>;
 }
@@ -113,28 +113,28 @@ export interface DeploymentDto {
 /**
  * @export
  */
-export const DeploymentDtoStatusEnum = {
+export const DeploymentCreatedDtoDeploymentStatusEnum = {
     Pending: 'Pending',
     Running: 'Running',
     Completed: 'Completed',
     Failed: 'Failed'
 } as const;
-export type DeploymentDtoStatusEnum = typeof DeploymentDtoStatusEnum[keyof typeof DeploymentDtoStatusEnum];
+export type DeploymentCreatedDtoDeploymentStatusEnum = typeof DeploymentCreatedDtoDeploymentStatusEnum[keyof typeof DeploymentCreatedDtoDeploymentStatusEnum];
 
 /**
  * @export
  */
-export const DeploymentDtoHealthStatusEnum = {
+export const DeploymentCreatedDtoDeploymentHealthStatusEnum = {
     Succeeded: 'Succeeded',
     Failed: 'Failed'
 } as const;
-export type DeploymentDtoHealthStatusEnum = typeof DeploymentDtoHealthStatusEnum[keyof typeof DeploymentDtoHealthStatusEnum];
+export type DeploymentCreatedDtoDeploymentHealthStatusEnum = typeof DeploymentCreatedDtoDeploymentHealthStatusEnum[keyof typeof DeploymentCreatedDtoDeploymentHealthStatusEnum];
 
 
 /**
- * Check if a given object implements the DeploymentDto interface.
+ * Check if a given object implements the DeploymentCreatedDtoDeployment interface.
  */
-export function instanceOfDeploymentDto(value: object): boolean {
+export function instanceOfDeploymentCreatedDtoDeployment(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "id" in value;
     isInstance = isInstance && "name" in value;
@@ -152,11 +152,11 @@ export function instanceOfDeploymentDto(value: object): boolean {
     return isInstance;
 }
 
-export function DeploymentDtoFromJSON(json: any): DeploymentDto {
-    return DeploymentDtoFromJSONTyped(json, false);
+export function DeploymentCreatedDtoDeploymentFromJSON(json: any): DeploymentCreatedDtoDeployment {
+    return DeploymentCreatedDtoDeploymentFromJSONTyped(json, false);
 }
 
-export function DeploymentDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): DeploymentDto {
+export function DeploymentCreatedDtoDeploymentFromJSONTyped(json: any, ignoreDiscriminator: boolean): DeploymentCreatedDtoDeployment {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -177,7 +177,7 @@ export function DeploymentDtoFromJSONTyped(json: any, ignoreDiscriminator: boole
     };
 }
 
-export function DeploymentDtoToJSON(value?: DeploymentDto | null): any {
+export function DeploymentCreatedDtoDeploymentToJSON(value?: DeploymentCreatedDtoDeployment | null): any {
     if (value === undefined) {
         return undefined;
     }

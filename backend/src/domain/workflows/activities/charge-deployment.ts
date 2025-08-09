@@ -11,6 +11,7 @@ import {
   DeploymentUsageEntity,
   DeploymentUsageRepository,
 } from 'src/domain/database';
+import { evaluatePrices } from 'src/domain/definitions';
 import { saveAndFind } from 'src/lib';
 import { Activity } from '../registration';
 
@@ -48,7 +49,7 @@ export class ChargeDeploymentActivity implements Activity<ChargeDeploymentParam>
     const updates = await this.deploymentUpdates.find({
       where: { deploymentId },
       order: { id: 'DESC' },
-      relations: ['serviceVersion'],
+      relations: ['serviceVersion', 'serviceVersion.service'],
     });
 
     if (updates.length === 0) {
@@ -73,11 +74,13 @@ export class ChargeDeploymentActivity implements Activity<ChargeDeploymentParam>
 
     const billed = await this.billedDeployments.findOneBy({ deploymentId, dateFrom, dateTo });
     if (billed) {
-      this.logger.warn(`Deployment ${deploymentId} has already been billeusage.`);
+      this.logger.warn(`Deployment ${deploymentId} has already been billed.`);
       return;
     }
 
-    const results = await this.deploymentUsages
+    const service = update.serviceVersion.service;
+
+    const usage = await this.deploymentUsages
       .createQueryBuilder('usage')
       .select('usage.deploymentId', 'deploymentId')
       .addSelect('SUM(usage.totalCores)', 'totalCores')
@@ -89,30 +92,50 @@ export class ChargeDeploymentActivity implements Activity<ChargeDeploymentParam>
       .groupBy('usage.deploymentId')
       .getRawOne<AggregatedUsage>();
 
-    if (!results) {
-      return;
+    let charges: Charges;
+    if (update.serviceVersion.definition.pricingModel === 'fixed') {
+      const context = { env: {}, context: {}, parameters: update.parameters };
+
+      // Sums up all prices in the definition.
+      const pricing = evaluatePrices(update.serviceVersion.definition, context);
+
+      charges = {
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        fixedPrice: service.fixedPrice + pricing,
+        pricePerCoreHour: service.pricePerCoreHour,
+        pricePerMemoryGBHour: service.pricePerMemoryGBHour,
+        pricePerStorageGBMonth: service.pricePerStorageGBMonth,
+        pricePerVolumeGBHour: service.pricePerVolumeGBHour,
+        totalCoreHours: 0,
+        totalMemoryGBHours: 0,
+        totalStorageGB: 0,
+        totalVolumeGBHours: 0,
+      };
+    } else {
+      if (!usage) {
+        return;
+      }
+
+      const { totalCores, totalMemoryGB, totalStorageGB, totalVolumeGB } = usage;
+      if (totalCores === 0 && totalMemoryGB === 0 && totalStorageGB === 0 && totalVolumeGB === 0) {
+        return;
+      }
+
+      charges = {
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        fixedPrice: service.fixedPrice,
+        pricePerCoreHour: service.pricePerCoreHour,
+        pricePerMemoryGBHour: service.pricePerMemoryGBHour,
+        pricePerStorageGBMonth: service.pricePerStorageGBMonth,
+        pricePerVolumeGBHour: service.pricePerVolumeGBHour,
+        totalCoreHours: totalCores,
+        totalMemoryGBHours: totalMemoryGB,
+        totalStorageGB: totalStorageGB,
+        totalVolumeGBHours: totalVolumeGB,
+      };
     }
-
-    const { totalCores, totalMemoryGB, totalStorageGB, totalVolumeGB } = results;
-    if (totalCores === 0 && totalMemoryGB === 0 && totalStorageGB === 0 && totalVolumeGB === 0) {
-      return;
-    }
-
-    const service = update.serviceVersion.service;
-
-    const charges: Charges = {
-      dateFrom: dateFrom,
-      dateTo: dateTo,
-      fixedPrice: service.fixedPrice,
-      pricePerCoreHour: service.pricePerCoreHour,
-      pricePerMemoryGBHour: service.pricePerMemoryGBHour,
-      pricePerStorageGBMonth: service.pricePerStorageGBMonth,
-      pricePerVolumeGBHour: service.pricePerVolumeGBHour,
-      totalCoreHours: totalCores,
-      totalMemoryGBHours: totalMemoryGB,
-      totalStorageGB: totalStorageGB,
-      totalVolumeGBHours: totalVolumeGB,
-    };
 
     this.logger.log(`Deployment ${deploymentId} charged.`, { charges });
     await this.billingService.chargeDeployment(deployment.teamId, deploymentId, charges);

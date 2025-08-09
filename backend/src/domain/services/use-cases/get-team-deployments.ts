@@ -1,6 +1,13 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeploymentEntity, DeploymentRepository, DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database';
+import {
+  DeploymentCheckEntity,
+  DeploymentCheckRepository,
+  DeploymentEntity,
+  DeploymentRepository,
+  DeploymentUpdateEntity,
+  DeploymentUpdateRepository,
+} from 'src/domain/database';
 import { Deployment } from '../interfaces';
 import { buildDeployment } from './utils';
 
@@ -17,6 +24,8 @@ export class GetTeamDeploymentsHandler implements IQueryHandler<GetTeamDeploymen
   constructor(
     @InjectRepository(DeploymentEntity)
     private readonly deployments: DeploymentRepository,
+    @InjectRepository(DeploymentCheckEntity)
+    private readonly deploymentChecks: DeploymentCheckRepository,
     @InjectRepository(DeploymentUpdateEntity)
     private readonly deploymentUpdates: DeploymentUpdateRepository,
   ) {}
@@ -38,7 +47,12 @@ export class GetTeamDeploymentsHandler implements IQueryHandler<GetTeamDeploymen
         continue;
       }
 
-      result.push(buildDeployment(entity, lastUpdate));
+      const lastCheck = await this.deploymentChecks.findOne({
+        where: { deploymentId: entity.id },
+        order: { id: 'DESC' },
+      });
+
+      result.push(buildDeployment(entity, lastUpdate, lastCheck));
     }
 
     return new GetTeamDeploymentsResponse(result);
