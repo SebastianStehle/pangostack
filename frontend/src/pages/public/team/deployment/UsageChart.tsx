@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { addDays, format } from 'date-fns';
-import { useMemo } from 'react';
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useClients } from 'src/api';
+import { texts } from 'src/texts';
 
 export interface UsageChartProps {
   // The ID of the team.
@@ -16,24 +16,15 @@ export function UsageChart(props: UsageChartProps) {
   const { deploymentId, teamId } = props;
   const clients = useClients();
 
-  const { dateFrom, dateTo } = useMemo(() => {
-    const now = new Date();
-
-    const dateFrom = format(addDays(now, -30), 'yyyy-MM-dd');
-    const dateTo = format(now, 'yyyy-MM-dd');
-
-    return { dateFrom, dateTo };
-  }, []);
-
   const { data: loadedUsage } = useQuery({
-    queryKey: [teamId, 'deployments', deploymentId, 'usage', dateFrom, dateTo],
+    queryKey: ['deployment-usage', teamId, deploymentId],
     queryFn: () => {
       const now = new Date();
       const dateFrom = format(addDays(now, -30), 'yyyy-MM-dd');
       const dateTo = format(now, 'yyyy-MM-dd');
+
       return clients.deployments.getDeploymentUsage(teamId, deploymentId, dateFrom, dateTo);
     },
-    refetchOnWindowFocus: false,
   });
 
   const data = loadedUsage?.summaries || [];
@@ -46,10 +37,10 @@ export function UsageChart(props: UsageChartProps) {
         <YAxis />
         <Tooltip />
         <Legend />
-        <Bar dataKey="totalCores" fill="#F28E2B" />
-        <Bar dataKey="totalMemoryGB" fill="#4E79A7" />
-        <Bar dataKey="totalVolumeGB" fill="#59A14F" />
-        <Bar dataKey="totalStorageGB" fill="#B07AA1" />
+        <Bar dataKey="totalCores" fill="#F28E2B" name={texts.deployments.totalCors} />
+        <Bar dataKey="totalMemoryGB" fill="#4E79A7" name={texts.deployments.totalMemoryGB} />
+        <Bar dataKey="totalVolumeGB" fill="#59A14F" name={texts.deployments.totalVolumeGB} />
+        <Bar dataKey="totalStorageGB" fill="#B07AA1" name={texts.deployments.totalStorageGB} />
       </BarChart>
     </ResponsiveContainer>
   );

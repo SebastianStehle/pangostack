@@ -25,7 +25,7 @@ export function UsersPage() {
   });
 
   const { data: loadedGroups } = useQuery({
-    queryKey: ['userGroups'],
+    queryKey: ['user-groups'],
     queryFn: async () => await clients.users.getUserGroups(),
   });
 

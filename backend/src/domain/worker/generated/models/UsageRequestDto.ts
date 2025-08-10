@@ -25,30 +25,30 @@ import {
 /**
  * 
  * @export
- * @interface UageRequestDto
+ * @interface UsageRequestDto
  */
-export interface UageRequestDto {
+export interface UsageRequestDto {
     /**
-     * The resource identifiers
+     * The resource identifiers.
      * @type {Array<ResourceRequestDto>}
-     * @memberof UageRequestDto
+     * @memberof UsageRequestDto
      */
     resources: Array<ResourceRequestDto>;
 }
 
 /**
- * Check if a given object implements the UageRequestDto interface.
+ * Check if a given object implements the UsageRequestDto interface.
  */
-export function instanceOfUageRequestDto(value: object): boolean {
+export function instanceOfUsageRequestDto(value: object): boolean {
     if (!('resources' in value)) return false;
     return true;
 }
 
-export function UageRequestDtoFromJSON(json: any): UageRequestDto {
-    return UageRequestDtoFromJSONTyped(json, false);
+export function UsageRequestDtoFromJSON(json: any): UsageRequestDto {
+    return UsageRequestDtoFromJSONTyped(json, false);
 }
 
-export function UageRequestDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): UageRequestDto {
+export function UsageRequestDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): UsageRequestDto {
     if (json == null) {
         return json;
     }
@@ -58,7 +58,7 @@ export function UageRequestDtoFromJSONTyped(json: any, ignoreDiscriminator: bool
     };
 }
 
-export function UageRequestDtoToJSON(value?: UageRequestDto | null): any {
+export function UsageRequestDtoToJSON(value?: UsageRequestDto | null): any {
     if (value == null) {
         return value;
     }

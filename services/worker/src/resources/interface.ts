@@ -1,31 +1,31 @@
 export interface ResourceParameterDescriptor {
-  // Type of the parameter: boolean, number, or string
+  // Type of the parameter: boolean, number, or string.
   type: 'boolean' | 'number' | 'string';
 
-  // Whether the parameter is required
+  // Whether the parameter is required.
   required?: boolean;
 
-  // Description of the parameter
+  // Description of the parameter.
   description: string;
 
-  // Allowed string values (for string type only)
+  // Allowed string values (for string type only).
   allowedValues?: string[];
 
-  // Minimum length (for string type)
+  // Minimum length (for string type).
   minLength?: number;
 
-  // Maximum length (for string type)
+  // Maximum length (for string type).
   maxLength?: number;
 }
 
-export class ResourceDescriptor {
-  // Unique identifier for the resource
+export interface ResourceDescriptor {
+  // Unique identifier for the resource.
   name: string;
 
-  // Description of the resource
+  // Description of the resource.
   description: string;
 
-  // Available parameters for the resource
+  // Available parameters for the resource.
   parameters: Record<string, ResourceParameterDescriptor>;
 }
 
@@ -43,51 +43,70 @@ export function defineResource<T extends Record<string, string | number | boolea
   return input;
 }
 
-export interface ResourceRequest<T = Record<string, boolean | number | string | null>, TContext = Record<string, string>> {
-  // Parameters to apply to the resource
+export interface ResourceRequest<T = Record<string, boolean | number | string | null>, TResourceContext = Record<string, string>> {
+  // Parameters to apply to the resource.
   parameters: T;
 
-  // Context values added or overwritten in the deployment
-  context: TContext;
+  // Context that only contains values that are needed for this resource betwene subsequent calls.
+  resourceContext: TResourceContext;
+
+  // The timeout.
+  timeoutMs: number;
 }
 
 export interface ResourceApplyResult {
-  // Context values added or overwritten in the deployment
+  // Context values added or overwritten in the deployment.
   context: Record<string, string>;
+
+  // Context that only contains values that are needed for this resource betwene subsequent calls.
+  resourceContext?: Record<string, string>;
 
   // Provides values how to connect to the resource, for example Api Keys.
   connection: Record<string, { value: string; label: string; isPublic: boolean }>;
 
-  // Optional log output
+  // Optional log output.
   log?: string;
 }
 
+export interface InstanceLog {
+  // The identifier for instances or kubernetes deployments.
+  instanceId: string;
+
+  // The actual log message.
+  messages: string;
+}
+
+export interface ResourceLogResult {
+  // Logs for individual instances.
+  instances: InstanceLog[];
+}
+
 export interface ResourceNodeStatus {
-  // Name of the node
+  // Name of the node.
   name: string;
 
-  // Whether the node is ready for use
+  // Whether the node is ready for use.
   isReady: boolean;
 
-  // Optional status message
-  message?: string;
+  // Optional status message.
+  message?: string | null;
 }
 
 export interface ResourceWorkloadStatus {
-  // Name of the workload
+  // Name of the workload.
   name: string;
 
-  // Nodes under the workload
+  // Nodes under the workload.
   nodes: ResourceNodeStatus[];
 }
 
-export class ResourceStatusResult {
-  // Workloads created under this status
-  workloads: ResourceWorkloadStatus[] = [];
+export interface ResourceStatusResult {
+  // Workloads created under this status.
+  workloads: ResourceWorkloadStatus[];
 }
 
 export interface ResourceUsage {
-  // The total storage in GB
+  // The total storage in GB.
   totalStorageGB: number;
 }
 
@@ -100,7 +119,9 @@ export interface Resource {
 
   status(id: string, request: ResourceRequest): Promise<ResourceStatusResult>;
 
-  usage(id: string, request: ResourceRequest): Promise<ResourceUsage>;
+  log?(id: string, request: ResourceRequest): Promise<ResourceLogResult>;
+
+  usage?(id: string, request: ResourceRequest): Promise<ResourceUsage>;
 
   describe?(): Promise<any>;
 }

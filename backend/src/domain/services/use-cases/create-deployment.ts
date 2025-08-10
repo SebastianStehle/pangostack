@@ -26,7 +26,7 @@ import { buildDeployment } from './utils';
 export class CreateDeployment {
   constructor(
     public readonly teamId: number,
-    public readonly name: string | undefined,
+    public readonly name: string | undefined | null,
     public readonly serviceId: number,
     public readonly parameters: Record<string, string>,
     public readonly confirmUrl: string | undefined | null,
@@ -85,7 +85,7 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
       confirmToken,
       createdAt: undefined,
       createdBy: user?.id || 'UNKNOWN',
-      status: 'Created',
+      status: 'Pending',
       teamId: teamId,
       updatedAt: undefined,
       updatedBy: user?.id || 'UNKNOWN',
@@ -121,7 +121,7 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
       return new CreateDeploymentResponse(subscriptionResult.redirectTo);
     }
 
-    deployment.status = 'Pending';
+    deployment.status = 'Created';
     await this.deployments.save(deployment);
 
     await this.workflows.createDeployment(deployment.id, update, null, worker);

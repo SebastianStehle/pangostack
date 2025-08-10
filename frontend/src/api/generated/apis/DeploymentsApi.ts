@@ -22,6 +22,7 @@ import type {
   DeploymentCheckSummariesDto,
   DeploymentCreatedDto,
   DeploymentDto,
+  DeploymentLogsDto,
   DeploymentStatusDto,
   DeploymentUsageSummariesDto,
   DeploymentsDto,
@@ -35,6 +36,8 @@ import {
     DeploymentCreatedDtoToJSON,
     DeploymentDtoFromJSON,
     DeploymentDtoToJSON,
+    DeploymentLogsDtoFromJSON,
+    DeploymentLogsDtoToJSON,
     DeploymentStatusDtoFromJSON,
     DeploymentStatusDtoToJSON,
     DeploymentUsageSummariesDtoFromJSON,
@@ -53,6 +56,11 @@ export interface GetDeploymentChecksRequest {
     deploymentId: number;
     fromDate: string;
     toDate: string;
+}
+
+export interface GetDeploymentLogsRequest {
+    teamId: number;
+    deploymentId: number;
 }
 
 export interface GetDeploymentStatusRequest {
@@ -193,6 +201,46 @@ export class DeploymentsApi extends runtime.BaseAPI {
      */
     async getDeploymentChecks(teamId: number, deploymentId: number, fromDate: string, toDate: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentCheckSummariesDto> {
         const response = await this.getDeploymentChecksRaw({ teamId: teamId, deploymentId: deploymentId, fromDate: fromDate, toDate: toDate }, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Gets deployments logs.
+     * 
+     */
+    async getDeploymentLogsRaw(requestParameters: GetDeploymentLogsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeploymentLogsDto>> {
+        if (requestParameters.teamId === null || requestParameters.teamId === undefined) {
+            throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling getDeploymentLogs.');
+        }
+
+        if (requestParameters.deploymentId === null || requestParameters.deploymentId === undefined) {
+            throw new runtime.RequiredError('deploymentId','Required parameter requestParameters.deploymentId was null or undefined when calling getDeploymentLogs.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/teams/{teamId}/deployments/{deploymentId}/logs`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))).replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => DeploymentLogsDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Gets deployments logs.
+     * 
+     */
+    async getDeploymentLogs(teamId: number, deploymentId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentLogsDto> {
+        const response = await this.getDeploymentLogsRaw({ teamId: teamId, deploymentId: deploymentId }, initOverrides);
         return await response.value();
     }
 

@@ -8,7 +8,6 @@ export async function pollUntil(timeout: number, action: () => Promise<boolean>,
         return;
       }
     } catch (ex) {
-      console.log(ex);
       if (ex instanceof Error) {
         lastError = ex;
       }

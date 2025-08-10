@@ -180,7 +180,7 @@ export interface ResourceNodeStatus {
   isReady: boolean;
 
   // The message to describe the status.
-  message?: string;
+  message?: string | null;
 }
 
 export interface ResourceWorkloadStatus {
@@ -231,4 +231,26 @@ export interface UsageSummary {
 
   // The total storage at this date.
   totalStorageGB: number;
+}
+
+export interface ResourceInstanceLog {
+  // The identifier for instances or kubernetes deployments.
+  instanceId: string;
+
+  // The actual log message.
+  messages: string;
+}
+
+export interface ResourceLog {
+  // The name of the resource.
+  resourceId: string;
+
+  // The type of the resource.
+  resourceType: string;
+
+  // The name of the resource.
+  resourceName: string;
+
+  // The logs for the instances.
+  instances: ResourceInstanceLog[];
 }

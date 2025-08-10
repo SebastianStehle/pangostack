@@ -13,7 +13,6 @@ export const BillingPage = () => {
   const { data: loadedInvoices, isFetched } = useQuery({
     queryKey: ['invoices', teamId],
     queryFn: () => clients.billing.getInvoices(+teamId!),
-    refetchOnWindowFocus: false,
   });
 
   const invoices = loadedInvoices?.items || [];

@@ -5,7 +5,19 @@ import * as path from 'path';
 import { NodeSSH } from 'node-ssh';
 import { pollUntil } from './wait';
 
-export async function deployDocker(ssh: NodeSSH, dockerComposeUrl: string, env: any, pollTimeout: number, log?: (message: string) => void) {
+export async function composeDown(ssh: NodeSSH) {
+  const remotePath = '/user';
+
+  const { stdout } = await ssh.execCommand(`docker compose -f ${remotePath}/docker-compose.yml down`, {
+    cwd: remotePath,
+    onStdout: () => {},
+    onStderr: () => {},
+  });
+
+  return stdout;
+}
+
+export async function composeUp(ssh: NodeSSH, dockerComposeUrl: string, env: any, pollTimeout: number, log?: (message: string) => void) {
   const remotePath = '/user';
 
   const tempDir = path.join(os.tmpdir(), randomUUID());
@@ -24,6 +36,7 @@ export async function deployDocker(ssh: NodeSSH, dockerComposeUrl: string, env: 
   log?.('Docker env file uploaded');
 
   try {
+    log?.('Docker compose up starting');
     const { stdout } = await ssh.execCommand(`docker compose -f ${remotePath}/docker-compose.yml --env-file ${remotePath}/.env up -d`, {
       cwd: remotePath,
       onStdout: () => {},
@@ -44,16 +57,37 @@ export async function deployDocker(ssh: NodeSSH, dockerComposeUrl: string, env: 
   }
 }
 
-type Container = { name: string; isReady: boolean; details?: string };
+type Container = { name: string; isReady: boolean; details?: string; originalName: string };
 
 export async function getContainers(ssh: NodeSSH): Promise<Container[]> {
   const result: Container[] = [];
-
   const { stdout } = await ssh.execCommand(`docker ps --format json`);
+
   const lines = stdout.split('\n');
   for (const line of lines) {
     const json = JSON.parse(line);
-    result.push({ name: json.Names, isReady: json.State === 'running', details: json.Status });
+
+    let name = json.Names as string;
+    if (name.indexOf('user-') === 0) {
+      name = name.substring(5);
+    }
+
+    result.push({ name, originalName: json.Names, isReady: json.State === 'running', details: json.Status });
+  }
+
+  return result;
+}
+
+type ContainerLog = { name: string; log: string };
+
+export async function getLogs(ssh: NodeSSH): Promise<ContainerLog[]> {
+  const result: ContainerLog[] = [];
+  const containers = await getContainers(ssh);
+
+  for (const container of containers) {
+    const { stdout } = await ssh.execCommand(`docker logs ${container.originalName}`);
+
+    result.push({ name: container.name, log: stdout });
   }
 
   return result;

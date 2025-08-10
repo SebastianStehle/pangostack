@@ -29,7 +29,7 @@ import {
  */
 export interface UsageResultDto {
     /**
-     * The usages
+     * The usages.
      * @type {Array<ResourceUsageDto>}
      * @memberof UsageResultDto
      */

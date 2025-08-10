@@ -15,6 +15,7 @@ const { deleteResource, deployResource } = proxyActivities<typeof activities>({
   startToCloseTimeout: '5m',
   retry: {
     maximumAttempts: 5,
+    initialInterval: '1m',
   },
 });
 

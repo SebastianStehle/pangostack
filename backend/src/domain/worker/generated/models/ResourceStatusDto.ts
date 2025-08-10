@@ -29,19 +29,19 @@ import {
  */
 export interface ResourceStatusDto {
     /**
-     * The resource ID
+     * The resource ID.
      * @type {string}
      * @memberof ResourceStatusDto
      */
-    resourceId: string;
+    resourceUniqueId: string;
     /**
-     * The type of the resource
+     * The type of the resource.
      * @type {string}
      * @memberof ResourceStatusDto
      */
     resourceType: string;
     /**
-     * The workflows that have been created
+     * The workflows that have been created.
      * @type {Array<ResourceWorkloadStatusDto>}
      * @memberof ResourceStatusDto
      */
@@ -52,7 +52,7 @@ export interface ResourceStatusDto {
  * Check if a given object implements the ResourceStatusDto interface.
  */
 export function instanceOfResourceStatusDto(value: object): boolean {
-    if (!('resourceId' in value)) return false;
+    if (!('resourceUniqueId' in value)) return false;
     if (!('resourceType' in value)) return false;
     if (!('workloads' in value)) return false;
     return true;
@@ -68,7 +68,7 @@ export function ResourceStatusDtoFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         
-        'resourceId': json['resourceId'],
+        'resourceUniqueId': json['resourceUniqueId'],
         'resourceType': json['resourceType'],
         'workloads': ((json['workloads'] as Array<any>).map(ResourceWorkloadStatusDtoFromJSON)),
     };
@@ -80,7 +80,7 @@ export function ResourceStatusDtoToJSON(value?: ResourceStatusDto | null): any {
     }
     return {
         
-        'resourceId': value['resourceId'],
+        'resourceUniqueId': value['resourceUniqueId'],
         'resourceType': value['resourceType'],
         'workloads': ((value['workloads'] as Array<any>).map(ResourceWorkloadStatusDtoToJSON)),
     };

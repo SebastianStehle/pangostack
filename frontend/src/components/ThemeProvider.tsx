@@ -17,7 +17,6 @@ export function ThemeProvider(props: React.PropsWithChildren) {
   } = useQuery({
     queryKey: ['theme'],
     queryFn: () => clientspi.settings.getSettings(),
-    refetchOnWindowFocus: false,
   });
 
   const [customTheme, setCustomTheme] = useState<Theme>({} as any);

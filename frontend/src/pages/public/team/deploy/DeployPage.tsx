@@ -16,7 +16,6 @@ export const DeployPage = () => {
   const { data: loadedServices } = useQuery({
     queryKey: ['services-public'],
     queryFn: () => clients.services.getServicesPublic(),
-    refetchOnWindowFocus: false,
   });
 
   const creating = useMutation({
@@ -42,7 +41,7 @@ export const DeployPage = () => {
   return (
     <div>
       <div className="mb-8 flex h-10 items-center gap-4">
-        <TransientNavLink className="btn btn-ghost btn-sm text-sm" to={`../${teamId}`}>
+        <TransientNavLink className="btn btn-ghost btn-circle text-sm" to={`../${teamId}`}>
           <Icon icon="arrow-left" size={16} />
         </TransientNavLink>
 

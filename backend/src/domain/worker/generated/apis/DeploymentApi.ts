@@ -17,16 +17,19 @@
 
 import * as runtime from '../runtime';
 import type {
-  ResourceApplyRequestDto,
+  ErrorResponseDto,
   ResourceApplyResponseDto,
+  ResourceRequestDto,
   ResourcesDeleteRequestDto,
   ResourcesTypesDto,
 } from '../models/index';
 import {
-    ResourceApplyRequestDtoFromJSON,
-    ResourceApplyRequestDtoToJSON,
+    ErrorResponseDtoFromJSON,
+    ErrorResponseDtoToJSON,
     ResourceApplyResponseDtoFromJSON,
     ResourceApplyResponseDtoToJSON,
+    ResourceRequestDtoFromJSON,
+    ResourceRequestDtoToJSON,
     ResourcesDeleteRequestDtoFromJSON,
     ResourcesDeleteRequestDtoToJSON,
     ResourcesTypesDtoFromJSON,
@@ -34,7 +37,7 @@ import {
 } from '../models/index';
 
 export interface ApplyResourceRequest {
-    resourceApplyRequestDto: ResourceApplyRequestDto;
+    resourceRequestDto: ResourceRequestDto;
 }
 
 export interface DeleteResourcesRequest {
@@ -47,14 +50,14 @@ export interface DeleteResourcesRequest {
 export class DeploymentApi extends runtime.BaseAPI {
 
     /**
-     * Applies the resource
+     * Applies the resource.
      * 
      */
     async applyResourceRaw(requestParameters: ApplyResourceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResourceApplyResponseDto>> {
-        if (requestParameters['resourceApplyRequestDto'] == null) {
+        if (requestParameters['resourceRequestDto'] == null) {
             throw new runtime.RequiredError(
-                'resourceApplyRequestDto',
-                'Required parameter "resourceApplyRequestDto" was null or undefined when calling applyResource().'
+                'resourceRequestDto',
+                'Required parameter "resourceRequestDto" was null or undefined when calling applyResource().'
             );
         }
 
@@ -69,18 +72,18 @@ export class DeploymentApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: ResourceApplyRequestDtoToJSON(requestParameters['resourceApplyRequestDto']),
+            body: ResourceRequestDtoToJSON(requestParameters['resourceRequestDto']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ResourceApplyResponseDtoFromJSON(jsonValue));
     }
 
     /**
-     * Applies the resource
+     * Applies the resource.
      * 
      */
-    async applyResource(resourceApplyRequestDto: ResourceApplyRequestDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResourceApplyResponseDto> {
-        const response = await this.applyResourceRaw({ resourceApplyRequestDto: resourceApplyRequestDto }, initOverrides);
+    async applyResource(resourceRequestDto: ResourceRequestDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResourceApplyResponseDto> {
+        const response = await this.applyResourceRaw({ resourceRequestDto: resourceRequestDto }, initOverrides);
         return await response.value();
     }
 
@@ -122,7 +125,7 @@ export class DeploymentApi extends runtime.BaseAPI {
     }
 
     /**
-     * Gets the available resource types
+     * Gets the available resource types.
      * 
      */
     async getTypesRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResourcesTypesDto>> {
@@ -141,7 +144,7 @@ export class DeploymentApi extends runtime.BaseAPI {
     }
 
     /**
-     * Gets the available resource types
+     * Gets the available resource types.
      * 
      */
     async getTypes(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResourcesTypesDto> {

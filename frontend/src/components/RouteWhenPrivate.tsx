@@ -9,7 +9,6 @@ export function RouteWhenPrivate(props: React.PropsWithChildren) {
   const { data: profile } = useQuery({
     queryKey: ['profile'],
     queryFn: () => clients.auth.getProfile(),
-    refetchOnWindowFocus: false,
   });
 
   if (!profile) {

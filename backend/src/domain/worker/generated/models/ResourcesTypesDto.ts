@@ -29,7 +29,7 @@ import {
  */
 export interface ResourcesTypesDto {
     /**
-     * The available resources
+     * The available resources.
      * @type {Array<ResourceTypeDto>}
      * @memberof ResourcesTypesDto
      */

@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database';
 import { evaluateParameters } from 'src/domain/definitions';
 import { WorkerClient } from 'src/domain/worker';
-import { ResourceApplyRequestDto } from 'src/domain/worker/generated';
+import { ResourceRequestDto } from 'src/domain/worker/generated';
 import { Activity } from '../registration';
 
 export type DeployResourceParam = {
@@ -39,8 +39,9 @@ export class DeployResourceActivity implements Activity<DeployResourceParam> {
     await this.deploymentUpdates.save(update);
 
     const context = { env: update.environment, context: update.context, parameters: update.parameters };
+    const client = new WorkerClient(workerEndpoint, workerApiKey);
 
-    const resourceWorkerId = `deployment_${deploymentId}_${resource.id}`;
+    const resourceUniqueId = `deployment_${deploymentId}_${resource.id}`;
     const resourceParams = evaluateParameters(resource, context);
 
     this.logger.log(`Deploying resource ${resource.id} for deployment ${deploymentId}`, {
@@ -49,14 +50,15 @@ export class DeployResourceActivity implements Activity<DeployResourceParam> {
       env: update.environment,
       parameters: resourceParams,
       parametersRaw: resource.parameters,
-      resourceId: resourceWorkerId,
+      resourceUniqueId,
     });
 
-    const request: ResourceApplyRequestDto = {
-      context: update.resourceContexts[resource.id] || {},
-      resourceId: resourceWorkerId,
+    const request: ResourceRequestDto = {
+      resourceContext: update.resourceContexts[resource.id] || {},
+      resourceUniqueId,
       resourceType: resource.type,
       parameters: resourceParams,
+      timeoutMs: 10 * 60 * 1000, // 10 minutes
     };
 
     this.logger.log({
@@ -65,20 +67,23 @@ export class DeployResourceActivity implements Activity<DeployResourceParam> {
       context: 'WorkerService',
     });
 
-    const workerClient = new WorkerClient(workerEndpoint, workerApiKey);
-    const workerResponse = await workerClient.deployment.applyResource(request);
+    const response = await client.deployment.applyResource(request);
 
-    update.resourceConnections[resource.id] = workerResponse.connection;
-    update.resourceContexts[resource.id] = workerResponse.context;
+    update.resourceConnections[resource.id] = response.connection;
+    update.resourceContexts[resource.id] = response.resourceContext;
 
-    if (workerResponse.context) {
-      for (const [key, value] of Object.entries(workerResponse.context)) {
-        update.context[key] = value;
+    if (response.context) {
+      for (const [key, value] of Object.entries(response.context)) {
+        const global = (update.context['global'] ||= {});
+        global[key] = value;
+
+        const local = (update.context[resourceId] ||= {});
+        local[key] = value;
       }
     }
 
-    if (workerResponse.log) {
-      update.log[resource.id] = workerResponse.log;
+    if (response.log) {
+      update.log[resource.id] = response.log;
     }
 
     await this.deploymentUpdates.save(update);

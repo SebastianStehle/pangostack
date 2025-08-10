@@ -29,19 +29,19 @@ import {
  */
 export interface ResourceTypeDto {
     /**
-     * The name of the resource
+     * The name of the resource.
      * @type {string}
      * @memberof ResourceTypeDto
      */
     name: string;
     /**
-     * The description of the resource
+     * The description of the resource.
      * @type {string}
      * @memberof ResourceTypeDto
      */
     description: string;
     /**
-     * The parameters
+     * The parameters.
      * @type {{ [key: string]: ResourceParameterDto; }}
      * @memberof ResourceTypeDto
      */

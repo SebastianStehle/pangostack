@@ -44,29 +44,29 @@ export class GetDeploymentStatusHandler implements IQueryHandler<GetDeploymentSt
       throw new NotFoundException('No worker registered.');
     }
 
-    const lastUpdate = deployment.updates.find((x) => x.status === 'Completed');
-    if (!lastUpdate) {
+    const update = deployment.updates.find((x) => x.status === 'Completed');
+    if (!update) {
       return new GetDeploymentStatusResponse([]);
     }
 
+    const definition = update.serviceVersion.definition;
+    const context = { env: update.environment, context: update.context, parameters: update.parameters };
     const client = new WorkerClient(worker.endpoint, worker.apiKey);
-    const context = { env: lastUpdate.environment, context: lastUpdate.context, parameters: lastUpdate.parameters };
-
-    const resources = lastUpdate.serviceVersion.definition.resources;
 
     const statuses = await client.status.postStatus({
-      resources: resources.map((resource) => ({
-        context: lastUpdate.resourceContexts[resource.id] || {},
-        resourceId: `deployment_${deploymentId}_${resource.id}`,
-        resourceType: resource.type,
+      resources: definition.resources.map((resource) => ({
         parameters: evaluateParameters(resource, context),
+        resourceContext: update.resourceContexts[resource.id] || {},
+        resourceUniqueId: `deployment_${deploymentId}_${resource.id}`,
+        resourceType: resource.type,
+        timeoutMs: 1 * 60 * 1000, // 1 minute
       })),
     });
 
     const mapped: ResourceStatus[] = statuses.resources.map((source, i) => ({
-      resourceId: resources[i].id,
-      resourceType: resources[i].type,
-      resourceName: resources[i].name,
+      resourceId: definition.resources[i].id,
+      resourceType: definition.resources[i].type,
+      resourceName: definition.resources[i].name,
       workloads: source.workloads,
     }));
 

@@ -26,7 +26,7 @@ export class CancelDeploymentHandler implements ICommandHandler<CancelDeployment
       throw new NotFoundException(`Deployment ${deploymentId} not found`);
     }
 
-    if (deployment.status === 'Created' || deployment.confirmToken !== token) {
+    if (deployment.status !== 'Pending' || deployment.confirmToken !== token) {
       throw new ForbiddenException();
     }
 

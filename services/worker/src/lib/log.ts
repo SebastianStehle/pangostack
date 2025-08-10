@@ -10,7 +10,7 @@ export class PrettyFormat implements Format {
       return info;
     }
 
-    info.message = message.replace(/{(.*?)}/g, (match, placeholder) => {
+    info.message = message.replace(/{(.*?)}/g, (_match, placeholder) => {
       return info[placeholder] || placeholder;
     });
 

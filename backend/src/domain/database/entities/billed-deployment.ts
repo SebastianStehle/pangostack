@@ -14,7 +14,7 @@ export class BilledDeploymentEntity {
   @PrimaryColumn('date')
   dateTo: string;
 
-  @ManyToOne(() => DeploymentEntity, (deployment) => deployment.billed)
+  @ManyToOne(() => DeploymentEntity, (deployment) => deployment.billed, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'deploymentId' })
   deployment: DeploymentEntity;
 }

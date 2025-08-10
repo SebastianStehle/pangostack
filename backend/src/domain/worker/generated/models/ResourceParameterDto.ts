@@ -22,37 +22,37 @@ import { mapValues } from '../runtime';
  */
 export interface ResourceParameterDto {
     /**
-     * The type
+     * The type.
      * @type {string}
      * @memberof ResourceParameterDto
      */
     type: ResourceParameterDtoTypeEnum;
     /**
-     * True, if required
+     * True, if required.
      * @type {boolean}
      * @memberof ResourceParameterDto
      */
     required?: boolean;
     /**
-     * The description of the argument
+     * The description of the argument.
      * @type {string}
      * @memberof ResourceParameterDto
      */
     description?: string;
     /**
-     * The minimum length
+     * The minimum length.
      * @type {number}
      * @memberof ResourceParameterDto
      */
     minLength?: number;
     /**
-     * The maximum length
+     * The maximum length.
      * @type {number}
      * @memberof ResourceParameterDto
      */
     maxLength?: number;
     /**
-     * The enum values
+     * The enum values.
      * @type {Array<string>}
      * @memberof ResourceParameterDto
      */

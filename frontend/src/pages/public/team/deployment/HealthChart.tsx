@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { addDays, format } from 'date-fns';
 import { Bar, BarChart, CartesianGrid, Cell, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useClients } from 'src/api';
+import { texts } from 'src/texts';
 
 export interface HealthChartProps {
   // The ID of the team.
@@ -16,14 +17,14 @@ export function HealthChart(props: HealthChartProps) {
   const clients = useClients();
 
   const { data: loadedUsage } = useQuery({
-    queryKey: [teamId, 'deployments', deploymentId, 'checks'],
+    queryKey: ['deployment-checks', teamId, deploymentId],
     queryFn: () => {
       const now = new Date();
       const dateFrom = format(addDays(now, -30), 'yyyy-MM-dd');
       const dateTo = format(now, 'yyyy-MM-dd');
+
       return clients.deployments.getDeploymentChecks(teamId, deploymentId, dateFrom, dateTo);
     },
-    refetchOnWindowFocus: false,
   });
 
   const data = loadedUsage?.checks || [];
@@ -36,12 +37,12 @@ export function HealthChart(props: HealthChartProps) {
         <YAxis />
         <Tooltip />
         <Legend />
-        <Bar dataKey="totalFailures" stackId="a" fill="red">
+        <Bar dataKey="totalFailures" stackId="a" fill="red" name={texts.deployments.totalFailures}>
           {data.map((entry) => (
             <Cell key={`fail-${entry.date}`} />
           ))}
         </Bar>
-        <Bar dataKey="totalSuccesses" stackId="b" fill="green">
+        <Bar dataKey="totalSuccesses" stackId="b" fill="green" name={texts.deployments.totalSuccesses}>
           {data.map((entry) => (
             <Cell key={`success-${entry.date}`} />
           ))}

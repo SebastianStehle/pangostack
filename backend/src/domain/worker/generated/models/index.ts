@@ -3,9 +3,12 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './ConnectInfoDto';
-export * from './ResourceApplyRequestDto';
+export * from './ErrorResponseDto';
+export * from './InstanceLogDto';
+export * from './LogRequestDto';
+export * from './LogResultDto';
 export * from './ResourceApplyResponseDto';
-export * from './ResourceDeleteRequestDto';
+export * from './ResourceLogDto';
 export * from './ResourceNodeStatusDto';
 export * from './ResourceParameterDto';
 export * from './ResourceRequestDto';
@@ -17,5 +20,5 @@ export * from './ResourcesDeleteRequestDto';
 export * from './ResourcesTypesDto';
 export * from './StatusRequestDto';
 export * from './StatusResultDto';
-export * from './UageRequestDto';
+export * from './UsageRequestDto';
 export * from './UsageResultDto';

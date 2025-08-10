@@ -1,46 +1,38 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { initialize as initializeVultrClient } from '@vultr/vultr-node';
 import { NodeSSH } from 'node-ssh';
-import { deployDocker, getContainers, pollUntil } from 'src/lib';
-import { defineResource, Resource, ResourceApplyResult, ResourceRequest, ResourceStatusResult, ResourceUsage } from '../interface';
+import { pollUntil } from 'src/lib';
+import { defineResource, Resource, ResourceApplyResult, ResourceRequest, ResourceStatusResult } from '../interface';
 
-type Parameters = { apiKey: string; region: string; plan: string; app: string; dockerComposeUrl: string };
+type Parameters = { apiKey: string; region: string; plan: string; app: string };
 
 type Context = { password: string };
 
-// 5 minutes
-const DEFAULT_TIMEOUT = 15 * 60 * 1000;
-
 @Injectable()
-export class VultrDockerResource implements Resource {
-  private readonly logger = new Logger(VultrDockerResource.name);
+export class VultrVmResource implements Resource {
+  private readonly logger = new Logger(VultrVmResource.name);
 
   descriptor = defineResource<Parameters>({
-    name: 'vultr-docker',
-    description: 'Creates a vultr instance with docker compose',
+    name: 'vultr-vm',
+    description: 'Creates a vultr virtual',
     parameters: {
       apiKey: {
-        description: 'The API Key',
+        description: 'The API Key.',
         type: 'string',
         required: true,
       },
       region: {
-        description: 'The name of the region',
+        description: 'The name of the region.',
         type: 'string',
         required: true,
       },
       plan: {
-        description: 'The name of the plan',
+        description: 'The name of the plan.',
         type: 'string',
         required: true,
       },
       app: {
-        description: 'The ID of the app from the marketplace',
-        type: 'string',
-        required: true,
-      },
-      dockerComposeUrl: {
-        description: 'The URL of the docker compose file',
+        description: 'The ID of the app from the marketplace.',
         type: 'string',
         required: true,
       },
@@ -59,7 +51,7 @@ export class VultrDockerResource implements Resource {
   }
 
   async apply(id: string, request: ResourceRequest<Parameters, Context>): Promise<ResourceApplyResult> {
-    const { apiKey, dockerComposeUrl, region, plan, app, ...others } = request.parameters;
+    const { apiKey, region, plan, app } = request.parameters;
 
     const logContext: any = { id };
     try {
@@ -83,36 +75,40 @@ export class VultrDockerResource implements Resource {
 
         instance = response.instance;
         this.logger.log({ message: 'Using new instance', context: logContext });
+
+        if (instance.default_password) {
+          request.resourceContext.password = instance.default_password;
+        }
       }
 
-      const context = request.context;
-
-      await waitForInstance(vultr, instance, !!context.password);
-      logContext.ip = instance.main_ip;
-
-      if (instance.default_password) {
-        context.password = instance.default_password;
+      if (isValidIp(instance.main_ip)) {
+        logContext.ip = instance.main_ip;
       }
 
-      this.logger.log({ message: 'Instance ready to be used, waiting for SSH connection', context: logContext });
+      this.logger.log({ message: 'Waiting for VM details to be ready', context: logContext });
+      instance = await waitForInstance(vultr, instance, request.timeoutMs, !!request.resourceContext.password);
+
+      if (isValidIp(instance.main_ip)) {
+        logContext.ip = instance.main_ip;
+      }
 
       const ssh = new NodeSSH();
-      try {
-        await pollUntil(DEFAULT_TIMEOUT, async () => {
-          await ssh.connect({ host: instance.main_ip, password: context.password!, username: 'root' });
-          return true;
-        });
-
-        this.logger.log({ message: 'Instance accepted SSH connection, deploying docker', context: logContext });
-        await deployDocker(ssh, dockerComposeUrl, others, DEFAULT_TIMEOUT, (message) => {
-          this.logger.log({ message, context: logContext });
-        });
-      } finally {
-        ssh.dispose();
-      }
+      this.logger.log({
+        message: 'VM details are available, but the VM might not be running yet. Waiting for SSH connection',
+        context: logContext,
+      });
+      await pollUntil(request.timeoutMs, async () => {
+        await ssh.connect({ host: instance.main_ip, username: 'root', password: request.resourceContext.password });
+        return true;
+      });
 
       return {
-        context,
+        resourceContext: request.resourceContext,
+        context: {
+          host: instance.main_ip,
+          sshUser: 'root',
+          sshPassword: request.resourceContext.password,
+        },
         connection: {
           ip: {
             value: instance.main_ip,
@@ -142,10 +138,6 @@ export class VultrDockerResource implements Resource {
     await vultr.instances.deleteInstance({ id: instance.id });
   }
 
-  usage(): Promise<ResourceUsage> {
-    return Promise.resolve({ totalStorageGB: 0 });
-  }
-
   async status(id: string, request: ResourceRequest<Parameters, Context>): Promise<ResourceStatusResult> {
     const { apiKey } = request.parameters;
 
@@ -154,56 +146,50 @@ export class VultrDockerResource implements Resource {
     });
 
     const instance = await findInstance(vultr, id);
-    if (instance) {
-      const ssh = new NodeSSH();
-      await ssh.connect({ host: instance.main_ip, username: 'root', password: request.context.password! });
 
-      const containers = await getContainers(ssh);
-
-      const status: ResourceStatusResult = {
-        workloads: [
-          {
-            name: 'Virtual Machine',
-            nodes: containers,
-          },
-        ],
-      };
-
-      return status;
-    } else {
-      const status: ResourceStatusResult = {
-        workloads: [
-          {
-            name: 'Instance',
-            nodes: [
-              {
-                name: 'Virtual Machine',
-                isReady: false,
-                message: 'Instance not found',
-              },
-            ],
-          },
-        ],
-      };
-
-      return status;
+    let failure: string | undefined = undefined;
+    if (!instance) {
+      failure = 'Instance not found';
+    } else if (instance.status !== 'ok') {
+      failure = `Instance does not have success status, got ${instance.status}`;
+    } else if (!isValidIp(instance)) {
+      failure = 'Instance does not have a IP address yet';
     }
+
+    const status: ResourceStatusResult = {
+      workloads: [
+        {
+          name: 'Default',
+          nodes: [
+            {
+              name: 'Virtual Machine',
+              isReady: !failure,
+              message: failure,
+            },
+          ],
+        },
+      ],
+    };
+
+    return status;
   }
 }
 
-async function waitForInstance(vultr: ReturnType<typeof initializeVultrClient>, instance: any, hasPassword: boolean) {
+async function waitForInstance(vultr: ReturnType<typeof initializeVultrClient>, instance: any, timeout: number, hasPassword: boolean) {
   const instanceId = instance.id;
 
-  await pollUntil(DEFAULT_TIMEOUT, async () => {
+  await pollUntil(timeout, async () => {
     const { instance } = await vultr.instances.getInstance({ 'instance-id': instanceId });
 
-    return (
-      instance.server_status === 'ok' && instance.main_ip && instance.main_ip !== '0.0.0.0' && (hasPassword || instance.default_password)
-    );
+    return instance.server_status === 'ok' && isValidIp(instance) && (hasPassword || instance.default_password);
   });
 
   const { instance: newInstane } = await vultr.instances.getInstance({ 'instance-id': instanceId });
   return newInstane;
+}
+
+function isValidIp(node: any) {
+  return node.main_ip && node.main_ip !== '0.0.0.0';
 }
 
 async function findInstance(vultr: ReturnType<typeof initializeVultrClient>, id: string) {

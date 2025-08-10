@@ -12,6 +12,7 @@ export * from './HealthStatus';
 export * from './Icon';
 export * from './Links';
 export * from './Logo';
+export * from './LogViewer';
 export * from './Markdown';
 export * from './Modal';
 export * from './Page';

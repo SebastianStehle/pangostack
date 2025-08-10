@@ -32,18 +32,19 @@ export class DeleteResourceActivity implements Activity<DeleteResourceParam> {
     }
 
     const context = { env: update.environment, context: update.context, parameters: update.parameters };
+    const client = new WorkerClient(workerEndpoint, workerApiKey);
 
-    const resourceWorkerId = `deployment_${deploymentId}_${resource.id}`;
+    const resourceUniqueId = `deployment_${deploymentId}_${resource.id}`;
     const resourceParams = evaluateParameters(resource, context);
 
-    const workerClient = new WorkerClient(workerEndpoint, workerApiKey);
-    await workerClient.deployment.deleteResources({
+    await client.deployment.deleteResources({
       resources: [
         {
-          context: update.resourceContexts[resource.id] || {},
-          resourceId: resourceWorkerId,
-          resourceType: resource.type,
           parameters: resourceParams,
+          resourceContext: update.resourceContexts[resource.id] || {},
+          resourceUniqueId,
+          resourceType: resource.type,
+          timeoutMs: 10 * 60 * 1000, // 10 minutes
         },
       ],
     });

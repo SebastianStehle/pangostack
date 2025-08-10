@@ -42,7 +42,7 @@ export class ConfirmDeploymentHandler implements ICommandHandler<ConfirmDeployme
       throw new NotFoundException(`Deployment ${deploymentId} not found`);
     }
 
-    if (deployment.status !== 'Created' || deployment.confirmToken !== token) {
+    if (deployment.status !== 'Pending' || deployment.confirmToken !== token) {
       throw new ForbiddenException();
     }
 

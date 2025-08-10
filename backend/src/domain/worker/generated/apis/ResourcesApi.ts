@@ -16,6 +16,13 @@
 
 
 import * as runtime from '../runtime';
+import type {
+  ErrorResponseDto,
+} from '../models/index';
+import {
+    ErrorResponseDtoFromJSON,
+    ErrorResponseDtoToJSON,
+} from '../models/index';
 
 export interface GetResourceRequest {
     type: string;
@@ -27,7 +34,7 @@ export interface GetResourceRequest {
 export class ResourcesApi extends runtime.BaseAPI {
 
     /**
-     * Get details about a resource
+     * Get details about a resource.
      * 
      */
     async getResourceRaw(requestParameters: GetResourceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
@@ -53,7 +60,7 @@ export class ResourcesApi extends runtime.BaseAPI {
     }
 
     /**
-     * Get details about a resource
+     * Get details about a resource.
      * 
      */
     async getResource(type: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
@@ -61,7 +68,7 @@ export class ResourcesApi extends runtime.BaseAPI {
     }
 
     /**
-     * Gets all available resources
+     * Gets all available resources.
      * 
      */
     async getResourcesRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
@@ -80,7 +87,7 @@ export class ResourcesApi extends runtime.BaseAPI {
     }
 
     /**
-     * Gets all available resources
+     * Gets all available resources.
      * 
      */
     async getResources(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {

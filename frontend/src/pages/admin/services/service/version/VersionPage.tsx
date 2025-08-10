@@ -55,7 +55,7 @@ export const VersionPage = (props: VersionPageProps) => {
   return (
     <div className="relative">
       <div className="mb-4 flex items-center gap-4">
-        <TransientNavLink className="btn btn-ghost btn-sm text-sm" to={`../${serviceId}`}>
+        <TransientNavLink className="btn btn-ghost btn-circle btn-sm text-sm" to={`../${serviceId}`}>
           <Icon icon="arrow-left" size={16} />
         </TransientNavLink>
 

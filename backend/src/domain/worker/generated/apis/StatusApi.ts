@@ -17,28 +17,41 @@
 
 import * as runtime from '../runtime';
 import type {
+  ErrorResponseDto,
+  LogRequestDto,
+  LogResultDto,
   StatusRequestDto,
   StatusResultDto,
-  UageRequestDto,
+  UsageRequestDto,
   UsageResultDto,
 } from '../models/index';
 import {
+    ErrorResponseDtoFromJSON,
+    ErrorResponseDtoToJSON,
+    LogRequestDtoFromJSON,
+    LogRequestDtoToJSON,
+    LogResultDtoFromJSON,
+    LogResultDtoToJSON,
     StatusRequestDtoFromJSON,
     StatusRequestDtoToJSON,
     StatusResultDtoFromJSON,
     StatusResultDtoToJSON,
-    UageRequestDtoFromJSON,
-    UageRequestDtoToJSON,
+    UsageRequestDtoFromJSON,
+    UsageRequestDtoToJSON,
     UsageResultDtoFromJSON,
     UsageResultDtoToJSON,
 } from '../models/index';
+
+export interface PostLogRequest {
+    logRequestDto: LogRequestDto;
+}
 
 export interface PostStatusRequest {
     statusRequestDto: StatusRequestDto;
 }
 
 export interface PostUsageRequest {
-    uageRequestDto: UageRequestDto;
+    usageRequestDto: UsageRequestDto;
 }
 
 /**
@@ -47,7 +60,45 @@ export interface PostUsageRequest {
 export class StatusApi extends runtime.BaseAPI {
 
     /**
-     * Gets the status for all specified deployment IDs
+     * Gets the logs for all specified deployment IDs.
+     * 
+     */
+    async postLogRaw(requestParameters: PostLogRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<LogResultDto>> {
+        if (requestParameters['logRequestDto'] == null) {
+            throw new runtime.RequiredError(
+                'logRequestDto',
+                'Required parameter "logRequestDto" was null or undefined when calling postLog().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/status/log`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: LogRequestDtoToJSON(requestParameters['logRequestDto']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => LogResultDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Gets the logs for all specified deployment IDs.
+     * 
+     */
+    async postLog(logRequestDto: LogRequestDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<LogResultDto> {
+        const response = await this.postLogRaw({ logRequestDto: logRequestDto }, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Gets the status for all specified deployment IDs.
      * 
      */
     async postStatusRaw(requestParameters: PostStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<StatusResultDto>> {
@@ -76,7 +127,7 @@ export class StatusApi extends runtime.BaseAPI {
     }
 
     /**
-     * Gets the status for all specified deployment IDs
+     * Gets the status for all specified deployment IDs.
      * 
      */
     async postStatus(statusRequestDto: StatusRequestDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<StatusResultDto> {
@@ -85,14 +136,14 @@ export class StatusApi extends runtime.BaseAPI {
     }
 
     /**
-     * Gets the usages for all specified deployment IDs
+     * Gets the usages for all specified deployment IDs.
      * 
      */
     async postUsageRaw(requestParameters: PostUsageRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UsageResultDto>> {
-        if (requestParameters['uageRequestDto'] == null) {
+        if (requestParameters['usageRequestDto'] == null) {
             throw new runtime.RequiredError(
-                'uageRequestDto',
-                'Required parameter "uageRequestDto" was null or undefined when calling postUsage().'
+                'usageRequestDto',
+                'Required parameter "usageRequestDto" was null or undefined when calling postUsage().'
             );
         }
 
@@ -107,18 +158,18 @@ export class StatusApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: UageRequestDtoToJSON(requestParameters['uageRequestDto']),
+            body: UsageRequestDtoToJSON(requestParameters['usageRequestDto']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => UsageResultDtoFromJSON(jsonValue));
     }
 
     /**
-     * Gets the usages for all specified deployment IDs
+     * Gets the usages for all specified deployment IDs.
      * 
      */
-    async postUsage(uageRequestDto: UageRequestDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UsageResultDto> {
-        const response = await this.postUsageRaw({ uageRequestDto: uageRequestDto }, initOverrides);
+    async postUsage(usageRequestDto: UsageRequestDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UsageResultDto> {
+        const response = await this.postUsageRaw({ usageRequestDto: usageRequestDto }, initOverrides);
         return await response.value();
     }
 

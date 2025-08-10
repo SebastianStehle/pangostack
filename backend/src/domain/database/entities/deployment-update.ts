@@ -30,7 +30,7 @@ export class DeploymentUpdateEntity {
   resourceContexts: Record<string, Record<string, string>> = {};
 
   @Column('simple-json')
-  context: Record<string, string> = {};
+  context: Record<string, Record<string, string>> = {};
 
   @Column('simple-json')
   environment: Record<string, string> = {};

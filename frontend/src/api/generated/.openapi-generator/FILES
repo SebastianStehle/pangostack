@@ -18,6 +18,7 @@ models/DeploymentCheckSummaryDto.ts
 models/DeploymentCreatedDto.ts
 models/DeploymentCreatedDtoDeployment.ts
 models/DeploymentDto.ts
+models/DeploymentLogsDto.ts
 models/DeploymentResourceDto.ts
 models/DeploymentStatusDto.ts
 models/DeploymentUsageSummariesDto.ts
@@ -30,6 +31,8 @@ models/LoginDto.ts
 models/ParameterAllowedvalueDto.ts
 models/ParameterDefinitionDto.ts
 models/ProfileDto.ts
+models/ResourceInstanceLogDto.ts
+models/ResourceLogsDto.ts
 models/ResourceNodeStatusDto.ts
 models/ResourceStatusDto.ts
 models/ResourceWorkloadStatusDto.ts

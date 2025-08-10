@@ -16,28 +16,30 @@ export const Resource = (props: ResourceProps) => {
   const actualConnections = connection || [];
 
   return (
-    <div>
-      {resource.name}
+    <div className="card card-border bg-base border-slate-300">
+      <div className="card-body">
+        <h3 className="card-title">{resource.name}</h3>
 
-      {Object.entries(actualConnections).map(([key, value]) => (
-        <div key={key}>
-          {value.label}: {value.value}
-        </div>
-      ))}
+        {Object.entries(actualConnections).map(([key, value]) => (
+          <div key={key}>
+            {value.label}: {value.value}
+          </div>
+        ))}
 
-      {status && (
-        <>
-          {status.workloads.map((workload, i) => (
-            <div key={i}>
-              {workload.name}
+        {status && (
+          <>
+            {status.workloads.map((workload, i) => (
+              <div key={i}>
+                {workload.name}
 
-              {workload.nodes.map((node, i) => (
-                <div key={i}>{node.name}</div>
-              ))}
-            </div>
-          ))}
-        </>
-      )}
+                {workload.nodes.map((node, i) => (
+                  <div key={i}>{node.name}</div>
+                ))}
+              </div>
+            ))}
+          </>
+        )}
+      </div>
     </div>
   );
 };

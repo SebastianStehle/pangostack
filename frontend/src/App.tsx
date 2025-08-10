@@ -7,7 +7,13 @@ import { DialogProvider } from './components/DialogProvider';
 import { InternalPage } from './pages/InternalPage';
 import { LoginPage } from './pages/login/LoginPage';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 export function App() {
   return (

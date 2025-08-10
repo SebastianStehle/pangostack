@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { useClients } from 'src/api';
-import { DeploymentStatus, Empty, HealthStatus, Icon, TransientNavLink } from 'src/components';
+import { DeploymentStatus, Empty, HealthStatus, Icon, Spinner, TransientNavLink } from 'src/components';
 import { formatDateTime } from 'src/lib';
 import { texts } from 'src/texts';
 
@@ -9,10 +9,13 @@ export const DeploymentsPage = () => {
   const { teamId } = useParams();
   const clients = useClients();
 
-  const { data: loadedDeployments, isFetched } = useQuery({
+  const {
+    data: loadedDeployments,
+    isLoading,
+    isFetched,
+  } = useQuery({
     queryKey: ['deployments', teamId],
     queryFn: () => clients.deployments.getDeployments(+teamId!),
-    refetchOnWindowFocus: false,
   });
 
   const deployments = loadedDeployments?.items || [];
@@ -52,6 +55,8 @@ export const DeploymentsPage = () => {
           </TransientNavLink>
         ))}
       </div>
+
+      {isLoading && <Spinner visible={true} />}
 
       {isFetched && deployments.length === 0 && (
         <Empty icon="no-connection" label={texts.deployments.emptyLabel} text={texts.deployments.emptyText} />

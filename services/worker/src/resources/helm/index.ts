@@ -13,7 +13,6 @@ import {
   ResourceNodeStatus,
   ResourceRequest,
   ResourceStatusResult,
-  ResourceUsage,
   ResourceWorkloadStatus,
 } from '../interface';
 
@@ -29,30 +28,30 @@ type Parameters = {
 export class HelmResource implements Resource {
   descriptor = defineResource<Parameters>({
     name: 'helm',
-    description: 'Creates a vultr storage account',
+    description: 'Creates a vultr storage account.',
     parameters: {
       config: {
-        description: 'The kubernetes config',
+        description: 'The kubernetes config.',
         type: 'string',
         required: true,
       },
       repositoryUrl: {
-        description: 'The custom repository URL',
+        description: 'The custom repository URL.',
         type: 'string',
         required: true,
       },
       repositoryName: {
-        description: 'The n ame of the custom repository',
+        description: 'The n ame of the custom repository.',
         type: 'string',
         required: true,
       },
       chartName: {
-        description: 'The name of the chart',
+        description: 'The name of the chart.',
         type: 'string',
         required: true,
       },
       chartVersion: {
-        description: 'The version of the chart',
+        description: 'The version of the chart.',
         type: 'string',
         required: true,
       },
@@ -139,10 +138,6 @@ export class HelmResource implements Resource {
     } finally {
       await k8.cleanup();
     }
-  }
-
-  usage(): Promise<ResourceUsage> {
-    return Promise.resolve({ totalStorageGB: 0 });
   }
 
   async status(id: string, request: ResourceRequest<Parameters>): Promise<ResourceStatusResult> {

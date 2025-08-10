@@ -12,6 +12,8 @@ import {
   DeleteDeployment,
   GetDeploymentChecks,
   GetDeploymentChecksResponse,
+  GetDeploymentLogs,
+  GetDeploymentLogsResponse,
   GetDeploymentStatus,
   GetDeploymentStatusResponse,
   GetDeploymentUsages,
@@ -29,6 +31,7 @@ import {
   DeploymentCheckSummariesDto,
   DeploymentCreatedDto,
   DeploymentDto,
+  DeploymentLogsDto,
   DeploymentsDto,
   DeploymentStatusDto,
   DeploymentUsageSummariesDto,
@@ -105,6 +108,23 @@ export class TeamDeploymentsController {
     const result: GetDeploymentStatusResponse = await this.queryBus.execute(new GetDeploymentStatus(teamId, deploymentId));
 
     return DeploymentStatusDto.fromDomain(result.resources);
+  }
+
+  @Get(':deploymentId/logs')
+  @ApiOperation({ operationId: 'getDeploymentLogs', description: 'Gets deployments logs.' })
+  @ApiParam({
+    name: 'deploymentId',
+    description: 'The ID of the deployment.',
+    required: true,
+    type: 'number',
+  })
+  @ApiOkResponse({ type: DeploymentLogsDto })
+  @Role(BUILTIN_USER_GROUP_DEFAULT)
+  @UseGuards(RoleGuard, TeamPermissionGuard)
+  async getLogs(@IntParam('teamId') teamId: number, @IntParam('deploymentId') deploymentId: number) {
+    const result: GetDeploymentLogsResponse = await this.queryBus.execute(new GetDeploymentLogs(teamId, deploymentId));
+
+    return DeploymentLogsDto.fromDomain(result.resources);
   }
 
   @Get(':deploymentId/checks')

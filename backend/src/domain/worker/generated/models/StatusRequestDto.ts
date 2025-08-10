@@ -29,7 +29,7 @@ import {
  */
 export interface StatusRequestDto {
     /**
-     * The resource identifiers
+     * The resource identifiers.
      * @type {Array<ResourceRequestDto>}
      * @memberof StatusRequestDto
      */

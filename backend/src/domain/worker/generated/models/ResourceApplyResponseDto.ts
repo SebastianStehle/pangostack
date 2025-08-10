@@ -29,19 +29,25 @@ import {
  */
 export interface ResourceApplyResponseDto {
     /**
-     * The context values that will be added or overwritten to the deployment
+     * The context values that will be added or overwritten to the deployment.
      * @type {{ [key: string]: any; }}
      * @memberof ResourceApplyResponseDto
      */
     context: { [key: string]: any; };
     /**
-     * The output
+     * Context that only contains values that are needed for this resource betwene subsequent calls.
+     * @type {{ [key: string]: any; }}
+     * @memberof ResourceApplyResponseDto
+     */
+    resourceContext: { [key: string]: any; };
+    /**
+     * The output.
      * @type {string}
      * @memberof ResourceApplyResponseDto
      */
     log?: string;
     /**
-     * Provides values how to connect to the resource, for example Api Keys
+     * Provides values how to connect to the resource, for example Api Keys.
      * @type {{ [key: string]: ConnectInfoDto; }}
      * @memberof ResourceApplyResponseDto
      */
@@ -53,6 +59,7 @@ export interface ResourceApplyResponseDto {
  */
 export function instanceOfResourceApplyResponseDto(value: object): boolean {
     if (!('context' in value)) return false;
+    if (!('resourceContext' in value)) return false;
     if (!('connection' in value)) return false;
     return true;
 }
@@ -68,6 +75,7 @@ export function ResourceApplyResponseDtoFromJSONTyped(json: any, ignoreDiscrimin
     return {
         
         'context': json['context'],
+        'resourceContext': json['resourceContext'],
         'log': json['log'] == null ? undefined : json['log'],
         'connection': (mapValues(json['connection'], ConnectInfoDtoFromJSON)),
     };
@@ -80,6 +88,7 @@ export function ResourceApplyResponseDtoToJSON(value?: ResourceApplyResponseDto 
     return {
         
         'context': value['context'],
+        'resourceContext': value['resourceContext'],
         'log': value['log'],
         'connection': (mapValues(value['connection'], ConnectInfoDtoToJSON)),
     };

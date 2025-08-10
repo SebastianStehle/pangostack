@@ -22,23 +22,23 @@ import { mapValues } from '../runtime';
  */
 export interface ResourceNodeStatusDto {
     /**
-     * The name of the node
+     * The name of the node.
      * @type {string}
      * @memberof ResourceNodeStatusDto
      */
     name: string;
     /**
-     * Indicates if the node can be used
+     * Indicates if the node can be used.
      * @type {boolean}
      * @memberof ResourceNodeStatusDto
      */
     isReady: boolean;
     /**
-     * The message to describe the status
+     * The message to describe the status.
      * @type {string}
      * @memberof ResourceNodeStatusDto
      */
-    message?: string;
+    message: string | null;
 }
 
 /**
@@ -47,6 +47,7 @@ export interface ResourceNodeStatusDto {
 export function instanceOfResourceNodeStatusDto(value: object): boolean {
     if (!('name' in value)) return false;
     if (!('isReady' in value)) return false;
+    if (!('message' in value)) return false;
     return true;
 }
 
@@ -62,7 +63,7 @@ export function ResourceNodeStatusDtoFromJSONTyped(json: any, ignoreDiscriminato
         
         'name': json['name'],
         'isReady': json['isReady'],
-        'message': json['message'] == null ? undefined : json['message'],
+        'message': json['message'],
     };
 }
 

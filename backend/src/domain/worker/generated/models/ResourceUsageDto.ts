@@ -22,19 +22,19 @@ import { mapValues } from '../runtime';
  */
 export interface ResourceUsageDto {
     /**
-     * The resource ID
+     * The resource ID.
      * @type {string}
      * @memberof ResourceUsageDto
      */
-    resourceId: string;
+    resourceUniqueId: string;
     /**
-     * The type of the resource
+     * The type of the resource.
      * @type {string}
      * @memberof ResourceUsageDto
      */
     resourceType: string;
     /**
-     * The total storage in GB
+     * The total storage in GB.
      * @type {number}
      * @memberof ResourceUsageDto
      */
@@ -45,7 +45,7 @@ export interface ResourceUsageDto {
  * Check if a given object implements the ResourceUsageDto interface.
  */
 export function instanceOfResourceUsageDto(value: object): boolean {
-    if (!('resourceId' in value)) return false;
+    if (!('resourceUniqueId' in value)) return false;
     if (!('resourceType' in value)) return false;
     if (!('totalStorageGB' in value)) return false;
     return true;
@@ -61,7 +61,7 @@ export function ResourceUsageDtoFromJSONTyped(json: any, ignoreDiscriminator: bo
     }
     return {
         
-        'resourceId': json['resourceId'],
+        'resourceUniqueId': json['resourceUniqueId'],
         'resourceType': json['resourceType'],
         'totalStorageGB': json['totalStorageGB'],
     };
@@ -73,7 +73,7 @@ export function ResourceUsageDtoToJSON(value?: ResourceUsageDto | null): any {
     }
     return {
         
-        'resourceId': value['resourceId'],
+        'resourceUniqueId': value['resourceUniqueId'],
         'resourceType': value['resourceType'],
         'totalStorageGB': value['totalStorageGB'],
     };

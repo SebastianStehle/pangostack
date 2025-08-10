@@ -22,39 +22,46 @@ import { mapValues } from '../runtime';
  */
 export interface ResourceRequestDto {
     /**
-     * The resource ID
+     * The resource ID.
      * @type {string}
      * @memberof ResourceRequestDto
      */
-    resourceId: string;
+    resourceUniqueId: string;
     /**
-     * The name of the resource type
+     * The name of the resource type.
      * @type {string}
      * @memberof ResourceRequestDto
      */
     resourceType: string;
     /**
-     * The parameters
+     * The parameters.
      * @type {{ [key: string]: any; }}
      * @memberof ResourceRequestDto
      */
     parameters: { [key: string]: any; };
     /**
-     * The context values that will be added or overwritten to the deployment
+     * Context that only contains values that are needed for this resource betwene subsequent calls.
      * @type {{ [key: string]: any; }}
      * @memberof ResourceRequestDto
      */
-    context: { [key: string]: any; };
+    resourceContext: { [key: string]: any; };
+    /**
+     * The resource ID.
+     * @type {number}
+     * @memberof ResourceRequestDto
+     */
+    timeoutMs: number;
 }
 
 /**
  * Check if a given object implements the ResourceRequestDto interface.
  */
 export function instanceOfResourceRequestDto(value: object): boolean {
-    if (!('resourceId' in value)) return false;
+    if (!('resourceUniqueId' in value)) return false;
     if (!('resourceType' in value)) return false;
     if (!('parameters' in value)) return false;
-    if (!('context' in value)) return false;
+    if (!('resourceContext' in value)) return false;
+    if (!('timeoutMs' in value)) return false;
     return true;
 }
 
@@ -68,10 +75,11 @@ export function ResourceRequestDtoFromJSONTyped(json: any, ignoreDiscriminator: 
     }
     return {
         
-        'resourceId': json['resourceId'],
+        'resourceUniqueId': json['resourceUniqueId'],
         'resourceType': json['resourceType'],
         'parameters': json['parameters'],
-        'context': json['context'],
+        'resourceContext': json['resourceContext'],
+        'timeoutMs': json['timeoutMs'],
     };
 }
 
@@ -81,10 +89,11 @@ export function ResourceRequestDtoToJSON(value?: ResourceRequestDto | null): any
     }
     return {
         
-        'resourceId': value['resourceId'],
+        'resourceUniqueId': value['resourceUniqueId'],
         'resourceType': value['resourceType'],
         'parameters': value['parameters'],
-        'context': value['context'],
+        'resourceContext': value['resourceContext'],
+        'timeoutMs': value['timeoutMs'],
     };
 }
 

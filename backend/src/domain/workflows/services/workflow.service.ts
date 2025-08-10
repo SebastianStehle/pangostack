@@ -126,7 +126,7 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
         spec: {
           intervals: [
             {
-              every: '1m',
+              every: '1h',
             },
           ],
         },
@@ -147,9 +147,9 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
       client.schedule.create({
         scheduleId: 'charge-deployments-schedule',
         spec: {
-          intervals: [
+          calendars: [
             {
-              every: '1m',
+              dayOfMonth: 5,
             },
           ],
         },

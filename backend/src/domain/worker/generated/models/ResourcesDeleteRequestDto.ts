@@ -15,12 +15,12 @@
  */
 
 import { mapValues } from '../runtime';
-import type { ResourceDeleteRequestDto } from './ResourceDeleteRequestDto';
+import type { ResourceRequestDto } from './ResourceRequestDto';
 import {
-    ResourceDeleteRequestDtoFromJSON,
-    ResourceDeleteRequestDtoFromJSONTyped,
-    ResourceDeleteRequestDtoToJSON,
-} from './ResourceDeleteRequestDto';
+    ResourceRequestDtoFromJSON,
+    ResourceRequestDtoFromJSONTyped,
+    ResourceRequestDtoToJSON,
+} from './ResourceRequestDto';
 
 /**
  * 
@@ -29,11 +29,11 @@ import {
  */
 export interface ResourcesDeleteRequestDto {
     /**
-     * The deployment ids
-     * @type {Array<ResourceDeleteRequestDto>}
+     * The resourced to delete.
+     * @type {Array<ResourceRequestDto>}
      * @memberof ResourcesDeleteRequestDto
      */
-    resources: Array<ResourceDeleteRequestDto>;
+    resources: Array<ResourceRequestDto>;
 }
 
 /**
@@ -54,7 +54,7 @@ export function ResourcesDeleteRequestDtoFromJSONTyped(json: any, ignoreDiscrimi
     }
     return {
         
-        'resources': ((json['resources'] as Array<any>).map(ResourceDeleteRequestDtoFromJSON)),
+        'resources': ((json['resources'] as Array<any>).map(ResourceRequestDtoFromJSON)),
     };
 }
 
@@ -64,7 +64,7 @@ export function ResourcesDeleteRequestDtoToJSON(value?: ResourcesDeleteRequestDt
     }
     return {
         
-        'resources': ((value['resources'] as Array<any>).map(ResourceDeleteRequestDtoToJSON)),
+        'resources': ((value['resources'] as Array<any>).map(ResourceRequestDtoToJSON)),
     };
 }
 

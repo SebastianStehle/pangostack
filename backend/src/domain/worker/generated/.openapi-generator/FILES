@@ -5,9 +5,12 @@ apis/StatusApi.ts
 apis/index.ts
 index.ts
 models/ConnectInfoDto.ts
-models/ResourceApplyRequestDto.ts
+models/ErrorResponseDto.ts
+models/InstanceLogDto.ts
+models/LogRequestDto.ts
+models/LogResultDto.ts
 models/ResourceApplyResponseDto.ts
-models/ResourceDeleteRequestDto.ts
+models/ResourceLogDto.ts
 models/ResourceNodeStatusDto.ts
 models/ResourceParameterDto.ts
 models/ResourceRequestDto.ts
@@ -19,7 +22,7 @@ models/ResourcesDeleteRequestDto.ts
 models/ResourcesTypesDto.ts
 models/StatusRequestDto.ts
 models/StatusResultDto.ts
-models/UageRequestDto.ts
+models/UsageRequestDto.ts
 models/UsageResultDto.ts
 models/index.ts
 runtime.ts

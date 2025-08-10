@@ -1,10 +1,12 @@
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
-import { IsDefined, IsNumber, IsObject, IsOptional, MaxLength } from 'class-validator';
+import { IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
 import { ConnectionInfo, DeploymentCheckStatus, DeploymentUpdateStatus } from 'src/domain/database';
 import {
   CheckSummary,
   Deployment,
   DeploymentResource,
+  ResourceInstanceLog,
+  ResourceLog,
   ResourceNodeStatus,
   ResourceStatus,
   ResourceWorkloadStatus,
@@ -16,11 +18,12 @@ export class CreateDeploymentDto {
     description: 'The optional name to describe the deployment.',
     nullable: true,
     maxLength: 100,
+    type: String,
   })
   @IsOptional()
-  @IsNumber()
+  @IsString()
   @MaxLength(100)
-  name?: string;
+  name?: string | null;
 
   @ApiProperty({
     description: 'The ID of the service.',
@@ -368,6 +371,81 @@ export class DeploymentStatusDto {
   static fromDomain(source: ResourceStatus[]) {
     const result = new DeploymentStatusDto();
     result.resources = source.map(ResourceStatusDto.fromDomain);
+    return result;
+  }
+}
+
+export class ResourceInstanceLogDto {
+  @ApiProperty({
+    description: 'The identifier for instances or kubernetes deployments.',
+    required: true,
+  })
+  instanceId: string;
+
+  @ApiProperty({
+    description: 'The actual log message.',
+    required: true,
+  })
+  messages: string;
+
+  static fromDomain(source: ResourceInstanceLog) {
+    const result = new ResourceInstanceLogDto();
+    result.instanceId = source.instanceId;
+    result.messages = source.messages;
+    return result;
+  }
+}
+
+export class ResourceLogsDto {
+  @ApiProperty({
+    description: 'The resource I.',
+    required: true,
+    type: 'string',
+  })
+  resourceId: string;
+
+  @ApiProperty({
+    description: 'The type of the resource.',
+    required: true,
+    type: 'string',
+  })
+  resourceType: string;
+
+  @ApiProperty({
+    description: 'The name of the resource.',
+    required: true,
+    type: 'string',
+  })
+  resourceName: string;
+
+  @ApiProperty({
+    description: 'The logs for the instances.',
+    required: true,
+    type: [ResourceInstanceLogDto],
+  })
+  instances: ResourceInstanceLogDto[] = [];
+
+  static fromDomain(source: ResourceLog) {
+    const result = new ResourceLogsDto();
+    result.resourceId = source.resourceId;
+    result.resourceName = source.resourceName;
+    result.resourceType = source.resourceType;
+    result.instances = source.instances.map(ResourceInstanceLogDto.fromDomain);
+    return result;
+  }
+}
+
+export class DeploymentLogsDto {
+  @ApiProperty({
+    description: 'The resource.',
+    required: true,
+    type: [ResourceLogsDto],
+  })
+  resources: ResourceLogsDto[] = [];
+
+  static fromDomain(source: ResourceLog[]) {
+    const result = new DeploymentLogsDto();
+    result.resources = source.map(ResourceLogsDto.fromDomain);
     return result;
   }
 }

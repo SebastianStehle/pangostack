@@ -18,20 +18,15 @@ export class WorkerClient {
           rejectUnauthorized: false,
         });
 
-        let response: Response;
-        try {
-          response = await fetch(request as any, { ...init, agent } as any);
-        } catch (error: unknown) {
-          throw await buildError(error);
-        }
-
-        if (response && response.status >= 200 && response.status < 300) {
-          return response;
-        }
-
-        const cause = new ResponseError(response, 'Response returned an error code');
-        throw await buildError(cause);
+        return await fetch(request as any, { ...init, agent } as any);
       },
+      middleware: [
+        {
+          onError: (context) => {
+            throw buildError(context.error);
+          },
+        },
+      ],
       basePath,
     });
 

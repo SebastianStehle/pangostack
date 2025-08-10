@@ -29,13 +29,13 @@ import {
  */
 export interface ResourceWorkloadStatusDto {
     /**
-     * The name of the workload
+     * The name of the workload.
      * @type {string}
      * @memberof ResourceWorkloadStatusDto
      */
     name: string;
     /**
-     * All nodes within the workload
+     * All nodes within the workload.
      * @type {Array<ResourceNodeStatusDto>}
      * @memberof ResourceWorkloadStatusDto
      */

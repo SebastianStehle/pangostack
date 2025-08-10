@@ -2,10 +2,12 @@ import { BadRequestException, Body, Controller, Delete, Get, Inject, Post, Valid
 import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { isBoolean, isNumber, isString } from 'class-validator';
 import { Resource, ResourceDescriptor, RESOURCES_TOKEN } from 'src/resources/interface';
-import { ResourceApplyRequestDto, ResourceApplyResponseDto, ResourcesDeleteRequestDto, ResourcesTypesDto, ResourceTypeDto } from './dto';
+import { ApiDefaultResponses, ResourceRequestDto } from '../shared';
+import { ResourceApplyResponseDto, ResourcesDeleteRequestDto, ResourcesTypesDto, ResourceTypeDto } from './dto';
 
 @Controller('deployment')
 @ApiTags('deployment')
+@ApiDefaultResponses()
 export class DeploymentController {
   constructor(
     @Inject(RESOURCES_TOKEN)
@@ -13,9 +15,9 @@ export class DeploymentController {
   ) {}
 
   @Post('')
-  @ApiOperation({ operationId: 'applyResource', description: 'Applies the resource' })
+  @ApiOperation({ operationId: 'applyResource', description: 'Applies the resource.' })
   @ApiOkResponse({ type: ResourceApplyResponseDto })
-  async applyResource(@Body() body: ResourceApplyRequestDto) {
+  async applyResource(@Body() body: ResourceRequestDto) {
     const resource = this.resources.get(body.resourceType);
     if (!resource) {
       throw new BadRequestException(`Unknown resouce type ${body.resourceType}`);
@@ -23,7 +25,7 @@ export class DeploymentController {
 
     validate(resource.descriptor, body.parameters);
 
-    const result = await resource.apply(body.resourceId, body);
+    const result = await resource.apply(body.resourceUniqueId, body);
     const response = ResourceApplyResponseDto.fromDomain(result);
 
     return response;
@@ -45,13 +47,13 @@ export class DeploymentController {
       body.resources.map((identifier) => {
         const resource = this.resources.get(identifier.resourceType);
 
-        return resource.delete(identifier.resourceId, identifier);
+        return resource.delete(identifier.resourceUniqueId, identifier);
       }),
     );
   }
 
   @Get('types')
-  @ApiOperation({ operationId: 'getTypes', description: 'Gets the available resource types' })
+  @ApiOperation({ operationId: 'getTypes', description: 'Gets the available resource types.' })
   @ApiOkResponse({ type: ResourcesTypesDto })
   getActions() {
     const result = new ResourcesTypesDto();
@@ -121,11 +123,20 @@ function validate(descriptor: ResourceDescriptor, target: Record<string, any>) {
         if (!isString(value)) {
           error.constraints['isString'] = 'Value must be a string';
         } else {
+          if (valueExists && value.length === 0 && definition.required) {
+            error.constraints['isDefined'] = 'Value is required but was not provided';
+          }
+
           if (definition.minLength && value.length < definition.minLength) {
             error.constraints['minLength'] = `Value must be at least ${definition.minLength} characters long`;
           }
+
           if (definition.maxLength && value.length > definition.maxLength) {
             error.constraints['maxLength'] = `Value must be at most ${definition.maxLength} characters long`;
+          }
+
+          if (definition.allowedValues && definition.allowedValues.length > 0 && definition.allowedValues.indexOf(value) < 0) {
+            error.constraints['enum'] = `Value must be one of ${definition.allowedValues.join(', ')}`;
           }
         }
       }

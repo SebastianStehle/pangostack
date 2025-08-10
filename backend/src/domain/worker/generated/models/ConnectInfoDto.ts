@@ -22,19 +22,19 @@ import { mapValues } from '../runtime';
  */
 export interface ConnectInfoDto {
     /**
-     * The value
+     * The value.
      * @type {string}
      * @memberof ConnectInfoDto
      */
     value: string;
     /**
-     * The label
+     * The label.
      * @type {string}
      * @memberof ConnectInfoDto
      */
     label: string;
     /**
-     * Indicates if the info is public
+     * Indicates if the info is public.
      * @type {boolean}
      * @memberof ConnectInfoDto
      */

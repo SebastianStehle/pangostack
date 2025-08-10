@@ -22,7 +22,7 @@ export class UpdateDeployment {
   constructor(
     public readonly teamId: number,
     public readonly deploymentId: number,
-    public readonly name: string | undefined,
+    public readonly name: string | undefined | null,
     public readonly parameters: Record<string, string> | null,
     public readonly versionId: number | null,
     public readonly user: User,

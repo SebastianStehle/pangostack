@@ -8,20 +8,20 @@ type Parameters = { apiKey: string; cluster: string; tier: string };
 export class VultrStorageResource implements Resource {
   descriptor = defineResource<Parameters>({
     name: 'vultr-storage',
-    description: 'Creates a vultr storage account',
+    description: 'Creates a vultr storage account.',
     parameters: {
       apiKey: {
-        description: 'The API Key',
+        description: 'The API Key.',
         type: 'string',
         required: true,
       },
       cluster: {
-        description: 'The location of the storage account',
+        description: 'The location of the storage account.',
         type: 'string',
         required: true,
       },
       tier: {
-        description: 'The tier of the storage account',
+        description: 'The tier of the storage account.',
         type: 'string',
         required: true,
       },

@@ -1,12 +1,20 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
+import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor } from '@nestjs/common';
 import { HttpException, InternalServerErrorException } from '@nestjs/common';
 import { catchError, Observable, throwError } from 'rxjs';
 
 @Injectable()
 export class AllExceptionsInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  private readonly logger = new Logger(AllExceptionsInterceptor.name);
+
+  intercept(_context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       catchError((error) => {
+        if (error instanceof Error) {
+          this.logger.error(error.message, error.stack);
+        } else {
+          this.logger.error('Non-error thrown', JSON.stringify(error));
+        }
+
         if (error instanceof HttpException) {
           return throwError(() => error);
         }

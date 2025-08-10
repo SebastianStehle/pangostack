@@ -1,98 +1,59 @@
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsDefined, IsNotEmpty, IsObject, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsDefined, ValidateNested } from 'class-validator';
+import { ResourceRequestDto } from 'src/controllers/shared';
 import { ResourceApplyResult, ResourceDescriptor, ResourceParameterDescriptor } from 'src/resources/interface';
-
-export class ResourceDeleteRequestDto {
-  @ApiProperty({
-    description: 'The resource ID',
-    required: true,
-    type: String,
-  })
-  @IsDefined()
-  @IsString()
-  @IsNotEmpty()
-  resourceId: string;
-
-  @ApiProperty({
-    description: 'The type of the resource',
-    required: true,
-    type: String,
-  })
-  @IsDefined()
-  @IsString()
-  @IsNotEmpty()
-  resourceType: string;
-
-  @ApiProperty({
-    description: 'The parameters',
-    required: true,
-    additionalProperties: true,
-  })
-  @IsDefined()
-  @IsObject()
-  parameters: Record<string, any>;
-
-  @ApiProperty({
-    description: 'The context values that will be added or overwritten to the deployment',
-    required: true,
-    additionalProperties: true,
-  })
-  @IsDefined()
-  @IsObject()
-  context: Record<string, any>;
-}
 
 export class ResourcesDeleteRequestDto {
   @ApiProperty({
-    description: 'The deployment ids',
+    description: 'The resourced to delete.',
     required: true,
-    type: [ResourceDeleteRequestDto],
+    type: [ResourceRequestDto],
   })
   @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => ResourceDeleteRequestDto)
-  resources: ResourceDeleteRequestDto[];
+  @Type(() => ResourceRequestDto)
+  resources: ResourceRequestDto[];
 }
 
 export class ResourceParameterDto {
   @ApiProperty({
-    description: 'The type',
+    description: 'The type.',
     required: true,
     enum: ['boolean', 'number', 'string'],
   })
   type: 'boolean' | 'number' | 'string';
 
   @ApiProperty({
-    description: 'True, if required',
+    description: 'True, if required.',
     required: false,
   })
   required?: boolean;
 
   @ApiProperty({
-    description: 'The description of the argument',
+    description: 'The description of the argument.',
     required: false,
     nullable: true,
   })
   description?: string;
 
   @ApiProperty({
-    description: 'The minimum length',
+    description: 'The minimum length.',
     required: false,
     nullable: true,
   })
   minLength?: number;
 
   @ApiProperty({
-    description: 'The maximum length',
+    description: 'The maximum length.',
     required: false,
     nullable: true,
   })
   maxLength?: number;
 
   @ApiProperty({
-    description: 'The enum values',
+    description: 'The enum values.',
     required: false,
     type: [String],
   })
@@ -113,19 +74,19 @@ export class ResourceParameterDto {
 @ApiExtraModels(ResourceParameterDto)
 export class ResourceTypeDto {
   @ApiProperty({
-    description: 'The name of the resource',
+    description: 'The name of the resource.',
     required: true,
   })
   name: string;
 
   @ApiProperty({
-    description: 'The description of the resource',
+    description: 'The description of the resource.',
     required: true,
   })
   description: string;
 
   @ApiProperty({
-    description: 'The parameters',
+    description: 'The parameters.',
     required: true,
     additionalProperties: {
       $ref: getSchemaPath(ResourceParameterDto),
@@ -149,68 +110,28 @@ export class ResourceTypeDto {
 
 export class ResourcesTypesDto {
   @ApiProperty({
-    description: 'The available resources',
+    description: 'The available resources.',
     required: true,
     type: [ResourceTypeDto],
   })
   items: ResourceTypeDto[] = [];
 }
 
-export class ResourceApplyRequestDto {
-  @ApiProperty({
-    description: 'The resource ID',
-    required: true,
-    type: String,
-  })
-  @IsDefined()
-  @IsString()
-  @IsNotEmpty()
-  resourceId: string;
-
-  @ApiProperty({
-    description: 'The type of the resource',
-    required: true,
-    type: String,
-  })
-  @IsDefined()
-  @IsString()
-  @IsNotEmpty()
-  resourceType: string;
-
-  @ApiProperty({
-    description: 'The parameters',
-    required: true,
-    additionalProperties: true,
-  })
-  @IsDefined()
-  @IsObject()
-  parameters: Record<string, any>;
-
-  @ApiProperty({
-    description: 'The context values that will be added or overwritten to the deployment',
-    required: true,
-    additionalProperties: true,
-  })
-  @IsDefined()
-  @IsObject()
-  context: Record<string, any>;
-}
-
 export class ConnectInfoDto {
   @ApiProperty({
-    description: 'The value',
+    description: 'The value.',
     required: true,
   })
   value: string;
 
   @ApiProperty({
-    description: 'The label',
+    description: 'The label.',
     required: true,
   })
   label: string;
 
   @ApiProperty({
-    description: 'Indicates if the info is public',
+    description: 'Indicates if the info is public.',
     required: true,
   })
   isPublic: boolean;
@@ -228,14 +149,21 @@ export class ConnectInfoDto {
 @ApiExtraModels(ConnectInfoDto)
 export class ResourceApplyResponseDto {
   @ApiProperty({
-    description: 'The context values that will be added or overwritten to the deployment',
+    description: 'The context values that will be added or overwritten to the deployment.',
     required: true,
     additionalProperties: true,
   })
   context: Record<string, any>;
 
   @ApiProperty({
-    description: 'The output',
+    description: 'Context that only contains values that are needed for this resource betwene subsequent calls.',
+    required: true,
+    additionalProperties: true,
+  })
+  resourceContext: Record<string, any>;
+
+  @ApiProperty({
+    description: 'The output.',
     required: false,
     nullable: true,
     type: String,
@@ -243,13 +171,12 @@ export class ResourceApplyResponseDto {
   log: string;
 
   @ApiProperty({
-    description: 'Provides values how to connect to the resource, for example Api Keys',
+    description: 'Provides values how to connect to the resource, for example Api Keys.',
     required: true,
     additionalProperties: {
       $ref: getSchemaPath(ConnectInfoDto),
     },
   })
-  // Provides values how to connect to the resource, for example api Keys.
   connection: Record<string, ConnectInfoDto>;
 
   static fromDomain(source: ResourceApplyResult) {
@@ -257,6 +184,7 @@ export class ResourceApplyResponseDto {
     result.log = source.log;
     result.context = source.context;
     result.connection = {};
+    result.resourceContext = source.resourceContext;
 
     for (const [key, value] of Object.entries(source.connection)) {
       result.connection[key] = ConnectInfoDto.fromDomain(value);

@@ -46,15 +46,16 @@ export class TrackDeploymentUsageActivity implements Activity<TrackDeploymentUsa
     }
 
     const definition = update.serviceVersion.definition;
-    const workerContext = { env: {}, context: {}, parameters: update.parameters };
-    const workerClient = new WorkerClient(workerEndpoint, workerApiKey);
+    const context = { env: update.environment, context: update.context, parameters: update.parameters };
+    const client = new WorkerClient(workerEndpoint, workerApiKey);
 
-    const usageFromWorker = await workerClient.status.postUsage({
+    const usageFromWorker = await client.status.postUsage({
       resources: definition.resources.map((resource) => ({
-        context: update.resourceContexts[resource.id] || {},
-        resourceId: resource.id,
+        parameters: evaluateParameters(resource, context),
+        resourceContext: update.resourceContexts[resource.id] || {},
+        resourceUniqueId: `deployment_${deploymentId}_${resource.id}`,
         resourceType: resource.type,
-        parameters: evaluateParameters(resource, workerContext),
+        timeoutMs: 1 * 60 * 1000, // 1 minute
       })),
     });
 
@@ -66,8 +67,7 @@ export class TrackDeploymentUsageActivity implements Activity<TrackDeploymentUsa
       return;
     }
 
-    const { totalCores, totalMemoryGB, totalVolumeGB } = evaluateUsage(update.serviceVersion.definition, workerContext);
-
+    const { totalCores, totalMemoryGB, totalVolumeGB } = evaluateUsage(update.serviceVersion.definition, context);
     if (totalCores === 0 && totalMemoryGB === 0 && totalVolumeGB === 0 && totalStorageGB === 0) {
       return;
     }
