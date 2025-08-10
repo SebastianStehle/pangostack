@@ -228,7 +228,6 @@ export class ChargebeeBillingService implements BillingService {
     try {
       const { customer: createdCustomer } = await this.chargebee.customer.create({ id });
       if (createdCustomer) {
-        console.log(createdCustomer.id);
         return createdCustomer;
       }
     } catch (error: any) {

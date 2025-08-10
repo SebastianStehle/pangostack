@@ -1,8 +1,9 @@
 import { NotFoundException } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Between } from 'typeorm';
 import { DeploymentCheckEntity, DeploymentCheckRepository, DeploymentEntity, DeploymentRepository } from 'src/domain/database';
-import { getDatesInRange } from 'src/lib';
+import { formatDate, getDatesInRange } from 'src/lib';
 import { CheckSummary } from '../interfaces';
 
 export class GetDeploymentChecks {
@@ -42,23 +43,41 @@ export class GetDeploymentChecksHandler implements IQueryHandler<GetDeploymentCh
       throw new NotFoundException(`Deployment ${deploymentId} not found`);
     }
 
-    const rawChecks = await this.deploymentChecks
-      .createQueryBuilder('check')
-      .select('CAST(check.createdAt AS DATE)', 'date')
-      .addSelect("SUM(CASE WHEN check.status = 'Failed' THEN 1 ELSE 0 END)", 'numFailures')
-      .addSelect("SUM(CASE WHEN check.status = 'Success' THEN 1 ELSE 0 END)", 'numSuccesses')
-      .groupBy('CAST(check.createdAt AS DATE)')
-      .orderBy('date', 'ASC')
-      .getRawMany<CheckSummary>();
+    const dateFromRaw = new Date(dateFrom);
+    const dateToRaw = new Date(dateTo);
 
-    const checks: CheckSummary[] = dates.map(
-      (date) =>
-        rawChecks.find((x) => x.date === date) || {
-          date,
-          totalFailures: 0,
-          totalSuccesses: 0,
-        },
-    );
+    const rawChecks = await this.deploymentChecks.find({
+      where: {
+        createdAt: Between(dateFromRaw, dateToRaw),
+        deploymentId,
+      },
+    });
+
+    const countsMap = new Map<string, { numFailures: number; numSuccesses: number }>();
+
+    for (const date of dates) {
+      countsMap.set(date, { numFailures: 0, numSuccesses: 0 });
+    }
+
+    for (const check of rawChecks) {
+      const day = formatDate(check.createdAt);
+      const entry = countsMap.get(day);
+      if (!entry) {
+        continue;
+      }
+
+      if (check.status === 'Failed') {
+        entry.numFailures++;
+      } else {
+        entry.numSuccesses++;
+      }
+    }
+
+    const checks = dates.map((date) => ({
+      date,
+      totalFailures: countsMap.get(date)?.numFailures ?? 0,
+      totalSuccesses: countsMap.get(date)?.numSuccesses ?? 0,
+    }));
 
     return new GetDeploymentChecksResponse(checks);
   }

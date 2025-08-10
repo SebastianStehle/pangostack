@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 export const texts = {
   common: {
     administration: 'Administration',
@@ -90,6 +91,7 @@ export const texts = {
     create: 'New Deployment',
     deployHeadline: 'Deploy new Service',
     deploymentHeadline: 'Deployment',
+    deployingInfo: 'This instance is currently deployed. Your resources may still be finishing installing and booting up during the first few minutes of activation.',
     edit: 'Edit Deployment (Soon)',
     estimatedPrice: 'Estimated Price',
     estimatedPriceText: 'Price is monthly, based on a 30-day average, assuming no changes to parameters.',

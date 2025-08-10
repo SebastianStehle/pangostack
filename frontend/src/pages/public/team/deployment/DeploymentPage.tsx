@@ -1,10 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { useClients } from 'src/api';
-import { DeploymentStatus, HealthStatus, Icon, TransientNavLink } from 'src/components';
+import { DeploymentStatus, HealthStatus, Icon, Markdown, TransientNavLink } from 'src/components';
 import { formatDateTime } from 'src/lib';
 import { texts } from 'src/texts';
+import { DisplayParameter } from './DisplayParamter';
 import { HealthChart } from './HealthChart';
+import { PropertyColumn } from './PropertyColumn';
 import { Resource } from './Resource';
 import { UsageChart } from './UsageChart';
 
@@ -36,8 +38,14 @@ export const DeploymentPage = () => {
     return null;
   }
 
-  const service = (loadedServices?.items || []).find((x) => x.id === deployment.serviceId)!;
+  const service = (loadedServices?.items || []).find((x) => x.id === deployment.serviceId);
   const status = loadedStatus?.resources || [];
+
+  if (!service) {
+    return null;
+  }
+
+  const displayParameters = service.parameters.filter((x) => x.display);
 
   return (
     <div className="flex flex-col gap-8">
@@ -54,32 +62,22 @@ export const DeploymentPage = () => {
       </div>
 
       <div className="grid grid-cols-3 gap-4">
-        <div>
-          <label className="text-sm font-semibold">Service Name</label>
-          <div className="text-mdx">{deployment.serviceName}</div>
-        </div>
+        <PropertyColumn label="Service Name" value={deployment.serviceName} />
 
-        <div>
-          <label className="text-sm font-semibold">Service Version</label>
-          <div className="text-mdx">
-            <div className="badge badge-primary badge-sm me-1 rounded-full font-normal">{deployment.serviceVersion}</div>
-          </div>
-        </div>
+        <PropertyColumn label="Service Version">
+          <div className="badge badge-primary badge-sm me-1 rounded-full font-normal">{deployment.serviceVersion}</div>
+        </PropertyColumn>
 
-        <div>
-          <label className="text-sm font-semibold">Status</label>
-          <div className="text-mdx flex items-center gap-2">
-            <DeploymentStatus status={deployment.status} />
-          </div>
-        </div>
+        <PropertyColumn label="Status">
+          <DeploymentStatus status={deployment.status} />
+        </PropertyColumn>
 
-        <div>
-          <label className="text-sm font-semibold">Health</label>
-          <div className="text-mdx flex items-center gap-2">
+        <PropertyColumn label="Health">
+          <div className="flex items-center gap-1">
             {deployment.healthStatus ? (
               <>
                 <HealthStatus status={deployment.healthStatus} />
-                <a className="link ms-2" href="#health">
+                <a className="link" href="#health">
                   {texts.common.more}
                 </a>
               </>
@@ -87,26 +85,23 @@ export const DeploymentPage = () => {
               <>-</>
             )}
           </div>
-        </div>
+        </PropertyColumn>
 
-        <div>
-          <label className="text-sm font-semibold">Created</label>
-          <div className="text-mdx">{formatDateTime(deployment.createdAt)}</div>
-        </div>
+        <PropertyColumn label="Created" value={formatDateTime(deployment.createdAt)} />
+        <PropertyColumn label="Name" value={deployment.name || '-'} />
 
-        <div>
-          <label className="text-sm font-semibold">Name</label>
-          <div className="text-mdx">{deployment.name || '-'}</div>
-        </div>
+        {displayParameters.map((parameter) => (
+          <DisplayParameter key={parameter.name} deployment={deployment} parameter={parameter} />
+        ))}
       </div>
 
       {(deployment.status === 'Pending' || deployment.status === 'Running') && (
         <div role="alert" className="alert alert-info alert-outline">
-          <span>12 unread messages. Tap to see.</span>
+          <span>{texts.deployments.deployingInfo}</span>
         </div>
       )}
 
-      {service.afterInstallationInstructions}
+      <Markdown>{service.afterInstallationInstructions}</Markdown>
 
       <div>
         <h2 className="mb-2 text-2xl">Resources</h2>

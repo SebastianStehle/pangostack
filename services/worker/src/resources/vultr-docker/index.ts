@@ -9,7 +9,7 @@ type Parameters = { apiKey: string; region: string; plan: string; app: string; d
 type Context = { password: string };
 
 // 5 minutes
-const DEFAULT_TIMEOUT = 10 * 60 * 1000;
+const DEFAULT_TIMEOUT = 15 * 60 * 1000;
 
 @Injectable()
 export class VultrDockerResource implements Resource {
@@ -194,29 +194,16 @@ export class VultrDockerResource implements Resource {
 async function waitForInstance(vultr: ReturnType<typeof initializeVultrClient>, instance: any, hasPassword: boolean) {
   const instanceId = instance.id;
 
-  const statusTimeout = 5 * 60 * 1000;
-  const statusStart = new Date();
+  await pollUntil(DEFAULT_TIMEOUT, async () => {
+    const { instance } = await vultr.instances.getInstance({ 'instance-id': instanceId });
 
-  while (true) {
-    const found = await vultr.instances.getInstance({ 'instance-id': instanceId });
-    instance = found.instance;
+    return (
+      instance.server_status === 'ok' && instance.main_ip && instance.main_ip !== '0.0.0.0' && (hasPassword || instance.default_password)
+    );
+  });
 
-    if (
-      instance.server_status === 'ok' &&
-      instance.main_ip &&
-      instance.main_ip !== '0.0.0.0' &&
-      (hasPassword || instance.default_password)
-    ) {
-      break;
-    }
-
-    const now = new Date();
-    if (now.getTime() - statusStart.getTime() > statusTimeout) {
-      throw new Error('Timeout: Instance did not become ready within 5 minutes.');
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-  }
+  const { instance: newInstane } = await vultr.instances.getInstance({ 'instance-id': instanceId });
+  return newInstane;
 }
 
 async function findInstance(vultr: ReturnType<typeof initializeVultrClient>, id: string) {

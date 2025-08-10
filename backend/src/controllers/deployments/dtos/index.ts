@@ -224,7 +224,6 @@ export class DeploymentDto {
   resources: DeploymentResourceDto[];
 
   static fromDomain(source: Deployment) {
-    console.log(source);
     const result = new DeploymentDto();
     result.id = source.id;
     result.name = source.name;

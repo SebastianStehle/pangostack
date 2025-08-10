@@ -33,7 +33,7 @@ export class GetTeamDeploymentsHandler implements IQueryHandler<GetTeamDeploymen
   async execute(query: GetTeamDeployments): Promise<GetTeamDeploymentsResponse> {
     const { teamId } = query;
 
-    const entities = await this.deployments.find({ where: { teamId } });
+    const entities = await this.deployments.find({ where: { teamId }, order: { id: 'DESC' } });
     const result: Deployment[] = [];
 
     for (const entity of entities) {
