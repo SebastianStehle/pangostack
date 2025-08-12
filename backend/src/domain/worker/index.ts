@@ -18,15 +18,20 @@ export class WorkerClient {
           rejectUnauthorized: false,
         });
 
-        return await fetch(request as any, { ...init, agent } as any);
+        let response: Response;
+        try {
+          response = await fetch(request as any, { ...init, agent } as any);
+        } catch (error: unknown) {
+          throw await buildError(error);
+        }
+
+        if (response && response.status >= 200 && response.status < 300) {
+          return response;
+        }
+
+        const cause = new ResponseError(response, 'Response returned an error code');
+        throw await buildError(cause);
       },
-      middleware: [
-        {
-          onError: (context) => {
-            throw buildError(context.error);
-          },
-        },
-      ],
       basePath,
     });
 
@@ -43,55 +48,65 @@ export class WorkerError<T = unknown> extends Error {
     public readonly cause?: Error,
     message?: string,
   ) {
-    super(WorkerError.buildMessage(status, body, message, cause));
-    Object.setPrototypeOf(this, WorkerError.prototype);
+    super(WorkerError.buildMessage(status, body, message ?? cause?.message, cause));
+    this.name = this.constructor.name;
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 
   static buildMessage(statusCode?: number, body?: unknown, message?: string, cause?: Error): string {
     const lines: string[] = [];
+
     if (message) {
       lines.push(message);
     }
 
-    if (statusCode) {
-      lines.push(`Status: ${statusCode.toString()}`);
+    if (statusCode !== undefined) {
+      lines.push(`Status: ${statusCode}`);
     }
 
-    if (body) {
-      lines.push(`Body: ${JSON.stringify(body, undefined, 2)}`);
+    if (body !== undefined) {
+      try {
+        lines.push(`Body: ${JSON.stringify(body, null, 2)}`);
+      } catch {
+        lines.push(`Body: [unserializable]`);
+      }
     }
 
     if (cause) {
-      lines.push(`Inner: ${cause}`);
+      lines.push(`Inner: ${String(cause)}`);
     }
 
-    return lines.join('\n');
+    return lines.length > 0 ? lines.join('\n') : 'WorkerError occurred';
   }
 }
 
-export class WorkerResponseError extends WorkerError {
-  constructor(statusCode: number, body: any, cause?: ResponseError) {
-    super(statusCode, body, cause);
-    Object.setPrototypeOf(this, WorkerResponseError.prototype);
+export class WorkerResponseError<T = unknown> extends WorkerError<T> {
+  constructor(statusCode: number, body: T, cause?: ResponseError) {
+    super(statusCode, body, cause, cause?.message);
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 }
 
 export class WorkerRequiredFieldError extends WorkerError {
   constructor(cause?: RequiredError) {
-    super(undefined, undefined, cause);
-    Object.setPrototypeOf(this, WorkerRequiredFieldError.prototype);
+    super(undefined, undefined, cause, cause?.message);
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 }
 
-export async function buildError(error: unknown) {
+export async function buildError(error: unknown): Promise<WorkerError> {
   if (error instanceof FetchError) {
     return new WorkerError(undefined, undefined, error, error.message);
-  } else if (error instanceof RequiredError) {
-    return new WorkerRequiredFieldError(error);
-  } else if (error instanceof ResponseError) {
-    const statusCode = error.response.status;
+  }
 
-    let body: any;
+  if (error instanceof RequiredError) {
+    return new WorkerRequiredFieldError(error);
+  }
+
+  if (error instanceof ResponseError) {
+    const statusCode = error.response.status;
+    let body: unknown;
+
     try {
       body = await error.response.json();
     } catch {
@@ -99,7 +114,7 @@ export async function buildError(error: unknown) {
     }
 
     return new WorkerResponseError(statusCode, body, error);
-  } else {
-    return new WorkerResponseError(0, undefined, error as any);
   }
+
+  return new WorkerError(undefined, undefined, error as Error, 'Unknown error occurred');
 }

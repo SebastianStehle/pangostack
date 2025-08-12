@@ -3,6 +3,7 @@ import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database';
 import { evaluateParameters } from 'src/domain/definitions';
+import { getEvaluationContext, getResourceUniqueId } from 'src/domain/services';
 import { WorkerClient } from 'src/domain/worker';
 import { ResourceRequestDto } from 'src/domain/worker/generated';
 import { Activity } from '../registration';
@@ -38,10 +39,10 @@ export class DeployResourceActivity implements Activity<DeployResourceParam> {
     update.status = 'Pending';
     await this.deploymentUpdates.save(update);
 
-    const context = { env: update.environment, context: update.context, parameters: update.parameters };
+    const { context } = getEvaluationContext(update);
     const client = new WorkerClient(workerEndpoint, workerApiKey);
 
-    const resourceUniqueId = `deployment_${deploymentId}_${resource.id}`;
+    const resourceUniqueId = getResourceUniqueId(deploymentId, resource);
     const resourceParams = evaluateParameters(resource, context);
 
     this.logger.log(`Deploying resource ${resource.id} for deployment ${deploymentId}`, {
@@ -70,7 +71,7 @@ export class DeployResourceActivity implements Activity<DeployResourceParam> {
     const response = await client.deployment.applyResource(request);
 
     update.resourceConnections[resource.id] = response.connection;
-    update.resourceContexts[resource.id] = response.resourceContext;
+    update.resourceContexts[resource.id] = response.resourceContext || {};
 
     if (response.context) {
       for (const [key, value] of Object.entries(response.context)) {

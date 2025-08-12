@@ -14,6 +14,7 @@ import {
   GetUserGroupsHandler,
   GetUserHandler,
   GetUsersHandler,
+  SetTeamUserHandler,
   UpdateUserGroupHandler,
   UpdateUserHandler,
 } from './use-cases';
@@ -32,6 +33,7 @@ import {
     GetUserGroupsHandler,
     GetUserHandler,
     GetUsersHandler,
+    SetTeamUserHandler,
     UpdateUserGroupHandler,
     UpdateUserHandler,
   ],

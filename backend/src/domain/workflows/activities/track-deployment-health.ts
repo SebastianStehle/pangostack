@@ -7,6 +7,7 @@ import {
   DeploymentUpdateRepository,
 } from 'src/domain/database';
 import { evaluateHealthChecks } from 'src/domain/definitions';
+import { getEvaluationContext } from 'src/domain/services';
 import { Activity } from '../registration';
 
 export type TrackDeploymentHealthParam = { deploymentId: number };
@@ -38,10 +39,10 @@ export class TrackDeploymentHealthActivity implements Activity<TrackDeploymentHe
       return;
     }
 
-    const definition = update.serviceVersion.definition;
-    const context = { env: {}, context: {}, parameters: update.parameters };
+    const { context, definition } = getEvaluationContext(update);
 
     const log: string[] = [];
+
     let numFailed = 0;
     let numSucceeded = 0;
     for (const resource of definition.resources) {

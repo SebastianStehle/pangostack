@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { useClients } from 'src/api';
-import { DeploymentStatus, HealthStatus, Icon, TransientNavLink } from 'src/components';
+import { DeploymentStatus, HealthStatus, Icon, Spinner, TransientNavLink } from 'src/components';
+import { useTypedParams } from 'src/hooks';
 import { formatDateTime } from 'src/lib';
 import { texts } from 'src/texts';
 import { DisplayParameter } from './DisplayParamter';
@@ -15,7 +15,7 @@ import { Resource } from './Resource';
 import { UsageChart } from './UsageChart';
 
 export const DeploymentPage = () => {
-  const { deploymentId, teamId } = useParams();
+  const { deploymentId, teamId } = useTypedParams({ deploymentId: 'int', teamId: 'int' });
   const clients = useClients();
   const [tab, setTab] = useState<'overview' | 'usage' | 'log'>('overview');
 
@@ -37,14 +37,14 @@ export const DeploymentPage = () => {
   const deployment = loadedDeployments?.items.find((x) => x.id === +deploymentId!);
 
   if (!deployment) {
-    return null;
+    return <Spinner visible={true} />;
   }
 
   const service = (loadedServices?.items || []).find((x) => x.id === deployment.serviceId);
   const status = loadedStatus?.resources || [];
 
   if (!service) {
-    return null;
+    return <Spinner visible={true} />;
   }
 
   const displayParameters = service.parameters.filter((x) => x.display);
@@ -61,7 +61,7 @@ export const DeploymentPage = () => {
             {texts.deployments.deploymentHeadline} {deployment.name || deployment?.serviceName}
           </h2>
 
-          <div className="mt-2 text-slate-500">
+          <div className="mt-2 opacity-50">
             {deployment.serviceName}, {deployment.serviceVersion}
           </div>
         </div>
@@ -72,13 +72,13 @@ export const DeploymentPage = () => {
       <div className="-mx-8 border-b border-gray-200 px-4">
         <div role="tablist" className="tabs tabs-border">
           <a role="tab" className={classNames('tab', { 'tab-active': tab === 'overview' })} onClick={() => setTab('overview')}>
-            Overview
+            {texts.common.overview}
           </a>
           <a role="tab" className={classNames('tab', { 'tab-active': tab === 'usage' })} onClick={() => setTab('usage')}>
-            Usage Graphs
+            {texts.common.usage}
           </a>
           <a role="tab" className={classNames('tab', { 'tab-active': tab === 'log' })} onClick={() => setTab('log')}>
-            Log
+            {texts.common.logViewer}
           </a>
         </div>
       </div>
@@ -101,7 +101,7 @@ export const DeploymentPage = () => {
                 {deployment.healthStatus ? (
                   <>
                     <HealthStatus status={deployment.healthStatus} />
-                    <a className="link" href="#health">
+                    <a className="link" onClick={() => setTab('usage')}>
                       {texts.common.more}
                     </a>
                   </>
@@ -121,6 +121,7 @@ export const DeploymentPage = () => {
 
           {(deployment.status === 'Pending' || deployment.status === 'Running') && (
             <div role="alert" className="alert alert-info">
+              <Icon icon="info" />
               <span>{texts.deployments.deployingInfo}</span>
             </div>
           )}
@@ -128,7 +129,7 @@ export const DeploymentPage = () => {
           {service.afterInstallationInstructions && (
             <div>
               <h2 className="mb-3 flex items-center gap-3 text-xl">
-                <Icon icon="server" size={16} className="inline-block" /> Instructions
+                <Icon icon="info" size={16} className="inline-block" /> {texts.common.instructions}
               </h2>
               <div className="card card-border bg-base border-slate-300">
                 <div className="card-body">
@@ -140,7 +141,7 @@ export const DeploymentPage = () => {
 
           <div>
             <h2 className="mb-3 flex items-center gap-3 text-xl">
-              <Icon icon="server" size={16} className="inline-block" /> Resources
+              <Icon icon="server" size={16} className="inline-block" /> {texts.deployments.resources}
             </h2>
 
             <div className="flex flex-col gap-2">
@@ -161,7 +162,7 @@ export const DeploymentPage = () => {
         <div className="flex flex-col gap-8">
           <div>
             <h2 className="mb-3 flex items-center gap-3 text-xl">
-              <Icon icon="server" size={16} className="inline-block" /> Usage
+              <Icon icon="bar-chart" size={16} className="inline-block" /> {texts.common.usage}
             </h2>
 
             <UsageChart teamId={+teamId!} deploymentId={+deploymentId!} />
@@ -171,7 +172,7 @@ export const DeploymentPage = () => {
 
           <div id="health">
             <h2 className="mb-3 flex items-center gap-3 text-xl">
-              <Icon icon="server" size={16} className="inline-block" /> Health
+              <Icon icon="activity" size={16} className="inline-block" /> {texts.common.health}
             </h2>
 
             <HealthChart teamId={+teamId!} deploymentId={+deploymentId!} />

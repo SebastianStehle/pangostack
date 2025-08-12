@@ -9,6 +9,7 @@ import {
 import { evaluateParameters, evaluateUsage } from 'src/domain/definitions';
 import { WorkerClient } from 'src/domain/worker';
 import { Activity } from '../registration';
+import { getResourceUniqueId, getEvaluationContext } from 'src/domain/services';
 
 export type TrackDeploymentUsageParam = {
   deploymentId: number;
@@ -45,15 +46,14 @@ export class TrackDeploymentUsageActivity implements Activity<TrackDeploymentUsa
       return;
     }
 
-    const definition = update.serviceVersion.definition;
-    const context = { env: update.environment, context: update.context, parameters: update.parameters };
+    const { context, definition } = getEvaluationContext(update);
     const client = new WorkerClient(workerEndpoint, workerApiKey);
 
     const usageFromWorker = await client.status.postUsage({
       resources: definition.resources.map((resource) => ({
         parameters: evaluateParameters(resource, context),
         resourceContext: update.resourceContexts[resource.id] || {},
-        resourceUniqueId: `deployment_${deploymentId}_${resource.id}`,
+        resourceUniqueId: getResourceUniqueId(deploymentId, resource),
         resourceType: resource.type,
         timeoutMs: 1 * 60 * 1000, // 1 minute
       })),

@@ -1,6 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
+import { addDays } from 'date-fns';
 import { Between } from 'typeorm';
 import { DeploymentCheckEntity, DeploymentCheckRepository, DeploymentEntity, DeploymentRepository } from 'src/domain/database';
 import { formatDate, getDatesInRange } from 'src/lib';
@@ -44,7 +45,7 @@ export class GetDeploymentChecksHandler implements IQueryHandler<GetDeploymentCh
     }
 
     const dateFromRaw = new Date(dateFrom);
-    const dateToRaw = new Date(dateTo);
+    const dateToRaw = addDays(new Date(dateTo), 1);
 
     const rawChecks = await this.deploymentChecks.find({
       where: {

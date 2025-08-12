@@ -2,11 +2,11 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useMutation } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { CreateServiceVersionDto, useClients } from 'src/api';
 import { FormAlert, Forms, Icon, TransientNavLink } from 'src/components';
-import { useStickyObserver } from 'src/hooks';
+import { useStickyObserver, useTypedParams } from 'src/hooks';
 import { texts } from 'src/texts';
 
 const SCHEME = Yup.object({
@@ -25,8 +25,8 @@ export interface NewServicePageProps {
 }
 
 export const NewServicePage = (props: NewServicePageProps) => {
+  const { serviceId } = useTypedParams({ serviceId: 'int' });
   const { onCreate } = props;
-  const { serviceId } = useParams();
   const clients = useClients();
   const navigate = useNavigate();
   const { isSticky, sentinelRef } = useStickyObserver();
@@ -61,7 +61,8 @@ export const NewServicePage = (props: NewServicePageProps) => {
 
             <div ref={sentinelRef}>
               <div className="alert alert-info mb-4">
-                <Icon icon="info" /> {texts.services.definitionHint}
+                <Icon icon="info" />
+                <span>{texts.services.definitionHint}</span>
               </div>
 
               <Forms.Text name="name" label={texts.common.name} vertical required />

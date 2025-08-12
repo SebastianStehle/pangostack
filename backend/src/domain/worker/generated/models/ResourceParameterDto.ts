@@ -32,31 +32,31 @@ export interface ResourceParameterDto {
      * @type {boolean}
      * @memberof ResourceParameterDto
      */
-    required?: boolean;
+    required: boolean | null;
     /**
      * The description of the argument.
      * @type {string}
      * @memberof ResourceParameterDto
      */
-    description?: string;
+    description: string | null;
     /**
      * The minimum length.
      * @type {number}
      * @memberof ResourceParameterDto
      */
-    minLength?: number;
+    minLength: number | null;
     /**
      * The maximum length.
      * @type {number}
      * @memberof ResourceParameterDto
      */
-    maxLength?: number;
+    maxLength: number | null;
     /**
      * The enum values.
      * @type {Array<string>}
      * @memberof ResourceParameterDto
      */
-    allowedValues?: Array<string>;
+    allowedValues: Array<string> | null;
 }
 
 
@@ -76,6 +76,11 @@ export type ResourceParameterDtoTypeEnum = typeof ResourceParameterDtoTypeEnum[k
  */
 export function instanceOfResourceParameterDto(value: object): boolean {
     if (!('type' in value)) return false;
+    if (!('required' in value)) return false;
+    if (!('description' in value)) return false;
+    if (!('minLength' in value)) return false;
+    if (!('maxLength' in value)) return false;
+    if (!('allowedValues' in value)) return false;
     return true;
 }
 
@@ -90,11 +95,11 @@ export function ResourceParameterDtoFromJSONTyped(json: any, ignoreDiscriminator
     return {
         
         'type': json['type'],
-        'required': json['required'] == null ? undefined : json['required'],
-        'description': json['description'] == null ? undefined : json['description'],
-        'minLength': json['minLength'] == null ? undefined : json['minLength'],
-        'maxLength': json['maxLength'] == null ? undefined : json['maxLength'],
-        'allowedValues': json['allowedValues'] == null ? undefined : json['allowedValues'],
+        'required': json['required'],
+        'description': json['description'],
+        'minLength': json['minLength'],
+        'maxLength': json['maxLength'],
+        'allowedValues': json['allowedValues'],
     };
 }
 

@@ -12,6 +12,7 @@ import {
   DeploymentUsageRepository,
 } from 'src/domain/database';
 import { evaluatePrices } from 'src/domain/definitions';
+import { getEvaluationContext } from 'src/domain/services';
 import { saveAndFind } from 'src/lib';
 import { Activity } from '../registration';
 
@@ -94,7 +95,7 @@ export class ChargeDeploymentActivity implements Activity<ChargeDeploymentParam>
 
     let charges: Charges;
     if (update.serviceVersion.definition.pricingModel === 'fixed') {
-      const context = { env: {}, context: {}, parameters: update.parameters };
+      const { context } = getEvaluationContext(update);
 
       // Sums up all prices in the definition.
       const pricing = evaluatePrices(update.serviceVersion.definition, context);

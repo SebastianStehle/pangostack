@@ -41,6 +41,12 @@ export interface TeamUserDto {
      * @memberof TeamUserDto
      */
     role: string;
+    /**
+     * The time when the user has been added to the team.
+     * @type {Date}
+     * @memberof TeamUserDto
+     */
+    created: Date;
 }
 
 /**
@@ -50,6 +56,7 @@ export function instanceOfTeamUserDto(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "user" in value;
     isInstance = isInstance && "role" in value;
+    isInstance = isInstance && "created" in value;
 
     return isInstance;
 }
@@ -66,6 +73,7 @@ export function TeamUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
         
         'user': UserDtoFromJSON(json['user']),
         'role': json['role'],
+        'created': (new Date(json['created'])),
     };
 }
 
@@ -80,6 +88,7 @@ export function TeamUserDtoToJSON(value?: TeamUserDto | null): any {
         
         'user': UserDtoToJSON(value.user),
         'role': value.role,
+        'created': (value.created.toISOString()),
     };
 }
 

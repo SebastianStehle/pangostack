@@ -39,13 +39,13 @@ export interface ResourceApplyResponseDto {
      * @type {{ [key: string]: any; }}
      * @memberof ResourceApplyResponseDto
      */
-    resourceContext: { [key: string]: any; };
+    resourceContext: { [key: string]: any; } | null;
     /**
      * The output.
      * @type {string}
      * @memberof ResourceApplyResponseDto
      */
-    log?: string;
+    log: string | null;
     /**
      * Provides values how to connect to the resource, for example Api Keys.
      * @type {{ [key: string]: ConnectInfoDto; }}
@@ -60,6 +60,7 @@ export interface ResourceApplyResponseDto {
 export function instanceOfResourceApplyResponseDto(value: object): boolean {
     if (!('context' in value)) return false;
     if (!('resourceContext' in value)) return false;
+    if (!('log' in value)) return false;
     if (!('connection' in value)) return false;
     return true;
 }
@@ -76,7 +77,7 @@ export function ResourceApplyResponseDtoFromJSONTyped(json: any, ignoreDiscrimin
         
         'context': json['context'],
         'resourceContext': json['resourceContext'],
-        'log': json['log'] == null ? undefined : json['log'],
+        'log': json['log'],
         'connection': (mapValues(json['connection'], ConnectInfoDtoFromJSON)),
     };
 }

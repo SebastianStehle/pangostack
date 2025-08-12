@@ -28,48 +28,57 @@ The architecture is super simple so that it will be easy to deploy it.
 Deployment definitions are written in JSON or YAML and specify the parameters and resources for a SaaS instance.
 
 ```yaml
-{
-  "parameters": [
-    {
-      "name": "domain",
-      "type": "string",
-      "required": true
-    },
-    {
-      "name": "mongoDbNodes",
-      "type": "number",
-      "required": true,
-      "default": 1,
-      "minimumValue": 3,
-      "maximumValue": 12,
-      "section": "MongoDB"
-    },
-    ....
-  ],
-  "resources": {
-    {
-      "name": "Storage",
-      "type": "vulture-storage",
-      "parameters": {
-        "apiKey": "${env.apiKey}"
-      }
-    },
-    {
-      "name": "Squidex and MongoDB",
-      "type": "helm",
-      "parameters": {
-        "k8Config": "${env.apiKey}",
-        "mongodb.numNodes": "${parameters.mongoDbNodes}",
-        "mongodb....": "",
-      }
-    }
-  },
-  "usage": {
-    "totalCpus": "${parameters.mongoDbNodes * parameters.mongoDbCoresPerNode + (parameters.squidexNodes + 1) * parameters.squidexCoresPerNode}",
-    "totalMembery": "${parameters.mongoDbNodes * parameters.squidexDbMemoryPerNode + (parameters.squidexNodes + 1) * parameters.squidexDbMemoryPerNode}",
-    "totalStorage": "${parameters.mongoDbNodes * parameters.mongoDbStoragePerNode}"
-  }
-}
+---
+parameters:
+- name: domain
+  label: Public Domain
+  type: string
+  required: true
+  display: true
+- name: plan
+  label: Plan
+  type: string
+  required: true
+  display: true
+  allowedValues:
+  - value: cores_4
+    label: 4 Cores, 8 GB RAM, 160 GB SSD
+  - value: cores_8
+    label: 8 Cores, 32 GB RAM, 640 GB SSD
+  - value: cores_16
+    label: 16 Cores, 64 GB RAM, 1280 GB SSD
+afterInstallationInstructions: 'Create a new A record from your domain '
+pricingModel: fixed
+resources:
+- name: Virtual Machine
+  id: vm
+  type: vultr-vm
+  parameters:
+    apiKey: "${env.apiKey}"
+  mappings:
+    plan:
+      value: "${parameters.plan}"
+      map:
+        cores_4: vc2-4c-8gb
+        cores_8: vc2-8c-32gb
+        cores_16: vc2-16c-64gb
+- name: Squidex
+  id: squidex
+  type: docker-compose-ssh
+  parameters:
+    dockerComposeUrl: https://raw.githubusercontent.com/Squidex/squidex-hosting/refs/heads/master/docker-compose/docker-compose.yml
+  healthChecks:
+  - name: Default
+    url: https://${parameters.domain}/healthz
+    type: http
+prices:
+- target: "${parameters.plan}"
+  test: cores_4
+  amount: 80
+usage:
+  totalCores: "${parameters.mongoDbNodes * parameters.mongoDbCoresPerNode + (parameters.squidexNodes
+    + 1) * parameters.squidexCoresPerNode}"
+
 ```
 
 ## 🛠 Resource Provisioning Philosophy

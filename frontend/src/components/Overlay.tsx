@@ -1,10 +1,3 @@
-/*
- * Notifo.io
- *
- * @license
- * Copyright (c) Sebastian Stehle. All rights reserved.
- */
-
 import { flip, Placement, size, useFloating } from '@floating-ui/react-dom';
 import classNames from 'classnames';
 import { CSSProperties, useEffect, useState } from 'react';

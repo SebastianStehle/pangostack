@@ -10,7 +10,7 @@ export function buildUser(source: UserEntity): User {
 export function buildTeam(source: TeamEntity): Team {
   const { id, name, users } = source;
 
-  return { id, name, users: users?.map((x) => ({ role: x.role, user: buildUser(x.user) })) || [] };
+  return { id, name, users: users?.map((x) => ({ role: x.role, created: x.createdAt, user: buildUser(x.user) })) || [] };
 }
 
 export function buildUserGroup(source: UserGroupEntity): UserGroup {

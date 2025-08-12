@@ -1,16 +1,16 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TeamEntity, TeamRepository, TeamUserRepository, UserEntity, UserRepository } from 'src/domain/database';
+import { TeamEntity, TeamRepository, TeamUserEntity, TeamUserRepository, UserEntity, UserRepository } from 'src/domain/database';
 import { Team, User } from '../interfaces';
 import { buildTeam } from './utils';
 
 export class SetTeamUser {
   constructor(
     public readonly teamId: number,
-    public readonly userId: string,
+    public readonly userIdOrEmail: string,
     public readonly user: User,
-    public readonly role: string,
+    public readonly role: string = 'Admin',
   ) {}
 }
 
@@ -25,32 +25,37 @@ export class SetTeamUserHandler implements ICommandHandler<SetTeamUser, any> {
     private readonly users: UserRepository,
     @InjectRepository(TeamEntity)
     private readonly teams: TeamRepository,
-    @InjectRepository(UserEntity)
+    @InjectRepository(TeamUserEntity)
     private readonly teamUsers: TeamUserRepository,
   ) {}
 
   async execute(command: SetTeamUser): Promise<SetTeamUserResponse> {
-    const { teamId, role, user, userId } = command;
+    const { teamId, role, user, userIdOrEmail } = command;
 
     const team = await this.teams.findOne({ where: { id: teamId }, relations: ['users', 'users.user'] });
     if (!team) {
       throw new NotFoundException(`Team ${teamId} not found.`);
     }
 
-    const setUser = await this.users.findOneBy({ id: userId });
+    const setUser = await this.users
+      .createQueryBuilder('user')
+      .where('user.id = :id', { id: userIdOrEmail })
+      .orWhere('user.email = :email', { email: userIdOrEmail })
+      .getOne();
+
     if (!setUser) {
-      throw new NotFoundException(`User ${userId} not found.`);
+      throw new NotFoundException(`User ${userIdOrEmail} not found.`);
     }
 
-    if (user.id === userId) {
+    if (user.id === setUser.id) {
       throw new BadRequestException('You cannot add yourself or change your own role.');
     }
 
-    let teamUser = await this.teamUsers.findOneBy({ teamId, userId });
+    let teamUser = await this.teamUsers.findOneBy({ teamId, userId: setUser.id });
     if (teamUser) {
       teamUser.role = role;
     } else {
-      teamUser = this.teamUsers.create({ teamId, role, userId });
+      teamUser = this.teamUsers.create({ teamId, role, userId: setUser.id });
     }
 
     await this.teamUsers.save(teamUser);

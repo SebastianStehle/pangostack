@@ -228,8 +228,15 @@ export class TeamUserDto {
   })
   role: string;
 
+  @ApiProperty({
+    description: 'The time when the user has been added to the team.',
+    required: true,
+  })
+  created: Date;
+
   static fromDomain(source: TeamUser) {
     const result = new TeamUserDto();
+    result.created = source.created;
     result.role = source.role;
     result.user = UserDto.fromDomain(source.user);
     return result;
@@ -282,10 +289,10 @@ export class TeamsDto {
 
 export class UpsertTeamUserDto {
   @ApiProperty({
-    description: 'The ID of the user.',
+    description: 'The ID or email address of the user.',
     required: true,
   })
-  userId: string;
+  userIdOrEmail: string;
 
   @ApiProperty({
     description: 'The role of the user within the team.',

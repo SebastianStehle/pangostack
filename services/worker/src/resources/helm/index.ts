@@ -157,8 +157,13 @@ export class HelmResource implements Resource {
       ]);
 
       const addResource = (resource: k8s.V1StatefulSet | k8s.V1Deployment) => {
+        const name = resource.metadata?.name;
+        if (!name) {
+          return;
+        }
+
         const workloadResult: ResourceWorkloadStatus = {
-          name: resource.metadata?.name,
+          name,
           nodes: [],
         };
 
@@ -166,7 +171,12 @@ export class HelmResource implements Resource {
         if (selector) {
           const matchingPods = pods.items.filter((pod) => matchesSelector(pod.metadata?.labels, selector));
           for (const pod of matchingPods) {
-            const node: ResourceNodeStatus = { name: pod.metadata.name, isReady: isPodReady(pod.status) };
+            const podName = pod.metadata?.name;
+            if (!podName) {
+              continue;
+            }
+
+            const node: ResourceNodeStatus = { name: podName, isReady: isPodReady(pod.status) };
 
             workloadResult.nodes.push(node);
           }

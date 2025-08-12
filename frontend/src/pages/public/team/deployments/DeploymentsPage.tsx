@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom';
 import { useClients } from 'src/api';
-import { DeploymentStatus, Empty, HealthStatus, Icon, Spinner, TransientNavLink } from 'src/components';
-import { formatDateTime } from 'src/lib';
+import { Empty, Icon, Spinner, TransientNavLink } from 'src/components';
+import { useTypedParams } from 'src/hooks';
 import { texts } from 'src/texts';
+import { Deployment } from './Deployment';
 
 export const DeploymentsPage = () => {
-  const { teamId } = useParams();
+  const { teamId } = useTypedParams({ teamId: 'int' });
   const clients = useClients();
 
   const {
@@ -32,31 +32,11 @@ export const DeploymentsPage = () => {
 
       <div className="flex flex-col gap-2">
         {deployments.map((deployment) => (
-          <TransientNavLink
-            key={deployment.id}
-            to={deployment.id.toString()}
-            className="card card-border bg-base border-slate-200 shadow-sm"
-          >
-            <div className="card-body">
-              <h2 className="card-title">
-                <div className="badge badge-primary badge-sm me-1 rounded-full font-normal">{deployment.serviceVersion}</div>
-                {deployment.serviceName}
-              </h2>
-              <div className="mt-2 grid grid-cols-3 items-center gap-4">
-                <HealthStatus status={deployment.healthStatus} />
-                <div className="flex items-center gap-1">
-                  <DeploymentStatus status={deployment.status} /> {texts.common.installation}
-                </div>
-                <div className="flex items-center justify-end gap-2 text-right">
-                  {texts.common.createdAt} {formatDateTime(deployment.createdAt)}
-                </div>
-              </div>
-            </div>
-          </TransientNavLink>
+          <Deployment key={deployment.id} deployment={deployment} />
         ))}
       </div>
 
-      {isLoading && <Spinner visible={true} />}
+      {isLoading && !isFetched && <Spinner visible={true} />}
 
       {isFetched && deployments.length === 0 && (
         <Empty icon="no-connection" label={texts.deployments.emptyLabel} text={texts.deployments.emptyText} />

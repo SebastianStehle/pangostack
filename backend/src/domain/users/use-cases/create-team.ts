@@ -37,7 +37,7 @@ export class CreateTeamHandler implements ICommandHandler<CreateTeam, CreateTeam
     await saveAndFind(this.teamUsers, {
       team,
       teamId: team.id,
-      role: 'default',
+      role: 'Admin',
       user: undefined!,
       userId: user.id,
     });

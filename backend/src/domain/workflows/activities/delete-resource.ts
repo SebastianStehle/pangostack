@@ -4,6 +4,7 @@ import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/d
 import { evaluateParameters } from 'src/domain/definitions';
 import { WorkerClient } from 'src/domain/worker';
 import { Activity } from '../registration';
+import { getEvaluationContext, getResourceUniqueId } from 'src/domain/services';
 
 export type DeleteResourceParam = {
   deploymentId: number;
@@ -31,18 +32,15 @@ export class DeleteResourceActivity implements Activity<DeleteResourceParam> {
       throw new NotFoundException(`Deployment Update ${updateId} does not contain resource ${resourceId}.`);
     }
 
-    const context = { env: update.environment, context: update.context, parameters: update.parameters };
+    const { context } = getEvaluationContext(update);
     const client = new WorkerClient(workerEndpoint, workerApiKey);
-
-    const resourceUniqueId = `deployment_${deploymentId}_${resource.id}`;
-    const resourceParams = evaluateParameters(resource, context);
 
     await client.deployment.deleteResources({
       resources: [
         {
-          parameters: resourceParams,
+          parameters: evaluateParameters(resource, context),
           resourceContext: update.resourceContexts[resource.id] || {},
-          resourceUniqueId,
+          resourceUniqueId: getResourceUniqueId(deploymentId, resource),
           resourceType: resource.type,
           timeoutMs: 10 * 60 * 1000, // 10 minutes
         },

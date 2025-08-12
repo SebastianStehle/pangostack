@@ -19,16 +19,16 @@ const SCHEME = Yup.object({
   currency: Yup.string().label(texts.common.currency).required(),
 
   // Required non-negative price.
-  pricePerCpuHour: Yup.number().label(texts.services.pricePerCpuHour).required().min(0),
+  pricePerCoreHour: Yup.number().label(texts.services.pricePerCoreHour).required().min(0),
 
   // Required non-negative price.
-  pricePerVolumeGbHour: Yup.number().label(texts.services.pricePerVolumeGbHour).required().min(0),
+  pricePerVolumeGBHour: Yup.number().label(texts.services.pricePerVolumeGBHour).required().min(0),
 
   // Required non-negative price.
-  pricePerMemoryGbHour: Yup.number().label(texts.services.pricePerMemoryGbHour).required().min(0),
+  pricePerMemoryGBHour: Yup.number().label(texts.services.pricePerMemoryGBHour).required().min(0),
 
   // Required non-negative price.
-  pricePerStorageGbMonth: Yup.number().label(texts.services.pricePerStorageGbMonth).required().min(0),
+  pricePerStorageGBMonth: Yup.number().label(texts.services.pricePerStorageGBMonth).required().min(0),
 
   // Required non-negative price.
   fixedPrice: Yup.number().label(texts.services.fixedPrice).required().min(0),
@@ -130,13 +130,13 @@ export function UpsertServiceDialog(props: UpsertServiceDialogProps) {
 
                   <Forms.Text name="currency" label={texts.common.currency} maxLength={3} required />
 
-                  <Forms.Number name="pricePerCpuHour" label={texts.services.pricePerCpuHourLabel} required />
+                  <Forms.Number name="pricePerCoreHour" label={texts.services.pricePerCoreHour} required />
 
-                  <Forms.Number name="pricePerVolumeGbHour" label={texts.services.pricePerVolumeGbHourLabel} required />
+                  <Forms.Number name="pricePerVolumeGBHour" label={texts.services.pricePerVolumeGBHour} required />
 
-                  <Forms.Number name="pricePerMemoryGbHour" label={texts.services.pricePerMemoryGbHourLabel} required />
+                  <Forms.Number name="pricePerMemoryGBHour" label={texts.services.pricePerMemoryGBHourLabel} required />
 
-                  <Forms.Number name="pricePerStorageGbMonth" label={texts.services.pricePerStorageGbMonthLabel} required />
+                  <Forms.Number name="pricePerStorageGBMonth" label={texts.services.pricePerStorageGBMonthLabel} required />
 
                   <Forms.Number name="fixedPrice" label={texts.services.fixedPrice} required />
                 </section>

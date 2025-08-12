@@ -1,7 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TeamEntity, TeamRepository, TeamUserRepository, UserEntity } from 'src/domain/database';
+import { TeamEntity, TeamRepository, TeamUserEntity, TeamUserRepository } from 'src/domain/database';
 import { Team, User } from '../interfaces';
 import { buildTeam } from './utils';
 
@@ -22,7 +22,7 @@ export class DeleteTeamUserHandler implements ICommandHandler<DeleteTeamUser, De
   constructor(
     @InjectRepository(TeamEntity)
     private readonly teams: TeamRepository,
-    @InjectRepository(UserEntity)
+    @InjectRepository(TeamUserEntity)
     private readonly teamUsers: TeamUserRepository,
   ) {}
 

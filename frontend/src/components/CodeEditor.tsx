@@ -21,17 +21,27 @@ export interface CodeEditorProps {
   // The optional number;
   height?: string;
 
+  // Make the editor readonly.
+  readOnly?: boolean;
+
+  // Disable wrapping.
+  noWrap?: boolean;
+
+  // Auto scroll to the last line.
+  autoScrollBottom?: boolean;
+
   // When the value has changed.
-  onChange: (value: any) => void;
+  onChange?: (value: any) => void;
 
   // When the focus has lost.
-  onBlur: () => void;
+  onBlur?: () => void;
 }
 
 export const CodeEditor = (props: CodeEditorProps) => {
-  const { height, mode, onBlur, onChange, value, valueMode } = props;
+  const { autoScrollBottom, height, mode, noWrap, onBlur, onChange, readOnly, value, valueMode } = props;
 
   const [internalValue, setInternalValue] = useState(() => stringifyValue(value));
+  const editorRef = useRef<AceEditor>(null);
   const outputValue = useRef<any>();
 
   useEffect(() => {
@@ -56,8 +66,19 @@ export const CodeEditor = (props: CodeEditorProps) => {
     }
 
     outputValue.current = output;
-    onChange(output);
+    onChange?.(output);
   });
+
+  useEffect(() => {
+    if (editorRef.current && autoScrollBottom) {
+      const editor = editorRef.current.editor;
+
+      setTimeout(() => {
+        const lineCount = editor.session.getLength();
+        editor.scrollToLine(lineCount, true, true, () => {});
+      }, 50);
+    }
+  }, [autoScrollBottom, value]);
 
   const isFullHeight = height === 'full';
   const editorHeight = isFullHeight ? '100%' : height;
@@ -74,9 +95,11 @@ export const CodeEditor = (props: CodeEditorProps) => {
         mode={mode}
         onBlur={onBlur}
         onChange={doChange}
+        readOnly={readOnly}
+        ref={editorRef}
         value={internalValue}
         width="100%"
-        wrapEnabled={true}
+        wrapEnabled={!noWrap}
       />
     </div>
   );

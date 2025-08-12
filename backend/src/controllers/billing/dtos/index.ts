@@ -4,40 +4,40 @@ import { Invoice, InvoiceStatus } from 'src/domain/billing';
 export class InvoiceDto {
   @ApiProperty({
     description: 'The invoice number.',
-    nullable: false,
+    required: true,
   })
   number: string;
 
   @ApiProperty({
     description: 'The download link.',
-    nullable: false,
+    required: true,
   })
   downloadLink: string;
 
   @ApiProperty({
     description: 'The date the invoice has been issued.',
-    nullable: false,
+    nullable: true,
     type: 'string',
     format: 'date-time',
   })
-  dueDate: Date;
+  dueDate?: Date | null;
 
   @ApiProperty({
     description: 'The total amount of the invoice.',
-    nullable: false,
+    required: true,
   })
   amount: number;
 
   @ApiProperty({
     description: 'The status of the invoice.',
-    nullable: false,
+    required: true,
     enum: ['Paid', 'PaymentDue', 'NotPaid', 'Voided', 'Pending'],
   })
   status: InvoiceStatus;
 
   @ApiProperty({
     description: 'The currency.',
-    nullable: false,
+    required: true,
   })
   currency: string;
 
@@ -58,7 +58,6 @@ export class InvoicesDto {
     description: 'The invoices.',
     required: true,
     type: [InvoiceDto],
-    nullable: false,
   })
   items: InvoiceDto[];
 

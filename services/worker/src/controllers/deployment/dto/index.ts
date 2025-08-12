@@ -27,37 +27,38 @@ export class ResourceParameterDto {
 
   @ApiProperty({
     description: 'True, if required.',
-    required: false,
+    nullable: true,
+    type: Boolean,
   })
-  required?: boolean;
+  required?: boolean | null;
 
   @ApiProperty({
     description: 'The description of the argument.',
-    required: false,
     nullable: true,
+    type: String,
   })
-  description?: string;
+  description?: string | null;
 
   @ApiProperty({
     description: 'The minimum length.',
-    required: false,
     nullable: true,
+    type: Number,
   })
-  minLength?: number;
+  minLength?: number | null;
 
   @ApiProperty({
     description: 'The maximum length.',
-    required: false,
     nullable: true,
+    type: Number,
   })
-  maxLength?: number;
+  maxLength?: number | null;
 
   @ApiProperty({
     description: 'The enum values.',
-    required: false,
+    nullable: true,
     type: [String],
   })
-  allowedValues?: string[];
+  allowedValues?: string[] | null;
 
   static fromDomain(source: ResourceParameterDescriptor) {
     const result = new ResourceParameterDto();
@@ -157,18 +158,17 @@ export class ResourceApplyResponseDto {
 
   @ApiProperty({
     description: 'Context that only contains values that are needed for this resource betwene subsequent calls.',
-    required: true,
+    nullable: true,
     additionalProperties: true,
   })
-  resourceContext: Record<string, any>;
+  resourceContext?: Record<string, any> | null;
 
   @ApiProperty({
     description: 'The output.',
-    required: false,
     nullable: true,
     type: String,
   })
-  log: string;
+  log?: string | null;
 
   @ApiProperty({
     description: 'Provides values how to connect to the resource, for example Api Keys.',

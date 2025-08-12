@@ -2,10 +2,10 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { UpdateServiceVersionDto, useClients } from 'src/api';
 import { FormAlert, Forms, Icon, TransientNavLink } from 'src/components';
-import { useStickyObserver } from 'src/hooks';
+import { useStickyObserver, useTypedParams } from 'src/hooks';
 import { texts } from 'src/texts';
 
 export interface VersionPageProps {
@@ -15,7 +15,7 @@ export interface VersionPageProps {
 
 export const VersionPage = (props: VersionPageProps) => {
   const { onUpdate } = props;
-  const { serviceId, versionId } = useParams();
+  const { serviceId, versionId } = useTypedParams({ serviceId: 'int', versionId: 'int' });
   const clients = useClients();
   const navigate = useNavigate();
   const { isSticky, sentinelRef } = useStickyObserver();

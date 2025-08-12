@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Repository } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn, Repository, UpdateDateColumn } from 'typeorm';
 import { TeamEntity } from './team';
 import { UserEntity } from './user';
 
@@ -22,4 +22,10 @@ export class TeamUserEntity {
   @ManyToOne(() => TeamEntity, (team) => team.users, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'teamId' })
   team: TeamEntity;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

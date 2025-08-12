@@ -84,7 +84,7 @@ export class TeamsController {
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard)
   async postTeamUser(@Req() req: Request, @IntParam('teamId') teamId: number, @Body() body: UpsertTeamUserDto) {
-    const command = new SetTeamUser(teamId, body.userId, req.user, body.role);
+    const command = new SetTeamUser(teamId, body.userIdOrEmail, req.user, body.role);
 
     const result: SetTeamUserResponse = await this.commandBus.execute(command);
 

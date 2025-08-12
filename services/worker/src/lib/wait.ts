@@ -2,7 +2,7 @@ export async function pollUntil(timeout: number, action: () => Promise<boolean>,
   const statusStart = new Date();
 
   while (true) {
-    let lastError: Error = null;
+    let lastError: Error | null = null;
     try {
       if (await action()) {
         return;

@@ -42,7 +42,7 @@ export function HealthChart(props: HealthChartProps) {
             <Cell key={`fail-${entry.date}`} />
           ))}
         </Bar>
-        <Bar dataKey="totalSuccesses" stackId="b" fill="green" name={texts.deployments.totalSuccesses}>
+        <Bar dataKey="totalSuccesses" stackId="a" fill="green" name={texts.deployments.totalSuccesses}>
           {data.map((entry) => (
             <Cell key={`success-${entry.date}`} />
           ))}

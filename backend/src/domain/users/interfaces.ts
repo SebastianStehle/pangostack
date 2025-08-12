@@ -55,4 +55,7 @@ export interface TeamUser {
 
   // The role of the user within the team.
   role: string;
+
+  // The time when the user has been added to the team.
+  created: Date;
 }

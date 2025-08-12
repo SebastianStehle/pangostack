@@ -55,7 +55,7 @@ export const Log = (props: LogProps) => {
 
   return (
     <>
-      {isLoading && <Spinner visible={true} />}
+      {isLoading && !isFetched && <Spinner visible={true} />}
 
       {isFetched && instances.length === 1 && (
         <Empty icon="no-document" label={texts.billing.emptyLabel} text={texts.billing.emptyText} />

@@ -1,16 +1,20 @@
 import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom';
 import { useClients } from 'src/api';
-import { Empty, Icon } from 'src/components';
+import { Empty, Icon, Spinner } from 'src/components';
+import { useTypedParams } from 'src/hooks';
 import { formatDate, formatMoney } from 'src/lib';
 import { texts } from 'src/texts';
 import { InvoiceStatusBadge } from './InvoiceStatusBadge';
 
 export const BillingPage = () => {
-  const { teamId } = useParams();
+  const { teamId } = useTypedParams({ teamId: 'int' });
   const clients = useClients();
 
-  const { data: loadedInvoices, isFetched } = useQuery({
+  const {
+    data: loadedInvoices,
+    isFetched,
+    isLoading,
+  } = useQuery({
     queryKey: ['invoices', teamId],
     queryFn: () => clients.billing.getInvoices(+teamId!),
   });
@@ -27,45 +31,49 @@ export const BillingPage = () => {
         </button>
       </div>
 
-      <table className="table">
-        <thead>
-          <tr>
-            <th>{texts.billing.number}</th>
-            <th>{texts.billing.dueDate}</th>
-            <th>{texts.common.status}</th>
-            <th className="text-right">{texts.billing.amount}</th>
-          </tr>
-        </thead>
+      {isLoading && !isFetched && <Spinner visible={true} />}
 
-        <tbody>
-          {invoices.map((invoice) => (
-            <tr key={invoice.number}>
-              <td>
-                <a
-                  className="text-primary inline-flex items-center gap-1 font-semibold hover:underline"
-                  href={invoice.downloadLink}
-                >
-                  <Icon icon="external-link" className="inline-flex" size={14} />
-                  {invoice.number}
-                </a>
-              </td>
-              <td>{formatDate(invoice.dueDate)}</td>
-              <td>
-                <InvoiceStatusBadge status={invoice.status} />
-              </td>
-              <td className="text-right font-semibold">{formatMoney(invoice.amount, invoice.currency)}</td>
-            </tr>
-          ))}
-
-          {isFetched && invoices.length === 0 && (
+      {isFetched && (
+        <table className="table">
+          <thead>
             <tr>
-              <td colSpan={4}>
-                <Empty icon="no-document" label={texts.billing.emptyLabel} text={texts.billing.emptyText} />
-              </td>
+              <th>{texts.billing.number}</th>
+              <th>{texts.billing.dueDate}</th>
+              <th>{texts.common.status}</th>
+              <th className="text-right">{texts.billing.amount}</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {invoices.map((invoice) => (
+              <tr key={invoice.number}>
+                <td>
+                  <a
+                    className="text-primary inline-flex items-center gap-1 font-semibold hover:underline"
+                    href={invoice.downloadLink}
+                  >
+                    <Icon icon="external-link" className="inline-flex" size={14} />
+                    {invoice.number}
+                  </a>
+                </td>
+                <td>{formatDate(invoice.dueDate!)}</td>
+                <td>
+                  <InvoiceStatusBadge status={invoice.status} />
+                </td>
+                <td className="text-right font-semibold">{formatMoney(invoice.amount, invoice.currency)}</td>
+              </tr>
+            ))}
+
+            {isFetched && invoices.length === 0 && (
+              <tr>
+                <td colSpan={4}>
+                  <Empty icon="no-document" label={texts.billing.emptyLabel} text={texts.billing.emptyText} />
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      )}
     </>
   );
 };

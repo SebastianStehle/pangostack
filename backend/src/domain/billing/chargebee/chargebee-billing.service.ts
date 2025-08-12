@@ -178,7 +178,7 @@ export class ChargebeeBillingService implements BillingService {
       const response = await this.chargebee.invoice.list(query);
 
       for (const { invoice } of response.list) {
-        if (invoice.total === 0) {
+        if (invoice.total === 0 || !invoice.due_date) {
           continue;
         }
 
@@ -198,9 +198,9 @@ export class ChargebeeBillingService implements BillingService {
         }
 
         result.push({
-          amount: invoice.total! * 0.1,
+          amount: invoice.total! * 0.01,
           currency: invoice.currency_code,
-          dueDate: new Date(invoice.due_date! * 1000),
+          dueDate: new Date((invoice.due_date || invoice.date)! * 1000),
           downloadLink: pdfResponse.download.download_url,
           number: invoice.id,
           status,

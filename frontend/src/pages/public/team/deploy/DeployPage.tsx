@@ -1,14 +1,15 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { ServicePublicDto, useClients } from 'src/api';
 import { Icon, TransientNavLink } from 'src/components';
+import { useTypedParams } from 'src/hooks';
 import { texts } from 'src/texts';
 import { DeploymentForm, DeploymentUpdate } from './DeploymentForm';
 
 export const DeployPage = () => {
-  const { teamId } = useParams();
+  const { teamId } = useTypedParams({ teamId: 'int' });
   const [service, setService] = useState<ServicePublicDto>();
   const clients = useClients();
   const navigate = useNavigate();

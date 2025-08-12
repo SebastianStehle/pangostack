@@ -150,8 +150,8 @@ export class VultrVmResource implements Resource {
     let failure: string | undefined = undefined;
     if (!instance) {
       failure = 'Instance not found';
-    } else if (instance.status !== 'ok') {
-      failure = `Instance does not have success status, got ${instance.status}`;
+    } else if (!isActiveStatus(instance)) {
+      failure = `Instance does not have success status, got ${instance.server_status}`;
     } else if (!isValidIp(instance)) {
       failure = 'Instance does not have a IP address yet';
     }
@@ -181,15 +181,19 @@ async function waitForInstance(vultr: ReturnType<typeof initializeVultrClient>, 
   await pollUntil(timeout, async () => {
     const { instance } = await vultr.instances.getInstance({ 'instance-id': instanceId });
 
-    return instance.server_status === 'ok' && isValidIp(instance) && (hasPassword || instance.default_password);
+    return isActiveStatus(instance) && isValidIp(instance) && (hasPassword || instance.default_password);
   });
 
   const { instance: newInstane } = await vultr.instances.getInstance({ 'instance-id': instanceId });
   return newInstane;
 }
 
-function isValidIp(node: any) {
-  return node.main_ip && node.main_ip !== '0.0.0.0';
+function isActiveStatus(instance: any) {
+  return instance.server_status === 'ok' || instance.server_status === 'active';
+}
+
+function isValidIp(instance: any) {
+  return instance.main_ip && instance.main_ip !== '0.0.0.0';
 }
 
 async function findInstance(vultr: ReturnType<typeof initializeVultrClient>, id: string) {

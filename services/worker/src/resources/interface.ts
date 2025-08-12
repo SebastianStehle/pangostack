@@ -59,13 +59,13 @@ export interface ResourceApplyResult {
   context: Record<string, string>;
 
   // Context that only contains values that are needed for this resource betwene subsequent calls.
-  resourceContext?: Record<string, string>;
+  resourceContext?: Record<string, string> | null;
 
   // Provides values how to connect to the resource, for example Api Keys.
   connection: Record<string, { value: string; label: string; isPublic: boolean }>;
 
   // Optional log output.
-  log?: string;
+  log?: string | null;
 }
 
 export interface InstanceLog {

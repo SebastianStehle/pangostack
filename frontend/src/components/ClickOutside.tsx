@@ -1,10 +1,3 @@
-/*
- * Notifo.io
- *
- * @license
- * Copyright (c) Sebastian Stehle. All rights reserved.
- */
-
 import React from 'react';
 import { DetailedHTMLProps, useEffect } from 'react';
 import { useEventCallback } from 'src/hooks';

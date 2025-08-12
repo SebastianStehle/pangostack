@@ -45,7 +45,7 @@ export class DeploymentController {
     // Now we know that the resource will always exist.
     await Promise.all(
       body.resources.map((identifier) => {
-        const resource = this.resources.get(identifier.resourceType);
+        const resource = this.resources.get(identifier.resourceType)!;
 
         return resource.delete(identifier.resourceUniqueId, identifier);
       }),
@@ -82,13 +82,9 @@ function validate(descriptor: ResourceDescriptor, target: Record<string, any>) {
     const valueRaw = target[key];
     let value = valueRaw;
 
-    const error: ValidationError = {
-      property: `parameters.${key}`,
-      constraints: {},
-    };
-
+    const constraints: Record<string, string> = {};
     if (!valueExists && definition.required) {
-      error.constraints['isDefined'] = 'Value is required but was not provided';
+      constraints['isDefined'] = 'Value is required but was not provided';
     }
 
     if (valueExists) {
@@ -109,7 +105,7 @@ function validate(descriptor: ResourceDescriptor, target: Record<string, any>) {
         }
 
         if (!isBoolean(value)) {
-          error.constraints['isBoolean'] = 'Value must be a boolean';
+          constraints['isBoolean'] = 'Value must be a boolean';
         }
       } else if (definition.type === 'number') {
         if (typeof value === 'string' && !isNaN(+value)) {
@@ -117,33 +113,33 @@ function validate(descriptor: ResourceDescriptor, target: Record<string, any>) {
         }
 
         if (!isNumber(value)) {
-          error.constraints['isNumber'] = 'Value must be a number';
+          constraints['isNumber'] = 'Value must be a number';
         }
       } else if (definition.type === 'string') {
         if (!isString(value)) {
-          error.constraints['isString'] = 'Value must be a string';
+          constraints['isString'] = 'Value must be a string';
         } else {
           if (valueExists && value.length === 0 && definition.required) {
-            error.constraints['isDefined'] = 'Value is required but was not provided';
+            constraints['isDefined'] = 'Value is required but was not provided';
           }
 
           if (definition.minLength && value.length < definition.minLength) {
-            error.constraints['minLength'] = `Value must be at least ${definition.minLength} characters long`;
+            constraints['minLength'] = `Value must be at least ${definition.minLength} characters long`;
           }
 
           if (definition.maxLength && value.length > definition.maxLength) {
-            error.constraints['maxLength'] = `Value must be at most ${definition.maxLength} characters long`;
+            constraints['maxLength'] = `Value must be at most ${definition.maxLength} characters long`;
           }
 
           if (definition.allowedValues && definition.allowedValues.length > 0 && definition.allowedValues.indexOf(value) < 0) {
-            error.constraints['enum'] = `Value must be one of ${definition.allowedValues.join(', ')}`;
+            constraints['enum'] = `Value must be one of ${definition.allowedValues.join(', ')}`;
           }
         }
       }
     }
 
-    if (Object.keys(error.constraints).length > 0) {
-      errors.push(error);
+    if (Object.keys(constraints).length > 0) {
+      errors.push({ property: `parameters.${key}`, constraints });
     }
   }
 

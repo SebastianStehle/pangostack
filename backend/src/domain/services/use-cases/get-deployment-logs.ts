@@ -6,6 +6,7 @@ import { DeploymentEntity, DeploymentRepository, WorkerEntity, WorkerRepository 
 import { evaluateParameters } from 'src/domain/definitions';
 import { WorkerClient } from 'src/domain/worker';
 import { ResourceLog } from '../interfaces';
+import { getEvaluationContext, getResourceUniqueId } from '../libs';
 
 export class GetDeploymentLogs {
   constructor(
@@ -49,15 +50,14 @@ export class GetDeploymentLogsHandler implements IQueryHandler<GetDeploymentLogs
       return new GetDeploymentLogsResponse([]);
     }
 
-    const definition = update.serviceVersion.definition;
-    const context = { env: update.environment, context: update.context, parameters: update.parameters };
+    const { context, definition } = getEvaluationContext(update);
     const client = new WorkerClient(worker.endpoint, worker.apiKey);
 
     const statuses = await client.status.postLog({
       resources: definition.resources.map((resource) => ({
         parameters: evaluateParameters(resource, context),
         resourceContext: update.resourceContexts[resource.id] || {},
-        resourceUniqueId: `deployment_${deploymentId}_${resource.id}`,
+        resourceUniqueId: getResourceUniqueId(deploymentId, resource),
         resourceType: resource.type,
         timeoutMs: 1 * 60 * 1000, // 1 minute
       })),

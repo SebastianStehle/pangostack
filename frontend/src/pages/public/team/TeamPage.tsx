@@ -1,6 +1,9 @@
+import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { useClients } from 'src/api';
 import { TransientNavLink } from 'src/components';
+import { useTypedParams } from 'src/hooks';
 import { texts } from 'src/texts';
 import { BillingPage } from './billing/BillingPage';
 import { DeployPage } from './deploy/DeployPage';
@@ -10,6 +13,19 @@ import { MembersPage } from './members/MembersPage';
 import { SettingsPage } from './settings/SettingsPage';
 
 export function TeamPage() {
+  const { teamId } = useTypedParams({ teamId: 'int' });
+  const clients = useClients();
+
+  const { data: loadedTeams } = useQuery({
+    queryKey: ['teams'],
+    queryFn: () => clients.teams.getTeams(),
+  });
+
+  const team = loadedTeams?.items.find((x) => x.id === teamId);
+  if (!team) {
+    return null;
+  }
+
   return (
     <div className="container mx-auto -mt-22 max-w-[1000px] px-4">
       <ul className="menu menu-horizontal">

@@ -23,11 +23,11 @@ import { exists, mapValues } from '../runtime';
  */
 export interface UpsertTeamUserDto {
     /**
-     * The ID of the user.
+     * The ID or email address of the user.
      * @type {string}
      * @memberof UpsertTeamUserDto
      */
-    userId: string;
+    userIdOrEmail: string;
     /**
      * The role of the user within the team.
      * @type {string}
@@ -41,7 +41,7 @@ export interface UpsertTeamUserDto {
  */
 export function instanceOfUpsertTeamUserDto(value: object): boolean {
     let isInstance = true;
-    isInstance = isInstance && "userId" in value;
+    isInstance = isInstance && "userIdOrEmail" in value;
     isInstance = isInstance && "role" in value;
 
     return isInstance;
@@ -57,7 +57,7 @@ export function UpsertTeamUserDtoFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         
-        'userId': json['userId'],
+        'userIdOrEmail': json['userIdOrEmail'],
         'role': json['role'],
     };
 }
@@ -71,7 +71,7 @@ export function UpsertTeamUserDtoToJSON(value?: UpsertTeamUserDto | null): any {
     }
     return {
         
-        'userId': value.userId,
+        'userIdOrEmail': value.userIdOrEmail,
         'role': value.role,
     };
 }

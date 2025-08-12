@@ -6,7 +6,7 @@ export interface Invoice {
   downloadLink: string;
 
   // The date the invoice has been issued.
-  dueDate: Date;
+  dueDate?: Date | null;
 
   // The status of the invoice.
   status: InvoiceStatus;

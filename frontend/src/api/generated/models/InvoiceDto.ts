@@ -39,7 +39,7 @@ export interface InvoiceDto {
      * @type {Date}
      * @memberof InvoiceDto
      */
-    dueDate: Date;
+    dueDate: Date | null;
     /**
      * The total amount of the invoice.
      * @type {number}
@@ -101,7 +101,7 @@ export function InvoiceDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         
         'number': json['number'],
         'downloadLink': json['downloadLink'],
-        'dueDate': (new Date(json['dueDate'])),
+        'dueDate': (json['dueDate'] === null ? null : new Date(json['dueDate'])),
         'amount': json['amount'],
         'status': json['status'],
         'currency': json['currency'],
@@ -119,7 +119,7 @@ export function InvoiceDtoToJSON(value?: InvoiceDto | null): any {
         
         'number': value.number,
         'downloadLink': value.downloadLink,
-        'dueDate': (value.dueDate.toISOString()),
+        'dueDate': (value.dueDate === null ? null : value.dueDate.toISOString()),
         'amount': value.amount,
         'status': value.status,
         'currency': value.currency,

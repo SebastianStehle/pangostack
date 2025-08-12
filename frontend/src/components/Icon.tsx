@@ -9,17 +9,21 @@ export interface IconProps {
 }
 
 export type IconType =
+  | 'activity'
   | 'alert'
   | 'alert-circle'
   | 'arrow-left'
   | 'arrow-up'
+  | 'bar-chart'
   | 'bird'
   | 'clipboard'
   | 'close'
   | 'droplet'
   | 'edit'
+  | 'check-circle'
   | 'external-link'
   | 'info'
+  | 'monitor'
   | 'more-horizontal'
   | 'more-vertical'
   | 'no-document'
@@ -42,6 +46,23 @@ export function Icon(props: IconProps) {
   const actualSize = size || 24;
 
   switch (icon) {
+    case 'activity':
+      return (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+          width={actualSize}
+          height={actualSize}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+      );
     case 'alert':
       return (
         <svg
@@ -116,6 +137,25 @@ export function Icon(props: IconProps) {
           <polyline points="5 12 12 5 19 12"></polyline>
         </svg>
       );
+    case 'bar-chart':
+      return (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+          width={actualSize}
+          height={actualSize}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <line x1="12" y1="20" x2="12" y2="10"></line>
+          <line x1="18" y1="20" x2="18" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="16"></line>
+        </svg>
+      );
     case 'bird':
       return (
         <svg
@@ -128,6 +168,24 @@ export function Icon(props: IconProps) {
           <path d="M182.422 0c-6.008 0-10.879 8.119-10.879 18.133 0 4.082.818 7.835 2.184 10.865a123.297 123.297 0 0 0-87.405 117.871 123.297 123.297 0 0 0 .196 2.725l-61.067-9.906c-3.422-.556-6.908-1.11-10.342-.627-3.433.483-6.87 2.172-8.62 5.166a8.651 8.651 0 0 0 5.884 12.808c-2.659.037-5.296.344-7.629 1.559-3.29 1.713-5.62 5.876-4.015 9.22a8.277 8.277 0 0 0 1.92 2.428 17.606 17.606 0 0 0 18.521 3.143c-2.5 3.586-7.462 4.117-11.754 4.947-4.292.83-9.252 3.258-9.412 7.627-.18 4.909 5.661 7.518 10.47 8.518a137.417 137.417 0 0 0 76.823-6.262 30.98 30.98 0 0 0 5.512-2.61 123.297 123.297 0 0 0 116.81 84.56 123.297 123.297 0 0 0 110.424-68.907l13.705 26.076c1.613 3.07 3.263 6.189 5.713 8.643 2.45 2.453 5.866 4.185 9.31 3.785a8.6 8.6 0 0 0 6.78-12.3 16.643 16.643 0 0 0 5.752 5.06c3.346 1.6 8.074.961 9.783-2.33a8.275 8.275 0 0 0 .787-2.995 17.606 17.606 0 0 0-8.62-16.693c4.368-.157 7.776 3.49 11.019 6.422 3.243 2.931 8.164 5.437 11.752 2.94 4.03-2.808 2.607-9.045.515-13.489a137.419 137.419 0 0 0-51.174-57.637 30.975 30.975 0 0 0-2.48-1.433 123.297 123.297 0 0 0 .031-.438A123.297 123.297 0 0 0 221.033 24.117c-1.83-5.717-5.441-9.611-9.601-9.611-3.383 0-6.368 2.627-8.364 6.664-1.758-6.07-5.452-10.291-9.767-10.291a6.563 6.563 0 0 0-.871.146C190.77 4.545 186.916 0 182.422 0Zm-31.379 85.96a41.087 41.087 0 0 1 28.094 70.806 36.967 36.967 0 0 0-56.742 0c-.46-.44-.91-.888-1.348-1.348a41.087 41.087 0 0 1 21.92-68.711 41.087 41.087 0 0 1 8.076-.746zm110.936 0a41.087 41.087 0 0 1 28.093 70.806 36.967 36.967 0 0 0-56.742 0c-.46-.44-.909-.888-1.347-1.348a41.087 41.087 0 0 1 21.92-68.711 41.087 41.087 0 0 1 8.076-.746zm-55.143 59.831 18.248 53.94-45.625 33.708z" />
           <circle cx="136.75" cy="113.055" r="14.134" />
           <circle cx="247.682" cy="113.055" r="14.134" />
+        </svg>
+      );
+    case 'check-circle':
+      return (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+          width={actualSize}
+          height={actualSize}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
         </svg>
       );
     case 'clipboard':
@@ -224,8 +282,9 @@ export function Icon(props: IconProps) {
       return (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
+          className={className}
+          width={actualSize}
+          height={actualSize}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -236,6 +295,25 @@ export function Icon(props: IconProps) {
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="12" y1="16" x2="12" y2="12"></line>
           <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+      );
+    case 'monitor':
+      return (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+          width={actualSize}
+          height={actualSize}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+          <line x1="8" y1="21" x2="16" y2="21"></line>
+          <line x1="12" y1="17" x2="12" y2="21"></line>
         </svg>
       );
     case 'more-horizontal':
@@ -427,6 +505,7 @@ export function Icon(props: IconProps) {
           className={className}
           width={actualSize}
           height={actualSize}
+          viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
