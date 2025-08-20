@@ -1,32 +1,34 @@
-import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BlobEntity, BlobRepository } from 'src/domain/database';
 
-export class GetBlob {
-  constructor(public readonly blobId: string) {}
+export class GetBlobQuery extends Query<GetBlobResult> {
+  constructor(public readonly blobId: string) {
+    super();
+  }
 }
 
-export class GetBlobResponse {
-  constructor(public readonly logo?: { buffer: Buffer; type: string }) {}
+export class GetBlobResult {
+  constructor(public readonly file?: { buffer: Buffer; type: string }) {}
 }
 
-@QueryHandler(GetBlob)
-export class GetBlobHandler implements IQueryHandler<GetBlob, GetBlobResponse> {
+@QueryHandler(GetBlobQuery)
+export class GetBlobHandler implements IQueryHandler<GetBlobQuery, GetBlobResult> {
   constructor(
     @InjectRepository(BlobEntity)
     private readonly blobs: BlobRepository,
   ) {}
 
-  async execute(request: GetBlob): Promise<GetBlobResponse> {
+  async execute(request: GetBlobQuery): Promise<GetBlobResult> {
     const { blobId } = request;
 
     const blob = await this.blobs.findOneBy({ id: blobId });
     if (!blob) {
-      return new GetBlobResponse();
+      return new GetBlobResult();
     }
 
     const buffer = Buffer.from(blob.buffer, 'base64');
 
-    return new GetBlobResponse({ type: blob.type, buffer });
+    return new GetBlobResult({ type: blob.type, buffer });
   }
 }

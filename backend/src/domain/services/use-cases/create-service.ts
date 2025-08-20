@@ -1,4 +1,4 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceEntity, ServiceRepository } from 'src/domain/database';
 import { saveAndFind } from 'src/lib';
@@ -7,22 +7,24 @@ import { buildService } from './utils';
 
 type Values = Omit<Service, 'id' | 'isActive' | 'lastestVersion' | 'numDeployments'>;
 
-export class CreateService {
-  constructor(public readonly values: Values) {}
+export class CreateService extends Command<CreateServiceResult> {
+  constructor(public readonly values: Values) {
+    super();
+  }
 }
 
-export class CreateServiceResponse {
+export class CreateServiceResult {
   constructor(public readonly service: Service) {}
 }
 
 @CommandHandler(CreateService)
-export class CreateServiceHandler implements ICommandHandler<CreateService, CreateServiceResponse> {
+export class CreateServiceHandler implements ICommandHandler<CreateService, CreateServiceResult> {
   constructor(
     @InjectRepository(ServiceEntity)
     private readonly services: ServiceRepository,
   ) {}
 
-  async execute(request: CreateService): Promise<CreateServiceResponse> {
+  async execute(request: CreateService): Promise<CreateServiceResult> {
     const { values } = request;
     const {
       currency,
@@ -50,6 +52,6 @@ export class CreateServiceHandler implements ICommandHandler<CreateService, Crea
       pricePerStorageGBMonth,
     });
 
-    return new CreateServiceResponse(buildService(service));
+    return new CreateServiceResult(buildService(service));
   }
 }

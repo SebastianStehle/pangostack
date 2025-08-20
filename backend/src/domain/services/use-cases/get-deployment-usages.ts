@@ -1,26 +1,29 @@
-import { NotFoundException } from '@nestjs/common';
-import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LessThan } from 'typeorm';
 import { DeploymentEntity, DeploymentRepository, DeploymentUsageEntity, DeploymentUsageRepository } from 'src/domain/database';
 import { getDatesInRange } from 'src/lib';
 import { UsageSummary } from '../interfaces';
+import { DeploymentPolicy } from '../policies';
 
-export class GetDeploymentUsages {
+export class GetDeploymentUsagesQuery extends Query<GetDeploymentUsagesResult> {
   constructor(
-    public readonly teamId: number,
     public readonly deploymentId: number,
+    public readonly policy: DeploymentPolicy,
     public readonly dateFrom: string,
     public readonly dateTo: string,
-  ) {}
+  ) {
+    super();
+  }
 }
 
-export class GetDeploymentUsagesResponse {
+export class GetDeploymentUsagesResult {
   constructor(public readonly usages: UsageSummary[]) {}
 }
 
-@QueryHandler(GetDeploymentUsages)
-export class GetDeploymentUsagesHandler implements IQueryHandler<GetDeploymentUsages, GetDeploymentUsagesResponse> {
+@QueryHandler(GetDeploymentUsagesQuery)
+export class GetDeploymentUsagesHandler implements IQueryHandler<GetDeploymentUsagesQuery, GetDeploymentUsagesResult> {
   constructor(
     @InjectRepository(DeploymentEntity)
     private readonly deployments: DeploymentRepository,
@@ -28,19 +31,23 @@ export class GetDeploymentUsagesHandler implements IQueryHandler<GetDeploymentUs
     private readonly deploymentUsages: DeploymentUsageRepository,
   ) {}
 
-  async execute(query: GetDeploymentUsages): Promise<GetDeploymentUsagesResponse> {
-    const { dateFrom, dateTo, deploymentId, teamId } = query;
+  async execute(query: GetDeploymentUsagesQuery): Promise<GetDeploymentUsagesResult> {
+    const { dateFrom, dateTo, deploymentId, policy } = query;
 
     // Also validates the dates, therefore call this method first.
     const dates = getDatesInRange(dateFrom, dateTo, 90);
 
     const deployment = await this.deployments.findOne({
-      where: { id: deploymentId, teamId },
+      where: { id: deploymentId },
       relations: ['updates', 'updates.serviceVersion'],
     });
 
     if (!deployment) {
       throw new NotFoundException(`Deployment ${deploymentId} not found`);
+    }
+
+    if (!policy) {
+      throw new ForbiddenException();
     }
 
     const rawUsages = await this.deploymentUsages
@@ -88,6 +95,6 @@ export class GetDeploymentUsagesHandler implements IQueryHandler<GetDeploymentUs
       previousStorageGB = usage.totalStorageGB;
     }
 
-    return new GetDeploymentUsagesResponse(usages);
+    return new GetDeploymentUsagesResult(usages);
   }
 }

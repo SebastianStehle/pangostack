@@ -1,5 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not } from 'typeorm';
 import * as uuid from 'uuid';
@@ -23,7 +23,7 @@ import { Deployment } from '../interfaces';
 import { UrlService } from '../services/url.service';
 import { buildDeployment } from './utils';
 
-export class CreateDeployment {
+export class CreateDeployment extends Command<CreateDeploymentResult> {
   constructor(
     public readonly teamId: number,
     public readonly name: string | undefined | null,
@@ -32,15 +32,17 @@ export class CreateDeployment {
     public readonly confirmUrl: string | undefined | null,
     public readonly cancelUrl: string | undefined | null,
     public readonly user: User,
-  ) {}
+  ) {
+    super();
+  }
 }
 
-export class CreateDeploymentResponse {
+export class CreateDeploymentResult {
   constructor(public readonly deploymentOrRedirectUrl: Deployment | string) {}
 }
 
 @CommandHandler(CreateDeployment)
-export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment, CreateDeploymentResponse> {
+export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment, CreateDeploymentResult> {
   constructor(
     private readonly billingService: BillingService,
     @InjectRepository(DeploymentEntity)
@@ -57,7 +59,7 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     private readonly urlService: UrlService,
   ) {}
 
-  async execute(command: CreateDeployment): Promise<CreateDeploymentResponse> {
+  async execute(command: CreateDeployment): Promise<CreateDeploymentResult> {
     const { confirmUrl, cancelUrl, name, parameters, serviceId, teamId, user } = command;
 
     const service = await this.services.findOneBy({ id: serviceId });
@@ -94,8 +96,8 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     const subscriptionResult = await this.billingService.createSubscription(
       teamId,
       deployment.id,
-      this.urlService.confirmUrl(teamId, deployment.id, confirmToken, confirmUrl),
-      this.urlService.cancelUrl(teamId, deployment.id, confirmToken, cancelUrl),
+      this.urlService.confirmUrl(deployment.id, confirmToken, confirmUrl),
+      this.urlService.cancelUrl(deployment.id, confirmToken, cancelUrl),
     );
 
     // The environment settings from the version overwrite the service.
@@ -118,13 +120,13 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     );
 
     if (subscriptionResult !== true) {
-      return new CreateDeploymentResponse(subscriptionResult.redirectTo);
+      return new CreateDeploymentResult(subscriptionResult.redirectTo);
     }
 
     deployment.status = 'Created';
     await this.deployments.save(deployment);
 
     await this.workflows.createDeployment(deployment.id, update, null, worker);
-    return new CreateDeploymentResponse(buildDeployment(deployment, update));
+    return new CreateDeploymentResult(buildDeployment(deployment, update));
   }
 }

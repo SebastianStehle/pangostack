@@ -1,5 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserEntity, UserRepository } from 'src/domain/database';
@@ -9,25 +9,27 @@ import { buildUser } from './utils';
 
 type Values = Partial<Pick<User, 'apiKey' | 'name' | 'email' | 'roles' | 'userGroupId'> & { password?: string | null }>;
 
-export class UpdateUser {
+export class UpdateUser extends Command<UpdateUserResult> {
   constructor(
     public readonly userId: string,
     public readonly values: Values,
-  ) {}
+  ) {
+    super();
+  }
 }
 
-export class UpdateUserResponse {
+export class UpdateUserResult {
   constructor(public readonly user: User) {}
 }
 
 @CommandHandler(UpdateUser)
-export class UpdateUserHandler implements ICommandHandler<UpdateUser, UpdateUserResponse> {
+export class UpdateUserHandler implements ICommandHandler<UpdateUser, UpdateUserResult> {
   constructor(
     @InjectRepository(UserEntity)
     private readonly users: UserRepository,
   ) {}
 
-  async execute(request: UpdateUser): Promise<UpdateUserResponse> {
+  async execute(request: UpdateUser): Promise<UpdateUserResult> {
     const { userId, values } = request;
     const { apiKey, email, name, password, roles, userGroupId } = values;
 
@@ -44,6 +46,6 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUser, UpdateUser
     assignDefined(user, { apiKey, email, name, roles, userGroupId });
     await this.users.save(user);
 
-    return new UpdateUserResponse(buildUser(user));
+    return new UpdateUserResult(buildUser(user));
   }
 }

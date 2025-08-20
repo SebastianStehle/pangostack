@@ -3,15 +3,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiParam, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
 import { BUILTIN_USER_GROUP_ADMIN } from 'src/domain/database';
-import {
-  CreateUserGroup,
-  CreateUserGroupResponse,
-  DeleteUserGroup,
-  GetUserGroups,
-  GetUserGroupsResponse,
-  UpdateUserGroup,
-  UpdateUserGroupResponse,
-} from 'src/domain/users';
+import { CreateUserGroup, DeleteUserGroup, GetUserGroupsQuery, UpdateUserGroup } from 'src/domain/users';
 import { UpsertUserGroupDto, UserGroupDto, UserGroupsDto } from './dtos';
 
 @Controller('user-groups')
@@ -30,9 +22,9 @@ export class UserGroupsController {
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
   async getUserGroups() {
-    const result: GetUserGroupsResponse = await this.queryBus.execute(new GetUserGroups());
+    const { userGroups } = await this.queryBus.execute(new GetUserGroupsQuery());
 
-    return UserGroupsDto.fromDomain(result.userGroups);
+    return UserGroupsDto.fromDomain(userGroups);
   }
 
   @Post('')
@@ -42,9 +34,9 @@ export class UserGroupsController {
   @UseGuards(RoleGuard)
   async postUserGroup(@Body() body: UpsertUserGroupDto) {
     const command = new CreateUserGroup(body);
-    const result: CreateUserGroupResponse = await this.commandBus.execute(command);
+    const { userGroup } = await this.commandBus.execute(command);
 
-    return UserGroupDto.fromDomain(result.userGroup);
+    return UserGroupDto.fromDomain(userGroup);
   }
 
   @Put(':groupId')
@@ -59,9 +51,9 @@ export class UserGroupsController {
   @UseGuards(RoleGuard)
   async putUser(@Param('groupId') groupId: string, @Body() body: UpsertUserGroupDto) {
     const command = new UpdateUserGroup(groupId, body);
-    const result: UpdateUserGroupResponse = await this.commandBus.execute(command);
+    const { userGroup } = await this.commandBus.execute(command);
 
-    return UserGroupDto.fromDomain(result.userGroup);
+    return UserGroupDto.fromDomain(userGroup);
   }
 
   @Delete(':groupId')

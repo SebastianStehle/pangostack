@@ -1,4 +1,4 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TeamEntity, TeamRepository, TeamUserEntity } from 'src/domain/database';
@@ -8,19 +8,21 @@ import { buildTeam } from './utils';
 
 type Values = Pick<Team, 'name'>;
 
-export class CreateTeam {
+export class CreateTeam extends Command<CreateTeamResult> {
   constructor(
     public readonly values: Values,
     public readonly user: User,
-  ) {}
+  ) {
+    super();
+  }
 }
 
-export class CreateTeamResponse {
+export class CreateTeamResult {
   constructor(public readonly team: Team) {}
 }
 
 @CommandHandler(CreateTeam)
-export class CreateTeamHandler implements ICommandHandler<CreateTeam, CreateTeamResponse> {
+export class CreateTeamHandler implements ICommandHandler<CreateTeam, CreateTeamResult> {
   constructor(
     @InjectRepository(TeamEntity)
     private readonly teams: TeamRepository,
@@ -28,7 +30,7 @@ export class CreateTeamHandler implements ICommandHandler<CreateTeam, CreateTeam
     private readonly teamUsers: Repository<TeamUserEntity>,
   ) {}
 
-  async execute(request: CreateTeam): Promise<CreateTeamResponse> {
+  async execute(request: CreateTeam): Promise<CreateTeamResult> {
     const { values, user } = request;
     const { name } = values;
 
@@ -44,6 +46,6 @@ export class CreateTeamHandler implements ICommandHandler<CreateTeam, CreateTeam
 
     const withUsers = await this.teams.findOneOrFail({ where: { id: team.id }, relations: ['users', 'users.user'] });
 
-    return new CreateTeamResponse(buildTeam(withUsers));
+    return new CreateTeamResult(buildTeam(withUsers));
   }
 }

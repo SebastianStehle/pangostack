@@ -4,16 +4,14 @@ import { UserGroupEntity, UserGroupRepository } from 'src/domain/database';
 import { UserGroup } from '../interfaces';
 import { buildUserGroup } from './utils';
 
-export class GetUserGroups {
-  constructor() {}
-}
+export class GetUserGroupsQuery {}
 
 export class GetUserGroupsResponse {
   constructor(public readonly userGroups: UserGroup[]) {}
 }
 
-@QueryHandler(GetUserGroups)
-export class GetUserGroupsHandler implements IQueryHandler<GetUserGroups, GetUserGroupsResponse> {
+@QueryHandler(GetUserGroupsQuery)
+export class GetUserGroupsHandler implements IQueryHandler<GetUserGroupsQuery, GetUserGroupsResponse> {
   constructor(
     @InjectRepository(UserGroupEntity)
     private readonly userGroups: UserGroupRepository,

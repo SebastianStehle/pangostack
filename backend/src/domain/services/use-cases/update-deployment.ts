@@ -1,5 +1,5 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not } from 'typeorm';
 import {
@@ -16,25 +16,28 @@ import { User } from 'src/domain/users';
 import { WorkflowService } from 'src/domain/workflows';
 import { saveAndFind } from 'src/lib';
 import { Deployment } from '../interfaces';
+import { DeploymentPolicy } from '../policies';
 import { buildDeployment } from './utils';
 
-export class UpdateDeployment {
+export class UpdateDeployment extends Command<UpdateDeploymentResult> {
   constructor(
-    public readonly teamId: number,
     public readonly deploymentId: number,
+    public readonly policy: DeploymentPolicy,
     public readonly name: string | undefined | null,
     public readonly parameters: Record<string, string> | null,
     public readonly versionId: number | null,
     public readonly user: User,
-  ) {}
+  ) {
+    super();
+  }
 }
 
-export class UpdateDeploymentResponse {
+export class UpdateDeploymentResult {
   constructor(public readonly deployment: Deployment) {}
 }
 
 @CommandHandler(UpdateDeployment)
-export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment, UpdateDeploymentResponse> {
+export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment, UpdateDeploymentResult> {
   constructor(
     @InjectRepository(DeploymentEntity)
     private readonly deployments: DeploymentRepository,
@@ -47,12 +50,16 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
     private readonly workflows: WorkflowService,
   ) {}
 
-  async execute(command: UpdateDeployment): Promise<UpdateDeploymentResponse> {
-    const { deploymentId, name, parameters, teamId, user, versionId } = command;
+  async execute(command: UpdateDeployment): Promise<UpdateDeploymentResult> {
+    const { deploymentId, name, parameters, policy, user, versionId } = command;
 
-    const deployment = await this.deployments.findOne({ where: { id: deploymentId, teamId } });
+    const deployment = await this.deployments.findOne({ where: { id: deploymentId } });
     if (!deployment) {
       throw new NotFoundException(`Deployment ${deploymentId} not found`);
+    }
+
+    if (!policy) {
+      throw new ForbiddenException();
     }
 
     const lastUpdate = await this.deploymentUpdates.findOne({
@@ -113,6 +120,6 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
 
     await this.workflows.createDeployment(deployment.id, update, lastUpdate, worker);
 
-    return new UpdateDeploymentResponse(buildDeployment(deployment, update));
+    return new UpdateDeploymentResult(buildDeployment(deployment, update));
   }
 }

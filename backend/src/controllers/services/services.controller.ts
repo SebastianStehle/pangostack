@@ -6,21 +6,14 @@ import { BUILTIN_USER_GROUP_ADMIN, BUILTIN_USER_GROUP_DEFAULT } from 'src/domain
 import { validateDefinition, yamlToDefinition } from 'src/domain/definitions';
 import {
   CreateService,
-  CreateServiceResponse,
   CreateServiceVersion,
-  CreateServiceVersionResponse,
   DeleteService,
   DeleteServiceVersion,
-  GetServices,
-  GetServicesPublic,
-  GetServicesPublicResponse,
-  GetServicesResponse,
-  GetServiceVersions,
-  GetServiceVersionsResponse,
+  GetServicesQuery,
+  GetServicesPublicQuery,
+  GetServiceVersionsQuery,
   UpdateService,
-  UpdateServiceResponse,
   UpdateServiceVersion,
-  UpdateServiceVersionResponse,
 } from 'src/domain/services';
 import { IntParam } from 'src/lib';
 import {
@@ -50,9 +43,9 @@ export class ServicesController {
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
   async getServices() {
-    const result: GetServicesResponse = await this.queryBus.execute(new GetServices());
+    const { services } = await this.queryBus.execute(new GetServicesQuery());
 
-    return ServicesDto.fromDomain(result.services);
+    return ServicesDto.fromDomain(services);
   }
 
   @Get('public')
@@ -61,9 +54,9 @@ export class ServicesController {
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard)
   async getServicesPublic() {
-    const result: GetServicesPublicResponse = await this.queryBus.execute(new GetServicesPublic());
+    const { services } = await this.queryBus.execute(new GetServicesPublicQuery());
 
-    return ServicesPublicDto.fromDomain(result.services);
+    return ServicesPublicDto.fromDomain(services);
   }
 
   @Post('')
@@ -73,9 +66,9 @@ export class ServicesController {
   @UseGuards(RoleGuard)
   async postService(@Body() body: UpsertServiceDto) {
     const command = new CreateService(body);
-    const result: CreateServiceResponse = await this.commandBus.execute(command);
+    const { service } = await this.commandBus.execute(command);
 
-    return ServiceDto.fromDomain(result.service);
+    return ServiceDto.fromDomain(service);
   }
 
   @Put(':serviceId')
@@ -91,9 +84,9 @@ export class ServicesController {
   @UseGuards(RoleGuard)
   async putService(@IntParam('serviceId') serviceId: number, @Body() body: UpsertServiceDto) {
     const command = new UpdateService(serviceId, body);
-    const result: UpdateServiceResponse = await this.commandBus.execute(command);
+    const { service } = await this.commandBus.execute(command);
 
-    return ServiceDto.fromDomain(result.service);
+    return ServiceDto.fromDomain(service);
   }
 
   @Delete(':serviceId')
@@ -125,9 +118,9 @@ export class ServicesController {
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
   async getDeployments(@IntParam('serviceId') serviceId: number) {
-    const result: GetServiceVersionsResponse = await this.queryBus.execute(new GetServiceVersions(serviceId));
+    const { serviceVersions } = await this.queryBus.execute(new GetServiceVersionsQuery(serviceId));
 
-    return ServiceVersionsDto.fromDomain(result.serviceVersions);
+    return ServiceVersionsDto.fromDomain(serviceVersions);
   }
 
   @Get(':serviceId/versions/:versionId')
@@ -148,9 +141,9 @@ export class ServicesController {
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
   async getServiceVersion(@IntParam('serviceId') serviceId: number, @Param('versionId') versionId: string) {
-    const result: GetServiceVersionsResponse = await this.queryBus.execute(new GetServiceVersions(serviceId));
+    const { serviceVersions } = await this.queryBus.execute(new GetServiceVersionsQuery(serviceId));
 
-    const version = result.serviceVersions.find((x) => x.id === +versionId);
+    const version = serviceVersions.find((x) => x.id === +versionId);
     if (!version) {
       throw new NotFoundException();
     }
@@ -176,9 +169,9 @@ export class ServicesController {
     await validateDefinition(definition);
 
     const command = new CreateServiceVersion(serviceId, { ...other, definition });
-    const result: CreateServiceVersionResponse = await this.commandBus.execute(command);
+    const { serviceVersion } = await this.commandBus.execute(command);
 
-    return ServiceVersionDto.fromDomain(result.serviceVersion);
+    return ServiceVersionDto.fromDomain(serviceVersion);
   }
 
   @Put(':serviceId/versions/:versionId')
@@ -209,9 +202,9 @@ export class ServicesController {
     await validateDefinition(definition);
 
     const command = new UpdateServiceVersion(versionId, { ...other, definition });
-    const result: UpdateServiceVersionResponse = await this.commandBus.execute(command);
+    const { serviceVersion } = await this.commandBus.execute(command);
 
-    return ServiceVersionDto.fromDomain(result.serviceVersion);
+    return ServiceVersionDto.fromDomain(serviceVersion);
   }
 
   @Delete(':serviceId/versions/:versionId')

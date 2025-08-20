@@ -180,7 +180,6 @@ export class DeploymentDto {
   @ApiProperty({
     description: 'The connection infos organized by connection type and name.',
     required: true,
-    type: 'object',
     additionalProperties: {
       type: 'object',
       additionalProperties: {
@@ -214,7 +213,6 @@ export class DeploymentDto {
   @ApiProperty({
     description: 'The current deployment parameters.',
     required: true,
-    type: 'object',
     additionalProperties: true,
   })
   parameters: Record<string, any>;
@@ -263,8 +261,15 @@ export class DeploymentsDto {
   })
   items: DeploymentDto[];
 
-  static fromDomain(source: Deployment[]) {
+  @ApiProperty({
+    description: 'The total number of deployments.',
+    required: true,
+  })
+  total: number;
+
+  static fromDomain(source: Deployment[], total = 0) {
     const result = new DeploymentsDto();
+    result.total = total;
     result.items = source.map(DeploymentDto.fromDomain);
     return result;
   }

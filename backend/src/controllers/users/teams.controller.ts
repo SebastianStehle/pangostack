@@ -4,18 +4,7 @@ import { ApiOkResponse, ApiOperation, ApiParam, ApiSecurity, ApiTags } from '@ne
 import { Request } from 'express';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
 import { BUILTIN_USER_GROUP_DEFAULT } from 'src/domain/database';
-import {
-  CreateTeam,
-  CreateTeamResponse,
-  DeleteTeamUser,
-  DeleteTeamUserResponse,
-  GetTeams,
-  GetTeamsResponse,
-  SetTeamUser,
-  SetTeamUserResponse,
-  UpdateTeam,
-  UpdateTeamResponse,
-} from 'src/domain/users';
+import { CreateTeam, DeleteTeamUser, GetTeamsQuery, SetTeamUser, UpdateTeam } from 'src/domain/users';
 import { IntParam } from 'src/lib';
 import { TeamDto, TeamsDto, UpsertTeamDto, UpsertTeamUserDto } from './dtos';
 
@@ -35,9 +24,9 @@ export class TeamsController {
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard)
   async getTeams(@Req() req: Request) {
-    const result: GetTeamsResponse = await this.queryBus.execute(new GetTeams(req.user));
+    const { teams } = await this.queryBus.execute(new GetTeamsQuery(req.user));
 
-    return TeamsDto.fromDomain(result.teams);
+    return TeamsDto.fromDomain(teams);
   }
 
   @Post('')
@@ -47,65 +36,47 @@ export class TeamsController {
   @UseGuards(RoleGuard)
   async postTeam(@Req() req: Request, @Body() body: UpsertTeamDto) {
     const command = new CreateTeam(body, req.user);
+    const { team } = await this.commandBus.execute(command);
 
-    const result: CreateTeamResponse = await this.commandBus.execute(command);
-
-    return TeamDto.fromDomain(result.team);
+    return TeamDto.fromDomain(team);
   }
 
   @Put(':teamId')
   @ApiOperation({ operationId: 'putTeam', description: 'Updates a team.' })
-  @ApiParam({
-    name: 'teamId',
-    description: 'The ID of the team.',
-    required: true,
-    type: 'number',
-  })
+  @ApiParam({ name: 'teamId', description: 'The ID of the team.', required: true, type: 'number' })
   @ApiOkResponse({ type: TeamDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard)
   async putTeam(@IntParam('teamId') teamId: number, @Body() body: UpsertTeamDto) {
     const command = new UpdateTeam(teamId, body);
+    const { team } = await this.commandBus.execute(command);
 
-    const result: UpdateTeamResponse = await this.commandBus.execute(command);
-
-    return TeamDto.fromDomain(result.team);
+    return TeamDto.fromDomain(team);
   }
 
   @Post(':teamId/users')
   @ApiOperation({ operationId: 'postTeamUser', description: 'Sets a team user.' })
-  @ApiParam({
-    name: 'teamId',
-    description: 'The ID of the team.',
-    required: true,
-    type: 'number',
-  })
+  @ApiParam({ name: 'teamId', description: 'The ID of the team.', required: true, type: 'number' })
   @ApiOkResponse({ type: TeamDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard)
   async postTeamUser(@Req() req: Request, @IntParam('teamId') teamId: number, @Body() body: UpsertTeamUserDto) {
     const command = new SetTeamUser(teamId, body.userIdOrEmail, req.user, body.role);
+    const { team } = await this.commandBus.execute(command);
 
-    const result: SetTeamUserResponse = await this.commandBus.execute(command);
-
-    return TeamDto.fromDomain(result.team);
+    return TeamDto.fromDomain(team);
   }
 
   @Delete(':teamId/users/:userId')
-  @ApiParam({
-    name: 'teamId',
-    description: 'The ID of the team.',
-    required: true,
-    type: 'number',
-  })
+  @ApiParam({ name: 'teamId', description: 'The ID of the team.', required: true, type: 'number' })
   @ApiOperation({ operationId: 'deleteTeamuser', description: 'Removes a team user.' })
   @ApiOkResponse({ type: TeamDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard)
   async deleteTeamUser(@Req() req: Request, @IntParam('teamId') teamId: number, @Param('userId') userId: string) {
     const command = new DeleteTeamUser(teamId, userId, req.user);
-    const result: DeleteTeamUserResponse = await this.commandBus.execute(command);
+    const { team } = await this.commandBus.execute(command);
 
-    return TeamDto.fromDomain(result.team);
+    return TeamDto.fromDomain(team);
   }
 }

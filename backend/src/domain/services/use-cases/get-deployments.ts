@@ -11,18 +11,24 @@ import {
 import { Deployment } from '../interfaces';
 import { buildDeployment } from './utils';
 
-export class GetTeamDeploymentsQuery extends Query<GetTeamDeploymentsResult> {
-  constructor(public readonly teamId: number) {
+export class GetDeploymentsQuery extends Query<GetDeploymentsResult> {
+  constructor(
+    public readonly page = 0,
+    public readonly pageSize = 10,
+  ) {
     super();
   }
 }
 
-export class GetTeamDeploymentsResult {
-  constructor(public readonly deployments: Deployment[]) {}
+export class GetDeploymentsResult {
+  constructor(
+    public readonly deployments: Deployment[],
+    public readonly total: number,
+  ) {}
 }
 
-@QueryHandler(GetTeamDeploymentsQuery)
-export class GetTeamDeploymentsHandler implements IQueryHandler<GetTeamDeploymentsQuery, GetTeamDeploymentsResult> {
+@QueryHandler(GetDeploymentsQuery)
+export class GetDeploymentsHandler implements IQueryHandler<GetDeploymentsQuery, GetDeploymentsResult> {
   constructor(
     @InjectRepository(DeploymentEntity)
     private readonly deployments: DeploymentRepository,
@@ -32,10 +38,10 @@ export class GetTeamDeploymentsHandler implements IQueryHandler<GetTeamDeploymen
     private readonly deploymentUpdates: DeploymentUpdateRepository,
   ) {}
 
-  async execute(query: GetTeamDeploymentsQuery): Promise<GetTeamDeploymentsResult> {
-    const { teamId } = query;
+  async execute(query: GetDeploymentsQuery): Promise<GetDeploymentsResult> {
+    const { page, pageSize } = query;
 
-    const entities = await this.deployments.find({ where: { teamId }, order: { id: 'DESC' } });
+    const entities = await this.deployments.find({ skip: page * pageSize, take: pageSize, order: { id: 'DESC' } });
     const result: Deployment[] = [];
 
     for (const entity of entities) {
@@ -57,6 +63,8 @@ export class GetTeamDeploymentsHandler implements IQueryHandler<GetTeamDeploymen
       result.push(buildDeployment(entity, lastUpdate, lastCheck));
     }
 
-    return new GetTeamDeploymentsResult(result);
+    const total = await this.deployments.count();
+
+    return new GetDeploymentsResult(result, total);
   }
 }

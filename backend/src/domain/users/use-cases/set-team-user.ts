@@ -1,17 +1,19 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TeamEntity, TeamRepository, TeamUserEntity, TeamUserRepository, UserEntity, UserRepository } from 'src/domain/database';
 import { Team, User } from '../interfaces';
 import { buildTeam } from './utils';
 
-export class SetTeamUser {
+export class SetTeamUser extends Command<SetTeamUserResponse> {
   constructor(
     public readonly teamId: number,
     public readonly userIdOrEmail: string,
     public readonly user: User,
     public readonly role: string = 'Admin',
-  ) {}
+  ) {
+    super();
+  }
 }
 
 export class SetTeamUserResponse {

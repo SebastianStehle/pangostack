@@ -1,20 +1,22 @@
-import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In } from 'typeorm';
 import { TeamEntity, TeamRepository, TeamUserEntity, TeamUserRepository } from 'src/domain/database';
 import { Team, User } from '../interfaces';
 import { buildTeam } from './utils';
 
-export class GetTeams {
-  constructor(public readonly user: User) {}
+export class GetTeamsQuery extends Query<GetTeamsResult> {
+  constructor(public readonly user: User) {
+    super();
+  }
 }
 
-export class GetTeamsResponse {
+export class GetTeamsResult {
   constructor(public readonly teams: Team[]) {}
 }
 
-@QueryHandler(GetTeams)
-export class GetTeamsHandler implements IQueryHandler<GetTeams, GetTeamsResponse> {
+@QueryHandler(GetTeamsQuery)
+export class GetTeamsHandler implements IQueryHandler<GetTeamsQuery, GetTeamsResult> {
   constructor(
     @InjectRepository(TeamEntity)
     private readonly teams: TeamRepository,
@@ -22,7 +24,7 @@ export class GetTeamsHandler implements IQueryHandler<GetTeams, GetTeamsResponse
     private readonly teamUsers: TeamUserRepository,
   ) {}
 
-  async execute(query: GetTeams): Promise<GetTeamsResponse> {
+  async execute(query: GetTeamsQuery): Promise<GetTeamsResult> {
     const { user } = query;
 
     const teamUsers = await this.teamUsers.find({ where: { userId: user.id } });
@@ -30,6 +32,6 @@ export class GetTeamsHandler implements IQueryHandler<GetTeams, GetTeamsResponse
 
     const teams = await this.teams.find({ where: { id: In([...teamIds]) }, relations: ['users', 'users.user'] });
 
-    return new GetTeamsResponse(teams.map(buildTeam));
+    return new GetTeamsResult(teams.map(buildTeam));
   }
 }

@@ -1,24 +1,26 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TeamEntity, TeamRepository, TeamUserEntity, TeamUserRepository } from 'src/domain/database';
 import { Team, User } from '../interfaces';
 import { buildTeam } from './utils';
 
-export class DeleteTeamUser {
+export class DeleteTeamUser extends Command<DeleteTeamUserResult> {
   constructor(
     public readonly teamId: number,
     public readonly userId: string,
     public readonly user: User,
-  ) {}
+  ) {
+    super();
+  }
 }
 
-export class DeleteTeamUserResponse {
+export class DeleteTeamUserResult {
   constructor(public readonly team: Team) {}
 }
 
 @CommandHandler(DeleteTeamUser)
-export class DeleteTeamUserHandler implements ICommandHandler<DeleteTeamUser, DeleteTeamUserResponse> {
+export class DeleteTeamUserHandler implements ICommandHandler<DeleteTeamUser, DeleteTeamUserResult> {
   constructor(
     @InjectRepository(TeamEntity)
     private readonly teams: TeamRepository,
@@ -26,7 +28,7 @@ export class DeleteTeamUserHandler implements ICommandHandler<DeleteTeamUser, De
     private readonly teamUsers: TeamUserRepository,
   ) {}
 
-  async execute(command: DeleteTeamUser): Promise<DeleteTeamUserResponse> {
+  async execute(command: DeleteTeamUser): Promise<DeleteTeamUserResult> {
     const { teamId, user, userId } = command;
 
     const team = await this.teams.findOne({ where: { id: teamId }, relations: ['users', 'users.user'] });
@@ -45,6 +47,6 @@ export class DeleteTeamUserHandler implements ICommandHandler<DeleteTeamUser, De
 
     const withUsers = await this.teams.findOneOrFail({ where: { id: teamId }, relations: ['users', 'users.user'] });
 
-    return new DeleteTeamUserResponse(buildTeam(withUsers));
+    return new DeleteTeamUserResult(buildTeam(withUsers));
   }
 }

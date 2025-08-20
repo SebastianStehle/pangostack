@@ -1,25 +1,23 @@
-import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceEntity, ServiceRepository } from 'src/domain/database';
 import { ServicePublic } from '../interfaces';
 import { buildServicePublic } from './utils';
 
-export class GetServicesPublic {
-  constructor() {}
-}
+export class GetServicesPublicQuery extends Query<GetServicesPublicResult> {}
 
-export class GetServicesPublicResponse {
+export class GetServicesPublicResult {
   constructor(public readonly services: ServicePublic[]) {}
 }
 
-@QueryHandler(GetServicesPublic)
-export class GetServicesPublicHandler implements IQueryHandler<GetServicesPublic, GetServicesPublicResponse> {
+@QueryHandler(GetServicesPublicQuery)
+export class GetServicesPublicHandler implements IQueryHandler<GetServicesPublicQuery, GetServicesPublicResult> {
   constructor(
     @InjectRepository(ServiceEntity)
     private readonly services: ServiceRepository,
   ) {}
 
-  async execute(): Promise<GetServicesPublicResponse> {
+  async execute(): Promise<GetServicesPublicResult> {
     const entities = await this.services.find({ relations: ['versions'] });
     const result: ServicePublic[] = [];
 
@@ -32,6 +30,6 @@ export class GetServicesPublicHandler implements IQueryHandler<GetServicesPublic
       result.push(buildServicePublic(entity, version));
     }
 
-    return new GetServicesPublicResponse(result);
+    return new GetServicesPublicResult(result);
   }
 }

@@ -1,5 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceEntity, ServiceRepository } from 'src/domain/database';
 import { assignDefined } from 'src/lib';
@@ -8,25 +8,27 @@ import { buildService } from './utils';
 
 type Values = Omit<Service, 'id' | 'isActive' | 'lastVersion' | 'numDeployments'>;
 
-export class UpdateService {
+export class UpdateService extends Command<UpdateServiceResult> {
   constructor(
     public readonly serviceId: number,
     public readonly values: Values,
-  ) {}
+  ) {
+    super();
+  }
 }
 
-export class UpdateServiceResponse {
+export class UpdateServiceResult {
   constructor(public readonly service: Service) {}
 }
 
 @CommandHandler(UpdateService)
-export class UpdateServiceHandler implements ICommandHandler<UpdateService, UpdateServiceResponse> {
+export class UpdateServiceHandler implements ICommandHandler<UpdateService, UpdateServiceResult> {
   constructor(
     @InjectRepository(ServiceEntity)
     private readonly services: ServiceRepository,
   ) {}
 
-  async execute(request: UpdateService): Promise<UpdateServiceResponse> {
+  async execute(request: UpdateService): Promise<UpdateServiceResult> {
     const { serviceId, values } = request;
     const {
       currency,
@@ -64,6 +66,6 @@ export class UpdateServiceHandler implements ICommandHandler<UpdateService, Upda
     });
     await this.services.save(service);
 
-    return new UpdateServiceResponse(buildService(service));
+    return new UpdateServiceResult(buildService(service));
   }
 }

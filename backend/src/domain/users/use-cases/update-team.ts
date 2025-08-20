@@ -1,5 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TeamEntity, TeamRepository } from 'src/domain/database';
 import { assignDefined } from 'src/lib';
@@ -8,25 +8,27 @@ import { buildTeam } from './utils';
 
 type Values = Partial<Pick<Team, 'name'>>;
 
-export class UpdateTeam {
+export class UpdateTeam extends Command<UpdateTeamResult> {
   constructor(
     public readonly teamId: number,
     public readonly values: Values,
-  ) {}
+  ) {
+    super();
+  }
 }
 
-export class UpdateTeamResponse {
+export class UpdateTeamResult {
   constructor(public readonly team: Team) {}
 }
 
 @CommandHandler(UpdateTeam)
-export class UpdateTeamHandler implements ICommandHandler<UpdateTeam, UpdateTeamResponse> {
+export class UpdateTeamHandler implements ICommandHandler<UpdateTeam, UpdateTeamResult> {
   constructor(
     @InjectRepository(TeamEntity)
     private readonly teams: TeamRepository,
   ) {}
 
-  async execute(request: UpdateTeam): Promise<UpdateTeamResponse> {
+  async execute(request: UpdateTeam): Promise<UpdateTeamResult> {
     const { teamId, values } = request;
     const { name } = values;
 
@@ -39,6 +41,6 @@ export class UpdateTeamHandler implements ICommandHandler<UpdateTeam, UpdateTeam
     assignDefined(team, { name });
     await this.teams.save(team);
 
-    return new UpdateTeamResponse(buildTeam(team));
+    return new UpdateTeamResult(buildTeam(team));
   }
 }

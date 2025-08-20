@@ -1,27 +1,30 @@
-import { NotFoundException } from '@nestjs/common';
-import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { addDays } from 'date-fns';
 import { Between } from 'typeorm';
 import { DeploymentCheckEntity, DeploymentCheckRepository, DeploymentEntity, DeploymentRepository } from 'src/domain/database';
 import { formatDate, getDatesInRange } from 'src/lib';
 import { CheckSummary } from '../interfaces';
+import { DeploymentPolicy } from '../policies';
 
-export class GetDeploymentChecks {
+export class GetDeploymentChecksQuery extends Query<GetDeploymentChecksResult> {
   constructor(
-    public readonly teamId: number,
     public readonly deploymentId: number,
+    public readonly policy: DeploymentPolicy,
     public readonly dateFrom: string,
     public readonly dateTo: string,
-  ) {}
+  ) {
+    super();
+  }
 }
 
-export class GetDeploymentChecksResponse {
+export class GetDeploymentChecksResult {
   constructor(public readonly checks: CheckSummary[]) {}
 }
 
-@QueryHandler(GetDeploymentChecks)
-export class GetDeploymentChecksHandler implements IQueryHandler<GetDeploymentChecks, GetDeploymentChecksResponse> {
+@QueryHandler(GetDeploymentChecksQuery)
+export class GetDeploymentChecksHandler implements IQueryHandler<GetDeploymentChecksQuery, GetDeploymentChecksResult> {
   constructor(
     @InjectRepository(DeploymentEntity)
     private readonly deployments: DeploymentRepository,
@@ -29,19 +32,23 @@ export class GetDeploymentChecksHandler implements IQueryHandler<GetDeploymentCh
     private readonly deploymentChecks: DeploymentCheckRepository,
   ) {}
 
-  async execute(query: GetDeploymentChecks): Promise<GetDeploymentChecksResponse> {
-    const { dateFrom, dateTo, deploymentId, teamId } = query;
+  async execute(query: GetDeploymentChecksQuery): Promise<GetDeploymentChecksResult> {
+    const { dateFrom, dateTo, deploymentId, policy } = query;
 
     // Also valdiates the dates, therefore call this method first.
     const dates = getDatesInRange(dateFrom, dateTo, 90);
 
     const deployment = await this.deployments.findOne({
-      where: { id: deploymentId, teamId },
+      where: { id: deploymentId },
       relations: ['updates', 'updates.serviceVersion'],
     });
 
     if (!deployment) {
       throw new NotFoundException(`Deployment ${deploymentId} not found`);
+    }
+
+    if (!policy) {
+      throw new ForbiddenException();
     }
 
     const dateFromRaw = new Date(dateFrom);
@@ -80,6 +87,6 @@ export class GetDeploymentChecksHandler implements IQueryHandler<GetDeploymentCh
       totalSuccesses: countsMap.get(date)?.numSuccesses ?? 0,
     }));
 
-    return new GetDeploymentChecksResponse(checks);
+    return new GetDeploymentChecksResult(checks);
   }
 }

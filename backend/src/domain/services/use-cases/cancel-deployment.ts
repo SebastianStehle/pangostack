@@ -5,7 +5,6 @@ import { DeploymentEntity, DeploymentRepository } from 'src/domain/database';
 
 export class CancelDeployment {
   constructor(
-    public readonly teamId: number,
     public readonly deploymentId: number,
     public readonly token: string,
   ) {}
@@ -19,9 +18,9 @@ export class CancelDeploymentHandler implements ICommandHandler<CancelDeployment
   ) {}
 
   async execute(command: CancelDeployment): Promise<any> {
-    const { deploymentId, teamId, token } = command;
+    const { deploymentId, token } = command;
 
-    const deployment = await this.deployments.findOne({ where: { id: deploymentId, teamId } });
+    const deployment = await this.deployments.findOne({ where: { id: deploymentId } });
     if (!deployment) {
       throw new NotFoundException(`Deployment ${deploymentId} not found`);
     }

@@ -27,16 +27,7 @@ import {
 } from '@nestjs/swagger';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
 import { BUILTIN_USER_GROUP_ADMIN } from 'src/domain/database';
-import {
-  DeleteLogo,
-  GetBlob,
-  GetBlobResponse,
-  GetSettings,
-  GetSettingsResponse,
-  UpdateSettings,
-  UpdateSettingsResponse,
-  UploadBlob,
-} from 'src/domain/settings';
+import { DeleteLogo, GetBlobQuery, GetSettingsQuery, UpdateSettings, UploadBlob } from 'src/domain/settings';
 import { SettingsDto } from './dtos';
 
 @Controller('settings')
@@ -50,22 +41,22 @@ export class SettingsController {
   @Get('logo')
   @ApiExcludeEndpoint()
   async getLogo() {
-    const result: GetBlobResponse = await this.queryBus.execute(new GetBlob('__logo'));
+    const { file } = await this.queryBus.execute(new GetBlobQuery('__logo'));
 
-    if (!result.logo) {
+    if (!file) {
       throw new NotFoundException('Cannot find logo.');
     }
 
-    return new StreamableFile(result.logo.buffer, { type: result.logo.type });
+    return new StreamableFile(file.buffer, { type: file.type });
   }
 
   @Get('')
   @ApiOperation({ operationId: 'getSettings', description: 'Gets settings.' })
   @ApiOkResponse({ type: SettingsDto })
   async getSettings() {
-    const result: GetSettingsResponse = await this.queryBus.execute(new GetSettings());
+    const { settings } = await this.queryBus.execute(new GetSettingsQuery());
 
-    return SettingsDto.fromDomain(result.settings);
+    return SettingsDto.fromDomain(settings);
   }
 
   @Post('')
@@ -75,9 +66,9 @@ export class SettingsController {
   @UseGuards(LocalAuthGuard, RoleGuard)
   @ApiSecurity('x-api-key')
   async postSettings(@Body() request: SettingsDto) {
-    const result: UpdateSettingsResponse = await this.commandBus.execute(new UpdateSettings(request as any));
+    const { settings } = await this.commandBus.execute(new UpdateSettings(request as any));
 
-    return SettingsDto.fromDomain(result.settings);
+    return SettingsDto.fromDomain(settings);
   }
 
   @Post('logo')

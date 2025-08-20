@@ -18,10 +18,10 @@ export class UrlService {
     return url.startsWith(this.baseUrl);
   }
 
-  confirmUrl(teamId: number, deploymentId: number, token: string, redirectUr?: string | null) {
+  confirmUrl(deploymentId: number, token: string, redirectUr?: string | null) {
     const url = new URL(this.baseUrl);
 
-    url.pathname = `/teams/${teamId}/deployments/${deploymentId}/confirm`;
+    url.pathname = `/deployments/${deploymentId}/confirm`;
 
     url.searchParams.set('token', token);
     if (redirectUr) {
@@ -31,10 +31,10 @@ export class UrlService {
     return url.toString();
   }
 
-  cancelUrl(teamId: number, deploymentId: number, token: string, redirectUr?: string | null) {
+  cancelUrl(deploymentId: number, token: string, redirectUr?: string | null) {
     const url = new URL(this.baseUrl);
 
-    url.pathname = `/teams/${teamId}/deployments/${deploymentId}/cancel`;
+    url.pathname = `/deployments/${deploymentId}/cancel`;
 
     url.searchParams.set('token', token);
     if (redirectUr) {

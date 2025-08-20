@@ -2,7 +2,7 @@ import { Controller, Get, NotFoundException, Param, StreamableFile, UseGuards } 
 import { QueryBus } from '@nestjs/cqrs';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import { LocalAuthGuard } from 'src/domain/auth';
-import { GetBlob, GetBlobResponse } from 'src/domain/settings';
+import { GetBlobQuery } from 'src/domain/settings';
 
 @Controller('blobs')
 @UseGuards(LocalAuthGuard)
@@ -12,12 +12,12 @@ export class BlobsController {
   @Get(':blobId')
   @ApiExcludeEndpoint()
   async getLogo(@Param('blobId') blobId: string) {
-    const result: GetBlobResponse = await this.queryBus.execute(new GetBlob(blobId));
+    const { file } = await this.queryBus.execute(new GetBlobQuery(blobId));
 
-    if (!result.logo) {
+    if (!file) {
       throw new NotFoundException('Cannot find logo.');
     }
 
-    return new StreamableFile(result.logo.buffer, { type: result.logo.type });
+    return new StreamableFile(file.buffer, { type: file.type });
   }
 }

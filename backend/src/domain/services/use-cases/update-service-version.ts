@@ -1,5 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceVersionEntity, ServiceVersionRepository } from 'src/domain/database';
 import { assignDefined, Optional } from 'src/lib';
@@ -8,25 +8,27 @@ import { buildServiceVersion } from './utils';
 
 type Values = Optional<Pick<ServiceVersion, 'definition' | 'environment' | 'isActive'>>;
 
-export class UpdateServiceVersion {
+export class UpdateServiceVersion extends Command<UpdateServiceVersionResult> {
   constructor(
     public readonly serviceId: number,
     public readonly values: Values,
-  ) {}
+  ) {
+    super();
+  }
 }
 
-export class UpdateServiceVersionResponse {
+export class UpdateServiceVersionResult {
   constructor(public readonly serviceVersion: ServiceVersion) {}
 }
 
 @CommandHandler(UpdateServiceVersion)
-export class UpdateServiceVersionHandler implements ICommandHandler<UpdateServiceVersion, UpdateServiceVersionResponse> {
+export class UpdateServiceVersionHandler implements ICommandHandler<UpdateServiceVersion, UpdateServiceVersionResult> {
   constructor(
     @InjectRepository(ServiceVersionEntity)
     private readonly serviceVersions: ServiceVersionRepository,
   ) {}
 
-  async execute(request: UpdateServiceVersion): Promise<UpdateServiceVersionResponse> {
+  async execute(request: UpdateServiceVersion): Promise<UpdateServiceVersionResult> {
     const { serviceId, values } = request;
     const { definition, environment, isActive } = values;
 
@@ -44,6 +46,6 @@ export class UpdateServiceVersionHandler implements ICommandHandler<UpdateServic
 
     await this.serviceVersions.save(version);
 
-    return new UpdateServiceVersionResponse(buildServiceVersion(version, false));
+    return new UpdateServiceVersionResult(buildServiceVersion(version, false));
   }
 }

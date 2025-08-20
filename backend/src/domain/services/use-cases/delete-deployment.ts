@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not } from 'typeorm';
@@ -11,11 +11,12 @@ import {
   WorkerRepository,
 } from 'src/domain/database';
 import { WorkflowService } from 'src/domain/workflows';
+import { DeploymentPolicy } from '../policies';
 
 export class DeleteDeployment {
   constructor(
-    public readonly teamId: number,
     public readonly deploymentId: number,
+    public readonly policy: DeploymentPolicy,
   ) {}
 }
 
@@ -32,11 +33,15 @@ export class DeleteDeploymentHandler implements ICommandHandler<DeleteDeployment
   ) {}
 
   async execute(command: DeleteDeployment): Promise<any> {
-    const { deploymentId, teamId } = command;
+    const { deploymentId, policy } = command;
 
-    const deployment = await this.deployments.findOne({ where: { id: deploymentId, teamId }, order: { id: 'DESC' } });
+    const deployment = await this.deployments.findOne({ where: { id: deploymentId }, order: { id: 'DESC' } });
     if (!deployment) {
       throw new NotFoundException(`Deployment ${deploymentId} not found`);
+    }
+
+    if (!policy) {
+      throw new ForbiddenException();
     }
 
     const lastUpdate = await this.deploymentUpdates.findOne({

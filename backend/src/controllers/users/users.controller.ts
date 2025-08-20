@@ -3,17 +3,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
 import { BUILTIN_USER_GROUP_ADMIN } from 'src/domain/database';
-import {
-  CreateUser,
-  CreateUserResponse,
-  DeleteUser,
-  GetUser,
-  GetUserResponse,
-  GetUsers,
-  GetUsersResponse,
-  UpdateUser,
-  UpdateUserResponse,
-} from 'src/domain/users';
+import { CreateUser, DeleteUser, GetUserQuery, GetUsersQuery, UpdateUser } from 'src/domain/users';
 import { IntQuery } from 'src/lib';
 import { UpsertUserDto, UserDto, UsersDto } from './dtos';
 
@@ -50,9 +40,9 @@ export class UsersController {
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
   async getUsers(@IntQuery('page') page: number, @IntQuery('pageSize', 20) pageSize: number, @Query('query') query?: string) {
-    const result: GetUsersResponse = await this.queryBus.execute(new GetUsers(page, pageSize, query));
+    const { users, total } = await this.queryBus.execute(new GetUsersQuery(page, pageSize, query));
 
-    return UsersDto.fromDomain(result.users, result.total);
+    return UsersDto.fromDomain(users, total);
   }
 
   @Get(':userId')
@@ -66,13 +56,13 @@ export class UsersController {
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
   async getUser(@Param('userId') userId: string) {
-    const result: GetUserResponse = await this.queryBus.execute(new GetUser(userId));
+    const { user } = await this.queryBus.execute(new GetUserQuery(userId));
 
-    if (!result.user) {
+    if (!user) {
       throw new NotFoundException(`User ${userId} not found.`);
     }
 
-    return UserDto.fromDomain(result.user);
+    return UserDto.fromDomain(user);
   }
 
   @Post('')
@@ -82,9 +72,9 @@ export class UsersController {
   @UseGuards(RoleGuard)
   async postUser(@Body() body: UpsertUserDto) {
     const command = new CreateUser(body as any);
-    const result: CreateUserResponse = await this.commandBus.execute(command);
+    const { user } = await this.commandBus.execute(command);
 
-    return UserDto.fromDomain(result.user);
+    return UserDto.fromDomain(user);
   }
 
   @Put(':userId')
@@ -99,9 +89,9 @@ export class UsersController {
   @UseGuards(RoleGuard)
   async putUser(@Param('userId') userId: string, @Body() body: UpsertUserDto) {
     const command = new UpdateUser(userId, body);
-    const result: UpdateUserResponse = await this.commandBus.execute(command);
+    const { user } = await this.commandBus.execute(command);
 
-    return UserDto.fromDomain(result.user);
+    return UserDto.fromDomain(user);
   }
 
   @Delete(':userId')
