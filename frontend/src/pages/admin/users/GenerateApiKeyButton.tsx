@@ -1,7 +1,7 @@
 import { useFormContext } from 'react-hook-form';
 import { texts } from 'src/texts';
 
-export function GenerateApiKeyButton() {
+export const GenerateApiKeyButton = () => {
   const { setValue } = useFormContext();
 
   const generateKey = async () => {
@@ -23,4 +23,4 @@ export function GenerateApiKeyButton() {
       {texts.common.generate}
     </button>
   );
-}
+};

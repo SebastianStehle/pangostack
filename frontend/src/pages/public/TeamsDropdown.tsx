@@ -11,10 +11,10 @@ export interface TeamDropdownProps {
 export const TeamsDropdown = (props: TeamDropdownProps) => {
   const location = useLocation();
   const matches = matchRoutes([{ path: '/teams/:teamId/*' }], location);
-  const teamId = matches?.[0]?.params?.teamId;
+  const teamId = +(matches?.[0]?.params?.teamId || '0');
   const { teams } = props;
 
-  const team = teams.find((x) => x.id === +teamId!);
+  const team = teams.find((x) => x.id === teamId);
 
   return (
     <OverlayDropdown

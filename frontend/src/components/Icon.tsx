@@ -40,7 +40,7 @@ export type IconType =
   | 'user'
   | 'users';
 
-export function Icon(props: IconProps) {
+export const Icon = (props: IconProps) => {
   const { className, icon, size } = props;
 
   const actualSize = size || 24;
@@ -180,9 +180,9 @@ export function Icon(props: IconProps) {
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         >
           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
           <polyline points="22 4 12 14.01 9 11.01"></polyline>
@@ -584,22 +584,22 @@ export function Icon(props: IconProps) {
           <path
             d="M137 69C143.509 70.7226 148.648 75.8129 150.44 82.2932"
             stroke="#75A4FE"
-            stroke-width="2.5"
-            stroke-linecap="round"
+            strokeWidth="2.5"
+            strokeLinecap="round"
           />
           <path
             d="M108 101.5C108 105.09 111.134 108 115 108C118.866 108 122 105.09 122 101.5"
             stroke="#1F64E7"
-            stroke-width="2.5"
-            stroke-linecap="round"
+            strokeWidth="2.5"
+            strokeLinecap="round"
           />
           <path
             d="M137 101.5C137 105.09 140.134 108 144 108C147.866 108 151 105.09 151 101.5"
             stroke="#1F64E7"
-            stroke-width="2.5"
-            stroke-linecap="round"
+            strokeWidth="2.5"
+            strokeLinecap="round"
           />
-          <path d="M122 120H136.5" stroke="#1F64E7" stroke-width="2.5" stroke-linecap="round" />
+          <path d="M122 120H136.5" stroke="#1F64E7" strokeWidth="2.5" strokeLinecap="round" />
           <path
             fill-rule="evenodd"
             clip-rule="evenodd"
@@ -638,22 +638,22 @@ export function Icon(props: IconProps) {
           <path
             d="M137 69C143.509 70.7226 148.648 75.8129 150.44 82.2932"
             stroke="#75A4FE"
-            stroke-width="2.5"
-            stroke-linecap="round"
+            strokeWidth="2.5"
+            strokeLinecap="round"
           />
           <path
             d="M108 101.5C108 105.09 111.134 108 115 108C118.866 108 122 105.09 122 101.5"
             stroke="#1F64E7"
-            stroke-width="2.5"
-            stroke-linecap="round"
+            strokeWidth="2.5"
+            strokeLinecap="round"
           />
           <path
             d="M137 101.5C137 105.09 140.134 108 144 108C147.866 108 151 105.09 151 101.5"
             stroke="#1F64E7"
-            stroke-width="2.5"
-            stroke-linecap="round"
+            strokeWidth="2.5"
+            strokeLinecap="round"
           />
-          <path d="M122 120H136.5" stroke="#1F64E7" stroke-width="2.5" stroke-linecap="round" />
+          <path d="M122 120H136.5" stroke="#1F64E7" strokeWidth="2.5" strokeLinecap="round" />
           <path
             fill-rule="evenodd"
             clip-rule="evenodd"
@@ -663,4 +663,4 @@ export function Icon(props: IconProps) {
         </svg>
       );
   }
-}
+};

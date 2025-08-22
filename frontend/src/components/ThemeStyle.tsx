@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { useTheme } from 'src/hooks';
 import { isNumber } from 'src/lib';
 
-export function ThemeStyle() {
+export const ThemeStyle = () => {
   const { theme } = useTheme();
 
   return ReactDOM.createPortal(
@@ -18,7 +18,7 @@ export function ThemeStyle() {
     </>,
     document.querySelector('#head')!,
   );
-}
+};
 
 function colorClass(className: string, color?: string | null) {
   return color

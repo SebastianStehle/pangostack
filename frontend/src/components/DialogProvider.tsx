@@ -3,7 +3,7 @@ import { DialogContext, DialogRequest, useEventCallback } from 'src/hooks';
 import { texts } from 'src/texts';
 import { Modal } from './Modal';
 
-export function DialogProvider(props: PropsWithChildren) {
+export const DialogProvider = (props: PropsWithChildren) => {
   const { children } = props;
   const [request, setRequest] = useState<DialogRequest>();
 
@@ -60,4 +60,4 @@ export function DialogProvider(props: PropsWithChildren) {
       )}
     </>
   );
-}
+};

@@ -1,11 +1,11 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { FormProvider, useForm } from 'react-hook-form';
 import { LoginDto, useClients } from 'src/api';
-import { Forms, Logo } from 'src/components';
+import { Forms, Image } from 'src/components';
 import { useLoginUrl, useTheme, useTransientNavigate } from 'src/hooks';
 import { texts } from 'src/texts';
 
-export function LoginPage() {
+export const LoginPage = () => {
   const clients = useClients();
   const { theme } = useTheme();
 
@@ -19,9 +19,7 @@ export function LoginPage() {
       <div className="no-shrink bg-base-100 flex w-full max-w-[800px] grow-0 overflow-y-auto px-4 pt-24 lg:px-24">
         <div className="mx-auto lg:w-96">
           <div className="mb-[4rem] flex items-center gap-4 text-4xl">
-            <Logo size="3rem" baseUrl={clients.url} file={theme.logo} />
-
-            <span className="min-w-0 truncate">{theme.name}</span>
+            <Image size="auto" baseUrl={clients.url} fileId="loginLogo" fallback="/logo-wide.svg" />
           </div>
 
           <h2 className="text-slate-500">{theme.welcomeText || texts.login.welcome}</h2>
@@ -44,12 +42,18 @@ export function LoginPage() {
           <div className="h-24"></div>
         </div>
       </div>
-      <div className="hidden h-screen grow items-center justify-center overflow-hidden bg-slate-100 p-8 lg:flex">
-        <img className="max-w-full" src="chat.svg" />
+      <div className="login-image hidden h-screen grow items-center justify-center overflow-hidden bg-slate-100 p-4 lg:flex">
+        <Image
+          baseUrl={clients.url}
+          className="max-h-2/3 max-w-2/3"
+          fallback="/login-image.svg"
+          fileId="loginImage"
+          size="auto"
+        />
       </div>
     </div>
   );
-}
+};
 
 function LoginForm() {
   const clients = useClients();

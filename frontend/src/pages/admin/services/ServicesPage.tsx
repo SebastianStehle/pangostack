@@ -12,7 +12,7 @@ import { NewServicePage } from './service/new-version/NewVersionPage';
 import { VersionPage } from './service/version/VersionPage';
 import { useServicesStore } from './state';
 
-export function ServicesPage() {
+export const ServicesPage = () => {
   const clients = useClients();
   const navigate = useTransientNavigate();
   const { setService, setServices, services } = useServicesStore();
@@ -82,4 +82,4 @@ export function ServicesPage() {
       {toUpdate && <UpsertServiceDialog onClose={doClose} onUpsert={setService} target={toUpdate} />}
     </Page>
   );
-}
+};

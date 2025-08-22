@@ -8,7 +8,7 @@ export interface LinksProps {
   name: string;
 }
 
-export function Links(props: LinksProps) {
+export const Links = (props: LinksProps) => {
   const { name } = props;
   const array = useFieldArray({ name });
 
@@ -47,4 +47,4 @@ export function Links(props: LinksProps) {
       )}
     </div>
   );
-}
+};

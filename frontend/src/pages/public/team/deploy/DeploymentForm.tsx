@@ -31,7 +31,7 @@ export interface DeploymentFormProps {
 
 export type DeploymentUpdate = { name: string | null; parameters: Record<string, any> };
 
-export function DeploymentForm(props: DeploymentFormProps) {
+export const DeploymentForm = (props: DeploymentFormProps) => {
   const { error, isPending, onCancel, onSubmit, service, value } = props;
 
   const resolver = useMemo(() => {
@@ -167,4 +167,4 @@ export function DeploymentForm(props: DeploymentFormProps) {
       </form>
     </FormProvider>
   );
-}
+};

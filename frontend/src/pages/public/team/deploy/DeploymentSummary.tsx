@@ -9,7 +9,7 @@ interface DeploymentSummaryProps {
   service: ServicePublicDto;
 }
 
-export function DeploymentSummary(props: DeploymentSummaryProps) {
+export const DeploymentSummary = (props: DeploymentSummaryProps) => {
   const { service } = props;
   const values = useWatch();
 
@@ -140,4 +140,4 @@ export function DeploymentSummary(props: DeploymentSummaryProps) {
       </table>
     </>
   );
-}
+};

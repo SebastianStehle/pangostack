@@ -16,7 +16,7 @@ const queryClient = new QueryClient({
   },
 });
 
-export function App() {
+export const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
@@ -49,4 +49,4 @@ export function App() {
       </BrowserRouter>
     </QueryClientProvider>
   );
-}
+};

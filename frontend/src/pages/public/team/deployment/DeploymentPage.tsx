@@ -2,17 +2,23 @@ import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useState } from 'react';
 import { useClients } from 'src/api';
-import { DeploymentStatus, HealthStatus, Icon, Spinner, TransientNavLink } from 'src/components';
+import {
+  DeploymentDisplayParameter,
+  DeploymentHealthChart,
+  DeploymentInstructions,
+  DeploymentLog,
+  DeploymentResource,
+  DeploymentStatus,
+  DeploymentUsageChart,
+  HealthStatus,
+  Icon,
+  PropertyColumn,
+  Spinner,
+  TransientNavLink,
+} from 'src/components';
 import { useTypedParams } from 'src/hooks';
 import { formatDateTime } from 'src/lib';
 import { texts } from 'src/texts';
-import { DisplayParameter } from './DisplayParamter';
-import { HealthChart } from './HealthChart';
-import { Instructions } from './Instructions';
-import { Log } from './Log';
-import { PropertyColumn } from './PropertyColumn';
-import { Resource } from './Resource';
-import { UsageChart } from './UsageChart';
 
 export const DeploymentPage = () => {
   const { deploymentId, teamId } = useTypedParams({ deploymentId: 'int', teamId: 'int' });
@@ -26,15 +32,13 @@ export const DeploymentPage = () => {
 
   const { data: loadedStatus } = useQuery({
     queryKey: ['deployment-status', teamId, deploymentId],
-    queryFn: () => clients.deployments.getDeploymentStatus(+teamId!, +deploymentId!),
+    queryFn: () => clients.deployments.getDeploymentStatus(deploymentId),
   });
 
-  const { data: loadedDeployments } = useQuery({
-    queryKey: ['deployments', teamId],
-    queryFn: () => clients.deployments.getDeployments(+teamId!),
+  const { data: deployment } = useQuery({
+    queryKey: ['deployment', deploymentId],
+    queryFn: () => clients.deployments.getDeployment(deploymentId),
   });
-
-  const deployment = loadedDeployments?.items.find((x) => x.id === +deploymentId!);
 
   if (!deployment) {
     return <Spinner visible={true} />;
@@ -61,7 +65,7 @@ export const DeploymentPage = () => {
             {texts.deployments.deploymentHeadline} {deployment.name || deployment?.serviceName}
           </h2>
 
-          <div className="mt-2 opacity-50">
+          <div className="mt-1 opacity-50">
             {deployment.serviceName}, {deployment.serviceVersion}
           </div>
         </div>
@@ -115,7 +119,7 @@ export const DeploymentPage = () => {
             <PropertyColumn label="Name" value={deployment.name || '-'} />
 
             {displayParameters.map((parameter) => (
-              <DisplayParameter key={parameter.name} deployment={deployment} parameter={parameter} />
+              <DeploymentDisplayParameter key={parameter.name} deployment={deployment} parameter={parameter} />
             ))}
           </div>
 
@@ -133,7 +137,7 @@ export const DeploymentPage = () => {
               </h2>
               <div className="card card-border bg-base border-slate-300">
                 <div className="card-body">
-                  <Instructions deployment={deployment} text={service.afterInstallationInstructions} />
+                  <DeploymentInstructions deployment={deployment} text={service.afterInstallationInstructions} />
                 </div>
               </div>
             </div>
@@ -146,7 +150,7 @@ export const DeploymentPage = () => {
 
             <div className="flex flex-col gap-2">
               {deployment.resources.map((resource) => (
-                <Resource
+                <DeploymentResource
                   key={resource.id}
                   resource={resource}
                   status={status.find((x) => x.resourceId === resource.id)}
@@ -165,7 +169,7 @@ export const DeploymentPage = () => {
               <Icon icon="bar-chart" size={16} className="inline-block" /> {texts.common.usage}
             </h2>
 
-            <UsageChart teamId={+teamId!} deploymentId={+deploymentId!} />
+            <DeploymentUsageChart deploymentId={deploymentId} />
 
             <div className="mt-4 text-right text-xs">{texts.deployments.usageChartWarning}</div>
           </div>
@@ -175,14 +179,14 @@ export const DeploymentPage = () => {
               <Icon icon="activity" size={16} className="inline-block" /> {texts.common.health}
             </h2>
 
-            <HealthChart teamId={+teamId!} deploymentId={+deploymentId!} />
+            <DeploymentHealthChart deploymentId={deploymentId} />
 
             <div className="mt-4 text-right text-xs">{texts.deployments.checkChartWarning}</div>
           </div>
         </div>
       )}
 
-      {tab === 'log' && <Log deployment={deployment} teamId={+teamId!} />}
+      {tab === 'log' && <DeploymentLog deployment={deployment} />}
     </div>
   );
 };

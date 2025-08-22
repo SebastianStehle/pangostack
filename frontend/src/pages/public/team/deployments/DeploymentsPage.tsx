@@ -15,7 +15,7 @@ export const DeploymentsPage = () => {
     isFetched,
   } = useQuery({
     queryKey: ['deployments', teamId],
-    queryFn: () => clients.deployments.getDeployments(+teamId!),
+    queryFn: () => clients.deployments.getTeamDeployments(teamId),
   });
 
   const deployments = loadedDeployments?.items || [];

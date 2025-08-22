@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ProfileContext } from 'src/hooks';
 import { useClients } from '../api';
 
-export function RouteWhenPrivate(props: React.PropsWithChildren) {
+export const RouteWhenPrivate = (props: React.PropsWithChildren) => {
   const { children } = props;
   const clients = useClients();
 
@@ -16,4 +16,4 @@ export function RouteWhenPrivate(props: React.PropsWithChildren) {
   }
 
   return <ProfileContext.Provider value={profile}>{children}</ProfileContext.Provider>;
-}
+};

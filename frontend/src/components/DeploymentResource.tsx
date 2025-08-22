@@ -1,7 +1,7 @@
 import { ConnectionInfoDto, DeploymentResourceDto, ResourceStatusDto } from 'src/api';
 import { NodeStatus } from 'src/components';
 
-export interface ResourceProps {
+export interface DeploymentResourceProps {
   // The resource that is part of the deployment.
   resource: DeploymentResourceDto;
 
@@ -12,7 +12,7 @@ export interface ResourceProps {
   status?: ResourceStatusDto;
 }
 
-export const Resource = (props: ResourceProps) => {
+export const DeploymentResource = (props: DeploymentResourceProps) => {
   const { connection, resource, status } = props;
   const actualConnections = connection || [];
 

@@ -47,61 +47,63 @@ import {
 } from '../models/index';
 
 export interface DeleteDeploymentRequest {
+    deploymentId: number;
+}
+
+export interface DeploymentsControllerCancelDeploymentRequest {
+    deploymentId: number;
+    token: string;
+    redirectUrl: string;
+}
+
+export interface DeploymentsControllerConfirmDeploymentRequest {
     teamId: number;
+    deploymentId: number;
+    token: string;
+    redirectUrl: string;
+}
+
+export interface GetDeploymentRequest {
     deploymentId: number;
 }
 
 export interface GetDeploymentChecksRequest {
-    teamId: number;
     deploymentId: number;
     fromDate: string;
     toDate: string;
 }
 
 export interface GetDeploymentLogsRequest {
-    teamId: number;
     deploymentId: number;
 }
 
 export interface GetDeploymentStatusRequest {
-    teamId: number;
     deploymentId: number;
 }
 
 export interface GetDeploymentUsageRequest {
-    teamId: number;
     deploymentId: number;
     fromDate: string;
     toDate: string;
 }
 
 export interface GetDeploymentsRequest {
+    page?: number;
+    pageSize?: number;
+}
+
+export interface GetTeamDeploymentsRequest {
     teamId: number;
 }
 
-export interface PostDeploymentRequest {
+export interface PostTeamDeploymentRequest {
     teamId: number;
     createDeploymentDto: CreateDeploymentDto;
 }
 
 export interface PutDeploymentRequest {
-    teamId: number;
     deploymentId: number;
     createDeploymentDto: CreateDeploymentDto;
-}
-
-export interface TeamDeploymentsControllerCancelDeploymentRequest {
-    teamId: number;
-    deploymentId: number;
-    token: string;
-    redirectUrl: string;
-}
-
-export interface TeamDeploymentsControllerConfirmDeploymentRequest {
-    teamId: number;
-    deploymentId: number;
-    token: string;
-    redirectUrl: string;
 }
 
 /**
@@ -114,10 +116,6 @@ export class DeploymentsApi extends runtime.BaseAPI {
      * 
      */
     async deleteDeploymentRaw(requestParameters: DeleteDeploymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.teamId === null || requestParameters.teamId === undefined) {
-            throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling deleteDeployment.');
-        }
-
         if (requestParameters.deploymentId === null || requestParameters.deploymentId === undefined) {
             throw new runtime.RequiredError('deploymentId','Required parameter requestParameters.deploymentId was null or undefined when calling deleteDeployment.');
         }
@@ -131,7 +129,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/teams/{teamId}/deployments/{deploymentId}`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))).replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            path: `/deployments/{deploymentId}`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -144,8 +142,142 @@ export class DeploymentsApi extends runtime.BaseAPI {
      * Delete a deployment.
      * 
      */
-    async deleteDeployment(teamId: number, deploymentId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.deleteDeploymentRaw({ teamId: teamId, deploymentId: deploymentId }, initOverrides);
+    async deleteDeployment(deploymentId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.deleteDeploymentRaw({ deploymentId: deploymentId }, initOverrides);
+    }
+
+    /**
+     */
+    async deploymentsControllerCancelDeploymentRaw(requestParameters: DeploymentsControllerCancelDeploymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.deploymentId === null || requestParameters.deploymentId === undefined) {
+            throw new runtime.RequiredError('deploymentId','Required parameter requestParameters.deploymentId was null or undefined when calling deploymentsControllerCancelDeployment.');
+        }
+
+        if (requestParameters.token === null || requestParameters.token === undefined) {
+            throw new runtime.RequiredError('token','Required parameter requestParameters.token was null or undefined when calling deploymentsControllerCancelDeployment.');
+        }
+
+        if (requestParameters.redirectUrl === null || requestParameters.redirectUrl === undefined) {
+            throw new runtime.RequiredError('redirectUrl','Required parameter requestParameters.redirectUrl was null or undefined when calling deploymentsControllerCancelDeployment.');
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters.token !== undefined) {
+            queryParameters['token'] = requestParameters.token;
+        }
+
+        if (requestParameters.redirectUrl !== undefined) {
+            queryParameters['redirectUrl'] = requestParameters.redirectUrl;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/deployments/{deploymentId}/cancel`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     */
+    async deploymentsControllerCancelDeployment(deploymentId: number, token: string, redirectUrl: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.deploymentsControllerCancelDeploymentRaw({ deploymentId: deploymentId, token: token, redirectUrl: redirectUrl }, initOverrides);
+    }
+
+    /**
+     */
+    async deploymentsControllerConfirmDeploymentRaw(requestParameters: DeploymentsControllerConfirmDeploymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.teamId === null || requestParameters.teamId === undefined) {
+            throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling deploymentsControllerConfirmDeployment.');
+        }
+
+        if (requestParameters.deploymentId === null || requestParameters.deploymentId === undefined) {
+            throw new runtime.RequiredError('deploymentId','Required parameter requestParameters.deploymentId was null or undefined when calling deploymentsControllerConfirmDeployment.');
+        }
+
+        if (requestParameters.token === null || requestParameters.token === undefined) {
+            throw new runtime.RequiredError('token','Required parameter requestParameters.token was null or undefined when calling deploymentsControllerConfirmDeployment.');
+        }
+
+        if (requestParameters.redirectUrl === null || requestParameters.redirectUrl === undefined) {
+            throw new runtime.RequiredError('redirectUrl','Required parameter requestParameters.redirectUrl was null or undefined when calling deploymentsControllerConfirmDeployment.');
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters.token !== undefined) {
+            queryParameters['token'] = requestParameters.token;
+        }
+
+        if (requestParameters.redirectUrl !== undefined) {
+            queryParameters['redirectUrl'] = requestParameters.redirectUrl;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/deployments/{deploymentId}/confirm`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))).replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     */
+    async deploymentsControllerConfirmDeployment(teamId: number, deploymentId: number, token: string, redirectUrl: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.deploymentsControllerConfirmDeploymentRaw({ teamId: teamId, deploymentId: deploymentId, token: token, redirectUrl: redirectUrl }, initOverrides);
+    }
+
+    /**
+     * Gets a deployment by ID.
+     * 
+     */
+    async getDeploymentRaw(requestParameters: GetDeploymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeploymentDto>> {
+        if (requestParameters.deploymentId === null || requestParameters.deploymentId === undefined) {
+            throw new runtime.RequiredError('deploymentId','Required parameter requestParameters.deploymentId was null or undefined when calling getDeployment.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/deployments/{deploymentId}`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => DeploymentDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Gets a deployment by ID.
+     * 
+     */
+    async getDeployment(deploymentId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentDto> {
+        const response = await this.getDeploymentRaw({ deploymentId: deploymentId }, initOverrides);
+        return await response.value();
     }
 
     /**
@@ -153,10 +285,6 @@ export class DeploymentsApi extends runtime.BaseAPI {
      * 
      */
     async getDeploymentChecksRaw(requestParameters: GetDeploymentChecksRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeploymentCheckSummariesDto>> {
-        if (requestParameters.teamId === null || requestParameters.teamId === undefined) {
-            throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling getDeploymentChecks.');
-        }
-
         if (requestParameters.deploymentId === null || requestParameters.deploymentId === undefined) {
             throw new runtime.RequiredError('deploymentId','Required parameter requestParameters.deploymentId was null or undefined when calling getDeploymentChecks.');
         }
@@ -186,7 +314,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/teams/{teamId}/deployments/{deploymentId}/checks`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))).replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            path: `/deployments/{deploymentId}/checks`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -199,8 +327,8 @@ export class DeploymentsApi extends runtime.BaseAPI {
      * Gets deployments status.
      * 
      */
-    async getDeploymentChecks(teamId: number, deploymentId: number, fromDate: string, toDate: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentCheckSummariesDto> {
-        const response = await this.getDeploymentChecksRaw({ teamId: teamId, deploymentId: deploymentId, fromDate: fromDate, toDate: toDate }, initOverrides);
+    async getDeploymentChecks(deploymentId: number, fromDate: string, toDate: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentCheckSummariesDto> {
+        const response = await this.getDeploymentChecksRaw({ deploymentId: deploymentId, fromDate: fromDate, toDate: toDate }, initOverrides);
         return await response.value();
     }
 
@@ -209,10 +337,6 @@ export class DeploymentsApi extends runtime.BaseAPI {
      * 
      */
     async getDeploymentLogsRaw(requestParameters: GetDeploymentLogsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeploymentLogsDto>> {
-        if (requestParameters.teamId === null || requestParameters.teamId === undefined) {
-            throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling getDeploymentLogs.');
-        }
-
         if (requestParameters.deploymentId === null || requestParameters.deploymentId === undefined) {
             throw new runtime.RequiredError('deploymentId','Required parameter requestParameters.deploymentId was null or undefined when calling getDeploymentLogs.');
         }
@@ -226,7 +350,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/teams/{teamId}/deployments/{deploymentId}/logs`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))).replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            path: `/deployments/{deploymentId}/logs`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -239,8 +363,8 @@ export class DeploymentsApi extends runtime.BaseAPI {
      * Gets deployments logs.
      * 
      */
-    async getDeploymentLogs(teamId: number, deploymentId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentLogsDto> {
-        const response = await this.getDeploymentLogsRaw({ teamId: teamId, deploymentId: deploymentId }, initOverrides);
+    async getDeploymentLogs(deploymentId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentLogsDto> {
+        const response = await this.getDeploymentLogsRaw({ deploymentId: deploymentId }, initOverrides);
         return await response.value();
     }
 
@@ -249,10 +373,6 @@ export class DeploymentsApi extends runtime.BaseAPI {
      * 
      */
     async getDeploymentStatusRaw(requestParameters: GetDeploymentStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeploymentStatusDto>> {
-        if (requestParameters.teamId === null || requestParameters.teamId === undefined) {
-            throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling getDeploymentStatus.');
-        }
-
         if (requestParameters.deploymentId === null || requestParameters.deploymentId === undefined) {
             throw new runtime.RequiredError('deploymentId','Required parameter requestParameters.deploymentId was null or undefined when calling getDeploymentStatus.');
         }
@@ -266,7 +386,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/teams/{teamId}/deployments/{deploymentId}/status`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))).replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            path: `/deployments/{deploymentId}/status`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -279,8 +399,8 @@ export class DeploymentsApi extends runtime.BaseAPI {
      * Gets deployments status.
      * 
      */
-    async getDeploymentStatus(teamId: number, deploymentId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentStatusDto> {
-        const response = await this.getDeploymentStatusRaw({ teamId: teamId, deploymentId: deploymentId }, initOverrides);
+    async getDeploymentStatus(deploymentId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentStatusDto> {
+        const response = await this.getDeploymentStatusRaw({ deploymentId: deploymentId }, initOverrides);
         return await response.value();
     }
 
@@ -289,10 +409,6 @@ export class DeploymentsApi extends runtime.BaseAPI {
      * 
      */
     async getDeploymentUsageRaw(requestParameters: GetDeploymentUsageRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeploymentUsageSummariesDto>> {
-        if (requestParameters.teamId === null || requestParameters.teamId === undefined) {
-            throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling getDeploymentUsage.');
-        }
-
         if (requestParameters.deploymentId === null || requestParameters.deploymentId === undefined) {
             throw new runtime.RequiredError('deploymentId','Required parameter requestParameters.deploymentId was null or undefined when calling getDeploymentUsage.');
         }
@@ -322,7 +438,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/teams/{teamId}/deployments/{deploymentId}/usage`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))).replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            path: `/deployments/{deploymentId}/usage`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -335,8 +451,8 @@ export class DeploymentsApi extends runtime.BaseAPI {
      * Gets usage summaries.
      * 
      */
-    async getDeploymentUsage(teamId: number, deploymentId: number, fromDate: string, toDate: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentUsageSummariesDto> {
-        const response = await this.getDeploymentUsageRaw({ teamId: teamId, deploymentId: deploymentId, fromDate: fromDate, toDate: toDate }, initOverrides);
+    async getDeploymentUsage(deploymentId: number, fromDate: string, toDate: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentUsageSummariesDto> {
+        const response = await this.getDeploymentUsageRaw({ deploymentId: deploymentId, fromDate: fromDate, toDate: toDate }, initOverrides);
         return await response.value();
     }
 
@@ -345,8 +461,48 @@ export class DeploymentsApi extends runtime.BaseAPI {
      * 
      */
     async getDeploymentsRaw(requestParameters: GetDeploymentsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeploymentsDto>> {
+        const queryParameters: any = {};
+
+        if (requestParameters.page !== undefined) {
+            queryParameters['page'] = requestParameters.page;
+        }
+
+        if (requestParameters.pageSize !== undefined) {
+            queryParameters['pageSize'] = requestParameters.pageSize;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/deployments`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => DeploymentsDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Gets all deployments.
+     * 
+     */
+    async getDeployments(page?: number, pageSize?: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentsDto> {
+        const response = await this.getDeploymentsRaw({ page: page, pageSize: pageSize }, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Gets all deployments.
+     * 
+     */
+    async getTeamDeploymentsRaw(requestParameters: GetTeamDeploymentsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeploymentsDto>> {
         if (requestParameters.teamId === null || requestParameters.teamId === undefined) {
-            throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling getDeployments.');
+            throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling getTeamDeployments.');
         }
 
         const queryParameters: any = {};
@@ -371,8 +527,8 @@ export class DeploymentsApi extends runtime.BaseAPI {
      * Gets all deployments.
      * 
      */
-    async getDeployments(teamId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentsDto> {
-        const response = await this.getDeploymentsRaw({ teamId: teamId }, initOverrides);
+    async getTeamDeployments(teamId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentsDto> {
+        const response = await this.getTeamDeploymentsRaw({ teamId: teamId }, initOverrides);
         return await response.value();
     }
 
@@ -380,13 +536,13 @@ export class DeploymentsApi extends runtime.BaseAPI {
      * Creates a deployment.
      * 
      */
-    async postDeploymentRaw(requestParameters: PostDeploymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeploymentCreatedDto>> {
+    async postTeamDeploymentRaw(requestParameters: PostTeamDeploymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeploymentCreatedDto>> {
         if (requestParameters.teamId === null || requestParameters.teamId === undefined) {
-            throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling postDeployment.');
+            throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling postTeamDeployment.');
         }
 
         if (requestParameters.createDeploymentDto === null || requestParameters.createDeploymentDto === undefined) {
-            throw new runtime.RequiredError('createDeploymentDto','Required parameter requestParameters.createDeploymentDto was null or undefined when calling postDeployment.');
+            throw new runtime.RequiredError('createDeploymentDto','Required parameter requestParameters.createDeploymentDto was null or undefined when calling postTeamDeployment.');
         }
 
         const queryParameters: any = {};
@@ -414,8 +570,8 @@ export class DeploymentsApi extends runtime.BaseAPI {
      * Creates a deployment.
      * 
      */
-    async postDeployment(teamId: number, createDeploymentDto: CreateDeploymentDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentCreatedDto> {
-        const response = await this.postDeploymentRaw({ teamId: teamId, createDeploymentDto: createDeploymentDto }, initOverrides);
+    async postTeamDeployment(teamId: number, createDeploymentDto: CreateDeploymentDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentCreatedDto> {
+        const response = await this.postTeamDeploymentRaw({ teamId: teamId, createDeploymentDto: createDeploymentDto }, initOverrides);
         return await response.value();
     }
 
@@ -424,10 +580,6 @@ export class DeploymentsApi extends runtime.BaseAPI {
      * 
      */
     async putDeploymentRaw(requestParameters: PutDeploymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeploymentDto>> {
-        if (requestParameters.teamId === null || requestParameters.teamId === undefined) {
-            throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling putDeployment.');
-        }
-
         if (requestParameters.deploymentId === null || requestParameters.deploymentId === undefined) {
             throw new runtime.RequiredError('deploymentId','Required parameter requestParameters.deploymentId was null or undefined when calling putDeployment.');
         }
@@ -447,7 +599,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/teams/{teamId}/deployments/{deploymentId}`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))).replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            path: `/deployments/{deploymentId}`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
@@ -461,111 +613,9 @@ export class DeploymentsApi extends runtime.BaseAPI {
      * Updates a deployment.
      * 
      */
-    async putDeployment(teamId: number, deploymentId: number, createDeploymentDto: CreateDeploymentDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentDto> {
-        const response = await this.putDeploymentRaw({ teamId: teamId, deploymentId: deploymentId, createDeploymentDto: createDeploymentDto }, initOverrides);
+    async putDeployment(deploymentId: number, createDeploymentDto: CreateDeploymentDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentDto> {
+        const response = await this.putDeploymentRaw({ deploymentId: deploymentId, createDeploymentDto: createDeploymentDto }, initOverrides);
         return await response.value();
-    }
-
-    /**
-     */
-    async teamDeploymentsControllerCancelDeploymentRaw(requestParameters: TeamDeploymentsControllerCancelDeploymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.teamId === null || requestParameters.teamId === undefined) {
-            throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling teamDeploymentsControllerCancelDeployment.');
-        }
-
-        if (requestParameters.deploymentId === null || requestParameters.deploymentId === undefined) {
-            throw new runtime.RequiredError('deploymentId','Required parameter requestParameters.deploymentId was null or undefined when calling teamDeploymentsControllerCancelDeployment.');
-        }
-
-        if (requestParameters.token === null || requestParameters.token === undefined) {
-            throw new runtime.RequiredError('token','Required parameter requestParameters.token was null or undefined when calling teamDeploymentsControllerCancelDeployment.');
-        }
-
-        if (requestParameters.redirectUrl === null || requestParameters.redirectUrl === undefined) {
-            throw new runtime.RequiredError('redirectUrl','Required parameter requestParameters.redirectUrl was null or undefined when calling teamDeploymentsControllerCancelDeployment.');
-        }
-
-        const queryParameters: any = {};
-
-        if (requestParameters.token !== undefined) {
-            queryParameters['token'] = requestParameters.token;
-        }
-
-        if (requestParameters.redirectUrl !== undefined) {
-            queryParameters['redirectUrl'] = requestParameters.redirectUrl;
-        }
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        if (this.configuration && this.configuration.apiKey) {
-            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
-        }
-
-        const response = await this.request({
-            path: `/teams/{teamId}/deployments/{deploymentId}/cancel`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))).replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     */
-    async teamDeploymentsControllerCancelDeployment(teamId: number, deploymentId: number, token: string, redirectUrl: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.teamDeploymentsControllerCancelDeploymentRaw({ teamId: teamId, deploymentId: deploymentId, token: token, redirectUrl: redirectUrl }, initOverrides);
-    }
-
-    /**
-     */
-    async teamDeploymentsControllerConfirmDeploymentRaw(requestParameters: TeamDeploymentsControllerConfirmDeploymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.teamId === null || requestParameters.teamId === undefined) {
-            throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling teamDeploymentsControllerConfirmDeployment.');
-        }
-
-        if (requestParameters.deploymentId === null || requestParameters.deploymentId === undefined) {
-            throw new runtime.RequiredError('deploymentId','Required parameter requestParameters.deploymentId was null or undefined when calling teamDeploymentsControllerConfirmDeployment.');
-        }
-
-        if (requestParameters.token === null || requestParameters.token === undefined) {
-            throw new runtime.RequiredError('token','Required parameter requestParameters.token was null or undefined when calling teamDeploymentsControllerConfirmDeployment.');
-        }
-
-        if (requestParameters.redirectUrl === null || requestParameters.redirectUrl === undefined) {
-            throw new runtime.RequiredError('redirectUrl','Required parameter requestParameters.redirectUrl was null or undefined when calling teamDeploymentsControllerConfirmDeployment.');
-        }
-
-        const queryParameters: any = {};
-
-        if (requestParameters.token !== undefined) {
-            queryParameters['token'] = requestParameters.token;
-        }
-
-        if (requestParameters.redirectUrl !== undefined) {
-            queryParameters['redirectUrl'] = requestParameters.redirectUrl;
-        }
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        if (this.configuration && this.configuration.apiKey) {
-            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
-        }
-
-        const response = await this.request({
-            path: `/teams/{teamId}/deployments/{deploymentId}/confirm`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))).replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     */
-    async teamDeploymentsControllerConfirmDeployment(teamId: number, deploymentId: number, token: string, redirectUrl: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.teamDeploymentsControllerConfirmDeploymentRaw({ teamId: teamId, deploymentId: deploymentId, token: token, redirectUrl: redirectUrl }, initOverrides);
     }
 
 }

@@ -10,7 +10,7 @@ export interface AlertProps {
   className?: string;
 }
 
-export function Alert(props: AlertProps) {
+export const Alert = (props: AlertProps) => {
   const { className, text } = props;
 
   return (
@@ -19,4 +19,4 @@ export function Alert(props: AlertProps) {
       <Markdown>{text}</Markdown>
     </div>
   );
-}
+};

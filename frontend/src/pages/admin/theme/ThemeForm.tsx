@@ -17,7 +17,7 @@ const SCHEME = Yup.object().shape({
 
 const RESOLVER = yupResolver<any>(SCHEME);
 
-export function ThemeForm() {
+export const ThemeForm = () => {
   const clients = useClients();
 
   const { data: settings } = useQuery({
@@ -76,7 +76,7 @@ export function ThemeForm() {
       </form>
     </FormProvider>
   );
-}
+};
 
 function FormSync() {
   const formValue = useWatch<SettingsDto>();

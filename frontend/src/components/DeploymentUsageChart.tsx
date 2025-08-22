@@ -4,26 +4,23 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 import { useClients } from 'src/api';
 import { texts } from 'src/texts';
 
-export interface UsageChartProps {
-  // The ID of the team.
-  teamId: number;
-
+export interface DeploymentUsageChartProps {
   // The ID of the deployment.
   deploymentId: number;
 }
 
-export function UsageChart(props: UsageChartProps) {
-  const { deploymentId, teamId } = props;
+export const DeploymentUsageChart = (props: DeploymentUsageChartProps) => {
+  const { deploymentId } = props;
   const clients = useClients();
 
   const { data: loadedUsage } = useQuery({
-    queryKey: ['deployment-usage', teamId, deploymentId],
+    queryKey: ['deployment-usage', deploymentId],
     queryFn: () => {
       const now = new Date();
       const dateFrom = format(addDays(now, -30), 'yyyy-MM-dd');
       const dateTo = format(now, 'yyyy-MM-dd');
 
-      return clients.deployments.getDeploymentUsage(teamId, deploymentId, dateFrom, dateTo);
+      return clients.deployments.getDeploymentUsage(deploymentId, dateFrom, dateTo);
     },
   });
 
@@ -44,4 +41,4 @@ export function UsageChart(props: UsageChartProps) {
       </BarChart>
     </ResponsiveContainer>
   );
-}
+};

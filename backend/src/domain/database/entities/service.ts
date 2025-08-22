@@ -1,5 +1,6 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, Repository, UpdateDateColumn } from 'typeorm';
 import { DecimalToNumberTransformer } from 'src/lib';
+import { DeploymentEntity } from './deployment';
 import { ServiceVersionEntity } from './service-version';
 
 export type ServiceRepository = Repository<ServiceEntity>;
@@ -66,6 +67,9 @@ export class ServiceEntity {
 
   @OneToMany(() => ServiceVersionEntity, (version) => version.service)
   versions: ServiceVersionEntity[];
+
+  @OneToMany(() => DeploymentEntity, (deployment) => deployment.service)
+  deployments: DeploymentEntity[];
 
   @CreateDateColumn()
   createdAt: Date;

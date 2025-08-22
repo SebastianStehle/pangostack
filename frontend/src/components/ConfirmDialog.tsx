@@ -5,9 +5,9 @@ export interface ConfirmDialogProps extends DialogRequest {
   children: (props: { onClick: () => void }) => ReactNode;
 }
 
-export function ConfirmDialog(props: ConfirmDialogProps) {
+export const ConfirmDialog = (props: ConfirmDialogProps) => {
   const { children, ...request } = props;
   const dialog = useDialog();
 
   return children({ onClick: () => dialog.showDialog(request) });
-}
+};

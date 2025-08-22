@@ -6,16 +6,13 @@ import { Empty, Spinner } from 'src/components';
 import LogViewer from 'src/components/LogViewer';
 import { texts } from 'src/texts';
 
-export interface LogProps {
+export interface DeploymentLogProps {
   // The deployment that contains the parameters.
   deployment: DeploymentDto;
-
-  // The ID of the team.
-  teamId: number;
 }
 
-export const Log = (props: LogProps) => {
-  const { deployment, teamId } = props;
+export const DeploymentLog = (props: DeploymentLogProps) => {
+  const { deployment } = props;
   const clients = useClients();
 
   const {
@@ -23,9 +20,9 @@ export const Log = (props: LogProps) => {
     isFetched,
     isLoading,
   } = useQuery({
-    queryKey: ['deployment-logs', teamId, deployment.id],
+    queryKey: ['deployment-logs', deployment.id],
     queryFn: () => {
-      return clients.deployments.getDeploymentLogs(teamId, deployment.id);
+      return clients.deployments.getDeploymentLogs(deployment.id);
     },
   });
 

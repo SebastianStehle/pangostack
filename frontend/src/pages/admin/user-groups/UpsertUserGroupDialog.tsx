@@ -27,7 +27,7 @@ export interface UpsertUserGroupDialogProps {
   onDelete?: (id: string) => void;
 }
 
-export function UpsertUserGroupDialog(props: UpsertUserGroupDialogProps) {
+export const UpsertUserGroupDialog = (props: UpsertUserGroupDialogProps) => {
   const { onClose, onDelete, onUpsert, target } = props;
   const clients = useClients();
 
@@ -106,4 +106,4 @@ export function UpsertUserGroupDialog(props: UpsertUserGroupDialogProps) {
       </form>
     </FormProvider>
   );
-}
+};

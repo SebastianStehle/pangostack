@@ -12,7 +12,7 @@ import { DeploymentsPage } from './deployments/DeploymentsPage';
 import { MembersPage } from './members/MembersPage';
 import { SettingsPage } from './settings/SettingsPage';
 
-export function TeamPage() {
+export const TeamPage = () => {
   const { teamId } = useTypedParams({ teamId: 'int' });
   const clients = useClients();
 
@@ -79,4 +79,4 @@ export function TeamPage() {
       </div>
     </div>
   );
-}
+};

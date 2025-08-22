@@ -2,10 +2,10 @@ import {
   Body,
   Controller,
   Delete,
-  FileTypeValidator,
   Get,
   MaxFileSizeValidator,
   NotFoundException,
+  Param,
   ParseFilePipe,
   Post,
   StreamableFile,
@@ -22,12 +22,13 @@ import {
   ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
 import { BUILTIN_USER_GROUP_ADMIN } from 'src/domain/database';
-import { DeleteLogo, GetBlobQuery, GetSettingsQuery, UpdateSettings, UploadBlob } from 'src/domain/settings';
+import { DeleteBlob, GetBlobQuery, GetSettingsQuery, UpdateSettings, UploadBlob } from 'src/domain/settings';
 import { SettingsDto } from './dtos';
 
 @Controller('settings')
@@ -37,18 +38,6 @@ export class SettingsController {
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
-
-  @Get('logo')
-  @ApiExcludeEndpoint()
-  async getLogo() {
-    const { file } = await this.queryBus.execute(new GetBlobQuery('__logo'));
-
-    if (!file) {
-      throw new NotFoundException('Cannot find logo.');
-    }
-
-    return new StreamableFile(file.buffer, { type: file.type });
-  }
 
   @Get('')
   @ApiOperation({ operationId: 'getSettings', description: 'Gets settings.' })
@@ -71,8 +60,20 @@ export class SettingsController {
     return SettingsDto.fromDomain(settings);
   }
 
-  @Post('logo')
-  @ApiOperation({ operationId: 'postLogo' })
+  @Get('files/:fileId')
+  @ApiExcludeEndpoint()
+  async getLogo(@Param('fileId') fileId: string) {
+    const { file } = await this.queryBus.execute(new GetBlobQuery(fileId));
+    if (!file) {
+      throw new NotFoundException(`File ${fileId} not found.`);
+    }
+
+    return new StreamableFile(file.buffer, { type: file.type });
+  }
+
+  @Post('files/:fileId')
+  @ApiOperation({ operationId: 'postFile' })
+  @ApiParam({ name: 'fileId', description: 'The ID of the file.', required: true, type: 'string' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -90,26 +91,29 @@ export class SettingsController {
   @UseGuards(LocalAuthGuard, RoleGuard)
   @ApiSecurity('x-api-key')
   async postLogo(
+    @Param('fileId') fileId: string,
     @UploadedFile(
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: 200_000 }),
-          new FileTypeValidator({ fileType: /(image\/jpeg)|(image\/png)|(image\/webp)|(image\/svg\+xml)/ }),
+          // Currently not working.
+          //new FileTypeValidator({ fileType: /^image/ })
         ],
       }),
     )
     file: Express.Multer.File,
   ) {
-    await this.commandBus.execute(new UploadBlob('__logo', file.buffer, file.mimetype, file.filename, file.size));
+    await this.commandBus.execute(new UploadBlob(fileId, file.buffer, file.mimetype, file.filename, file.size));
   }
 
-  @Delete('logo')
-  @ApiOperation({ operationId: 'deleteLogo', description: 'Deletes the logo.' })
+  @Delete('files/:fileId')
+  @ApiOperation({ operationId: 'deleteFile', description: 'Deletes the file.' })
+  @ApiParam({ name: 'fileId', description: 'The ID of the file.', required: true, type: 'string' })
   @ApiNoContentResponse()
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(LocalAuthGuard, RoleGuard)
   @ApiSecurity('x-api-key')
-  async deleteLogo() {
-    await this.commandBus.execute(new DeleteLogo());
+  async deleteFile(@Param('fileId') fileId: string) {
+    await this.commandBus.execute(new DeleteBlob(fileId));
   }
 }

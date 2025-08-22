@@ -6,7 +6,7 @@ export interface PageProps extends PropsWithChildren {
   menu?: ReactNode;
 }
 
-export function Page(props: PageProps) {
+export const Page = (props: PageProps) => {
   const { children, menu } = props;
 
   return (
@@ -34,4 +34,4 @@ export function Page(props: PageProps) {
       </div>
     </div>
   );
-}
+};

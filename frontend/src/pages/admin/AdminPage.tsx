@@ -8,7 +8,7 @@ import { ThemePage } from './theme/ThemePage';
 import { UserGroupsPage } from './user-groups/UserGroupsPage';
 import { UsersPage } from './users/UsersPage';
 
-export function AdminPage() {
+export const AdminPage = () => {
   const { theme } = useTheme();
 
   return (
@@ -75,4 +75,4 @@ export function AdminPage() {
       </div>
     </div>
   );
-}
+};

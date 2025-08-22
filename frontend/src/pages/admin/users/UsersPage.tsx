@@ -11,7 +11,7 @@ import { useUsersStore } from './state';
 
 const EMPTY_USER_GROUPS: UserGroupDto[] = [];
 
-export function UsersPage() {
+export const UsersPage = () => {
   const clients = useClients();
   const { removeUser, setUser, setUsers, users } = useUsersStore();
   const [page, setPage] = useState(0);
@@ -103,4 +103,4 @@ export function UsersPage() {
       )}
     </Page>
   );
-}
+};

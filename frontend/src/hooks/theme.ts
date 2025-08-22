@@ -5,6 +5,12 @@ export interface Theme extends SettingsDto {
   // The optional logo to override the default one.
   logo?: File;
 
+  // The background on the login page.
+  loginBackground?: File;
+
+  // The logo on the login page.
+  loginLogo?: File;
+
   // The pae title.
   title?: string | null;
 }

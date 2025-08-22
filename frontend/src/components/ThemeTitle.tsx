@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useTheme } from 'src/hooks';
 
-export function ThemeTitle() {
+export const ThemeTitle = () => {
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -15,4 +15,4 @@ export function ThemeTitle() {
   }, [theme.name, theme.title]);
 
   return null;
-}
+};

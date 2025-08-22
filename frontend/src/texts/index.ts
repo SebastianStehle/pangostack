@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 export const texts = {
   common: {
     added: 'Added',
@@ -97,7 +96,8 @@ export const texts = {
     checkChartWarning: 'Days are based on UTC time. Health checks are tested every 15 minutes.',
     create: 'New Deployment',
     deployHeadline: 'Deploy new Service',
-    deployingInfo: 'This instance is currently deployed. Your resources may still be finishing installing and booting up during the first few minutes of activation.',
+    deployingInfo:
+      'This instance is currently deployed. Your resources may still be finishing installing and booting up during the first few minutes of activation.',
     deploymentHeadline: 'Deployment',
     edit: 'Edit Deployment (Soon)',
     emptyLabel: 'No deployment yet',
@@ -128,10 +128,12 @@ export const texts = {
   members: {
     addMemberButton: 'Add Member',
     addMemberFailed: 'User not found',
-    addMemberHint: 'Add a new team member with their respective email address. Only existing users will be added to your team. Notifications email are not sent at the moment.',
+    addMemberHint:
+      'Add a new team member with their respective email address. Only existing users will be added to your team. Notifications email are not sent at the moment.',
     addMemberTitle: 'Add Team Member',
     headline: 'Members',
-    memberHints: 'Team members do not have direct access to the deployed services, but they can make new deployments or change billing information.',
+    memberHints:
+      'Team members do not have direct access to the deployed services, but they can make new deployments or change billing information.',
     removeConfirmText: 'Do you really want to remove the Member?',
     removeConfirmTitle: 'Remove Member',
   },
@@ -192,14 +194,20 @@ export const texts = {
     appName: 'App Name',
     appNameHints: 'The name of this app, used for the title and the menu.',
     customCss: 'Custom CSS',
+    files: 'Files',
     footerLinks: 'Footer Links',
     footerText: 'Footer Text',
     headerColor: 'Header Color',
     headline: 'Theme',
+    loginLogo: 'Login Logo',
+    loginLogoHints: 'The logo for the login page.',
+    loginBackground: 'Login Image',
+    loginBackgroundHints: 'The background image for the login page.',
     logo: 'Logo',
     logoCurrent: 'Current logo',
-    logoHint: 'The logo is shown on the admin page and the login screen.',
-    logoUpdateFailed: 'Failed to update logo.',
+    logoHints: 'The logo is shown on the admin page and the login screen.',
+    fileUploadFailed: 'Failed to upload file.',
+    fileUploadSucceeded: 'File Upload succeeded.',
     primaryColor: 'Primary Color',
     primaryContentColor: 'Primary Content Color',
     settings: 'General Settings',

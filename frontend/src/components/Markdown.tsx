@@ -10,7 +10,7 @@ export interface MarkdownProps {
   children: string | null | undefined;
 }
 
-export function Markdown(props: MarkdownProps) {
+export const Markdown = (props: MarkdownProps) => {
   const { children } = props;
 
   return (
@@ -18,7 +18,7 @@ export function Markdown(props: MarkdownProps) {
       {children}
     </ReactMarkdown>
   );
-}
+};
 
 function LinkRenderer(props: any) {
   return (

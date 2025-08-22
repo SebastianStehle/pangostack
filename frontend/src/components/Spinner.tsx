@@ -9,7 +9,7 @@ export interface SpinnerProps {
   visible?: boolean | null;
 }
 
-export function Spinner(props: SpinnerProps) {
+export const Spinner = (props: SpinnerProps) => {
   const { className, visible } = props;
   const [isVisible, setIsVisible] = useState(false);
 
@@ -49,4 +49,4 @@ export function Spinner(props: SpinnerProps) {
       />
     </svg>
   );
-}
+};

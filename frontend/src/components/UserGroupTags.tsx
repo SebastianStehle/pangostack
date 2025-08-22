@@ -12,7 +12,7 @@ export interface UserGroupTagsProps {
   name: string;
 }
 
-export function UserGroupTags(props: UserGroupTagsProps) {
+export const UserGroupTags = (props: UserGroupTagsProps) => {
   const { name } = props;
   const clients = useClients();
 
@@ -60,4 +60,4 @@ export function UserGroupTags(props: UserGroupTagsProps) {
       />
     </>
   );
-}
+};

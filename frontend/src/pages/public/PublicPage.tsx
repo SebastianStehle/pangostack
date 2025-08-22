@@ -7,7 +7,7 @@ import { TeamsDropdown } from './TeamsDropdown';
 import { TeamPage } from './team/TeamPage';
 import { TeamCreatePage } from './team-create/TeamCreatePage';
 
-export function PublicPage() {
+export const PublicPage = () => {
   const { theme } = useTheme();
   const clients = useClients();
 
@@ -51,4 +51,4 @@ export function PublicPage() {
       </Routes>
     </div>
   );
-}
+};

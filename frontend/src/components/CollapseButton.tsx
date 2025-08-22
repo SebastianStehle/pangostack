@@ -12,7 +12,7 @@ export interface CollapseButtonProps extends ButtonHTMLAttributes<HTMLButtonElem
   tooltip?: string;
 }
 
-export function CollapseButton(props: CollapseButtonProps) {
+export const CollapseButton = (props: CollapseButtonProps) => {
   const { className, isToggled, side, tooltip, ...other } = props;
 
   const sharedClass = 'h-3 w-1 rounded-full bg-slate-200 transition-all group-hover/button:bg-black ease-in';
@@ -62,4 +62,4 @@ export function CollapseButton(props: CollapseButtonProps) {
       )}
     </button>
   );
-}
+};

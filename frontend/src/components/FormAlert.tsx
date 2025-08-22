@@ -15,7 +15,7 @@ export interface FormAlertProps {
   className?: string;
 }
 
-export function FormAlert(props: FormAlertProps) {
+export const FormAlert = (props: FormAlertProps) => {
   const { className, common, error } = props;
 
   const [message, setMessage] = useState('');
@@ -39,4 +39,4 @@ export function FormAlert(props: FormAlertProps) {
       <Icon icon="alert-circle" /> <Markdown>{message}</Markdown>
     </div>
   );
-}
+};

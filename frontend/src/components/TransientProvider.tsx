@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { TransientContext } from 'src/hooks';
 import { isArray } from 'src/lib';
 
-export function TransientProvider(props: React.PropsWithChildren) {
+export const TransientProvider = (props: React.PropsWithChildren) => {
   const { children } = props;
 
   const values = useMemo(() => {
@@ -34,4 +34,4 @@ export function TransientProvider(props: React.PropsWithChildren) {
   }, []);
 
   return <TransientContext.Provider value={values}>{children}</TransientContext.Provider>;
-}
+};

@@ -57,7 +57,7 @@ export interface UpsertServiceDialogProps {
   onUpsert: (service: ServiceDto) => void;
 }
 
-export function UpsertServiceDialog(props: UpsertServiceDialogProps) {
+export const UpsertServiceDialog = (props: UpsertServiceDialogProps) => {
   const { onClose, onUpsert, target } = props;
   const [activeTab, setActiveTab] = useState(0);
 
@@ -149,4 +149,4 @@ export function UpsertServiceDialog(props: UpsertServiceDialogProps) {
       </form>
     </FormProvider>
   );
-}
+};

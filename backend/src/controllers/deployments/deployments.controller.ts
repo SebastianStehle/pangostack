@@ -8,15 +8,16 @@ import {
   CancelDeployment,
   ConfirmDeployment,
   DeleteDeployment,
-  GetDeploymentQuery,
   GetDeploymentChecksQuery,
   GetDeploymentLogsQuery,
+  GetDeploymentQuery,
+  GetDeploymentsQuery,
   GetDeploymentStatusQuery,
   GetDeploymentUsagesQuery,
   UpdateDeployment,
   UrlService,
-  GetDeploymentsQuery,
 } from 'src/domain/services';
+import { AllowAllDeploymentPolicy, AllowTeamDeploymentPolicy } from 'src/domain/services/policies';
 import { GetTeamsQuery, User } from 'src/domain/users';
 import { IntParam, IntQuery } from 'src/lib';
 import { TeamPermissionGuard } from '../TeamPermissionGuard';
@@ -29,7 +30,6 @@ import {
   DeploymentStatusDto,
   DeploymentUsageSummariesDto,
 } from './dtos';
-import { AllowAllDeploymentPolicy, AllowTeamDeploymentPolicy } from 'src/domain/services/policies';
 
 @Controller('deployments')
 @ApiTags('deployments')

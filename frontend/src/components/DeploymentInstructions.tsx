@@ -3,7 +3,7 @@ import { DeploymentDto } from 'src/api';
 import { Markdown } from 'src/components';
 import { evaluateExpression } from 'src/lib';
 
-export interface InstructionsProps {
+export interface DeploymentInstructionsProps {
   // The deployment that contains the parameters.
   deployment: DeploymentDto;
 
@@ -11,7 +11,7 @@ export interface InstructionsProps {
   text: string;
 }
 
-export const Instructions = (props: InstructionsProps) => {
+export const DeploymentInstructions = (props: DeploymentInstructionsProps) => {
   const { deployment, text } = props;
 
   const fullText = useMemo(() => {

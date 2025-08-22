@@ -25,7 +25,12 @@ import {
     SettingsDtoToJSON,
 } from '../models/index';
 
-export interface PostLogoRequest {
+export interface DeleteFileRequest {
+    fileId: string;
+}
+
+export interface PostFileRequest {
+    fileId: string;
     file?: Blob;
 }
 
@@ -39,10 +44,14 @@ export interface PostSettingsRequest {
 export class SettingsApi extends runtime.BaseAPI {
 
     /**
-     * Deletes the logo.
+     * Deletes the file.
      * 
      */
-    async deleteLogoRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async deleteFileRaw(requestParameters: DeleteFileRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.fileId === null || requestParameters.fileId === undefined) {
+            throw new runtime.RequiredError('fileId','Required parameter requestParameters.fileId was null or undefined when calling deleteFile.');
+        }
+
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -52,7 +61,7 @@ export class SettingsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/settings/logo`,
+            path: `/settings/files/{fileId}`.replace(`{${"fileId"}}`, encodeURIComponent(String(requestParameters.fileId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -62,11 +71,11 @@ export class SettingsApi extends runtime.BaseAPI {
     }
 
     /**
-     * Deletes the logo.
+     * Deletes the file.
      * 
      */
-    async deleteLogo(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.deleteLogoRaw(initOverrides);
+    async deleteFile(fileId: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.deleteFileRaw({ fileId: fileId }, initOverrides);
     }
 
     /**
@@ -100,7 +109,11 @@ export class SettingsApi extends runtime.BaseAPI {
     /**
      * 
      */
-    async postLogoRaw(requestParameters: PostLogoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async postFileRaw(requestParameters: PostFileRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.fileId === null || requestParameters.fileId === undefined) {
+            throw new runtime.RequiredError('fileId','Required parameter requestParameters.fileId was null or undefined when calling postFile.');
+        }
+
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -130,7 +143,7 @@ export class SettingsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/settings/logo`,
+            path: `/settings/files/{fileId}`.replace(`{${"fileId"}}`, encodeURIComponent(String(requestParameters.fileId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -143,8 +156,8 @@ export class SettingsApi extends runtime.BaseAPI {
     /**
      * 
      */
-    async postLogo(file?: Blob, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.postLogoRaw({ file: file }, initOverrides);
+    async postFile(fileId: string, file?: Blob, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.postFileRaw({ fileId: fileId, file: file }, initOverrides);
     }
 
     /**

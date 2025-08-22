@@ -29,7 +29,7 @@ export interface ModalProps extends PropsWithChildren {
   className?: string;
 }
 
-export function Modal(props: ModalProps) {
+export const Modal = (props: ModalProps) => {
   const { asPortal, children, footer, fullHeight, header, gray, onClose, size } = props;
   const isSmall = size === 'sm';
   const isMedium = size === 'md' || !size;
@@ -73,4 +73,4 @@ export function Modal(props: ModalProps) {
   }
 
   return createPortal(render(), document.body);
-}
+};

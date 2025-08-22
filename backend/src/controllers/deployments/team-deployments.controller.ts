@@ -4,7 +4,7 @@ import { ApiOkResponse, ApiOperation, ApiParam, ApiSecurity, ApiTags } from '@ne
 import { Request } from 'express';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
 import { BUILTIN_USER_GROUP_DEFAULT } from 'src/domain/database';
-import { CreateDeployment, GetTeamDeploymentsQuery } from 'src/domain/services';
+import { CreateDeployment, GetDeploymentsQuery } from 'src/domain/services';
 import { IntParam, isString } from 'src/lib';
 import { TeamPermissionGuard } from '../TeamPermissionGuard';
 import { CreateDeploymentDto, DeploymentCreatedDto, DeploymentDto, DeploymentsDto } from './dtos';
@@ -31,7 +31,7 @@ export class TeamDeploymentsController {
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard, TeamPermissionGuard)
   async getDeployments(@IntParam('teamId') teamId: number) {
-    const { deployments } = await this.queryBus.execute(new GetTeamDeploymentsQuery(teamId));
+    const { deployments } = await this.queryBus.execute(new GetDeploymentsQuery(1, 100, teamId));
 
     return DeploymentsDto.fromDomain(deployments);
   }

@@ -16,7 +16,7 @@ export const BillingPage = () => {
     isLoading,
   } = useQuery({
     queryKey: ['invoices', teamId],
-    queryFn: () => clients.billing.getInvoices(+teamId!),
+    queryFn: () => clients.billing.getInvoices(teamId),
   });
 
   const invoices = loadedInvoices?.items || [];

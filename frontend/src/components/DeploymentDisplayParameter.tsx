@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { DeploymentDto, ParameterDefinitionDto } from 'src/api';
 import { PropertyColumn } from './PropertyColumn';
 
-export interface DisplayParameterProps {
+export interface DeploymentDisplayParameterProps {
   // The deployment that contains the parameters.
   deployment: DeploymentDto;
 
@@ -10,7 +10,7 @@ export interface DisplayParameterProps {
   parameter: ParameterDefinitionDto;
 }
 
-export const DisplayParameter = (props: DisplayParameterProps) => {
+export const DeploymentDisplayParameter = (props: DeploymentDisplayParameterProps) => {
   const { deployment, parameter } = props;
 
   const value = useMemo(() => {

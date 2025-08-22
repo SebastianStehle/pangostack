@@ -9,6 +9,8 @@ import { DataSource } from 'typeorm';
 import { AuthController } from './controllers/auth/auth.controller';
 import { TeamBillingController } from './controllers/billing/team-billing.controller';
 import { BlobsController } from './controllers/blobs/blobs.controller';
+import { DeploymentsController } from './controllers/deployments/deployments.controller';
+import { ServiceDeploymentsController } from './controllers/deployments/service-deployments.controller';
 import { TeamDeploymentsController } from './controllers/deployments/team-deployments.controller';
 import { ServicesController } from './controllers/services/services.controller';
 import { SettingsController } from './controllers/settings/settings.controller';
@@ -92,6 +94,8 @@ import { WorkflowModule } from './domain/workflows';
   controllers: [
     AuthController,
     BlobsController,
+    DeploymentsController,
+    ServiceDeploymentsController,
     ServicesController,
     SettingsController,
     TeamBillingController,

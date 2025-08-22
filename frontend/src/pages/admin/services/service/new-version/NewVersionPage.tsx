@@ -34,7 +34,7 @@ export const NewServicePage = (props: NewServicePageProps) => {
   const creating = useMutation({
     mutationFn: (request: CreateServiceVersionDto) => {
       request.environment ||= {};
-      return clients.services.postServiceVersion(+serviceId!, request);
+      return clients.services.postServiceVersion(serviceId, request);
     },
     onSuccess: () => {
       onCreate();

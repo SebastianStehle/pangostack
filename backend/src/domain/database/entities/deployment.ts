@@ -14,6 +14,7 @@ import { DeploymentCheckEntity } from './deployment-check';
 import { DeploymentLogEntity } from './deployment-log';
 import { DeploymentUpdateEntity } from './deployment-update';
 import { DeploymentUsageEntity } from './deployment-usage';
+import { ServiceEntity } from './service';
 import { TeamEntity } from './team';
 
 export type DeploymentRepository = Repository<DeploymentEntity>;
@@ -29,6 +30,13 @@ export class DeploymentEntity {
   @ManyToOne(() => TeamEntity, (team) => team.deployments, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'teamId' })
   team: TeamEntity;
+
+  @Column()
+  serviceId: number;
+
+  @ManyToOne(() => ServiceEntity, (service) => service.deployments, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'serviceId' })
+  service: ServiceEntity;
 
   @OneToMany(() => DeploymentLogEntity, (log) => log.deployment)
   log: DeploymentLogEntity[];

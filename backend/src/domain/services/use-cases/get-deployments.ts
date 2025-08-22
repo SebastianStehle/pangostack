@@ -1,5 +1,6 @@
 import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FindManyOptions, FindOptionsWhere } from 'typeorm';
 import {
   DeploymentCheckEntity,
   DeploymentCheckRepository,
@@ -15,6 +16,8 @@ export class GetDeploymentsQuery extends Query<GetDeploymentsResult> {
   constructor(
     public readonly page = 0,
     public readonly pageSize = 10,
+    public readonly teamId = 0,
+    public readonly serviceId = 0,
   ) {
     super();
   }
@@ -39,9 +42,25 @@ export class GetDeploymentsHandler implements IQueryHandler<GetDeploymentsQuery,
   ) {}
 
   async execute(query: GetDeploymentsQuery): Promise<GetDeploymentsResult> {
-    const { page, pageSize } = query;
+    const { page, pageSize, serviceId, teamId } = query;
 
-    const entities = await this.deployments.find({ skip: page * pageSize, take: pageSize, order: { id: 'DESC' } });
+    const where: FindOptionsWhere<DeploymentEntity> = {};
+
+    if (teamId > 0) {
+      where.teamId = teamId;
+    }
+
+    if (serviceId > 0) {
+      where.serviceId = serviceId;
+    }
+
+    const options: FindManyOptions<DeploymentEntity> = { order: { id: 'DESC' }, where };
+    const total = await this.deployments.count(options);
+
+    options.skip = pageSize * page;
+    options.take = pageSize;
+
+    const entities = await this.deployments.find(options);
     const result: Deployment[] = [];
 
     for (const entity of entities) {
@@ -62,8 +81,6 @@ export class GetDeploymentsHandler implements IQueryHandler<GetDeploymentsQuery,
 
       result.push(buildDeployment(entity, lastUpdate, lastCheck));
     }
-
-    const total = await this.deployments.count();
 
     return new GetDeploymentsResult(result, total);
   }

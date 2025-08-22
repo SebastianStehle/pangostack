@@ -37,7 +37,7 @@ export interface CreateUserDialogProps {
   onCreate: (user: UserDto) => void;
 }
 
-export function CreateUserDialog(props: CreateUserDialogProps) {
+export const CreateUserDialog = (props: CreateUserDialogProps) => {
   const { onClose, onCreate, userGroups } = props;
   const clients = useClients();
 
@@ -106,4 +106,4 @@ export function CreateUserDialog(props: CreateUserDialogProps) {
       </form>
     </FormProvider>
   );
-}
+};

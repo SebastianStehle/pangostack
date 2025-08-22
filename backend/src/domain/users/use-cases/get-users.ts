@@ -1,6 +1,6 @@
-import { IQueryHandler, QueryHandler, Query } from '@nestjs/cqrs';
+import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, Raw } from 'typeorm';
+import { FindManyOptions, FindOptionsWhere, Raw } from 'typeorm';
 import { UserEntity, UserRepository } from 'src/domain/database';
 import { User } from '../interfaces';
 import { buildUser } from './utils';
@@ -32,14 +32,13 @@ export class GetUsersHandler implements IQueryHandler<GetUsersQuery, GetUsersRes
   async execute(query: GetUsersQuery): Promise<GetUsersResult> {
     const { page, pageSize, query: searchQuery } = query;
 
-    const options: FindManyOptions<UserEntity> = {};
+    const where: FindOptionsWhere<UserEntity> = {};
 
     if (searchQuery && searchQuery != '') {
-      options.where = {
-        name: Raw((alias) => `LOWER(${alias}) Like '%${searchQuery.toLowerCase()}%'`),
-      };
+      where.name = Raw((alias) => `LOWER(${alias}) Like '%${searchQuery.toLowerCase()}%'`);
     }
 
+    const options: FindManyOptions<UserEntity> = { where };
     const total = await this.users.count(options);
 
     options.skip = pageSize * page;

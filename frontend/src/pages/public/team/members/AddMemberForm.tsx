@@ -22,7 +22,7 @@ export interface AddMemberFormProps {
   onCreate: (user: TeamUserDto) => void;
 }
 
-export function AddMemberForm(props: AddMemberFormProps) {
+export const AddMemberForm = (props: AddMemberFormProps) => {
   const { onCreate, teamId } = props;
   const clients = useClients();
 
@@ -60,4 +60,4 @@ export function AddMemberForm(props: AddMemberFormProps) {
       </form>
     </FormProvider>
   );
-}
+};

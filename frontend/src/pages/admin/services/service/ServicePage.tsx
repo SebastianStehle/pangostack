@@ -18,7 +18,7 @@ export const ServicePage = () => {
 
       <div className="card bg-base-100 shadow-sm">
         <div className="card-body">
-          <ServiceVersions serviceId={+serviceId!} />
+          <ServiceVersions serviceId={serviceId} />
         </div>
       </div>
     </>

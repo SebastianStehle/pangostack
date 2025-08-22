@@ -8,7 +8,7 @@ import { texts } from 'src/texts';
 import { UpsertUserGroupDialog } from './UpsertUserGroupDialog';
 import { useUserGroupsStore } from './state';
 
-export function UserGroupsPage() {
+export const UserGroupsPage = () => {
   const clients = useClients();
   const { removeUserGroup, setUserGroup, setUserGroups, userGroups } = useUserGroupsStore();
   const [toCreate, setToCreate] = useState<boolean>();
@@ -77,4 +77,4 @@ export function UserGroupsPage() {
       )}
     </Page>
   );
-}
+};

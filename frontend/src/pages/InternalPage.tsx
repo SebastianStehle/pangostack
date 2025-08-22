@@ -3,7 +3,7 @@ import { RouteWhenAdmin } from 'src/components';
 import { AdminPage } from './admin/AdminPage';
 import { PublicPage } from './public/PublicPage';
 
-export function InternalPage() {
+export const InternalPage = () => {
   return (
     <Routes>
       <Route
@@ -18,4 +18,4 @@ export function InternalPage() {
       <Route path="/*" element={<PublicPage />} />
     </Routes>
   );
-}
+};

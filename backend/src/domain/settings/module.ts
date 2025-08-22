@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BlobEntity, SettingEntity } from 'src/domain/database';
-import { DeleteLogoHandler, GetBlobHandler, GetSettingsHandler, UpdateSettingsHandler, UploadBlobHandler } from './use-cases';
+import { DeleteBlobHandler, GetBlobHandler, GetSettingsHandler, UpdateSettingsHandler, UploadBlobHandler } from './use-cases';
 
 @Module({
   imports: [TypeOrmModule.forFeature([BlobEntity, SettingEntity])],
   providers: [
-    DeleteLogoHandler, //
+    DeleteBlobHandler, //
     GetBlobHandler,
     GetSettingsHandler,
     UpdateSettingsHandler,

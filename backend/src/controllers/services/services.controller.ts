@@ -9,8 +9,8 @@ import {
   CreateServiceVersion,
   DeleteService,
   DeleteServiceVersion,
-  GetServicesQuery,
   GetServicesPublicQuery,
+  GetServicesQuery,
   GetServiceVersionsQuery,
   UpdateService,
   UpdateServiceVersion,
@@ -117,7 +117,7 @@ export class ServicesController {
   @ApiOkResponse({ type: ServiceVersionsDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async getDeployments(@IntParam('serviceId') serviceId: number) {
+  async getVersions(@IntParam('serviceId') serviceId: number) {
     const { serviceVersions } = await this.queryBus.execute(new GetServiceVersionsQuery(serviceId));
 
     return ServiceVersionsDto.fromDomain(serviceVersions);

@@ -15,7 +15,7 @@ const SCHEME = Yup.object().shape({
 
 const RESOLVER = yupResolver<any>(SCHEME);
 
-export function TeamCreatePage() {
+export const TeamCreatePage = () => {
   const navigate = useTransientNavigate();
   const clients = useClients();
   const queries = useQueryClient();
@@ -60,4 +60,4 @@ export function TeamCreatePage() {
       </div>
     </div>
   );
-}
+};

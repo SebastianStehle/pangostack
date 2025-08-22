@@ -4,26 +4,23 @@ import { Bar, BarChart, CartesianGrid, Cell, Legend, ResponsiveContainer, Toolti
 import { useClients } from 'src/api';
 import { texts } from 'src/texts';
 
-export interface HealthChartProps {
-  // The ID of the team.
-  teamId: number;
-
+export interface DeploymentHealthChartProps {
   // The ID of the deployment.
   deploymentId: number;
 }
 
-export function HealthChart(props: HealthChartProps) {
-  const { deploymentId, teamId } = props;
+export const DeploymentHealthChart = (props: DeploymentHealthChartProps) => {
+  const { deploymentId } = props;
   const clients = useClients();
 
   const { data: loadedUsage } = useQuery({
-    queryKey: ['deployment-checks', teamId, deploymentId],
+    queryKey: ['deployment-checks', deploymentId],
     queryFn: () => {
       const now = new Date();
       const dateFrom = format(addDays(now, -30), 'yyyy-MM-dd');
       const dateTo = format(now, 'yyyy-MM-dd');
 
-      return clients.deployments.getDeploymentChecks(teamId, deploymentId, dateFrom, dateTo);
+      return clients.deployments.getDeploymentChecks(deploymentId, dateFrom, dateTo);
     },
   });
 
@@ -50,4 +47,4 @@ export function HealthChart(props: HealthChartProps) {
       </BarChart>
     </ResponsiveContainer>
   );
-}
+};

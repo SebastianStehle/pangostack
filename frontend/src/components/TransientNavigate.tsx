@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Navigate, NavigateProps } from 'react-router-dom';
 import { useTransientLinkBuilder } from 'src/hooks';
 
-export function TransientNavigate(props: NavigateProps) {
+export const TransientNavigate = (props: NavigateProps) => {
   const { to: originalTo, ...other } = props;
   const builder = useTransientLinkBuilder();
 
@@ -11,4 +11,4 @@ export function TransientNavigate(props: NavigateProps) {
   }, [builder, originalTo]);
 
   return <Navigate to={to} {...other} />;
-}
+};

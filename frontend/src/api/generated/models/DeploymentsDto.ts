@@ -35,6 +35,12 @@ export interface DeploymentsDto {
      * @memberof DeploymentsDto
      */
     items: Array<DeploymentDto>;
+    /**
+     * The total number of deployments.
+     * @type {number}
+     * @memberof DeploymentsDto
+     */
+    total: number;
 }
 
 /**
@@ -43,6 +49,7 @@ export interface DeploymentsDto {
 export function instanceOfDeploymentsDto(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "items" in value;
+    isInstance = isInstance && "total" in value;
 
     return isInstance;
 }
@@ -58,6 +65,7 @@ export function DeploymentsDtoFromJSONTyped(json: any, ignoreDiscriminator: bool
     return {
         
         'items': ((json['items'] as Array<any>).map(DeploymentDtoFromJSON)),
+        'total': json['total'],
     };
 }
 
@@ -71,6 +79,7 @@ export function DeploymentsDtoToJSON(value?: DeploymentsDto | null): any {
     return {
         
         'items': ((value.items as Array<any>).map(DeploymentDtoToJSON)),
+        'total': value.total,
     };
 }
 

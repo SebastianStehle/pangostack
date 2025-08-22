@@ -22,13 +22,13 @@ export const VersionPage = (props: VersionPageProps) => {
 
   const { data: loadedServiceVersion, isFetched } = useQuery({
     queryKey: ['service-versions', serviceId],
-    queryFn: () => clients.services.getServiceVersion(+serviceId!, +versionId!),
+    queryFn: () => clients.services.getServiceVersion(serviceId, versionId),
   });
 
   const creating = useMutation({
     mutationFn: (request: UpdateServiceVersionDto) => {
       request.environment ||= {};
-      return clients.services.putServiceVersion(+serviceId!, +versionId!, request);
+      return clients.services.putServiceVersion(serviceId, versionId, request);
     },
     onSuccess: () => {
       onUpdate();

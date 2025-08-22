@@ -6,7 +6,7 @@ import { texts } from 'src/texts';
 
 const defaultTheme: { name: string | null } = { name: texts.common.appName };
 
-export function ThemeProvider(props: React.PropsWithChildren) {
+export const ThemeProvider = (props: React.PropsWithChildren) => {
   const { children } = props;
   const clientspi = useClients();
 
@@ -52,7 +52,7 @@ export function ThemeProvider(props: React.PropsWithChildren) {
   }
 
   return <ThemeContext.Provider value={context}>{children}</ThemeContext.Provider>;
-}
+};
 
 function merge<T extends object>(target: T, source?: Partial<T>): T {
   const result = { ...target };

@@ -43,7 +43,7 @@ export interface UpdateUserDialogProps {
   onDelete: (id: string) => void;
 }
 
-export function UpdateUserDialog(props: UpdateUserDialogProps) {
+export const UpdateUserDialog = (props: UpdateUserDialogProps) => {
   const { onClose, onDelete, onUpdate, target, userGroups } = props;
   const clients = useClients();
 
@@ -138,4 +138,4 @@ export function UpdateUserDialog(props: UpdateUserDialogProps) {
       </form>
     </FormProvider>
   );
-}
+};
