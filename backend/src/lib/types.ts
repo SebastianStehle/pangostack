@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-wrapper-object-types */
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 export function isString(value: any): value is string {
   return typeof value === 'string' || value instanceof String;
@@ -15,7 +16,7 @@ export function isFunction(value: any): value is Function {
   return typeof value === 'function';
 }
 
-export function isObject(value: any): value is object {
+export function isObject(value: any): value is Object {
   return value && typeof value === 'object' && value.constructor === Object;
 }
 

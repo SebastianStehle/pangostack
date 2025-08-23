@@ -89,7 +89,7 @@ export class ChargebeeBillingService implements BillingService {
       }
 
       return true;
-    } catch (ex) {
+    } catch (ex: any) {
       throw new BillingError(`Chargebee: Failed to create subscription for deployment ${deploymentId}`, ex);
     }
   }
@@ -146,7 +146,7 @@ export class ChargebeeBillingService implements BillingService {
           description: this.config.fixedPriceDescription,
         });
       }
-    } catch (ex) {
+    } catch (ex: any) {
       throw new BillingError(`Chargebee: Failed to charge deployment ${deploymentId}`, ex);
     }
   }
@@ -230,7 +230,7 @@ export class ChargebeeBillingService implements BillingService {
       if (createdCustomer) {
         return createdCustomer;
       }
-    } catch (ex) {
+    } catch (ex: any) {
       if (ex.http_status_code !== 409) {
         throw ex;
       }
