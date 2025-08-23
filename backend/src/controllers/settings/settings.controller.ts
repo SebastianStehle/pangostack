@@ -31,7 +31,7 @@ import { BUILTIN_USER_GROUP_ADMIN } from 'src/domain/database';
 import { DeleteBlob, GetBlobQuery, GetSettingsQuery, UpdateSettings, UploadBlob } from 'src/domain/settings';
 import { SettingsDto } from './dtos';
 
-@Controller('settings')
+@Controller('api/settings')
 @ApiTags('settings')
 export class SettingsController {
   constructor(

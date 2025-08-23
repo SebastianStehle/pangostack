@@ -6,7 +6,7 @@ import { BUILTIN_USER_GROUP_ADMIN } from 'src/domain/database';
 import { CreateUserGroup, DeleteUserGroup, GetUserGroupsQuery, UpdateUserGroup } from 'src/domain/users';
 import { UpsertUserGroupDto, UserGroupDto, UserGroupsDto } from './dtos';
 
-@Controller('user-groups')
+@Controller('api/user-groups')
 @ApiTags('users')
 @ApiSecurity('x-api-key')
 @UseGuards(LocalAuthGuard)

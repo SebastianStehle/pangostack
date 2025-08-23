@@ -61,7 +61,7 @@ export const DeployPage = () => {
             {(loadedServices?.items || []).map((service) => (
               <div
                 key={service.id}
-                className="card card-border bg-base pointer border-slate-200 shadow-sm"
+                className="card card-border bg-base pointer cursor-pointer border-slate-200 shadow-sm"
                 onClick={() => setService(service)}
               >
                 <div className="card-body">

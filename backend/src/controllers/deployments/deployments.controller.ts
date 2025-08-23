@@ -31,7 +31,7 @@ import {
   DeploymentUsageSummariesDto,
 } from './dtos';
 
-@Controller('deployments')
+@Controller('api/deployments')
 @ApiTags('deployments')
 @ApiSecurity('x-api-key')
 @UseGuards(LocalAuthGuard)

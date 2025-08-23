@@ -8,7 +8,7 @@ import { AuthService } from '../auth.service';
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor(authService: AuthService) {
     super({
-      callbackURL: `${authService.config.baseUrl}/auth/login/google/callback`,
+      callbackURL: `${authService.config.baseUrl}/api/auth/login/google/callback`,
       clientID: authService.config.google?.clientId || 'INVALID',
       clientSecret: authService.config.google?.clientSecret || 'INVALID',
       scope: ['profile', 'email'],

@@ -4,7 +4,7 @@ import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import { LocalAuthGuard } from 'src/domain/auth';
 import { GetBlobQuery } from 'src/domain/settings';
 
-@Controller('blobs')
+@Controller('api/blobs')
 @UseGuards(LocalAuthGuard)
 export class BlobsController {
   constructor(private readonly queryBus: QueryBus) {}

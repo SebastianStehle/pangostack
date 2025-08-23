@@ -7,7 +7,7 @@ import { GetDeploymentsQuery } from 'src/domain/services';
 import { IntParam, IntQuery } from 'src/lib';
 import { DeploymentsDto } from '../deployments/dtos';
 
-@Controller('services')
+@Controller('api/services')
 @ApiTags('services')
 @ApiSecurity('x-api-key')
 @UseGuards(LocalAuthGuard)

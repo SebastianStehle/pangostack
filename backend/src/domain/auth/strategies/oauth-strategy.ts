@@ -12,7 +12,7 @@ export class OAuthStrategy extends PassportStrategy(Strategy, 'oauth2') {
   constructor(authService: AuthService) {
     super({
       authorizationURL: authService.config.oauth?.authorizationURL || 'INVALID',
-      callbackURL: `${authService.config.baseUrl}/auth/login/oauth/callback`,
+      callbackURL: `${authService.config.baseUrl}/api/auth/login/oauth/callback`,
       clientID: authService.config.oauth?.clientId || 'INVALID',
       clientSecret: authService.config.oauth?.clientSecret || 'INVALID',
       scope: ['openid', 'profile', 'email'],

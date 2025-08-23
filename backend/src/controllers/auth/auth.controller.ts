@@ -5,7 +5,7 @@ import { GithubAuthGuard, GoogleAuthGuard, LocalAuthGuard, MicrosoftAuthGuard, O
 import { AuthService } from 'src/domain/auth/auth.service';
 import { AuthSettingsDto, LoginDto, ProfileDto } from './dtos';
 
-@Controller('auth')
+@Controller('api/auth')
 @ApiTags('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}

@@ -50,7 +50,7 @@ export class AuthApi extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/auth/settings`,
+            path: `/api/auth/settings`,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -78,7 +78,7 @@ export class AuthApi extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/auth/profile`,
+            path: `/api/auth/profile`,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -112,7 +112,7 @@ export class AuthApi extends runtime.BaseAPI {
         headerParameters['Content-Type'] = 'application/json';
 
         const response = await this.request({
-            path: `/auth/login`,
+            path: `/api/auth/login`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,

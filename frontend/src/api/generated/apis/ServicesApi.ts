@@ -120,7 +120,7 @@ export class ServicesApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/services/{serviceId}`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))),
+            path: `/api/services/{serviceId}`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -159,7 +159,7 @@ export class ServicesApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/services/{serviceId}/versions/{versionId}`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))).replace(`{${"versionId"}}`, encodeURIComponent(String(requestParameters.versionId))),
+            path: `/api/services/{serviceId}/versions/{versionId}`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))).replace(`{${"versionId"}}`, encodeURIComponent(String(requestParameters.versionId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -194,7 +194,7 @@ export class ServicesApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/services/{serviceId}`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))),
+            path: `/api/services/{serviceId}`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -238,7 +238,7 @@ export class ServicesApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/services/{serviceId}/deployments`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))),
+            path: `/api/services/{serviceId}/deployments`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -278,7 +278,7 @@ export class ServicesApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/services/{serviceId}/versions/{versionId}`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))).replace(`{${"versionId"}}`, encodeURIComponent(String(requestParameters.versionId))),
+            path: `/api/services/{serviceId}/versions/{versionId}`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))).replace(`{${"versionId"}}`, encodeURIComponent(String(requestParameters.versionId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -314,7 +314,7 @@ export class ServicesApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/services/{serviceId}/versions`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))),
+            path: `/api/services/{serviceId}/versions`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -346,7 +346,7 @@ export class ServicesApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/services`,
+            path: `/api/services`,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -378,7 +378,7 @@ export class ServicesApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/services/public`,
+            path: `/api/services/public`,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -416,7 +416,7 @@ export class ServicesApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/services`,
+            path: `/api/services`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -459,7 +459,7 @@ export class ServicesApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/services/{serviceId}/versions`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))),
+            path: `/api/services/{serviceId}/versions`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -502,7 +502,7 @@ export class ServicesApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/services/{serviceId}`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))),
+            path: `/api/services/{serviceId}`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
@@ -549,7 +549,7 @@ export class ServicesApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/services/{serviceId}/versions/{versionId}`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))).replace(`{${"versionId"}}`, encodeURIComponent(String(requestParameters.versionId))),
+            path: `/api/services/{serviceId}/versions/{versionId}`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))).replace(`{${"versionId"}}`, encodeURIComponent(String(requestParameters.versionId))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,

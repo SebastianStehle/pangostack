@@ -12,7 +12,7 @@ export function useLogoutUrl() {
   return useMemo(() => {
     const redirectUrl = `${location.protocol}//${location.host}`;
 
-    return `${clients.url}/auth/logout?redirectUrl=${redirectUrl}`;
+    return `${clients.url}/api/auth/logout?redirectUrl=${redirectUrl}`;
   }, [clients.url]);
 }
 
@@ -21,6 +21,6 @@ export function useLoginUrl(provider: string) {
   return useMemo(() => {
     const redirectUrl = `${location.protocol}//${location.host}`;
 
-    return `${clients.url}/auth/login/${provider}?redirectUrl=${redirectUrl}`;
+    return `${clients.url}/api/auth/login/${provider}?redirectUrl=${redirectUrl}`;
   }, [clients.url, provider]);
 }

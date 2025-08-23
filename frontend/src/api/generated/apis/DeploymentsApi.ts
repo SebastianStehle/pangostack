@@ -129,7 +129,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/deployments/{deploymentId}`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            path: `/api/deployments/{deploymentId}`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -178,7 +178,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/deployments/{deploymentId}/cancel`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            path: `/api/deployments/{deploymentId}/cancel`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -229,7 +229,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/deployments/{deploymentId}/confirm`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))).replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            path: `/api/deployments/{deploymentId}/confirm`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))).replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -262,7 +262,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/deployments/{deploymentId}`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            path: `/api/deployments/{deploymentId}`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -314,7 +314,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/deployments/{deploymentId}/checks`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            path: `/api/deployments/{deploymentId}/checks`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -350,7 +350,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/deployments/{deploymentId}/logs`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            path: `/api/deployments/{deploymentId}/logs`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -386,7 +386,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/deployments/{deploymentId}/status`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            path: `/api/deployments/{deploymentId}/status`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -438,7 +438,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/deployments/{deploymentId}/usage`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            path: `/api/deployments/{deploymentId}/usage`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -478,7 +478,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/deployments`,
+            path: `/api/deployments`,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -514,7 +514,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/teams/{teamId}/deployments`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))),
+            path: `/api/teams/{teamId}/deployments`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -556,7 +556,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/teams/{teamId}/deployments`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))),
+            path: `/api/teams/{teamId}/deployments`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -599,7 +599,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/deployments/{deploymentId}`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            path: `/api/deployments/{deploymentId}`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,

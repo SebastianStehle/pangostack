@@ -9,7 +9,7 @@ import { IntParam, isString } from 'src/lib';
 import { TeamPermissionGuard } from '../TeamPermissionGuard';
 import { CreateDeploymentDto, DeploymentCreatedDto, DeploymentDto, DeploymentsDto } from './dtos';
 
-@Controller('teams/:teamId/deployments')
+@Controller('api/teams/:teamId/deployments')
 @ApiParam({
   name: 'teamId',
   description: 'The ID of the team.',

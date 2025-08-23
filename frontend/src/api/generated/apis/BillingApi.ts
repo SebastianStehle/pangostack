@@ -61,7 +61,7 @@ export class BillingApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/teams/{teamId}/deployments/{deploymentId}/invoices`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))).replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            path: `/api/teams/{teamId}/deployments/{deploymentId}/invoices`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))).replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -97,7 +97,7 @@ export class BillingApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/teams/{teamId}/invoices`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))),
+            path: `/api/teams/{teamId}/invoices`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,

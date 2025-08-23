@@ -7,7 +7,7 @@ import { IntParam } from 'src/lib';
 import { TeamPermissionGuard } from '../TeamPermissionGuard';
 import { InvoicesDto } from './dtos';
 
-@Controller('teams/:teamId')
+@Controller('api/teams/:teamId')
 @ApiParam({
   name: 'teamId',
   description: 'The ID of the team.',

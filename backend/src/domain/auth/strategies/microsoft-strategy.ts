@@ -8,7 +8,7 @@ import { AuthService } from '../auth.service';
 export class MicrosoftStrategy extends PassportStrategy(Strategy, 'microsoft') {
   constructor(authService: AuthService) {
     super({
-      callbackURL: `${authService.config.baseUrl}/auth/login/microsoft/callback`,
+      callbackURL: `${authService.config.baseUrl}/api/auth/login/microsoft/callback`,
       clientID: authService.config.microsoft?.clientId || 'INVALID',
       clientSecret: authService.config.microsoft?.clientSecret || 'INVALID',
       scope: ['user.read'],

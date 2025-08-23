@@ -8,7 +8,7 @@ import { CreateTeam, DeleteTeamUser, GetTeamsQuery, SetTeamUser, UpdateTeam } fr
 import { IntParam } from 'src/lib';
 import { TeamDto, TeamsDto, UpsertTeamDto, UpsertTeamUserDto } from './dtos';
 
-@Controller('teams')
+@Controller('api/teams')
 @ApiTags('teams')
 @ApiSecurity('x-api-key')
 @UseGuards(LocalAuthGuard)

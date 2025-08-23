@@ -61,7 +61,7 @@ export class SettingsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/settings/files/{fileId}`.replace(`{${"fileId"}}`, encodeURIComponent(String(requestParameters.fileId))),
+            path: `/api/settings/files/{fileId}`.replace(`{${"fileId"}}`, encodeURIComponent(String(requestParameters.fileId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -88,7 +88,7 @@ export class SettingsApi extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/settings`,
+            path: `/api/settings`,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -143,7 +143,7 @@ export class SettingsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/settings/files/{fileId}`.replace(`{${"fileId"}}`, encodeURIComponent(String(requestParameters.fileId))),
+            path: `/api/settings/files/{fileId}`.replace(`{${"fileId"}}`, encodeURIComponent(String(requestParameters.fileId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -180,7 +180,7 @@ export class SettingsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/settings`,
+            path: `/api/settings`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,

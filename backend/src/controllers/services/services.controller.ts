@@ -27,7 +27,7 @@ import {
   UpsertServiceDto,
 } from './dtos';
 
-@Controller('services')
+@Controller('api/services')
 @ApiTags('services')
 @ApiSecurity('x-api-key')
 @UseGuards(LocalAuthGuard)

@@ -80,7 +80,7 @@ export class TeamsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/teams/{teamId}/users/{userId}`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))).replace(`{${"userId"}}`, encodeURIComponent(String(requestParameters.userId))),
+            path: `/api/teams/{teamId}/users/{userId}`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))).replace(`{${"userId"}}`, encodeURIComponent(String(requestParameters.userId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -112,7 +112,7 @@ export class TeamsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/teams`,
+            path: `/api/teams`,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -150,7 +150,7 @@ export class TeamsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/teams`,
+            path: `/api/teams`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -193,7 +193,7 @@ export class TeamsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/teams/{teamId}/users`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))),
+            path: `/api/teams/{teamId}/users`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -236,7 +236,7 @@ export class TeamsApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/teams/{teamId}`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))),
+            path: `/api/teams/{teamId}`.replace(`{${"teamId"}}`, encodeURIComponent(String(requestParameters.teamId))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,

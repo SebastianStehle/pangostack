@@ -7,7 +7,7 @@ import { CreateUser, DeleteUser, GetUserQuery, GetUsersQuery, UpdateUser } from 
 import { IntQuery } from 'src/lib';
 import { UpsertUserDto, UserDto, UsersDto } from './dtos';
 
-@Controller('users')
+@Controller('api/users')
 @ApiTags('users')
 @ApiSecurity('x-api-key')
 @UseGuards(LocalAuthGuard)
