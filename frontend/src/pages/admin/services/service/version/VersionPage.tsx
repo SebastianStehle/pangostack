@@ -26,7 +26,7 @@ export const VersionPage = (props: VersionPageProps) => {
   });
 
   const { data: loadedServiceVersion, isFetched } = useQuery({
-    queryKey: ['service-versions', serviceId],
+    queryKey: ['service-version', serviceId],
     queryFn: () => clients.services.getServiceVersion(serviceId, versionId),
   });
 

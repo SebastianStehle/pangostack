@@ -11,7 +11,7 @@ export const ThemeStyle = () => {
       <style>
         {colorClass('color-primary', theme.primaryColor)}
         {colorClass('color-primary-content', theme.primaryContentColor)}
-        {colorClass('header', theme.headerColor)}
+        {colorClass('color-header', theme.headerColor)}
 
         {theme.customCss || ''}
       </style>

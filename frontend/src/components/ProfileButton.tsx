@@ -25,7 +25,7 @@ export const ProfileButton = (props: ProfileButtonProps) => {
       button={() => (
         <>
           {style === 'avatar' ? (
-            <button className="btn btn-link p-0">
+            <button className="btn btn-link p-0 no-underline!">
               <Avatar size="md" user={profile} />
             </button>
           ) : (

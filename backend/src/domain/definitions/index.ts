@@ -149,11 +149,11 @@ class ResourceDefinitionClass {
   @Type(() => ResourceHealtCheckClass)
   healthChecks?: ResourceHealtCheckClass[];
 
-  @IsDefined()
+  @IsOptional()
   @IsObject()
   @ValidateNested({ each: true })
   @Type(() => ResourceMappingClass)
-  mappings: Record<string, ResourceMappingClass>;
+  mappings: Map<string, ResourceMappingClass>;
 }
 
 class UsageDefinitionClass {
@@ -243,6 +243,7 @@ export function definitionToYaml(definition: ServiceDefinition) {
       for (const key in value) {
         result[key] = normalizeStrings(value[key]);
       }
+      return result;
     }
     return value;
   }
@@ -277,7 +278,7 @@ export function yamlToDefinition(yaml: string | undefined | null): ServiceDefini
     const definitionJson = parse(yaml);
     const definitionClass = plainToInstance(ServiceDefinitionClass, definitionJson);
 
-    if (!is(definitionClass, ResourceDefinitionClass)) {
+    if (!is(definitionClass, ServiceDefinitionClass)) {
       return new ServiceDefinitionClass();
     }
 
