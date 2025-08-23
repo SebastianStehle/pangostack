@@ -1,0 +1,122 @@
+services:
+  pangostack:
+    container_name: pangostack
+    image: squidex/pangostack-dev
+    environment:
+      AUTH_BASEURL: https://${PANGO_DOMAIN}
+      AUTH_GITHUB_CLIENTID: ${PANGO_GITHUB_CLIENT}
+      AUTH_GITHUB_CLIENTSECRET: ${PANGO_GITHUB_SECRET}
+      AUTH_GOOGLE_CLIENTID: ${PANGO_GOOGLE_CLIENT}
+      AUTH_GOOGLE_CLIENTSECRET: ${PANGO_GOOGLE_SECRET}
+      AUTH_MICROSOFT_CLIENTID: ${PANGO_MICROSOFT_CLIENT}
+      AUTH_MICROSOFT_CLIENTSECRET: ${PANGO_MICROSOFT_SECRET}
+      BILLING_CHARGEBEE_ADDON_ID_CORES: cores
+      BILLING_CHARGEBEE_ADDON_ID_MEMORY: memory
+      BILLING_CHARGEBEE_ADDON_ID_STORAGE: storage
+      BILLING_CHARGEBEE_ADDON_ID_VOLUME: volume
+      BILLING_CHARGEBEE_APIKEY: ${PANGO_CHARGEBEE_APIKEY}
+      BILLING_CHARGEBEE_FIXED_PRICE_DESCRIPTION: Setup Fee
+      BILLING_CHARGEBEE_PLAN_ID: pay_per_use
+      BILLING_CHARGEBEE_SITE: ${PANGO_CHARGEBEE_SITE}
+      BILLING_TYPE: CHARGEBEE
+      DB_URL: postgres://postgres:secret@localhost:5432/metasaas?sslmode=disable
+    depends_on:
+      - postgresql
+      - temporal
+    networks:
+      - pango-network
+    ports:
+      - 4000:80
+    restart: unless-stopped
+
+  pangostack_worker:
+    container_name: pangostack_worker
+    image: squidex/pangostack-worker-dev
+    networks:
+      - pango-network
+    ports:
+      - 3000:80
+    restart: unless-stopped
+
+  pangostack_proxy:
+    container_name: pangostack_proxy
+    image: squidex/caddy-proxy
+    environment:
+      SITE_ADDRESS: ${PANGO_DOMAIN}
+      SITE_SERVER: "${PANGO_DOMAIN}:4000"
+    volumes:
+      - /etc/squidex/caddy/data:/data
+      - /etc/squidex/caddy/config:/config
+    depends_on:
+      - pangostack
+    networks:
+      - pango-network
+    ports:
+      - 80:80
+      - 443:443
+    restart: unless-stopped
+
+  postgresql:
+    container_name: postgresql
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+    networks:
+      - pango-network
+    ports:
+      - 5433:5432
+    volumes:
+      - /var/lib/postgresql/data
+
+  temporal:
+    container_name: temporal
+    image: temporalio/auto-setup:1.28.1
+    depends_on:
+      - postgresql
+    environment:
+      DB_PORT: 5432
+      DB: postgres12
+      DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/development-sql.yaml
+      POSTGRES_PWD: secret
+      POSTGRES_SEEDS: postgresql
+      POSTGRES_USER: postgres
+      TEMPORAL_ADDRESS: temporal:7233
+      TEMPORAL_CLI_ADDRESS: temporal:7233
+    networks:
+      - pango-network
+    ports:
+      - 7233:7233
+    volumes:
+      - ./dynamicconfig:/etc/temporal/config/dynamicconfig
+
+  temporal-admin-tools:
+    container_name: temporal-admin-tools
+    image: temporalio/admin-tools:1.28.1-tctl-1.18.4-cli-1.4.1
+    depends_on:
+      - temporal
+    environment:
+      TEMPORAL_ADDRESS: temporal:7233
+      TEMPORAL_CLI_ADDRESS: temporal:7233
+    networks:
+      - pango-network
+    stdin_open: true
+    tty: true
+    
+  temporal-ui:
+    container_name: temporal-ui
+    image: temporalio/ui:2.34.0
+    depends_on:
+      - temporal
+    environment:
+      TEMPORAL_ADDRESS: temporal:7233
+      TEMPORAL_CORS_ORIGINS: http://localhost:3000
+    networks:
+      - pango-network
+    ports:
+      - 8233:8080
+
+networks:
+  pango-network:
+    driver: bridge
+    name: pango-network

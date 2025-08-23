@@ -1,7 +1,7 @@
 #
 # BACKEND
 #
-FROM node:22-alpine AS backend
+FROM node:22-bullseye AS backend
 
 # Create app directory
 WORKDIR /src/backend
@@ -26,7 +26,7 @@ RUN NODE_ENV=production & npm ci --only=production && npm cache clean --force
 #
 # FRONTEND
 #
-FROM node:22-alpine AS frontend
+FROM node:22-bullseye AS frontend
 
 # Create app directory
 WORKDIR /src/frontend
@@ -48,7 +48,7 @@ RUN npm run build
 #
 # RUNTIME
 #
-FROM node:22-alpine AS production
+FROM node:22-bullseye AS production
 
 ENV NODE_ENV=production
 

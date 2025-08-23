@@ -42,6 +42,7 @@ import { ServicesModule } from './domain/services';
 import { SettingsModule } from './domain/settings';
 import { UsersModule } from './domain/users/module';
 import { WorkflowModule } from './domain/workflows';
+import { WorkerInitializer } from './domain/worker/initializer';
 
 @Module({
   imports: [
@@ -91,6 +92,7 @@ import { WorkflowModule } from './domain/workflows';
       },
     }),
   ],
+  providers: [WorkerInitializer],
   controllers: [
     AuthController,
     BlobsController,

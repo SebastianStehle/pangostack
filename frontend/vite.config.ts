@@ -9,6 +9,9 @@ const dirName = fileURLToPath(new URL('.', import.meta.url));
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  build: {
+    chunkSizeWarningLimit: 3000,
+  },
   resolve: {
     alias: {
       'src': path.resolve(dirName, './src'),
