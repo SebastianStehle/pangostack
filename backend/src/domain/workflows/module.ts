@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   BilledDeploymentEntity,
@@ -27,6 +28,7 @@ import { TemporalService, WorkflowService } from './services';
 @Module({
   imports: [
     BillingModule,
+    ConfigModule,
     TypeOrmModule.forFeature([
       BilledDeploymentEntity,
       DeploymentEntity,

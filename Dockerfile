@@ -57,8 +57,6 @@ COPY --from=backend /src/backend/node_modules ./node_modules
 COPY --from=backend /src/backend/dist ./dist
 COPY --from=frontend /src/frontend/dist ./assets
 
-RUN apk update && apk add bash
-
 EXPOSE 3000
 
 # Start the server using the production build

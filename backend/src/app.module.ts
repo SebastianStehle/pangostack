@@ -41,8 +41,8 @@ import {
 import { ServicesModule } from './domain/services';
 import { SettingsModule } from './domain/settings';
 import { UsersModule } from './domain/users/module';
+import { WorkerModule } from './domain/worker/module';
 import { WorkflowModule } from './domain/workflows';
-import { WorkerInitializer } from './domain/worker/initializer';
 
 @Module({
   imports: [
@@ -55,6 +55,7 @@ import { WorkerInitializer } from './domain/worker/initializer';
     ServicesModule,
     SettingsModule,
     UsersModule,
+    WorkerModule,
     WorkflowModule,
     TypeOrmModule.forFeature([TeamEntity, UserEntity]),
     TypeOrmModule.forRootAsync({
@@ -92,7 +93,6 @@ import { WorkerInitializer } from './domain/worker/initializer';
       },
     }),
   ],
-  providers: [WorkerInitializer],
   controllers: [
     AuthController,
     BlobsController,

@@ -2,7 +2,12 @@ services:
   pangostack:
     container_name: pangostack
     image: squidex/pangostack-dev
+    depends_on:
+      - postgresql
+      - temporal
     environment:
+      DB_URL: postgres://postgres:secret@postgresql:5432/pango?sslmode=disable
+      SESSION_SECRET: supersecret
       AUTH_BASEURL: https://${PANGO_DOMAIN}
       AUTH_GITHUB_CLIENTID: ${PANGO_GITHUB_CLIENT}
       AUTH_GITHUB_CLIENTSECRET: ${PANGO_GITHUB_SECRET}
@@ -19,10 +24,8 @@ services:
       BILLING_CHARGEBEE_PLAN_ID: pay_per_use
       BILLING_CHARGEBEE_SITE: ${PANGO_CHARGEBEE_SITE}
       BILLING_TYPE: CHARGEBEE
-      DB_URL: postgres://postgres:secret@localhost:5432/metasaas?sslmode=disable
-    depends_on:
-      - postgresql
-      - temporal
+      TEMPORAL_ADDRESS: temporal:7233
+      WORKER_ENDPOINT: pangostack_worker:300
     networks:
       - pango-network
     ports:
@@ -41,14 +44,14 @@ services:
   pangostack_proxy:
     container_name: pangostack_proxy
     image: squidex/caddy-proxy
+    depends_on:
+      - pangostack
     environment:
       SITE_ADDRESS: ${PANGO_DOMAIN}
       SITE_SERVER: "${PANGO_DOMAIN}:4000"
     volumes:
       - /etc/squidex/caddy/data:/data
       - /etc/squidex/caddy/config:/config
-    depends_on:
-      - pangostack
     networks:
       - pango-network
     ports:
@@ -58,16 +61,18 @@ services:
 
   postgresql:
     container_name: postgresql
-    image: postgres:16
+    image: postgres:12
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: secret
+      POSTGRES_DB: pango
     networks:
       - pango-network
     ports:
       - 5433:5432
     volumes:
       - /var/lib/postgresql/data
+    restart: unless-stopped
 
   temporal:
     container_name: temporal
@@ -89,10 +94,12 @@ services:
       - 7233:7233
     volumes:
       - ./dynamicconfig:/etc/temporal/config/dynamicconfig
+    restart: unless-stopped
 
   temporal-admin-tools:
     container_name: temporal-admin-tools
     image: temporalio/admin-tools:1.28.1-tctl-1.18.4-cli-1.4.1
+    tty: true
     depends_on:
       - temporal
     environment:
@@ -101,7 +108,7 @@ services:
     networks:
       - pango-network
     stdin_open: true
-    tty: true
+    restart: unless-stopped
     
   temporal-ui:
     container_name: temporal-ui
@@ -115,6 +122,7 @@ services:
       - pango-network
     ports:
       - 8233:8080
+    restart: unless-stopped
 
 networks:
   pango-network:

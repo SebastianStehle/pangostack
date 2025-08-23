@@ -2,10 +2,11 @@ version: '3.9'
 
 services:
   postgres:
-    image: ankane/pgvector
-    ports:
-      - 5432:5432
+    image: postgres:12
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=secret
       - POSTGRES_DB=cccc
+    ports:
+      - 5432:5432
+    restart: unless-stopped
