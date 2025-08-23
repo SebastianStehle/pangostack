@@ -73,6 +73,11 @@ export class VultrVmResource implements Resource {
           label: id,
         });
 
+        if (!instance) {
+          this.logger.error({ message: `Instance could not be deployed: ${response.message}`, context: logContext });
+          throw Error('Failed to deploy instance');
+        }
+
         instance = response.instance;
         this.logger.log({ message: 'Using new instance', context: logContext });
 
