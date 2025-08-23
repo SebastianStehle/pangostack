@@ -30,7 +30,7 @@ export class TeamDeploymentsController {
   @ApiOkResponse({ type: DeploymentsDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard, TeamPermissionGuard)
-  async getDeployments(@IntParam('teamId') teamId: number) {
+  async getTeamDeployments(@IntParam('teamId') teamId: number) {
     const { deployments } = await this.queryBus.execute(new GetDeploymentsQuery(1, 100, teamId));
 
     return DeploymentsDto.fromDomain(deployments);
@@ -41,7 +41,7 @@ export class TeamDeploymentsController {
   @ApiOkResponse({ type: DeploymentCreatedDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard, TeamPermissionGuard)
-  async postDeployment(@Req() req: Request, @IntParam('teamId') teamId: number, @Body() body: CreateDeploymentDto) {
+  async postTeamDeployment(@Req() req: Request, @IntParam('teamId') teamId: number, @Body() body: CreateDeploymentDto) {
     const command = new CreateDeployment(
       teamId,
       body.name,

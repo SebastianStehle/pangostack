@@ -21,7 +21,7 @@ export const DeployPage = () => {
 
   const creating = useMutation({
     mutationFn: ({ name, parameters }: DeploymentUpdate) => {
-      return clients.deployments.postDeployment(teamId, {
+      return clients.deployments.postTeamDeployment(teamId, {
         name,
         parameters,
         serviceId: service!.id,
