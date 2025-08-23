@@ -74,7 +74,9 @@ export const NewServicePage = (props: NewServicePageProps) => {
                 label={texts.services.definition}
                 mode="yaml"
                 name="definition"
+                noWrap
                 required
+                readOnly={creating.isPending}
                 valueMode="string"
                 vertical
               />
@@ -84,6 +86,9 @@ export const NewServicePage = (props: NewServicePageProps) => {
                 label={texts.common.environment}
                 mode="javascript"
                 name="environment"
+                noWrap
+                required={false}
+                readOnly={creating.isPending}
                 valueMode="object"
                 vertical
               />

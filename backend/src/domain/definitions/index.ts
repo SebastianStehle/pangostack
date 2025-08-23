@@ -12,15 +12,14 @@ import {
   IsNumber,
   IsObject,
   IsOptional,
-  isString,
   IsString,
   Min,
   validate,
   ValidateNested,
   ValidationError,
 } from 'class-validator';
-import { parse, stringify, YAMLError } from 'yaml';
-import { evaluateExpression, flattenValidationErrors, is } from 'src/lib';
+import { Document, isMap, isSeq, Pair, parse, YAMLError } from 'yaml';
+import { evaluateExpression, flattenValidationErrors, is, isArray, isObject, isString } from 'src/lib';
 
 class ParameterDefinitionClass {
   @IsDefined()
@@ -231,7 +230,42 @@ export type ServicePricingModel = 'fixed' | 'pay_per_use';
 export type UsageDefinition = InstanceType<typeof UsageDefinitionClass>;
 
 export function definitionToYaml(definition: ServiceDefinition) {
-  return stringify(definition);
+  const doc = new Document();
+  doc.contents = doc.createNode(normalizeStrings(definition));
+
+  function normalizeStrings(value: any): any {
+    if (isString(value)) {
+      return value.replace(/\r\n/g, '\n');
+    } else if (isArray(value)) {
+      return value.map(normalizeStrings);
+    } else if (isObject(value)) {
+      const result: any = {};
+      for (const key in value) {
+        result[key] = normalizeStrings(value[key]);
+      }
+    }
+    return value;
+  }
+
+  const setSpaceBefore = (value: any) => {
+    (value as { spaceBefore?: boolean }).spaceBefore = true;
+  };
+
+  if (isMap(doc.contents)) {
+    for (const item of doc.contents.items as Pair[]) {
+      setSpaceBefore(item.key);
+
+      if (isSeq(item.value)) {
+        item.value.items.map((subItem, index) => {
+          if (index > 0) {
+            setSpaceBefore(subItem);
+          }
+        });
+      }
+    }
+  }
+
+  return doc.toString({ lineWidth: 0 });
 }
 
 export function yamlToDefinition(yaml: string | undefined | null): ServiceDefinition {

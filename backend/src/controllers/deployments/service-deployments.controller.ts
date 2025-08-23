@@ -4,7 +4,7 @@ import { ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiSecurity, ApiTags }
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
 import { BUILTIN_USER_GROUP_ADMIN } from 'src/domain/database';
 import { GetDeploymentsQuery } from 'src/domain/services';
-import { IntQuery } from 'src/lib';
+import { IntParam, IntQuery } from 'src/lib';
 import { DeploymentsDto } from '../deployments/dtos';
 
 @Controller('services')
@@ -37,8 +37,12 @@ export class ServiceDeploymentsController {
   @ApiOkResponse({ type: DeploymentsDto })
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
-  async getServiceDeployments(@IntQuery('page') page: number, @IntQuery('pageSize', 20) pageSize: number) {
-    const { deployments, total } = await this.queryBus.execute(new GetDeploymentsQuery(page, pageSize));
+  async getServiceDeployments(
+    @IntParam('serviceId') serviceId: number,
+    @IntQuery('page') page: number,
+    @IntQuery('pageSize', 20) pageSize: number,
+  ) {
+    const { deployments, total } = await this.queryBus.execute(new GetDeploymentsQuery(page, pageSize, 0, serviceId));
 
     return DeploymentsDto.fromDomain(deployments, total);
   }

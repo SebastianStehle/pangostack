@@ -3,6 +3,8 @@ import { Icon, ProfileButton, TransientNavigate, TransientNavLink } from 'src/co
 import { useTheme } from 'src/hooks';
 import { texts } from 'src/texts';
 import { DashboardPage } from './dashboard/DashboardPage';
+import { DeploymentPage } from './deployment/DeploymentPage';
+import { DeploymentsPage } from './deployments/DeploymentsPage';
 import { ServicesPage } from './services/ServicesPage';
 import { ThemePage } from './theme/ThemePage';
 import { UserGroupsPage } from './user-groups/UserGroupsPage';
@@ -21,32 +23,37 @@ export const AdminPage = () => {
         </div>
       </div>
       <div className="sidebar-admin flex min-h-0 grow">
-        <div className="shadow-xxl flex w-48 shrink-0 flex-col justify-between bg-white">
+        <div className="shadow-xxl flex w-56 shrink-0 flex-col justify-between bg-white">
           <div>
             <ul className="nav-menu nav-menu-bordered mt-4 gap-1">
               <li>
-                <TransientNavLink className="flex items-center gap-2" to="/admin/dashboard">
-                  <Icon icon="pie-chart" size={16} /> {texts.common.dashboard}
+                <TransientNavLink className="flex items-center gap-4" to="/admin/dashboard">
+                  <Icon icon="pie-chart" size={16} strokeWidth={1.75} /> {texts.common.dashboard}
                 </TransientNavLink>
               </li>
               <li>
-                <TransientNavLink className="flex items-center gap-2" to="/admin/services">
-                  <Icon icon="server" size={16} /> {texts.services.headline}
+                <TransientNavLink className="flex items-center gap-4" to="/admin/services">
+                  <Icon icon="file-text" size={16} strokeWidth={1.75} /> {texts.services.headline}
                 </TransientNavLink>
               </li>
               <li>
-                <TransientNavLink className="flex items-center gap-2" to="/admin/theme">
-                  <Icon icon="droplet" size={16} /> {texts.theme.headline}
+                <TransientNavLink className="flex items-center gap-4" to="/admin/deployments">
+                  <Icon icon="server" size={16} strokeWidth={1.75} /> {texts.deployments.headline}
                 </TransientNavLink>
               </li>
               <li>
-                <TransientNavLink className="flex items-center gap-2" to="/admin/users">
-                  <Icon icon="user" size={16} /> {texts.users.headline}
+                <TransientNavLink className="flex items-center gap-4" to="/admin/theme">
+                  <Icon icon="droplet" size={16} strokeWidth={1.75} /> {texts.theme.headline}
                 </TransientNavLink>
               </li>
               <li>
-                <TransientNavLink className="flex items-center gap-2" to="/admin/user-groups">
-                  <Icon icon="users" size={16} /> {texts.userGroups.headline}
+                <TransientNavLink className="flex items-center gap-4" to="/admin/users">
+                  <Icon icon="user" size={16} strokeWidth={1.75} /> {texts.users.headline}
+                </TransientNavLink>
+              </li>
+              <li>
+                <TransientNavLink className="flex items-center gap-3" to="/admin/user-groups">
+                  <Icon icon="users" size={16} strokeWidth={1.75} /> {texts.userGroups.headline}
                 </TransientNavLink>
               </li>
             </ul>
@@ -62,6 +69,10 @@ export const AdminPage = () => {
             <Route path="/dashboard" element={<DashboardPage />} />
 
             <Route path="/services/*" element={<ServicesPage />} />
+
+            <Route path="/deployments" element={<DeploymentsPage />} />
+
+            <Route path="/deployments/:deploymentId" element={<DeploymentPage />} />
 
             <Route path="/theme" element={<ThemePage />} />
 

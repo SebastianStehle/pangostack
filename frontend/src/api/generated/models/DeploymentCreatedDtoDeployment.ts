@@ -4,7 +4,7 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Omni SaaS
+ * Pangostack
  * SaaS Deployment Tool
  *
  * The version of the OpenAPI document: 1.0
@@ -65,6 +65,18 @@ export interface DeploymentCreatedDtoDeployment {
      * @memberof DeploymentCreatedDtoDeployment
      */
     serviceVersion: string;
+    /**
+     * Indicates if the version is the default one.
+     * @type {boolean}
+     * @memberof DeploymentCreatedDtoDeployment
+     */
+    isVersionDefault: boolean;
+    /**
+     *  Indicates if the version is the last one.
+     * @type {boolean}
+     * @memberof DeploymentCreatedDtoDeployment
+     */
+    isVersionLast: boolean;
     /**
      * The timestamp when the deployment has been created.
      * @type {Date}
@@ -141,6 +153,8 @@ export function instanceOfDeploymentCreatedDtoDeployment(value: object): boolean
     isInstance = isInstance && "serviceId" in value;
     isInstance = isInstance && "serviceName" in value;
     isInstance = isInstance && "serviceVersion" in value;
+    isInstance = isInstance && "isVersionDefault" in value;
+    isInstance = isInstance && "isVersionLast" in value;
     isInstance = isInstance && "createdAt" in value;
     isInstance = isInstance && "connections" in value;
     isInstance = isInstance && "afterInstallationInstructions" in value;
@@ -167,6 +181,8 @@ export function DeploymentCreatedDtoDeploymentFromJSONTyped(json: any, ignoreDis
         'serviceId': json['serviceId'],
         'serviceName': json['serviceName'],
         'serviceVersion': json['serviceVersion'],
+        'isVersionDefault': json['isVersionDefault'],
+        'isVersionLast': json['isVersionLast'],
         'createdAt': (new Date(json['createdAt'])),
         'connections': json['connections'],
         'afterInstallationInstructions': json['afterInstallationInstructions'],
@@ -191,6 +207,8 @@ export function DeploymentCreatedDtoDeploymentToJSON(value?: DeploymentCreatedDt
         'serviceId': value.serviceId,
         'serviceName': value.serviceName,
         'serviceVersion': value.serviceVersion,
+        'isVersionDefault': value.isVersionDefault,
+        'isVersionLast': value.isVersionLast,
         'createdAt': (value.createdAt.toISOString().substring(0,10)),
         'connections': value.connections,
         'afterInstallationInstructions': value.afterInstallationInstructions,

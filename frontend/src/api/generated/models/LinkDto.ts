@@ -4,7 +4,7 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Omni SaaS
+ * Pangostack
  * SaaS Deployment Tool
  *
  * The version of the OpenAPI document: 1.0

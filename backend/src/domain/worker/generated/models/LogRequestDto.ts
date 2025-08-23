@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * OmniSaaS
+ * Pangostack
  * Worker
  *
  * The version of the OpenAPI document: 1.0

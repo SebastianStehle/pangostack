@@ -99,7 +99,7 @@ export const CodeEditor = (props: CodeEditorProps) => {
         ref={editorRef}
         value={internalValue}
         width="100%"
-        wrapEnabled={!noWrap}
+        wrapEnabled={!noWrap && false}
       />
     </div>
   );

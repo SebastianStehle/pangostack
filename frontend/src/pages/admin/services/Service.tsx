@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import { memo } from 'react';
 import { ServiceDto } from 'src/api';
-import { Icon, TransientNavLink } from 'src/components';
+import { Icon, TransientNavLink, VersionLabel } from 'src/components';
 import { OverlayDropdown } from 'src/components/Overlay';
 import { texts } from 'src/texts';
 
@@ -18,10 +18,11 @@ export const Service = memo((props: ServiceProps) => {
 
   return (
     <li className="group flex items-center !px-0">
-      <TransientNavLink to={`/admin/services/${service.id}`} className="text-normal block min-w-0 grow truncate text-ellipsis">
-        {service.latestVersion && (
-          <div className="badge badge-sm badge-primary mr-2 truncate rounded-full font-normal">{service.latestVersion}</div>
-        )}
+      <TransientNavLink
+        to={`/admin/services/${service.id}`}
+        className="text-normal block flex min-w-0 grow items-center gap-2 truncate text-ellipsis"
+      >
+        {service.latestVersion && <VersionLabel version={service.latestVersion} />}
 
         {service.name}
       </TransientNavLink>

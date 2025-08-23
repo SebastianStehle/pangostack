@@ -1,6 +1,6 @@
-# OmniSaaS (working title)
+# Pangostack
 
-> **OmniSaaS** is a modular deployment platform tailored for SaaS providers.
+> **Pangostack** is a modular deployment platform tailored for SaaS providers.
 > 
 > It simplifies infrastructure provisioning by offering:
 > 
@@ -8,7 +8,7 @@
 > - Integration with external **billing providers** (e.g., Stripe).
 > - A **customer-facing portal** to let users self-deploy their SaaS instance on demand.
 
-Whether you're offering a monolithic app or a collection of microservices, OmniSaaS helps you deploy reproducible, scalable environments — all while keeping your cost-to-profit ratio in check.
+Whether you're offering a monolithic app or a collection of microservices, Pangostack helps you deploy reproducible, scalable environments — all while keeping your cost-to-profit ratio in check.
 
 
 ![alt text](docs/screenshot-portal.png)
@@ -83,7 +83,7 @@ usage:
 
 ## 🛠 Resource Provisioning Philosophy
 
-OmniSaaS does **not** reinvent infrastructure-as-code. Instead, it builds on top of existing tools:
+Pangostack does **not** reinvent infrastructure-as-code. Instead, it builds on top of existing tools:
 
 - **Docker Compose**: For local or single-node deployments
 - **Kubernetes + Helm**: For scalable cloud-native services
@@ -109,11 +109,11 @@ Some providers or tools only support specific infrastructure:
 - Helm is powerful but may lack support for external resources like storage (S3) and domains.
 - Terraform excels in some areas but is not universal
 
-OmniSaaS mixes and matches tools to provide the best coverage.
+Pangostack mixes and matches tools to provide the best coverage.
 
 ### Which cloud providers are supported?
 
-While theoretically cloud-agnostic, OmniSaaS is optimized for affordable, global hosting providers like:
+While theoretically cloud-agnostic, Pangostack is optimized for affordable, global hosting providers like:
 
 * [DigitalOcean](https://digitalocean.com)
 * [Vultr](https://vultr.com)

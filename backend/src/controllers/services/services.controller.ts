@@ -71,6 +71,28 @@ export class ServicesController {
     return ServiceDto.fromDomain(service);
   }
 
+  @Get(':serviceId')
+  @ApiOperation({ operationId: 'getService', description: 'Gets the service.' })
+  @ApiParam({
+    name: 'serviceId',
+    description: 'The ID of the service.',
+    required: true,
+    type: 'number',
+  })
+  @ApiOkResponse({ type: ServiceDto })
+  @Role(BUILTIN_USER_GROUP_ADMIN)
+  @UseGuards(RoleGuard)
+  async getService(@IntParam('serviceId') serviceId: number) {
+    const { services } = await this.queryBus.execute(new GetServicesQuery());
+    const service = services.find((x) => x.id === serviceId);
+
+    if (!service) {
+      throw new NotFoundException();
+    }
+
+    return ServiceDto.fromDomain(service);
+  }
+
   @Put(':serviceId')
   @ApiOperation({ operationId: 'putService', description: 'Updates the service.' })
   @ApiParam({

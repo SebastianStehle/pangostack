@@ -20,6 +20,8 @@ export function buildDeployment(
     connections: lastUpdate.resourceConnections,
     createdAt,
     healthStatus: lastCheck?.status,
+    isVersionDefault: lastUpdate.serviceVersion.isActive,
+    isVersionLast: false,
     parameters: lastUpdate.parameters,
     resources: lastUpdate.serviceVersion.definition.resources,
     serviceId: lastUpdate.serviceVersion.service.id,

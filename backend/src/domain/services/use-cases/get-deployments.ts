@@ -48,6 +48,7 @@ export class GetDeploymentsHandler implements IQueryHandler<GetDeploymentsQuery,
 
     if (teamId > 0) {
       where.teamId = teamId;
+      where.status = 'Created';
     }
 
     if (serviceId > 0) {

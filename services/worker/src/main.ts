@@ -26,7 +26,7 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder() //
-    .setTitle('OmniSaaS')
+    .setTitle('Pangostack')
     .setDescription('Worker')
     .setVersion('1.0')
     .build();

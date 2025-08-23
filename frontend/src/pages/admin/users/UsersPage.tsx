@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useClients, UserDto, UserGroupDto } from 'src/api';
-import { Icon, Page, Pagingation, Search } from 'src/components';
+import { AdminHeader, Icon, Page, Pagingation, RefreshButton, Search } from 'src/components';
 import { useEventCallback } from 'src/hooks';
 import { formatBoolean, formatTags } from 'src/lib';
 import { texts } from 'src/texts';
@@ -19,7 +19,12 @@ export const UsersPage = () => {
   const [toCreate, setToCreate] = useState<boolean>();
   const [toUpdate, setToUpdate] = useState<UserDto | null>(null);
 
-  const { data: loadedUsers, isFetched } = useQuery({
+  const {
+    data: loadedUsers,
+    refetch,
+    isFetched,
+    isFetching,
+  } = useQuery({
     queryKey: ['users', page, query],
     queryFn: () => clients.users.getUsers(page, 20, query),
   });
@@ -48,17 +53,15 @@ export const UsersPage = () => {
 
   return (
     <Page>
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-3xl">{texts.users.headline}</h2>
+      <AdminHeader title={texts.users.headline}>
+        <RefreshButton isLoading={isFetching} onClick={refetch} />
 
-        <div className="flex gap-4">
-          <Search value={query} onSearch={setQuery} />
+        <Search value={query} onSearch={setQuery} />
 
-          <button className="btn btn-success text-sm text-white" onClick={() => setToCreate(true)}>
-            <Icon icon="plus" size={16} /> {texts.users.create}
-          </button>
-        </div>
-      </div>
+        <button className="btn btn-success text-sm text-white" onClick={() => setToCreate(true)}>
+          <Icon icon="plus" size={16} /> {texts.users.create}
+        </button>
+      </AdminHeader>
 
       <div className="card bg-base-100 shadow">
         <div className="card-body">
@@ -87,7 +90,9 @@ export const UsersPage = () => {
 
               {users.length === 0 && isFetched && (
                 <tr>
-                  <td colSpan={8}>{texts.users.empty}</td>
+                  <td className="text-sm" colSpan={8}>
+                    {texts.users.empty}
+                  </td>
                 </tr>
               )}
             </tbody>

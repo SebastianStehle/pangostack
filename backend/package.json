@@ -1,10 +1,8 @@
 {
-  "name": "metasaas",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "name": "pangostack-backend",
   "private": true,
-  "license": "UNLICENSED",
+  "version": "0.0.0",
+  "license": "MIT",
   "scripts": {
     "dev": "nest start --watch",
     "mkcert:install": "mkcert --install",

@@ -170,6 +170,18 @@ export class DeploymentDto {
   serviceVersion: string;
 
   @ApiProperty({
+    description: 'Indicates if the version is the default one.',
+    required: true,
+  })
+  isVersionDefault: boolean;
+
+  @ApiProperty({
+    description: ' Indicates if the version is the last one.',
+    required: true,
+  })
+  isVersionLast: boolean;
+
+  @ApiProperty({
     description: 'The timestamp when the deployment has been created.',
     required: true,
     type: 'string',
@@ -232,6 +244,8 @@ export class DeploymentDto {
     result.connections = {};
     result.createdAt = source.createdAt;
     result.healthStatus = source.healthStatus;
+    result.isVersionDefault = source.isVersionDefault;
+    result.isVersionLast = source.isVersionLast;
     result.parameters = source.parameters;
     result.resources = source.resources.map(DeploymentResourceDto.fromDomain);
     result.serviceId = source.serviceId;

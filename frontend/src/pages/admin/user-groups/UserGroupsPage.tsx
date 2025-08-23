@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useClients, UserGroupDto } from 'src/api';
-import { Icon, Page } from 'src/components';
+import { AdminHeader, Icon, Page, RefreshButton } from 'src/components';
 import { useEventCallback } from 'src/hooks';
 import { formatBoolean } from 'src/lib';
 import { texts } from 'src/texts';
@@ -14,7 +14,12 @@ export const UserGroupsPage = () => {
   const [toCreate, setToCreate] = useState<boolean>();
   const [toUpdate, setToUpdate] = useState<UserGroupDto | null>(null);
 
-  const { data: loadedGroups, isFetched } = useQuery({
+  const {
+    data: loadedGroups,
+    refetch,
+    isFetched,
+    isFetching,
+  } = useQuery({
     queryKey: ['userGroups'],
     queryFn: () => clients.users.getUserGroups(),
   });
@@ -32,15 +37,13 @@ export const UserGroupsPage = () => {
 
   return (
     <Page>
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-3xl">{texts.userGroups.headline}</h2>
+      <AdminHeader title={texts.userGroups.headline}>
+        <RefreshButton isLoading={isFetching} onClick={refetch} />
 
-        <div className="flex gap-4">
-          <button className="btn btn-success text-sm text-white" onClick={() => setToCreate(true)}>
-            <Icon icon="plus" size={16} /> {texts.userGroups.create}
-          </button>
-        </div>
-      </div>
+        <button className="btn btn-success text-sm text-white" onClick={() => setToCreate(true)}>
+          <Icon icon="plus" size={16} /> {texts.userGroups.create}
+        </button>
+      </AdminHeader>
 
       <div className="card bg-base-100 shadow">
         <div className="card-body">

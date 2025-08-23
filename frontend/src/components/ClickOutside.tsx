@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { DetailedHTMLProps, useEffect } from 'react';
 import { useEventCallback } from 'src/hooks';
 
@@ -15,7 +15,7 @@ export interface ClickOutsideProps
 export const ClickOutside = React.memo((props: ClickOutsideProps) => {
   const { children, isActive, onClickOutside, ...other } = props;
 
-  const container = React.useRef<HTMLDivElement>();
+  const container = useRef<HTMLDivElement>();
 
   const initContainer = useEventCallback((div: HTMLDivElement) => {
     container.current = div;

@@ -66,7 +66,7 @@ export interface OptionsFormEditorProps<T> extends FormEditorProps {
   options: FormEditorOption<T>[];
 }
 
-export interface CodeFormEditorProps extends FormEditorProps, Pick<CodeEditorProps, 'height' | 'mode' | 'valueMode'> {}
+export interface CodeFormEditorProps extends FormEditorProps, Omit<CodeEditorProps, 'onBlur' | 'onChange' | 'value'> {}
 
 export interface FormRowProps extends FormEditorProps, PropsWithChildren {}
 

@@ -35,6 +35,12 @@ export interface Deployment {
   // The version of the service.
   serviceVersion: string;
 
+  // Indicates if the version is the default one.
+  isVersionDefault: boolean;
+
+  // Indicates if the version is the last one.
+  isVersionLast: boolean;
+
   // When the service has been created.
   createdAt: Date;
 }

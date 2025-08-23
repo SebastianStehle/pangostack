@@ -1,7 +1,7 @@
 #
 # BACKEND
 #
-FROM node:18-alpine As backend
+FROM node:22-alpine AS backend
 
 # Create app directory
 WORKDIR /src/backend
@@ -26,7 +26,7 @@ RUN NODE_ENV=production & npm ci --only=production && npm cache clean --force
 #
 # FRONTEND
 #
-FROM node:18-alpine As frontend
+FROM node:22-alpine AS frontend
 
 # Create app directory
 WORKDIR /src/frontend
@@ -48,9 +48,9 @@ RUN npm run build
 #
 # RUNTIME
 #
-FROM node:18-alpine As production
+FROM node:22-alpine AS production
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 # Copy the bundled code from the build stages to the production image
 COPY --from=backend /src/backend/node_modules ./node_modules

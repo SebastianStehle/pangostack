@@ -20,6 +20,11 @@ export const VersionPage = (props: VersionPageProps) => {
   const navigate = useNavigate();
   const { isSticky, sentinelRef } = useStickyObserver();
 
+  const { data: loadedService } = useQuery({
+    queryKey: ['service', serviceId],
+    queryFn: () => clients.services.getService(serviceId),
+  });
+
   const { data: loadedServiceVersion, isFetched } = useQuery({
     queryKey: ['service-versions', serviceId],
     queryFn: () => clients.services.getServiceVersion(serviceId, versionId),
@@ -48,7 +53,7 @@ export const VersionPage = (props: VersionPageProps) => {
     return null;
   }
 
-  if (!loadedServiceVersion) {
+  if (!loadedServiceVersion || !loadedService) {
     return <div>{texts.common.notFound}</div>;
   }
 
@@ -73,10 +78,25 @@ export const VersionPage = (props: VersionPageProps) => {
               <Forms.Boolean name="isActive" label={texts.services.isActive} vertical />
 
               <Forms.Code
+                height="1000px"
+                label={texts.services.definition}
+                mode="yaml"
+                name="definition"
+                noWrap
+                required
+                readOnly={creating.isPending}
+                valueMode="string"
+                vertical
+              />
+
+              <Forms.Code
                 height="200px"
                 label={texts.common.environment}
                 mode="javascript"
                 name="environment"
+                noWrap
+                required={false}
+                readOnly={creating.isPending || loadedService.isPublic}
                 valueMode="object"
                 vertical
               />

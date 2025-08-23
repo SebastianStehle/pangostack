@@ -4,7 +4,7 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Omni SaaS
+ * Pangostack
  * SaaS Deployment Tool
  *
  * The version of the OpenAPI document: 1.0
@@ -19,6 +19,7 @@
 import * as runtime from '../runtime';
 import type {
   CreateServiceVersionDto,
+  DeploymentsDto,
   ServiceDto,
   ServiceVersionDto,
   ServiceVersionsDto,
@@ -30,6 +31,8 @@ import type {
 import {
     CreateServiceVersionDtoFromJSON,
     CreateServiceVersionDtoToJSON,
+    DeploymentsDtoFromJSON,
+    DeploymentsDtoToJSON,
     ServiceDtoFromJSON,
     ServiceDtoToJSON,
     ServiceVersionDtoFromJSON,
@@ -53,6 +56,16 @@ export interface DeleteServiceRequest {
 export interface DeleteServiceVersionRequest {
     serviceId: number;
     versionId: number;
+}
+
+export interface GetServiceRequest {
+    serviceId: number;
+}
+
+export interface GetServiceDeploymentsRequest {
+    serviceId: number;
+    page?: number;
+    pageSize?: number;
 }
 
 export interface GetServiceVersionRequest {
@@ -161,6 +174,86 @@ export class ServicesApi extends runtime.BaseAPI {
      */
     async deleteServiceVersion(serviceId: number, versionId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.deleteServiceVersionRaw({ serviceId: serviceId, versionId: versionId }, initOverrides);
+    }
+
+    /**
+     * Gets the service.
+     * 
+     */
+    async getServiceRaw(requestParameters: GetServiceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ServiceDto>> {
+        if (requestParameters.serviceId === null || requestParameters.serviceId === undefined) {
+            throw new runtime.RequiredError('serviceId','Required parameter requestParameters.serviceId was null or undefined when calling getService.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/services/{serviceId}`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ServiceDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Gets the service.
+     * 
+     */
+    async getService(serviceId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ServiceDto> {
+        const response = await this.getServiceRaw({ serviceId: serviceId }, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Gets all deployments.
+     * 
+     */
+    async getServiceDeploymentsRaw(requestParameters: GetServiceDeploymentsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeploymentsDto>> {
+        if (requestParameters.serviceId === null || requestParameters.serviceId === undefined) {
+            throw new runtime.RequiredError('serviceId','Required parameter requestParameters.serviceId was null or undefined when calling getServiceDeployments.');
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters.page !== undefined) {
+            queryParameters['page'] = requestParameters.page;
+        }
+
+        if (requestParameters.pageSize !== undefined) {
+            queryParameters['pageSize'] = requestParameters.pageSize;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/services/{serviceId}/deployments`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => DeploymentsDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Gets all deployments.
+     * 
+     */
+    async getServiceDeployments(serviceId: number, page?: number, pageSize?: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentsDto> {
+        const response = await this.getServiceDeploymentsRaw({ serviceId: serviceId, page: page, pageSize: pageSize }, initOverrides);
+        return await response.value();
     }
 
     /**

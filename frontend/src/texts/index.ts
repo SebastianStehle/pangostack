@@ -4,7 +4,7 @@ export const texts = {
     administration: 'Administration',
     administrator: 'Administrator',
     apiKey: 'API Key',
-    appName: 'Omni SaaS',
+    appName: 'Pangostack',
     builtIn: 'Built In',
     cancel: 'Cancel',
     common: 'Common',
@@ -62,6 +62,7 @@ export const texts = {
     save: 'Save',
     saved: 'Saved successfully.',
     search: 'Search',
+    service: 'Service',
     settings: 'Settings',
     status: 'Status',
     subtitle: 'Subtitle',
@@ -75,6 +76,7 @@ export const texts = {
     usage: 'Usage',
     userGroup: 'User Group',
     userGroups: 'User Groups',
+    version: 'Version',
     yes: 'Yes',
   },
   billing: {
@@ -100,6 +102,7 @@ export const texts = {
       'This instance is currently deployed. Your resources may still be finishing installing and booting up during the first few minutes of activation.',
     deploymentHeadline: 'Deployment',
     edit: 'Edit Deployment (Soon)',
+    empty: 'No deployments found',
     emptyLabel: 'No deployment yet',
     emptyText: 'Install a service to create your first deployment.',
     estimatedPrice: 'Estimated Price',
@@ -123,7 +126,7 @@ export const texts = {
   login: {
     loginButton: (provider: string) => `Login with ${provider}`,
     loginHint: 'Login to your account',
-    welcome: 'Welcome to Omni SaaS 👋',
+    welcome: 'Welcome to Pangostack 👋',
   },
   members: {
     addMemberButton: 'Add Member',
@@ -145,6 +148,7 @@ export const texts = {
     definition: 'YAML Definition',
     definitionHint: 'The YAML Definition cannot be changed later. Versions are basically immutable',
     empty: 'No service found.',
+    emptyVersions: 'No version found.',
     fixedPrice: 'Fixed base price',
     headline: 'Services',
     isActive: 'Is Active',
@@ -164,6 +168,7 @@ export const texts = {
     updateFailed: 'Failed to update Service',
     updateVersion: 'Update Service Version',
     updateVersionFailed: 'Failed to update Service Version',
+    versions: 'Versions',
   },
   userGroups: {
     create: 'Create User Group',
