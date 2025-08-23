@@ -8,8 +8,6 @@ export interface DeploymentSignal {
   previousUpdateId?: number | null;
   resourceIds: string[];
   updateId: number;
-  workerApiKey?: string;
-  workerEndpoint: string;
 }
 
 export const DEPLOYMENT_ACTION_SIGNAL = 'deploymentAction';

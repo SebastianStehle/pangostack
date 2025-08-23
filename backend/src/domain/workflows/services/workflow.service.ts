@@ -1,7 +1,6 @@
 import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { Client, ScheduleAlreadyRunning } from '@temporalio/client';
 import { NativeConnection, Worker } from '@temporalio/worker';
-import { WorkerEntity } from 'src/domain/database';
 import { DeploymentUpdateEntity } from 'src/domain/database';
 import { is } from 'src/lib';
 import { ActivityExplorerService } from '../registration';
@@ -185,7 +184,6 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
     deploymentId: number,
     deploymentUpdate: DeploymentUpdateEntity,
     previousUpdate: DeploymentUpdateEntity | null,
-    worker: WorkerEntity,
   ) {
     const [, client] = await this.temporal.getClient();
 
@@ -202,8 +200,6 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
             previousResourceIds: previousUpdate?.serviceVersion.definition.resources.map((x) => x.id) || null,
             resourceIds: deploymentUpdate.serviceVersion.definition.resources.map((x) => x.id),
             updateId: deploymentUpdate.id,
-            workerApiKey: worker.apiKey,
-            workerEndpoint: worker.endpoint,
           },
         ],
         taskQueue: `deployments`,
@@ -214,8 +210,10 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
     }
   }
 
-  async deleteDeployment(deploymentId: number, deploymentUpdate: DeploymentUpdateEntity, worker: WorkerEntity) {
+  async deleteDeployment(deploymentId: number, deploymentUpdate: DeploymentUpdateEntity) {
     const [, client] = await this.temporal.getClient();
+
+    const resourceIds = deploymentUpdate.serviceVersion.definition.resources.map((x) => x.id);
 
     await client.workflow.signalWithStart<typeof workflows.deploymentCoordinator, [DeploymentSignal]>(
       workflows.deploymentCoordinator,
@@ -223,15 +221,7 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
         workflowId: `deployment-${deploymentId}`,
         args: [{ deploymentId }],
         signal: DEPLOYMENT_ACTION_SIGNAL,
-        signalArgs: [
-          {
-            action: 'Destroy',
-            resourceIds: deploymentUpdate.serviceVersion.definition.resources.map((x) => x.id),
-            updateId: deploymentUpdate.id,
-            workerApiKey: worker.apiKey,
-            workerEndpoint: worker.endpoint,
-          },
-        ],
+        signalArgs: [{ action: 'Destroy', resourceIds, updateId: deploymentUpdate.id }],
         taskQueue: `deployments`,
       },
     );

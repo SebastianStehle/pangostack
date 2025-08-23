@@ -118,7 +118,7 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
       serviceVersionId: version.id,
     });
 
-    await this.workflows.createDeployment(deployment.id, update, lastUpdate, worker);
+    await this.workflows.createDeployment(deployment.id, update, lastUpdate);
 
     return new UpdateDeploymentResult(buildDeployment(deployment, update));
   }

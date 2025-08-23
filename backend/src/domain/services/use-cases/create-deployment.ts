@@ -126,8 +126,8 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
 
     deployment.status = 'Created';
     await this.deployments.save(deployment);
+    await this.workflows.createDeployment(deployment.id, update, null);
 
-    await this.workflows.createDeployment(deployment.id, update, null, worker);
     return new CreateDeploymentResult(buildDeployment(deployment, update));
   }
 }

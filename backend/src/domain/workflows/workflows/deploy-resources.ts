@@ -7,8 +7,6 @@ export interface DeployResourcesParam {
   previousUpdateId?: number | null;
   resourceIds: string[];
   updateId: number;
-  workerApiKey?: string;
-  workerEndpoint: string;
 }
 
 const { deleteResource, deployResource } = proxyActivities<typeof activities>({
@@ -19,7 +17,7 @@ const { deleteResource, deployResource } = proxyActivities<typeof activities>({
   },
 });
 
-const { updateDeployment } = proxyActivities<typeof activities>({
+const { updateDeployment, getWorker } = proxyActivities<typeof activities>({
   startToCloseTimeout: '30s',
   retry: {
     maximumAttempts: 3,
@@ -32,11 +30,10 @@ export async function deployResources({
   previousUpdateId,
   resourceIds,
   updateId,
-  workerApiKey,
-  workerEndpoint,
 }: DeployResourcesParam): Promise<any> {
   await updateDeployment({ updateId, status: 'Running' });
 
+  const { workerApiKey, workerEndpoint } = await getWorker({});
   try {
     if (previousResourceIds) {
       for (const resourceId of previousResourceIds) {

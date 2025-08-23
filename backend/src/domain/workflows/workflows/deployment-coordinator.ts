@@ -18,7 +18,7 @@ export async function deploymentCoordinator({ deploymentId }: { deploymentId: nu
       break;
     }
 
-    const { action, previousResourceIds, previousUpdateId, resourceIds, updateId, workerApiKey, workerEndpoint } = newAction;
+    const { action, previousResourceIds, previousUpdateId, resourceIds, updateId } = newAction;
 
     if (action === 'Update') {
       await executeChild(deployResources, {
@@ -30,8 +30,6 @@ export async function deploymentCoordinator({ deploymentId }: { deploymentId: nu
             deploymentId,
             resourceIds,
             updateId,
-            workerApiKey,
-            workerEndpoint,
           },
         ],
       });
@@ -43,8 +41,6 @@ export async function deploymentCoordinator({ deploymentId }: { deploymentId: nu
             deploymentId,
             resourceIds,
             updateId,
-            workerApiKey,
-            workerEndpoint,
           },
         ],
       });

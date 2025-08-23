@@ -67,6 +67,6 @@ export class ConfirmDeploymentHandler implements ICommandHandler<ConfirmDeployme
       throw new NotFoundException(`Deployment ${deploymentId} was never really created`);
     }
 
-    await this.workflows.createDeployment(deployment.id, lastUpdate, null, worker);
+    await this.workflows.createDeployment(deployment.id, lastUpdate, null);
   }
 }
