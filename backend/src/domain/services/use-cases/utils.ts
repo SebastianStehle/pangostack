@@ -74,7 +74,7 @@ export function buildServicePublic(source: ServiceEntity, serviceVersion: Servic
     prices: definition.prices,
     pricingModel: definition.pricingModel,
     usage: definition.usage,
-    version: name,
+    version: serviceVersion.name,
   };
 }
 

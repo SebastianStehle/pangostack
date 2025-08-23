@@ -16,6 +16,10 @@ export const TeamsDropdown = (props: TeamDropdownProps) => {
 
   const team = teams.find((x) => x.id === teamId);
 
+  if (teams.length === 0) {
+    return null;
+  }
+
   return (
     <OverlayDropdown
       placement="bottom-end"

@@ -87,6 +87,7 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
       confirmToken,
       createdAt: undefined,
       createdBy: user?.id || 'UNKNOWN',
+      serviceId,
       status: 'Pending',
       teamId: teamId,
       updatedAt: undefined,
