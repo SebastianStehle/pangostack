@@ -25,8 +25,8 @@ export async function trackDeploymentsUsage(): Promise<void> {
         workerApiKey,
         workerEndpoint,
       });
-    } catch (err: any) {
-      log.error(`Failed to track deployment ${deploymentId}:`, err);
+    } catch (ex) {
+      log.error(`Failed to track deployment ${deploymentId}:`, { cause: ex });
     }
   }
 }

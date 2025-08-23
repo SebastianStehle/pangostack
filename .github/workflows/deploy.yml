@@ -74,6 +74,7 @@ jobs:
       uses: docker/build-push-action@v6.18.0
       with:
         context: ./services/worker
+        file: ./services/worker/Dockerfile
         load: true
         cache-from: type=gha
         cache-to: type=gha,mode=max

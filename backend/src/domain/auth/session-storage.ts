@@ -15,8 +15,8 @@ export class SessionStorage extends Store {
       const session = await this.sessionRepository.findOneBy({ id: sid });
 
       callback(undefined, session?.value);
-    } catch (err) {
-      callback(err);
+    } catch (ex) {
+      callback(ex);
     }
   }
 
@@ -25,8 +25,8 @@ export class SessionStorage extends Store {
       await saveAndFind(this.sessionRepository, { id: sid, value: session as any });
 
       callback?.();
-    } catch (err) {
-      callback?.(err);
+    } catch (ex) {
+      callback?.(ex);
     }
   }
 
@@ -35,8 +35,8 @@ export class SessionStorage extends Store {
       await this.sessionRepository.delete({ id: sid });
 
       callback?.();
-    } catch (err) {
-      callback?.(err);
+    } catch (ex) {
+      callback?.(ex);
     }
   }
 }

@@ -21,8 +21,8 @@ export class WorkerClient {
         let response: Response;
         try {
           response = await fetch(request as any, { ...init, agent } as any);
-        } catch (error: unknown) {
-          throw await buildError(error);
+        } catch (ex) {
+          throw await buildError(ex);
         }
 
         if (response && response.status >= 200 && response.status < 300) {

@@ -63,7 +63,7 @@ export class TrackDeploymentHealthActivity implements Activity<TrackDeploymentHe
             log.push(`Request to '${healtCheck.url} failed with ${result.status}`);
           }
         } catch (ex) {
-          log.push(`Request to '${healtCheck.url} failed with exception`);
+          log.push(`Request to '${healtCheck.url} failed with exception: ${ex}`);
           numFailed++;
         }
       }

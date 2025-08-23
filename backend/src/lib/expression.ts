@@ -9,7 +9,7 @@ export function evaluateExpression(template: string, context: EvalContext): stri
     try {
       const func = new Function(...Object.keys(context), `return (${expr});`);
       return func(...Object.values(context));
-    } catch (err) {
+    } catch {
       return '';
     }
   });

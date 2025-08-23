@@ -31,7 +31,7 @@ export class OAuthStrategy extends PassportStrategy(Strategy, 'oauth2') {
         if (err.data) {
           try {
             json = JSON.parse(err.data);
-          } catch (_) {}
+          } catch {}
         }
 
         if (json && json.error && json.error.message) {
@@ -45,7 +45,7 @@ export class OAuthStrategy extends PassportStrategy(Strategy, 'oauth2') {
       try {
         json = JSON.parse(body as any);
       } catch (ex) {
-        return done(new InternalError('Failed to parse user profile', { cause: err }));
+        return done(new InternalError('Failed to parse user profile', { cause: ex }));
       }
 
       done(null, json);

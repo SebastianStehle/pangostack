@@ -89,8 +89,8 @@ export class ChargebeeBillingService implements BillingService {
       }
 
       return true;
-    } catch (error: any) {
-      throw new BillingError(`Chargebee: Failed to create subscription for deployment ${deploymentId}`, error);
+    } catch (ex) {
+      throw new BillingError(`Chargebee: Failed to create subscription for deployment ${deploymentId}`, ex);
     }
   }
 
@@ -146,8 +146,8 @@ export class ChargebeeBillingService implements BillingService {
           description: this.config.fixedPriceDescription,
         });
       }
-    } catch (error: any) {
-      throw new BillingError(`Chargebee: Failed to charge deployment ${deploymentId}`, error);
+    } catch (ex) {
+      throw new BillingError(`Chargebee: Failed to charge deployment ${deploymentId}`, ex);
     }
   }
 
@@ -230,9 +230,9 @@ export class ChargebeeBillingService implements BillingService {
       if (createdCustomer) {
         return createdCustomer;
       }
-    } catch (error: any) {
-      if (error.http_status_code !== 409) {
-        throw error;
+    } catch (ex) {
+      if (ex.http_status_code !== 409) {
+        throw ex;
       }
     }
 
@@ -257,7 +257,7 @@ function isAllowedPort(source?: string): boolean {
 
     const port = url.port ? parseInt(url.port) : url.protocol === 'https:' ? 443 : 80;
     return ALLOWED_PORTS.includes(port);
-  } catch (e) {
+  } catch {
     return false;
   }
 }

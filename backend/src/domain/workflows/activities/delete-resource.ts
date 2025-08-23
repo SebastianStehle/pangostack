@@ -2,9 +2,9 @@ import { NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database';
 import { evaluateParameters } from 'src/domain/definitions';
+import { getEvaluationContext, getResourceUniqueId } from 'src/domain/services';
 import { WorkerClient } from 'src/domain/worker';
 import { Activity } from '../registration';
-import { getEvaluationContext, getResourceUniqueId } from 'src/domain/services';
 
 export type DeleteResourceParam = {
   deploymentId: number;

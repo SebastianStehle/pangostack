@@ -14,8 +14,8 @@ export async function trackDeploymentsHealths(): Promise<void> {
   for (const deploymentId of deployments) {
     try {
       await trackDeploymentHealth({ deploymentId });
-    } catch (err: any) {
-      log.error(`Failed to check deployment ${deploymentId}:`, err);
+    } catch (ex) {
+      log.error(`Failed to check deployment ${deploymentId}.`, { cause: ex });
     }
   }
 }

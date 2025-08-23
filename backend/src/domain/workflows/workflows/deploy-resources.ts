@@ -63,7 +63,7 @@ export async function deployResources({
       });
     }
     await updateDeployment({ updateId, status: 'Completed' });
-  } catch (error: any) {
-    await updateDeployment({ updateId, status: 'Failed', error: `${error}` });
+  } catch (ex) {
+    await updateDeployment({ updateId, status: 'Failed', error: `${ex}` });
   }
 }

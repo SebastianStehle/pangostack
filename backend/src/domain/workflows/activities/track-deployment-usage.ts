@@ -7,9 +7,9 @@ import {
   DeploymentUsageRepository,
 } from 'src/domain/database';
 import { evaluateParameters, evaluateUsage } from 'src/domain/definitions';
+import { getEvaluationContext, getResourceUniqueId } from 'src/domain/services';
 import { WorkerClient } from 'src/domain/worker';
 import { Activity } from '../registration';
-import { getResourceUniqueId, getEvaluationContext } from 'src/domain/services';
 
 export type TrackDeploymentUsageParam = {
   deploymentId: number;
