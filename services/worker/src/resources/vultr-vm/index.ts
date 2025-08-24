@@ -81,10 +81,9 @@ export class VultrVmResource implements Resource {
       this.logger.log({ message: 'Deploying resource', context: logContext });
 
       let instance = await this.createInstance(vultr, id, request, logContext);
-
       if (!request.resourceContext.password) {
         this.logger.error({ message: 'Instance has no password. Previous attempt has failed. Deleting VM and trying again.', context: logContext });
-        await vultr.instances.deleteInstance({ id: instance.id });
+        await vultr.instances.deleteInstance({ 'instance-id': id });
 
         instance = await this.createInstance(vultr, id, request, logContext);
       }
@@ -174,7 +173,7 @@ export class VultrVmResource implements Resource {
       return;
     }
 
-    await vultr.instances.deleteInstance({ id: instance.id });
+    await vultr.instances.deleteInstance({ 'instance-id': id });
   }
 
   async status(id: string, request: ResourceRequest<Parameters, ResourceContext>): Promise<ResourceStatusResult> {
