@@ -8,7 +8,7 @@ import { AuthService } from '../auth.service';
 export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
   constructor(authService: AuthService) {
     super({
-      callbackURL: `${authService.config.baseUrl}/auth/login/github/callback`,
+      callbackURL: `${authService.config.baseUrl}/api/auth/login/github/callback`,
       clientID: authService.config.github?.clientId || 'INVALID',
       clientSecret: authService.config.github?.clientSecret || 'INVALID',
       scope: ['profile', 'email'],

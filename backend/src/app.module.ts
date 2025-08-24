@@ -17,6 +17,7 @@ import { SettingsController } from './controllers/settings/settings.controller';
 import { TeamsController } from './controllers/users/teams.controller';
 import { UserGroupsController } from './controllers/users/user-groups.controller';
 import { UsersController } from './controllers/users/users.controller';
+import { WorkersController } from './controllers/workers/workers.controller';
 import { AuthModule } from './domain/auth/module';
 import { billingConfig, BillingModule } from './domain/billing';
 import {
@@ -41,7 +42,7 @@ import {
 import { ServicesModule } from './domain/services';
 import { SettingsModule } from './domain/settings';
 import { UsersModule } from './domain/users/module';
-import { WorkerModule } from './domain/worker/module';
+import { WorkersModule } from './domain/workers/module';
 import { WorkflowModule } from './domain/workflows';
 
 @Module({
@@ -55,7 +56,7 @@ import { WorkflowModule } from './domain/workflows';
     ServicesModule,
     SettingsModule,
     UsersModule,
-    WorkerModule,
+    WorkersModule,
     WorkflowModule,
     TypeOrmModule.forFeature([TeamEntity, UserEntity]),
     TypeOrmModule.forRootAsync({
@@ -105,6 +106,7 @@ import { WorkflowModule } from './domain/workflows';
     TeamsController,
     UserGroupsController,
     UsersController,
+    WorkersController,
   ],
 })
 export class AppModule {}

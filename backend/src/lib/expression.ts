@@ -8,7 +8,9 @@ export function evaluateExpression(template: string, context: EvalContext): stri
   return template.replace(/\$\{([^}]+)\}/g, (_, expr) => {
     try {
       const func = new Function(...Object.keys(context), `return (${expr});`);
-      return func(...Object.values(context));
+      const value = func(...Object.values(context));
+
+      return value?.toString();
     } catch {
       return '';
     }

@@ -30,7 +30,7 @@ export class StatusController {
     // Validate the request first.
     for (const identifier of body.resources) {
       if (!this.resources.has(identifier.resourceType)) {
-        throw new BadRequestException(`Unknown resouce type ${identifier.resourceType}`);
+        throw new BadRequestException(`Unknown resource type ${identifier.resourceType}`);
       }
     }
 
@@ -56,7 +56,7 @@ export class StatusController {
     // Validate the request first.
     for (const resource of body.resources) {
       if (!this.resources.has(resource.resourceType)) {
-        throw new BadRequestException(`Unknown resouce type ${resource.resourceType}`);
+        throw new BadRequestException(`Unknown resource type ${resource.resourceType}`);
       }
     }
 
@@ -86,7 +86,7 @@ export class StatusController {
     // Validate the request first.
     for (const resource of body.resources) {
       if (!this.resources.has(resource.resourceType)) {
-        throw new BadRequestException(`Unknown resouce type ${resource.resourceType}`);
+        throw new BadRequestException(`Unknown resource type ${resource.resourceType}`);
       }
     }
 

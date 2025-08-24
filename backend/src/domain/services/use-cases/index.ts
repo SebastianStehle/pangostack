@@ -19,3 +19,4 @@ export * from './get-services';
 export * from './update-deployment';
 export * from './update-service-version';
 export * from './update-service';
+export * from './verify-definition';

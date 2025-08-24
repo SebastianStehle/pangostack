@@ -35,7 +35,14 @@ export const Deployments = ({ serviceId }: { serviceId: number }) => {
 
           <RefreshButton isLoading={isFetching} onClick={refetch} />
         </div>
-        <table className="table table-fixed text-base">
+        <table className="table table-fixed">
+          <colgroup>
+            <col className="w-16" />
+            <col className="w-32" />
+            <col />
+            <col />
+            <col className="w-32" />
+          </colgroup>
           <thead>
             <tr>
               <th>#</th>

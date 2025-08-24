@@ -169,6 +169,9 @@ export const texts = {
     updateVersion: 'Update Service Version',
     updateVersionFailed: 'Failed to update Service Version',
     versions: 'Versions',
+    verify: 'Verify',
+    verifySuccess: 'Service definition is valid.',
+    verifyFailed: 'Service definition not valid.',
   },
   userGroups: {
     create: 'Create User Group',
@@ -219,5 +222,10 @@ export const texts = {
     updateFailed: 'Failed to update settings.',
     welcomeText: 'Welcome Text',
     welcomeTextHints: 'Only shown on the login page.',
+  },
+  workers: {
+    empty: 'No workers found.',
+    endpoint: 'Endpoint',
+    headline: 'Workers',
   },
 };

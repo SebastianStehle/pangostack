@@ -47,7 +47,7 @@ export const UserGroupsPage = () => {
 
       <div className="card bg-base-100 shadow">
         <div className="card-body">
-          <table className="table table-fixed text-base">
+          <table className="table table-fixed">
             <thead>
               <tr>
                 <th>{texts.common.name}</th>

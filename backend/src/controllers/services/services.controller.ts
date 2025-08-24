@@ -14,6 +14,7 @@ import {
   GetServiceVersionsQuery,
   UpdateService,
   UpdateServiceVersion,
+  VerifyDefinitionQuery,
 } from 'src/domain/services';
 import { IntParam } from 'src/lib';
 import {
@@ -25,6 +26,7 @@ import {
   ServiceVersionsDto,
   UpdateServiceVersionDto,
   UpsertServiceDto,
+  VerifyServiceVersionDto,
 } from './dtos';
 
 @Controller('api/services')
@@ -194,6 +196,24 @@ export class ServicesController {
     const { serviceVersion } = await this.commandBus.execute(command);
 
     return ServiceVersionDto.fromDomain(serviceVersion);
+  }
+
+  @Post(':serviceId/versions/verify')
+  @ApiOperation({ operationId: 'postVerifyServiceVersion', description: 'Verifies a service version.' })
+  @ApiParam({
+    name: 'serviceId',
+    description: 'The ID of the service.',
+    required: true,
+    type: 'number',
+  })
+  @ApiNoContentResponse()
+  @Role(BUILTIN_USER_GROUP_ADMIN)
+  @UseGuards(RoleGuard)
+  async postVerifyServiceVersion(@IntParam('serviceId') serviceId: number, @Body() body: VerifyServiceVersionDto) {
+    const definition = yamlToDefinition(body.definition);
+    await validateDefinition(definition);
+
+    await this.queryBus.execute(new VerifyDefinitionQuery(serviceId, definition, body.environment));
   }
 
   @Put(':serviceId/versions/:versionId')

@@ -34,6 +34,7 @@ import {
   UpdateDeploymentHandler,
   UpdateServiceHandler,
   UpdateServiceVersionHandler,
+  VerifyDefinitionHandler,
 } from './use-cases';
 
 @Module({
@@ -75,6 +76,7 @@ import {
     UpdateServiceHandler,
     UpdateServiceVersionHandler,
     UrlService,
+    VerifyDefinitionHandler,
   ],
   exports: [UrlService],
 })

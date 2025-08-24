@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { plainToInstance } from 'class-transformer';
 import {
   IsArray,
@@ -152,8 +152,17 @@ class ResourceDefinitionClass {
   @IsOptional()
   @IsObject()
   @ValidateNested({ each: true })
-  @Type(() => ResourceMappingClass)
-  mappings: Map<string, ResourceMappingClass>;
+  @Transform(({ value }) => {
+    if (!value || !isObject(value)) {
+      return value;
+    }
+
+    const result = Object.fromEntries(
+      Object.entries(value).map(([key, value]) => [key, plainToInstance(ResourceMappingClass, value)]),
+    );
+    return result;
+  })
+  mappings: Record<string, ResourceMappingClass>;
 }
 
 class UsageDefinitionClass {
@@ -293,7 +302,7 @@ export function yamlToDefinition(yaml: string | undefined | null): ServiceDefini
 }
 
 export async function validateDefinition(service: ServiceDefinition) {
-  const errors = await validate(service);
+  const errors = await validate(service, { forbidUnknownValues: false });
 
   if (errors.length > 0) {
     throw new BadRequestException(flattenValidationErrors(errors));
@@ -397,7 +406,7 @@ export function validateDefinitionValue(service: ServiceDefinition, target: Reco
     };
 
     if (!valueExists && definition.required) {
-      constraints!['isDefined'] = 'Value is required but was not provided';
+      constraints!['isDefined'] = '$property is required but was not provided';
     }
 
     if (valueExists) {
@@ -418,7 +427,7 @@ export function validateDefinitionValue(service: ServiceDefinition, target: Reco
         }
 
         if (!isBoolean(value)) {
-          constraints['isBoolean'] = 'Value must be a boolean';
+          constraints['isBoolean'] = '$property must be a boolean';
         }
       } else if (definition.type === 'number') {
         if (typeof value === 'string' && !isNaN(+value)) {
@@ -426,30 +435,30 @@ export function validateDefinitionValue(service: ServiceDefinition, target: Reco
         }
 
         if (!isNumber(value)) {
-          constraints['isNumber'] = 'Value must be a number';
+          constraints['isNumber'] = '$property must be a number';
         } else {
           if (definition.minValue && value < definition.minValue) {
-            constraints['minValue'] = `Value must be at least ${definition.minValue}`;
+            constraints['minValue'] = `$property must be at least ${definition.minValue}`;
           }
           if (definition.maxValue && value > definition.maxValue) {
-            constraints['maxValue'] = `Value must be at most ${definition.maxValue}`;
+            constraints['maxValue'] = `$property must be at most ${definition.maxValue}`;
           }
           if (definition.allowedValues && !definition.allowedValues.find((x) => x.value === value)) {
-            constraints['enum'] = `Value must be at one of the allowed values`;
+            constraints['enum'] = `$property must be at one of the allowed values`;
           }
         }
       } else if (definition.type === 'string') {
         if (!isString(value)) {
-          constraints['isString'] = 'Value must be a string';
+          constraints['isString'] = '$property must be a string';
         } else {
           if (definition.minLength && value.length < definition.minLength) {
-            constraints['minLength'] = `Value must be at least ${definition.minLength} characters long`;
+            constraints['minLength'] = `$property must be at least ${definition.minLength} characters long`;
           }
           if (definition.maxLength && value.length > definition.maxLength) {
-            constraints['maxLength'] = `Value must be at most ${definition.maxLength} characters long`;
+            constraints['maxLength'] = `$property must be at most ${definition.maxLength} characters long`;
           }
           if (definition.allowedValues && !definition.allowedValues.find((x) => x.value === value)) {
-            constraints['enum'] = `Value must be at one of the allowed values`;
+            constraints['enum'] = `$property must be at one of the allowed values`;
           }
         }
       }

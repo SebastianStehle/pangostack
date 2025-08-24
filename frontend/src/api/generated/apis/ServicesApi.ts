@@ -27,6 +27,7 @@ import type {
   ServicesPublicDto,
   UpdateServiceVersionDto,
   UpsertServiceDto,
+  VerifyServiceVersionDto,
 } from '../models/index';
 import {
     CreateServiceVersionDtoFromJSON,
@@ -47,6 +48,8 @@ import {
     UpdateServiceVersionDtoToJSON,
     UpsertServiceDtoFromJSON,
     UpsertServiceDtoToJSON,
+    VerifyServiceVersionDtoFromJSON,
+    VerifyServiceVersionDtoToJSON,
 } from '../models/index';
 
 export interface DeleteServiceRequest {
@@ -84,6 +87,11 @@ export interface PostServiceRequest {
 export interface PostServiceVersionRequest {
     serviceId: number;
     createServiceVersionDto: CreateServiceVersionDto;
+}
+
+export interface PostVerifyServiceVersionRequest {
+    serviceId: number;
+    verifyServiceVersionDto: VerifyServiceVersionDto;
 }
 
 export interface PutServiceRequest {
@@ -476,6 +484,48 @@ export class ServicesApi extends runtime.BaseAPI {
     async postServiceVersion(serviceId: number, createServiceVersionDto: CreateServiceVersionDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ServiceVersionDto> {
         const response = await this.postServiceVersionRaw({ serviceId: serviceId, createServiceVersionDto: createServiceVersionDto }, initOverrides);
         return await response.value();
+    }
+
+    /**
+     * Verifies a service version.
+     * 
+     */
+    async postVerifyServiceVersionRaw(requestParameters: PostVerifyServiceVersionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.serviceId === null || requestParameters.serviceId === undefined) {
+            throw new runtime.RequiredError('serviceId','Required parameter requestParameters.serviceId was null or undefined when calling postVerifyServiceVersion.');
+        }
+
+        if (requestParameters.verifyServiceVersionDto === null || requestParameters.verifyServiceVersionDto === undefined) {
+            throw new runtime.RequiredError('verifyServiceVersionDto','Required parameter requestParameters.verifyServiceVersionDto was null or undefined when calling postVerifyServiceVersion.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/api/services/{serviceId}/versions/verify`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: VerifyServiceVersionDtoToJSON(requestParameters.verifyServiceVersionDto),
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Verifies a service version.
+     * 
+     */
+    async postVerifyServiceVersion(serviceId: number, verifyServiceVersionDto: VerifyServiceVersionDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.postVerifyServiceVersionRaw({ serviceId: serviceId, verifyServiceVersionDto: verifyServiceVersionDto }, initOverrides);
     }
 
     /**

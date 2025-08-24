@@ -59,9 +59,9 @@ export interface UpsertServiceDialogProps {
 
 export const UpsertServiceDialog = (props: UpsertServiceDialogProps) => {
   const { onClose, onUpsert, target } = props;
+  const clients = useClients();
   const [activeTab, setActiveTab] = useState(0);
 
-  const clients = useClients();
   const upserting = useMutation({
     mutationFn: (request: UpsertServiceDto) => {
       request.environment ||= {};

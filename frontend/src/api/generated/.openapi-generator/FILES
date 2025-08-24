@@ -6,6 +6,7 @@ apis/ServicesApi.ts
 apis/SettingsApi.ts
 apis/TeamsApi.ts
 apis/UsersApi.ts
+apis/WorkersApi.ts
 apis/index.ts
 index.ts
 models/AuthProviderDto.ts
@@ -57,5 +58,8 @@ models/UserDto.ts
 models/UserGroupDto.ts
 models/UserGroupsDto.ts
 models/UsersDto.ts
+models/VerifyServiceVersionDto.ts
+models/WorkerDto.ts
+models/WorkersDto.ts
 models/index.ts
 runtime.ts

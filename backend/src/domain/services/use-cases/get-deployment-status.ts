@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not } from 'typeorm';
 import { DeploymentEntity, DeploymentRepository, WorkerEntity, WorkerRepository } from 'src/domain/database';
 import { evaluateParameters } from 'src/domain/definitions';
-import { WorkerClient } from 'src/domain/worker';
+import { WorkerClient } from 'src/domain/workers';
 import { ResourceStatus } from '../interfaces';
 import { getEvaluationContext, getResourceUniqueId } from '../libs';
 import { DeploymentPolicy } from '../policies';

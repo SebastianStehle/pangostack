@@ -10,3 +10,4 @@ export * from './ServicesApi';
 export * from './SettingsApi';
 export * from './TeamsApi';
 export * from './UsersApi';
+export * from './WorkersApi';

@@ -34,7 +34,14 @@ export const DeploymentsPage = () => {
 
       <div className="card bg-base-100 shadow">
         <div className="card-body">
-          <table className="table table-fixed text-base">
+          <table className="table table-fixed">
+            <colgroup>
+              <col className="w-16" />
+              <col className="w-32" />
+              <col />
+              <col />
+              <col className="w-32" />
+            </colgroup>
             <thead>
               <tr>
                 <th>#</th>

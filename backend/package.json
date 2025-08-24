@@ -20,7 +20,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "temporal-dev": "temporal server start-dev",
-    "generate-worker": "npx rimraf ./src/domain/worker/generated && npx cross-env JAVA_OPTS=\"-Dio.swagger.parser.util.RemoteUrl.trustAll=true -Dio.swagger.v3.parser.util.RemoteUrl.trustAll=true\" npx @openapitools/openapi-generator-cli generate -g typescript-fetch --additional-properties=useSingleRequestParameter=false,ensureUniqueParams=false -i http://localhost:3100/api-json -o ./src/domain/worker/generated && node ./scripts/add-ts-ignore.js"
+    "generate-worker": "npx rimraf ./src/domain/workers/generated && npx cross-env JAVA_OPTS=\"-Dio.swagger.parser.util.RemoteUrl.trustAll=true -Dio.swagger.v3.parser.util.RemoteUrl.trustAll=true\" npx @openapitools/openapi-generator-cli generate -g typescript-fetch --additional-properties=useSingleRequestParameter=false,ensureUniqueParams=false -i http://localhost:3100/api-json -o ./src/domain/workers/generated && node ./scripts/add-ts-ignore.js"
   },
   "dependencies": {
     "@date-fns/utc": "^2.1.1",

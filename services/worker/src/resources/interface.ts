@@ -115,6 +115,8 @@ export interface Resource {
 
   apply(id: string, request: ResourceRequest): Promise<ResourceApplyResult>;
 
+  verify?(id: string, request: ResourceRequest): Promise<boolean>;
+
   delete(id: string, request: ResourceRequest): Promise<void>;
 
   status(id: string, request: ResourceRequest): Promise<ResourceStatusResult>;

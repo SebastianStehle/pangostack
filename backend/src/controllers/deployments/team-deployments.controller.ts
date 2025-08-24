@@ -31,7 +31,7 @@ export class TeamDeploymentsController {
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard, TeamPermissionGuard)
   async getTeamDeployments(@IntParam('teamId') teamId: number) {
-    const { deployments } = await this.queryBus.execute(new GetDeploymentsQuery(1, 100, teamId));
+    const { deployments } = await this.queryBus.execute(new GetDeploymentsQuery(0, 100, teamId));
 
     return DeploymentsDto.fromDomain(deployments);
   }

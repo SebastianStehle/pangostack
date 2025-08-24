@@ -17,7 +17,6 @@ export interface FormAlertProps {
 
 export const FormAlert = (props: FormAlertProps) => {
   const { className, common, error } = props;
-
   const [message, setMessage] = useState('');
 
   useEffect(() => {

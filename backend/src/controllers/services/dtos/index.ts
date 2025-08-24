@@ -212,6 +212,26 @@ export class ServicesDto {
   }
 }
 
+export class VerifyServiceVersionDto {
+  @ApiProperty({
+    description: 'The YAML definition.',
+    required: true,
+  })
+  @IsDefined()
+  @IsString()
+  definition: string;
+
+  @ApiProperty({
+    description: 'The environment settings.',
+    required: true,
+    type: Object,
+    additionalProperties: { type: 'string' },
+  })
+  @IsDefined()
+  @IsObject()
+  environment: Record<string, string>;
+}
+
 export class CreateServiceVersionDto {
   @ApiProperty({
     description: 'The name of the version.',

@@ -4,9 +4,10 @@ import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { UpdateServiceVersionDto, useClients } from 'src/api';
-import { FormAlert, Forms, Icon, TransientNavLink } from 'src/components';
+import { AdminHeader, FormAlert, Forms } from 'src/components';
 import { useStickyObserver, useTypedParams } from 'src/hooks';
 import { texts } from 'src/texts';
+import { VerifyButton } from './VerifyButton';
 
 export interface VersionPageProps {
   // When the version has been created.
@@ -59,17 +60,11 @@ export const VersionPage = (props: VersionPageProps) => {
 
   return (
     <div className="relative">
-      <div className="mb-4 flex items-center gap-4">
-        <TransientNavLink className="btn btn-ghost btn-circle btn-sm text-sm" to={`../${serviceId}`}>
-          <Icon icon="arrow-left" size={16} />
-        </TransientNavLink>
-
-        <h3 className="grow text-xl">
-          {texts.services.updateVersion} {loadedServiceVersion.name}
-        </h3>
-      </div>
-
       <FormProvider {...form}>
+        <AdminHeader title={`${texts.services.updateVersion} ${loadedServiceVersion.name}`} backLink={`../${serviceId}`}>
+          <VerifyButton serviceId={serviceId} />
+        </AdminHeader>
+
         <form onSubmit={form.handleSubmit((v) => creating.mutate(v))}>
           <fieldset disabled={creating.isPending}>
             <FormAlert className="sticky top-2 z-10" common={texts.services.createVersionFailed} error={creating.error} />

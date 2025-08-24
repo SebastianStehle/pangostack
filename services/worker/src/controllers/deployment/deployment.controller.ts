@@ -20,7 +20,7 @@ export class DeploymentController {
   async applyResource(@Body() body: ResourceRequestDto) {
     const resource = this.resources.get(body.resourceType);
     if (!resource) {
-      throw new BadRequestException(`Unknown resouce type ${body.resourceType}`);
+      throw new BadRequestException(`Unknown resource type ${body.resourceType}`);
     }
 
     validate(resource.descriptor, body.parameters);
@@ -31,6 +31,20 @@ export class DeploymentController {
     return response;
   }
 
+  @Post('verify')
+  @ApiOperation({ operationId: 'verifyResource', description: 'Applies the resource.' })
+  @ApiNoContentResponse()
+  async verifyResource(@Body() body: ResourceRequestDto) {
+    const resource = this.resources.get(body.resourceType);
+    if (!resource) {
+      throw new BadRequestException(`Unknown resource type ${body.resourceType}`);
+    }
+
+    validate(resource.descriptor, body.parameters);
+    
+    await (resource.verify?.(body.resourceUniqueId, body) ?? Promise.resolve(true));
+  }
+
   @Delete('')
   @ApiOperation({ operationId: 'deleteResources', description: 'Deletes all resources with the specified IDs.' })
   @ApiNoContentResponse()
@@ -38,7 +52,7 @@ export class DeploymentController {
     // Validate the request first.
     for (const identifier of body.resources) {
       if (!this.resources.has(identifier.resourceType)) {
-        throw new BadRequestException(`Unknown resouce type ${identifier.resourceType}`);
+        throw new BadRequestException(`Unknown resource type ${identifier.resourceType}`);
       }
     }
 
@@ -84,7 +98,7 @@ function validate(descriptor: ResourceDescriptor, target: Record<string, any>) {
 
     const constraints: Record<string, string> = {};
     if (!valueExists && definition.required) {
-      constraints['isDefined'] = 'Value is required but was not provided';
+      constraints['isDefined'] = '$property is required but was not provided';
     }
 
     if (valueExists) {
@@ -105,7 +119,7 @@ function validate(descriptor: ResourceDescriptor, target: Record<string, any>) {
         }
 
         if (!isBoolean(value)) {
-          constraints['isBoolean'] = 'Value must be a boolean';
+          constraints['isBoolean'] = '$property must be a boolean';
         }
       } else if (definition.type === 'number') {
         if (typeof value === 'string' && !isNaN(+value)) {
@@ -113,26 +127,26 @@ function validate(descriptor: ResourceDescriptor, target: Record<string, any>) {
         }
 
         if (!isNumber(value)) {
-          constraints['isNumber'] = 'Value must be a number';
+          constraints['isNumber'] = '$property must be a number';
         }
       } else if (definition.type === 'string') {
         if (!isString(value)) {
-          constraints['isString'] = 'Value must be a string';
+          constraints['isString'] = '$property must be a string';
         } else {
           if (valueExists && value.length === 0 && definition.required) {
-            constraints['isDefined'] = 'Value is required but was not provided';
+            constraints['isDefined'] = '$property is required but was not provided';
           }
 
           if (definition.minLength && value.length < definition.minLength) {
-            constraints['minLength'] = `Value must be at least ${definition.minLength} characters long`;
+            constraints['minLength'] = `$property must be at least ${definition.minLength} characters long`;
           }
 
           if (definition.maxLength && value.length > definition.maxLength) {
-            constraints['maxLength'] = `Value must be at most ${definition.maxLength} characters long`;
+            constraints['maxLength'] = `$property must be at most ${definition.maxLength} characters long`;
           }
 
           if (definition.allowedValues && definition.allowedValues.length > 0 && definition.allowedValues.indexOf(value) < 0) {
-            constraints['enum'] = `Value must be one of ${definition.allowedValues.join(', ')}`;
+            constraints['enum'] = `$property must be one of ${definition.allowedValues.join(', ')}`;
           }
         }
       }
@@ -144,6 +158,54 @@ function validate(descriptor: ResourceDescriptor, target: Record<string, any>) {
   }
 
   if (errors.length > 0) {
-    throw new BadRequestException(errors);
+    throw new BadRequestException(flattenValidationErrors(errors));
   }
+}
+
+
+export function flattenValidationErrors(validationErrors: ValidationError[]): string[] {
+  const result: string[] = [];
+
+  for (const error of validationErrors) {
+    const children = mapChildrenToValidationErrors(error);
+
+    for (const childError of children) {
+      if (!childError.constraints) {
+        continue;
+      }
+
+      const messages = Object.values(childError.constraints).map((error) => error.replace('$property', childError.property));
+      result.push(...messages);
+    }
+  }
+
+  return result;
+}
+
+function mapChildrenToValidationErrors(error: ValidationError, parentPath?: string): ValidationError[] {
+  if (!(error.children && error.children.length)) {
+    return [error];
+  }
+
+  const validationErrors: ValidationError[] = [];
+
+  parentPath = parentPath ? `${parentPath}.${error.property}` : error.property;
+  for (const item of error.children) {
+    if (item.children && item.children.length) {
+      validationErrors.push(...mapChildrenToValidationErrors(item, parentPath));
+    }
+    validationErrors.push(prependConstraintsWithParentProp(parentPath, item));
+  }
+
+  return validationErrors;
+}
+
+function prependConstraintsWithParentProp(parentPath: string, error: ValidationError): ValidationError {
+  const constraints: Record<string, string> = {};
+
+  for (const key in error.constraints) {
+    constraints[key] = `${parentPath}.${error.constraints[key]}`;
+  }
+
+  return { ...error, constraints };
 }

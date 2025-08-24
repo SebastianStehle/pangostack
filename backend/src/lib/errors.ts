@@ -30,7 +30,7 @@ export function flattenValidationErrors(validationErrors: ValidationError[]): st
         continue;
       }
 
-      const messages = Object.values(childError.constraints);
+      const messages = Object.values(childError.constraints).map((error) => error.replace('$property', childError.property));
       result.push(...messages);
     }
   }

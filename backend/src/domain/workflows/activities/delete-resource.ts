@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database';
 import { evaluateParameters } from 'src/domain/definitions';
 import { getEvaluationContext, getResourceUniqueId } from 'src/domain/services';
-import { WorkerClient } from 'src/domain/worker';
+import { WorkerClient } from 'src/domain/workers';
 import { Activity } from '../registration';
 
 export type DeleteResourceParam = {

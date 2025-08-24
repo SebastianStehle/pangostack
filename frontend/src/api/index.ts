@@ -10,6 +10,7 @@ import {
   SettingsApi,
   TeamsApi,
   UsersApi,
+  WorkersApi,
 } from './generated';
 export * from './generated';
 
@@ -48,6 +49,7 @@ export class AppClient {
   public readonly services: ServicesApi;
   public readonly settings: SettingsApi;
   public readonly users: UsersApi;
+  public readonly workers: WorkersApi;
 
   public get url() {
     return this.configuration.basePath;
@@ -58,17 +60,12 @@ export class AppClient {
     middleware: Middleware,
   ) {
     this.auth = new AuthApi(configuration).withMiddleware(middleware);
-
     this.billing = new BillingApi(configuration).withMiddleware(middleware);
-
     this.deployments = new DeploymentsApi(configuration).withMiddleware(middleware);
-
     this.services = new ServicesApi(configuration).withMiddleware(middleware);
-
     this.teams = new TeamsApi(configuration).withMiddleware(middleware);
-
     this.settings = new SettingsApi(configuration).withMiddleware(middleware);
-
     this.users = new UsersApi(configuration).withMiddleware(middleware);
+    this.workers = new WorkersApi(configuration).withMiddleware(middleware);
   }
 }

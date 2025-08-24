@@ -5,7 +5,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { CreateServiceVersionDto, useClients } from 'src/api';
-import { FormAlert, Forms, Icon, TransientNavLink } from 'src/components';
+import { AdminHeader, FormAlert, Forms, Icon } from 'src/components';
 import { useStickyObserver, useTypedParams } from 'src/hooks';
 import { texts } from 'src/texts';
 
@@ -46,13 +46,7 @@ export const NewServicePage = (props: NewServicePageProps) => {
 
   return (
     <div className="relative">
-      <div className="mb-4 flex items-center gap-4">
-        <TransientNavLink className="btn btn-ghost btn-circle text-sm" to={`../${serviceId}`}>
-          <Icon icon="arrow-left" size={16} />
-        </TransientNavLink>
-
-        <h3 className="grow text-xl">{texts.services.createVersion}</h3>
-      </div>
+      <AdminHeader title={texts.services.createVersion} backLink={`../${serviceId}`} />
 
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit((v) => creating.mutate(v))}>

@@ -31,7 +31,7 @@ export const ServiceVersions = ({ serviceId }: { serviceId: number }) => {
           <RefreshButton isLoading={isFetching} onClick={refetch} />
         </div>
 
-        <table className="table table-fixed text-base">
+        <table className="table table-fixed">
           <thead>
             <tr>
               <th>{texts.common.name}</th>

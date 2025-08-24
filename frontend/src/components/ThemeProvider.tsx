@@ -8,7 +8,7 @@ const defaultTheme: { name: string | null } = { name: texts.common.appName };
 
 export const ThemeProvider = (props: React.PropsWithChildren) => {
   const { children } = props;
-  const clientspi = useClients();
+  const clients = useClients();
 
   const {
     data: loadedSettings,
@@ -16,7 +16,7 @@ export const ThemeProvider = (props: React.PropsWithChildren) => {
     refetch,
   } = useQuery({
     queryKey: ['theme'],
-    queryFn: () => clientspi.settings.getSettings(),
+    queryFn: () => clients.settings.getSettings(),
   });
 
   const [customTheme, setCustomTheme] = useState<Theme>({} as any);

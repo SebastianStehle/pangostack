@@ -52,3 +52,6 @@ export * from './UserDto';
 export * from './UserGroupDto';
 export * from './UserGroupsDto';
 export * from './UsersDto';
+export * from './VerifyServiceVersionDto';
+export * from './WorkerDto';
+export * from './WorkersDto';

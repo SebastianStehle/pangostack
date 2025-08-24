@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, statSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
-const directory = './src/domain/worker/generated';
+const directory = './src/domain/workers/generated';
 
 function addTsIgnoreToFile(filePath) {
   const content = readFileSync(filePath, 'utf8');

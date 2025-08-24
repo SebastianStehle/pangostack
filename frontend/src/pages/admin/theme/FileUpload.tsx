@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useClients } from 'src/api';
 import { Forms, Image } from 'src/components';
+import { toastError } from 'src/components/ToastError';
 import { useTheme } from 'src/hooks';
-import { buildError } from 'src/lib';
 import { texts } from 'src/texts';
 
 export interface FileUploadProps {
@@ -37,7 +37,7 @@ export const FileUpload = (props: FileUploadProps) => {
       refetch();
     },
     onError: async (error) => {
-      toast.error(await buildError(texts.theme.fileUploadFailed, error));
+      toastError(texts.theme.fileUploadFailed, error);
     },
   });
 

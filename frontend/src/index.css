@@ -160,3 +160,14 @@
 .log > div {
   border: 0;
 }
+
+.Toastify__toast-container {
+  min-width: 100px;
+  max-width: 40%;
+  font-size: 95%;
+  width: auto;
+}
+
+.Toastify__toast p {
+  margin-bottom: .25rem;
+}
