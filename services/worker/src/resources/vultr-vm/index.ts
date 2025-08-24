@@ -70,7 +70,7 @@ export class VultrVmResource implements Resource {
   }
 
   async apply(id: string, request: ResourceRequest<Parameters, ResourceContext>): Promise<ResourceApplyResult<Context>> {
-    const { apiKey, region, plan, app } = request.parameters;
+    const { apiKey } = request.parameters;
 
     const logContext: any = { id };
     try {
@@ -80,37 +80,18 @@ export class VultrVmResource implements Resource {
 
       this.logger.log({ message: 'Deploying resource', context: logContext });
 
-      let instance = await findInstance(vultr, id);
-      if (instance) {
-        await vultr.instances.updateInstance({ 'instance-id': id, plan });
-        this.logger.log({ message: 'Using existing instance', context: logContext });
-      } else {
-        const response = await vultr.instances.createInstance({
-          image_id: app.toString(),
-          plan,
-          region,
-          label: id,
-        });
+      let instance = await this.createInstance(vultr, id, request, logContext);
 
-        if (!instance) {
-          this.logger.error({ message: `Instance could not be deployed: ${response.message}`, context: logContext });
-          throw Error('Failed to deploy instance');
-        }
+      if (!request.resourceContext.password) {
+        this.logger.error({ message: 'Instance has no password. Previous attempt has failed. Deleting VM and trying again.', context: logContext });
+        await vultr.instances.deleteInstance({ id: instance.id });
 
-        instance = response.instance;
-        this.logger.log({ message: 'Using new instance', context: logContext });
-
-        if (instance.default_password) {
-          request.resourceContext.password = instance.default_password;
-        }
+        instance = await this.createInstance(vultr, id, request, logContext);
       }
 
       if (isValidIp(instance.main_ip)) {
         logContext.ip = instance.main_ip;
       }
-
-      this.logger.log({ message: 'Waiting for VM details to be ready', context: logContext });
-      instance = await waitForInstance(vultr, instance, request.timeoutMs, !!request.resourceContext.password);
 
       if (isValidIp(instance.main_ip)) {
         logContext.ip = instance.main_ip;
@@ -145,6 +126,40 @@ export class VultrVmResource implements Resource {
       this.logger.error({ message: `Instance could not be deployed: ${ex.message}`, context: logContext });
       throw ex;
     }
+  }
+
+  private async createInstance(vultr: ReturnType<typeof initializeVultrClient>, id: string, request: ResourceRequest<Parameters, ResourceContext>, logContext: any) {
+    const { region, plan, app } = request.parameters;
+
+    let instance = await findInstance(vultr, id);
+    if (instance) {
+      await vultr.instances.updateInstance({ 'instance-id': id, plan });
+
+      this.logger.log({ message: 'Using existing instance, waiting for VM details to be ready', context: logContext });
+      instance = await waitForInstance(vultr, instance, request.timeoutMs, true);
+    } else {
+      const response = await vultr.instances.createInstance({
+        image_id: app.toString(),
+        plan,
+        region,
+        label: id,
+      });
+
+      instance = response.instance;
+      if (!instance) {
+        const message = `Instance could not be deployed:\n${JSON.stringify(response, undefined, 2)}`;
+
+        this.logger.error({ message, context: logContext });
+        throw Error(message);
+      }
+
+      this.logger.log({ message: 'Using new instance, waiting for VM details to be ready', context: logContext });
+      instance = await waitForInstance(vultr, instance, request.timeoutMs, false);
+
+      request.resourceContext.password = instance.default_password;
+    }
+
+    return instance;
   }
 
   async delete(id: string, request: ResourceRequest<Parameters>) {

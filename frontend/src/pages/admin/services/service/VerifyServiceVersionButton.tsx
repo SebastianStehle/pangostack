@@ -6,11 +6,11 @@ import { Spinner } from 'src/components';
 import { toastError } from 'src/components/ToastError';
 import { texts } from 'src/texts';
 
-export interface VerifyButtonProps {
+export interface VerifyServiceVersionButtonProps {
   serviceId: number;
 }
 
-export const VerifyButton = (props: VerifyButtonProps) => {
+export const VerifyServiceVersionButton = (props: VerifyServiceVersionButtonProps) => {
   const { serviceId } = props;
   const { getValues } = useFormContext<UpdateServiceVersionDto>();
   const clients = useClients();

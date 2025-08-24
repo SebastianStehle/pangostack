@@ -7,7 +7,7 @@ import { UpdateServiceVersionDto, useClients } from 'src/api';
 import { AdminHeader, FormAlert, Forms } from 'src/components';
 import { useStickyObserver, useTypedParams } from 'src/hooks';
 import { texts } from 'src/texts';
-import { VerifyButton } from './VerifyButton';
+import { VerifyServiceVersionButton } from '../VerifyServiceVersionButton';
 
 export interface VersionPageProps {
   // When the version has been created.
@@ -62,7 +62,7 @@ export const VersionPage = (props: VersionPageProps) => {
     <div className="relative">
       <FormProvider {...form}>
         <AdminHeader title={`${texts.services.updateVersion} ${loadedServiceVersion.name}`} backLink={`../${serviceId}`}>
-          <VerifyButton serviceId={serviceId} />
+          <VerifyServiceVersionButton serviceId={serviceId} />
         </AdminHeader>
 
         <form onSubmit={form.handleSubmit((v) => creating.mutate(v))}>

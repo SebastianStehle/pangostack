@@ -8,6 +8,7 @@ import { CreateServiceVersionDto, useClients } from 'src/api';
 import { AdminHeader, FormAlert, Forms, Icon } from 'src/components';
 import { useStickyObserver, useTypedParams } from 'src/hooks';
 import { texts } from 'src/texts';
+import { VerifyServiceVersionButton } from '../VerifyServiceVersionButton';
 
 const SCHEME = Yup.object({
   // Required name.
@@ -46,9 +47,11 @@ export const NewServicePage = (props: NewServicePageProps) => {
 
   return (
     <div className="relative">
-      <AdminHeader title={texts.services.createVersion} backLink={`../${serviceId}`} />
-
       <FormProvider {...form}>
+        <AdminHeader title={texts.services.createVersion} backLink={`../${serviceId}`}>
+          <VerifyServiceVersionButton serviceId={serviceId} />
+        </AdminHeader>
+
         <form onSubmit={form.handleSubmit((v) => creating.mutate(v))}>
           <fieldset disabled={creating.isPending}>
             <FormAlert className="sticky top-2 z-10" common={texts.services.createVersionFailed} error={creating.error} />

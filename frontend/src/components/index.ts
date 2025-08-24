@@ -36,6 +36,7 @@ export * from './ThemeProvider';
 export * from './ThemeStyle';
 export * from './ThemeTitle';
 export * from './ToastError';
+export * from './Toggle';
 export * from './TransientNavigate';
 export * from './TransientNavLink';
 export * from './TransientProvider';

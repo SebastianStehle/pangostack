@@ -12,6 +12,7 @@ import { FormControlError } from './FormControlError';
 import { Markdown } from './Markdown';
 import { MarkdownEditor } from './MarkdownEditor';
 import { NumberInput } from './NumberInput';
+import { Toggle } from './Toggle';
 
 export type FormEditorOption<T> = {
   // The value to select.
@@ -316,12 +317,12 @@ const InputToggle = ({ className, label, name, vertical, ...other }: FormEditorP
 
   return (
     <div className="flex items-center gap-2">
-      <input
-        type="checkbox"
+      <Toggle
+        className={classNames(className, { 'mt-3': !vertical })}
         {...other}
         checked={field.value}
+        onBlur={field.onBlur}
         onChange={field.onChange}
-        className={classNames('toggle', className, { 'mt-3': !vertical })}
       />
 
       {vertical && <label htmlFor={name}>{label}</label>}
