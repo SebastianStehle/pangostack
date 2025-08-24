@@ -1,4 +1,4 @@
-export interface ResourceParameterDescriptor {
+export interface ResourceValueDescriptor {
   // Type of the parameter: boolean, number, or string.
   type: 'boolean' | 'number' | 'string';
 
@@ -26,24 +26,32 @@ export interface ResourceDescriptor {
   description: string;
 
   // Available parameters for the resource.
-  parameters: Record<string, ResourceParameterDescriptor>;
+  parameters: Record<string, ResourceValueDescriptor>;
+
+  // The returned context.
+  context: Record<string, ResourceValueDescriptor>;
 }
 
 type PrimitiveToDescriptorType<T> = T extends string ? 'string' : T extends number ? 'number' : T extends boolean ? 'boolean' : never;
 
-type ParametersFromType<T> = {
-  [K in keyof T]: ResourceParameterDescriptor & {
+type ParametersOrContextFromType<T> = {
+  [K in keyof T]: ResourceValueDescriptor & {
     type: PrimitiveToDescriptorType<T[K]>;
   };
 };
 
-export function defineResource<T extends Record<string, string | number | boolean>>(
-  input: Omit<ResourceDescriptor, 'parameters'> & { parameters: ParametersFromType<T> },
+type ParametersOrContext = Record<string, string | number | boolean>;
+
+export function defineResource<TParameters extends ParametersOrContext, TContext extends ParametersOrContext>(
+  input: Omit<ResourceDescriptor, 'parameters' | 'context'> & {
+    parameters: ParametersOrContextFromType<TParameters>;
+    context: ParametersOrContextFromType<TContext>;
+  },
 ): ResourceDescriptor {
   return input;
 }
 
-export interface ResourceRequest<T = Record<string, boolean | number | string | null>, TResourceContext = Record<string, string>> {
+export interface ResourceRequest<T = ParametersOrContext, TResourceContext = Record<string, string>> {
   // Parameters to apply to the resource.
   parameters: T;
 
@@ -54,9 +62,9 @@ export interface ResourceRequest<T = Record<string, boolean | number | string | 
   timeoutMs: number;
 }
 
-export interface ResourceApplyResult {
+export interface ResourceApplyResult<TContext extends ParametersOrContext = {}> {
   // Context values added or overwritten in the deployment.
-  context: Record<string, string>;
+  context: TContext;
 
   // Context that only contains values that are needed for this resource betwene subsequent calls.
   resourceContext?: Record<string, string> | null;

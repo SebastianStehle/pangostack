@@ -4,9 +4,11 @@ import { defineResource, Resource, ResourceApplyResult, ResourceRequest, Resourc
 
 type Parameters = { apiKey: string; cluster: string; tier: string };
 
+type Context = { s3HostName: string; s3AccessKey: string; s3SecretKey: string; }
+
 @Injectable()
 export class VultrStorageResource implements Resource {
-  descriptor = defineResource<Parameters>({
+  descriptor = defineResource<Parameters, Context>({
     name: 'vultr-storage',
     description: 'Creates a vultr storage account.',
     parameters: {
@@ -26,49 +28,62 @@ export class VultrStorageResource implements Resource {
         required: true,
       },
     },
+    context: {
+      s3HostName: {
+        description: 'The Host Name.',
+        type: 'string',
+        required: true,
+      },
+      s3AccessKey: {
+        description: 'The Access Key.',
+        type: 'string',
+        required: true,
+      },
+      s3SecretKey: {
+        description: 'The Secret Key.',
+        type: 'string',
+        required: true,
+      },
+    }
   });
 
-  async apply(id: string, request: ResourceRequest<Parameters>): Promise<ResourceApplyResult> {
+  async apply(id: string, request: ResourceRequest<Parameters>): Promise<ResourceApplyResult<Context>> {
     const { apiKey, cluster, tier } = request.parameters;
 
     const vultr = initializeVultrClient({
       apiKey,
     });
 
-    try {
-      const result = await vultr.blockStorage.createStorage({
-        cluster_id: cluster,
-        tier_id: tier,
-        label: id,
-      });
+    const result = await vultr.blockStorage.createStorage({
+      cluster_id: cluster,
+      tier_id: tier,
+      label: id,
+    });
 
-      return {
-        context: {
-          s3_hostname: result.s3_hostname,
-          s3_access_key: result.s3_access_key,
-          s3_secret_key: result.s3_secret_key,
+    return {
+      context: {
+        s3HostName: result.s3_hostname,
+        s3AccessKey: result.s3_access_key,
+        s3SecretKey: result.s3_secret_key,
+      },
+      connection: {
+        hostName: {
+          value: result.s3_hostname,
+          label: 'Host Name',
+          isPublic: true,
         },
-        connection: {
-          hostName: {
-            value: result.s3_hostname,
-            label: 'Host Name',
-            isPublic: true,
-          },
-          accessKey: {
-            value: result.s3_access_key,
-            label: 'Access Key',
-            isPublic: true,
-          },
-          secretKey: {
-            value: result.s3_secret_key,
-            label: 'Secret Key',
-            isPublic: true,
-          },
+        accessKey: {
+          value: result.s3_access_key,
+          label: 'Access Key',
+          isPublic: true,
         },
-      };
-    } catch (ex: any) {
-      return { context: {}, connection: {} };
-    }
+        secretKey: {
+          value: result.s3_secret_key,
+          label: 'Secret Key',
+          isPublic: true,
+        },
+      },
+    };
   }
 
   async delete(id: string, request: ResourceRequest<Parameters>) {

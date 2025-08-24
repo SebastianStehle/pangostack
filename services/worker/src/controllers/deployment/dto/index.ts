@@ -2,7 +2,7 @@ import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsArray, IsDefined, ValidateNested } from 'class-validator';
 import { ResourceRequestDto } from 'src/controllers/shared';
-import { ResourceApplyResult, ResourceDescriptor, ResourceParameterDescriptor } from 'src/resources/interface';
+import { ResourceApplyResult } from 'src/resources/interface';
 
 export class ResourcesDeleteRequestDto {
   @ApiProperty({
@@ -15,107 +15,6 @@ export class ResourcesDeleteRequestDto {
   @ValidateNested({ each: true })
   @Type(() => ResourceRequestDto)
   resources: ResourceRequestDto[];
-}
-
-export class ResourceParameterDto {
-  @ApiProperty({
-    description: 'The type.',
-    required: true,
-    enum: ['boolean', 'number', 'string'],
-  })
-  type: 'boolean' | 'number' | 'string';
-
-  @ApiProperty({
-    description: 'True, if required.',
-    nullable: true,
-    type: Boolean,
-  })
-  required?: boolean | null;
-
-  @ApiProperty({
-    description: 'The description of the argument.',
-    nullable: true,
-    type: String,
-  })
-  description?: string | null;
-
-  @ApiProperty({
-    description: 'The minimum length.',
-    nullable: true,
-    type: Number,
-  })
-  minLength?: number | null;
-
-  @ApiProperty({
-    description: 'The maximum length.',
-    nullable: true,
-    type: Number,
-  })
-  maxLength?: number | null;
-
-  @ApiProperty({
-    description: 'The enum values.',
-    nullable: true,
-    type: [String],
-  })
-  allowedValues?: string[] | null;
-
-  static fromDomain(source: ResourceParameterDescriptor) {
-    const result = new ResourceParameterDto();
-    result.allowedValues = source.allowedValues;
-    result.description = source.description;
-    result.maxLength = source.maxLength;
-    result.minLength = source.minLength;
-    result.required = source.required;
-    result.type = source.type;
-    return result;
-  }
-}
-
-@ApiExtraModels(ResourceParameterDto)
-export class ResourceTypeDto {
-  @ApiProperty({
-    description: 'The name of the resource.',
-    required: true,
-  })
-  name: string;
-
-  @ApiProperty({
-    description: 'The description of the resource.',
-    required: true,
-  })
-  description: string;
-
-  @ApiProperty({
-    description: 'The parameters.',
-    required: true,
-    additionalProperties: {
-      $ref: getSchemaPath(ResourceParameterDto),
-    },
-  })
-  parameters: Record<string, ResourceParameterDto>;
-
-  static fromDomain(source: ResourceDescriptor) {
-    const result = new ResourceTypeDto();
-    result.name = source.name;
-    result.description = source.description;
-    result.parameters = {};
-
-    for (const [key, value] of Object.entries(source.parameters)) {
-      result.parameters[key] = ResourceParameterDto.fromDomain(value);
-    }
-
-    return result;
-  }
-}
-
-export class ResourcesTypesDto {
-  @ApiProperty({
-    description: 'The available resources.',
-    required: true,
-    type: [ResourceTypeDto],
-  })
-  items: ResourceTypeDto[] = [];
 }
 
 export class ConnectInfoDto {

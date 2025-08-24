@@ -15,12 +15,12 @@
  */
 
 import { mapValues } from '../runtime';
-import type { ResourceParameterDto } from './ResourceParameterDto';
+import type { ResourceValueDto } from './ResourceValueDto';
 import {
-    ResourceParameterDtoFromJSON,
-    ResourceParameterDtoFromJSONTyped,
-    ResourceParameterDtoToJSON,
-} from './ResourceParameterDto';
+    ResourceValueDtoFromJSON,
+    ResourceValueDtoFromJSONTyped,
+    ResourceValueDtoToJSON,
+} from './ResourceValueDto';
 
 /**
  * 
@@ -42,10 +42,16 @@ export interface ResourceTypeDto {
     description: string;
     /**
      * The parameters.
-     * @type {{ [key: string]: ResourceParameterDto; }}
+     * @type {{ [key: string]: ResourceValueDto; }}
      * @memberof ResourceTypeDto
      */
-    parameters: { [key: string]: ResourceParameterDto; };
+    parameters: { [key: string]: ResourceValueDto; };
+    /**
+     * The context.
+     * @type {{ [key: string]: ResourceValueDto; }}
+     * @memberof ResourceTypeDto
+     */
+    context: { [key: string]: ResourceValueDto; };
 }
 
 /**
@@ -55,6 +61,7 @@ export function instanceOfResourceTypeDto(value: object): boolean {
     if (!('name' in value)) return false;
     if (!('description' in value)) return false;
     if (!('parameters' in value)) return false;
+    if (!('context' in value)) return false;
     return true;
 }
 
@@ -70,7 +77,8 @@ export function ResourceTypeDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
         
         'name': json['name'],
         'description': json['description'],
-        'parameters': (mapValues(json['parameters'], ResourceParameterDtoFromJSON)),
+        'parameters': (mapValues(json['parameters'], ResourceValueDtoFromJSON)),
+        'context': (mapValues(json['context'], ResourceValueDtoFromJSON)),
     };
 }
 
@@ -82,7 +90,8 @@ export function ResourceTypeDtoToJSON(value?: ResourceTypeDto | null): any {
         
         'name': value['name'],
         'description': value['description'],
-        'parameters': (mapValues(value['parameters'], ResourceParameterDtoToJSON)),
+        'parameters': (mapValues(value['parameters'], ResourceValueDtoToJSON)),
+        'context': (mapValues(value['context'], ResourceValueDtoToJSON)),
     };
 }
 

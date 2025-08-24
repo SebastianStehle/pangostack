@@ -3,10 +3,10 @@ import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not } from 'typeorm';
 import { ServiceEntity, ServiceRepository, WorkerEntity, WorkerRepository } from 'src/domain/database';
-import { evaluateParameters, ServiceDefinition } from 'src/domain/definitions';
-import { WorkerClient, WorkerResponseError } from 'src/domain/workers';
+import { evaluateParameters, ParameterDefinition, ServiceDefinition } from 'src/domain/definitions';
+import { ResourceValueDto, WorkerClient, WorkerResponseError } from 'src/domain/workers';
 import { is, isNumber } from 'src/lib';
-import { getResourceUniqueId } from '../libs';
+import { getResourceUniqueId, updateContext } from '../libs';
 
 export class VerifyDefinitionQuery extends Query<VerifyDefinitionResult> {
   constructor(
@@ -44,55 +44,20 @@ export class VerifyDefinitionHandler implements IQueryHandler<VerifyDefinitionQu
 
     const parameters: Record<string, any> = {};
     for (const parameterDefinition of definition.parameters) {
-      let value: any;
-      switch (parameterDefinition.type) {
-        case 'boolean':
-          value = true;
-          break;
-        case 'number':
-          let step = 1;
-          if (isNumber(parameterDefinition.step)) {
-            step = parameterDefinition.step;
-          }
-
-          if (parameterDefinition.allowedValues && parameterDefinition.allowedValues.length > 0) {
-            value = parameterDefinition.allowedValues[0].value;
-          } else if (isNumber(parameterDefinition.minValue)) {
-            value = parameterDefinition.minValue + step;
-          } else if (isNumber(parameterDefinition.maxValue)) {
-            value = parameterDefinition.maxValue - step;
-          } else {
-            value = 0;
-          }
-          break;
-        case 'string':
-          function stringOfLength(length: number) {
-            let result = '';
-            for (let i = 0; i < length; i++) {
-              result += '0';
-            }
-            return result;
-          }
-
-          if (parameterDefinition.allowedValues && parameterDefinition.allowedValues.length > 0) {
-            value = parameterDefinition.allowedValues[0].value;
-          } else if (isNumber(parameterDefinition.minLength)) {
-            value = stringOfLength(parameterDefinition.minLength + 1);
-          } else if (isNumber(parameterDefinition.maxLength)) {
-            value = stringOfLength(parameterDefinition.maxLength - 1);
-          } else {
-            value = stringOfLength(3);
-          }
-          break;
-      }
-
-      parameters[parameterDefinition.name] = value;
+      parameters[parameterDefinition.name] = generateParameter(parameterDefinition);
     }
 
-    const context = { env: { ...service.environment, ...environment }, context: new Dynamic(), parameters };
+    const context = { env: { ...service.environment, ...environment }, context: {} as Record<string, any>, parameters };
     const client = new WorkerClient(worker.endpoint, worker.apiKey);
 
+    const workerResources = await client.resources.getResources();
+
     for (const resource of definition.resources) {
+      const workerResource = workerResources.items.find((x) => x.name === resource.type);
+      if (!workerResource) {
+        throw new BadRequestException(`resource.${resource.id} has unknown resoruce type ${resource.type}`);
+      }
+
       try {
         await client.deployment.verifyResource({
           parameters: evaluateParameters(resource, context),
@@ -101,6 +66,13 @@ export class VerifyDefinitionHandler implements IQueryHandler<VerifyDefinitionQu
           resourceType: resource.type,
           timeoutMs: 1 * 60 * 1000, // 1 minute
         });
+
+        const resourceContext: Record<string, any> = {};
+        for (const [name, contextValue] of Object.entries(workerResource.context)) {
+          resourceContext[name] = generateContext(contextValue);
+        }
+
+        updateContext(resource.id, context.context, resourceContext);
       } catch (ex: any) {
         if (is(ex, WorkerResponseError) && ex.status === 400) {
           throw new BadRequestException(ex.body);
@@ -114,20 +86,63 @@ export class VerifyDefinitionHandler implements IQueryHandler<VerifyDefinitionQu
   }
 }
 
-class Dynamic {
-  constructor() {
-    return new Proxy(this, {
-      get: (_, property) => {
-        if (property === 'toString') {
-          return () => '000';
-        }
+function generateContext(parameter: ResourceValueDto) {
+  switch (parameter.type) {
+    case 'number':
+      return 0;
+    case 'string':
+      if (parameter.allowedValues && parameter.allowedValues.length > 0) {
+        return parameter.allowedValues[0];
+      } else if (isNumber(parameter.minLength)) {
+        return stringOfLength(parameter.minLength + 1);
+      } else if (isNumber(parameter.maxLength)) {
+        return stringOfLength(parameter.maxLength - 1);
+      } else {
+        return stringOfLength(3);
+      }
 
-        return new Dynamic();
-      },
-    });
+    default:
+      return true;
   }
+}
 
-  toString() {
-    return '000';
+function generateParameter(parameter: ParameterDefinition) {
+  switch (parameter.type) {
+    case 'number':
+      let step = 1;
+      if (isNumber(parameter.step)) {
+        step = parameter.step;
+      }
+
+      if (parameter.allowedValues && parameter.allowedValues.length > 0) {
+        return parameter.allowedValues[0].value;
+      } else if (isNumber(parameter.minValue)) {
+        return parameter.minValue + step;
+      } else if (isNumber(parameter.maxValue)) {
+        return parameter.maxValue - step;
+      } else {
+        return 0;
+      }
+    case 'string':
+      if (parameter.allowedValues && parameter.allowedValues.length > 0) {
+        return parameter.allowedValues[0].value;
+      } else if (isNumber(parameter.minLength)) {
+        return stringOfLength(parameter.minLength + 1);
+      } else if (isNumber(parameter.maxLength)) {
+        return stringOfLength(parameter.maxLength - 1);
+      } else {
+        return stringOfLength(3);
+      }
+
+    default:
+      return true;
   }
+}
+
+function stringOfLength(length: number) {
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += '0';
+  }
+  return result;
 }

@@ -18,10 +18,13 @@
 import * as runtime from '../runtime';
 import type {
   ErrorResponseDto,
+  ResourcesTypesDto,
 } from '../models/index';
 import {
     ErrorResponseDtoFromJSON,
     ErrorResponseDtoToJSON,
+    ResourcesTypesDtoFromJSON,
+    ResourcesTypesDtoToJSON,
 } from '../models/index';
 
 export interface GetResourceRequest {
@@ -68,10 +71,10 @@ export class ResourcesApi extends runtime.BaseAPI {
     }
 
     /**
-     * Gets all available resources.
+     * Gets the available resource types.
      * 
      */
-    async getResourcesRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async getResourcesRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResourcesTypesDto>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -83,15 +86,16 @@ export class ResourcesApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => ResourcesTypesDtoFromJSON(jsonValue));
     }
 
     /**
-     * Gets all available resources.
+     * Gets the available resource types.
      * 
      */
-    async getResources(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.getResourcesRaw(initOverrides);
+    async getResources(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResourcesTypesDto> {
+        const response = await this.getResourcesRaw(initOverrides);
+        return await response.value();
     }
 
 }

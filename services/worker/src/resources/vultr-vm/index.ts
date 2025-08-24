@@ -6,13 +6,15 @@ import { defineResource, Resource, ResourceApplyResult, ResourceRequest, Resourc
 
 type Parameters = { apiKey: string; region: string; plan: string; app: string };
 
-type Context = { password: string };
+type Context = { host: string; sshUser: string; sshPassword: string; };
+
+type ResourceContext = { password: string };
 
 @Injectable()
 export class VultrVmResource implements Resource {
   private readonly logger = new Logger(VultrVmResource.name);
 
-  descriptor = defineResource<Parameters>({
+  descriptor = defineResource<Parameters, Context>({
     name: 'vultr-vm',
     description: 'Creates a vultr virtual',
     parameters: {
@@ -37,6 +39,23 @@ export class VultrVmResource implements Resource {
         required: true,
       },
     },
+    context: {
+      host: {
+        description: 'The Host name.',
+        type: 'string',
+        required: true,
+      },
+      sshUser: {
+        description: 'The name of the SSH user.',
+        type: 'string',
+        required: true,
+      },
+      sshPassword: {
+        description: 'The password of the SSH user.',
+        type: 'string',
+        required: true,
+      },
+    }
   });
 
   async describe(): Promise<any> {
@@ -50,7 +69,7 @@ export class VultrVmResource implements Resource {
     return { plans, regions };
   }
 
-  async apply(id: string, request: ResourceRequest<Parameters, Context>): Promise<ResourceApplyResult> {
+  async apply(id: string, request: ResourceRequest<Parameters, ResourceContext>): Promise<ResourceApplyResult<Context>> {
     const { apiKey, region, plan, app } = request.parameters;
 
     const logContext: any = { id };
@@ -143,7 +162,7 @@ export class VultrVmResource implements Resource {
     await vultr.instances.deleteInstance({ id: instance.id });
   }
 
-  async status(id: string, request: ResourceRequest<Parameters, Context>): Promise<ResourceStatusResult> {
+  async status(id: string, request: ResourceRequest<Parameters, ResourceContext>): Promise<ResourceStatusResult> {
     const { apiKey } = request.parameters;
 
     const vultr = initializeVultrClient({

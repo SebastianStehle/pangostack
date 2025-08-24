@@ -1,9 +1,9 @@
-import { BadRequestException, Body, Controller, Delete, Get, Inject, Post, ValidationError } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Inject, Post, ValidationError } from '@nestjs/common';
 import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { isBoolean, isNumber, isString } from 'class-validator';
 import { Resource, ResourceDescriptor, RESOURCES_TOKEN } from 'src/resources/interface';
 import { ApiDefaultResponses, ResourceRequestDto } from '../shared';
-import { ResourceApplyResponseDto, ResourcesDeleteRequestDto, ResourcesTypesDto, ResourceTypeDto } from './dto';
+import { ResourceApplyResponseDto, ResourcesDeleteRequestDto } from './dto';
 
 @Controller('deployment')
 @ApiTags('deployment')
@@ -64,19 +64,6 @@ export class DeploymentController {
         return resource.delete(identifier.resourceUniqueId, identifier);
       }),
     );
-  }
-
-  @Get('types')
-  @ApiOperation({ operationId: 'getTypes', description: 'Gets the available resource types.' })
-  @ApiOkResponse({ type: ResourcesTypesDto })
-  getActions() {
-    const result = new ResourcesTypesDto();
-
-    for (const [, resource] of this.resources) {
-      result.items.push(ResourceTypeDto.fromDomain(resource.descriptor));
-    }
-
-    return result;
   }
 }
 

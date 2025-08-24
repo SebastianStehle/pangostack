@@ -21,7 +21,6 @@ import type {
   ResourceApplyResponseDto,
   ResourceRequestDto,
   ResourcesDeleteRequestDto,
-  ResourcesTypesDto,
 } from '../models/index';
 import {
     ErrorResponseDtoFromJSON,
@@ -32,8 +31,6 @@ import {
     ResourceRequestDtoToJSON,
     ResourcesDeleteRequestDtoFromJSON,
     ResourcesDeleteRequestDtoToJSON,
-    ResourcesTypesDtoFromJSON,
-    ResourcesTypesDtoToJSON,
 } from '../models/index';
 
 export interface ApplyResourceRequest {
@@ -126,34 +123,6 @@ export class DeploymentApi extends runtime.BaseAPI {
      */
     async deleteResources(resourcesDeleteRequestDto: ResourcesDeleteRequestDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.deleteResourcesRaw({ resourcesDeleteRequestDto: resourcesDeleteRequestDto }, initOverrides);
-    }
-
-    /**
-     * Gets the available resource types.
-     * 
-     */
-    async getTypesRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResourcesTypesDto>> {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const response = await this.request({
-            path: `/deployment/types`,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => ResourcesTypesDtoFromJSON(jsonValue));
-    }
-
-    /**
-     * Gets the available resource types.
-     * 
-     */
-    async getTypes(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResourcesTypesDto> {
-        const response = await this.getTypesRaw(initOverrides);
-        return await response.value();
     }
 
     /**

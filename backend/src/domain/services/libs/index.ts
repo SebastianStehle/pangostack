@@ -11,3 +11,17 @@ export function getEvaluationContext(update: DeploymentUpdateEntity) {
 export function getResourceUniqueId(deploymentId: number, resource: ResourceDefinition) {
   return `deployment_${deploymentId}_${resource.id}`;
 }
+
+export function updateContext(resourceId: string, context: Record<string, any>, values?: Record<string, any>) {
+  if (!values) {
+    return;
+  }
+
+  for (const [key, value] of Object.entries(values)) {
+    const global = (context.global ||= {});
+    global[key] = value;
+
+    const local = (context[resourceId] ||= {});
+    local[key] = value;
+  }
+}

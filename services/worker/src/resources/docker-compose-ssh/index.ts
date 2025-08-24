@@ -9,7 +9,7 @@ type Parameters = { host: string; sshUser: string; sshPassword: string; dockerCo
 export class DockerComposeSshResource implements Resource {
   private readonly logger = new Logger(DockerComposeSshResource.name);
 
-  descriptor = defineResource<Parameters>({
+  descriptor = defineResource<Parameters, {}>({
     name: 'docker-compose-ssh',
     description: 'Applies a docker compose file over SSH.',
     parameters: {
@@ -34,6 +34,7 @@ export class DockerComposeSshResource implements Resource {
         required: true,
       },
     },
+    context: {},
   });
 
   async describe(): Promise<any> {

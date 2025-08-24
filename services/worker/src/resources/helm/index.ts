@@ -26,7 +26,7 @@ type Parameters = {
 
 @Injectable()
 export class HelmResource implements Resource {
-  descriptor = defineResource<Parameters>({
+  descriptor = defineResource<Parameters, {}>({
     name: 'helm',
     description: 'Creates a vultr storage account.',
     parameters: {
@@ -56,6 +56,7 @@ export class HelmResource implements Resource {
         required: true,
       },
     },
+    context: {},
   });
 
   async apply(id: string, request: ResourceRequest<Parameters>): Promise<ResourceApplyResult> {

@@ -12,11 +12,11 @@ models/LogResultDto.ts
 models/ResourceApplyResponseDto.ts
 models/ResourceLogDto.ts
 models/ResourceNodeStatusDto.ts
-models/ResourceParameterDto.ts
 models/ResourceRequestDto.ts
 models/ResourceStatusDto.ts
 models/ResourceTypeDto.ts
 models/ResourceUsageDto.ts
+models/ResourceValueDto.ts
 models/ResourceWorkloadStatusDto.ts
 models/ResourcesDeleteRequestDto.ts
 models/ResourcesTypesDto.ts

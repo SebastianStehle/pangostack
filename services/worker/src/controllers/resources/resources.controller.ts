@@ -2,6 +2,7 @@ import { Controller, Get, Inject, NotFoundException, Param } from '@nestjs/commo
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Resource, RESOURCES_TOKEN } from 'src/resources/interface';
 import { ApiDefaultResponses } from '../shared';
+import { ResourcesTypesDto, ResourceTypeDto } from './dto';
 
 @Controller('resources')
 @ApiTags('resources')
@@ -12,11 +13,18 @@ export class ResourcesController {
     private readonly resources: Map<string, Resource>,
   ) {}
 
+  
   @Get('')
-  @ApiOperation({ operationId: 'getResources', description: 'Gets all available resources.' })
-  @ApiOkResponse({})
-  getResources() {
-    return Object.fromEntries(this.resources);
+  @ApiOperation({ operationId: 'getResources', description: 'Gets the available resource types.' })
+  @ApiOkResponse({ type: ResourcesTypesDto })
+  getActions() {
+    const result = new ResourcesTypesDto();
+
+    for (const [, resource] of this.resources) {
+      result.items.push(ResourceTypeDto.fromDomain(resource.descriptor));
+    }
+
+    return result;
   }
 
   @Get(':type')

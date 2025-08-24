@@ -3,7 +3,7 @@ import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database';
 import { evaluateParameters } from 'src/domain/definitions';
-import { getEvaluationContext, getResourceUniqueId } from 'src/domain/services';
+import { getEvaluationContext, getResourceUniqueId, updateContext } from 'src/domain/services';
 import { ResourceRequestDto, WorkerClient } from 'src/domain/workers';
 import { Activity } from '../registration';
 
@@ -72,15 +72,7 @@ export class DeployResourceActivity implements Activity<DeployResourceParam> {
     update.resourceConnections[resource.id] = response.connection;
     update.resourceContexts[resource.id] = response.resourceContext || {};
 
-    if (response.context) {
-      for (const [key, value] of Object.entries(response.context)) {
-        const global = (update.context['global'] ||= {});
-        global[key] = value;
-
-        const local = (update.context[resourceId] ||= {});
-        local[key] = value;
-      }
-    }
+    updateContext(resourceId, update.context, response.context);
 
     if (response.log) {
       update.log[resource.id] = response.log;
