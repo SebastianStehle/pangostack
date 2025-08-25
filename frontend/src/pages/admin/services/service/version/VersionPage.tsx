@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { UpdateServiceVersionDto, useClients } from 'src/api';
-import { AdminHeader, FormAlert, Forms } from 'src/components';
+import { AdminHeader, FormAlert, Forms, Icon } from 'src/components';
 import { useStickyObserver, useTypedParams } from 'src/hooks';
 import { texts } from 'src/texts';
 import { VerifyServiceVersionButton } from '../VerifyServiceVersionButton';
@@ -70,6 +70,13 @@ export const VersionPage = (props: VersionPageProps) => {
             <FormAlert className="sticky top-2 z-10" common={texts.services.createVersionFailed} error={creating.error} />
 
             <div ref={sentinelRef}>
+              {loadedService.isPublic && (
+                <div className="alert alert-info mb-4">
+                  <Icon icon="info" />
+                  <span>{texts.services.definitionUpdateHint}</span>
+                </div>
+              )}
+
               <Forms.Boolean name="isActive" label={texts.services.isActive} vertical />
 
               <Forms.Code
@@ -79,7 +86,7 @@ export const VersionPage = (props: VersionPageProps) => {
                 name="definition"
                 noWrap
                 required
-                readOnly={creating.isPending}
+                readOnly={creating.isPending || loadedService.isPublic}
                 valueMode="string"
                 vertical
               />
@@ -91,7 +98,7 @@ export const VersionPage = (props: VersionPageProps) => {
                 name="environment"
                 noWrap
                 required={false}
-                readOnly={creating.isPending || loadedService.isPublic}
+                readOnly={creating.isPending}
                 valueMode="object"
                 vertical
               />

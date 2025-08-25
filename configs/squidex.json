@@ -131,8 +131,6 @@
         "SQUIDEX_MICROSOFTCLIENT": "${parameters.microsoftClient}",
         "SQUIDEX_MICROSOFTSECRET": "${parameters.microsoftSecret}",
         "SQUIDEX_DOMAIN": "${parameters.domain}",
-        "SQUIDEX_ADMINEMAIL": "changeme@squidex.io",
-        "SQUIDEX_ADMINPASSWORD": "changeme"
       },
       "healthChecks": [
         {

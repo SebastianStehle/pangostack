@@ -25,7 +25,7 @@ export const Deployments = () => {
         <div className="flex items-center justify-between">
           <h2 className="card-title">{texts.workers.headline}</h2>
 
-          <RefreshButton isLoading={isFetching} onClick={refetch} />
+          <RefreshButton sm isLoading={isFetching} onClick={refetch} />
         </div>
 
         <table className="table table-fixed">

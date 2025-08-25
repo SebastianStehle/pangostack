@@ -29,7 +29,7 @@ export const DeploymentsPage = () => {
   return (
     <Page>
       <AdminHeader title={texts.deployments.headline}>
-        <RefreshButton isLoading={isFetching} onClick={refetch} />
+        <RefreshButton sm isLoading={isFetching} onClick={refetch} />
       </AdminHeader>
 
       <div className="card bg-base-100 shadow">

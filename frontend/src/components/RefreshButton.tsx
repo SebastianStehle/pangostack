@@ -10,12 +10,15 @@ export interface RefreshButtonProps {
   // Indicates if it is loading.
   isLoading?: boolean;
 
+  // If small.
+  sm?: boolean;
+
   // Indicates if the loading spinnre should be shown automatically.
   autoSpinner?: boolean;
 }
 
 export const RefreshButton = (props: RefreshButtonProps) => {
-  const { autoSpinner, isLoading: loading, onClick } = props;
+  const { autoSpinner, isLoading: loading, onClick, sm } = props;
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -44,7 +47,7 @@ export const RefreshButton = (props: RefreshButtonProps) => {
   });
 
   return (
-    <button className="btn btn-square btn-ghost" onClick={doClick} disabled={isLoading}>
+    <button className={classNames('btn btn-square btn-ghost', { 'btn-sm': sm })} onClick={doClick} disabled={isLoading}>
       <Icon className={classNames({ 'animate-spin': isLoading })} size={16} icon="refresh" />
     </button>
   );

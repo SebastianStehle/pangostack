@@ -275,7 +275,7 @@ export function definitionToYaml(definition: ServiceDefinition) {
     }
   }
 
-  return doc.toString({ lineWidth: 0 });
+  return doc.toString({ lineWidth: 0 }).trim();
 }
 
 export function yamlToDefinition(yaml: string | undefined | null): ServiceDefinition {

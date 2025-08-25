@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useNavigate } from 'react-router-dom';
 import { useClients } from 'src/api';
-import { RefreshButton, VersionLabel } from 'src/components';
+import { Icon, RefreshButton, TransientNavLink, VersionLabel } from 'src/components';
 import { formatTrue } from 'src/lib';
 import { texts } from 'src/texts';
 
@@ -28,7 +28,13 @@ export const ServiceVersions = ({ serviceId }: { serviceId: number }) => {
         <div className="flex items-center justify-between">
           <h2 className="card-title">{texts.services.versions}</h2>
 
-          <RefreshButton isLoading={isFetching} onClick={refetch} />
+          <div className="flex items-center gap-4">
+            <RefreshButton sm isLoading={isFetching} onClick={refetch} />
+
+            <TransientNavLink className="btn btn-success btn-sm text-sm text-white" to="versions/new">
+              <Icon icon="plus" size={16} /> {texts.services.createVersion}
+            </TransientNavLink>
+          </div>
         </div>
 
         <table className="table table-fixed">

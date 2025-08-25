@@ -12,6 +12,7 @@ export * from './DeploymentResource';
 export * from './DeploymentStatus';
 export * from './DeploymentUsageChart';
 export * from './Empty';
+export * from './FileUpload';
 export * from './FormAlert';
 export * from './FormControlError';
 export * from './Forms';

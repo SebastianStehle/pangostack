@@ -65,7 +65,7 @@ export const DeploymentPage = () => {
         backLink="/admin/deployments"
         title={`${texts.deployments.deploymentHeadline} ${deployment.name || deployment?.serviceName}`}
       >
-        <RefreshButton isLoading={isFetchingServices} onClick={refetch} />
+        <RefreshButton sm isLoading={isFetchingServices} onClick={refetch} />
       </AdminHeader>
 
       <div className="card bg-base-100 shadow">

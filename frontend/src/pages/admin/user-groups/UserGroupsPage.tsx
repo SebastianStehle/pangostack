@@ -38,7 +38,7 @@ export const UserGroupsPage = () => {
   return (
     <Page>
       <AdminHeader title={texts.userGroups.headline}>
-        <RefreshButton isLoading={isFetching} onClick={refetch} />
+        <RefreshButton sm isLoading={isFetching} onClick={refetch} />
 
         <button className="btn btn-success text-sm text-white" onClick={() => setToCreate(true)}>
           <Icon icon="plus" size={16} /> {texts.userGroups.create}

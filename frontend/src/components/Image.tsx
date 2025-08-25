@@ -17,12 +17,15 @@ export interface ImageProps {
   // The fallback image.
   fallback: string;
 
+  // The version.
+  version?: number;
+
   // The size in rem.
   size: string;
 }
 
 export const Image = (props: ImageProps) => {
-  const { baseUrl, className, fallback, file, fileId, size } = props;
+  const { baseUrl, className, fallback, file, fileId, size, version } = props;
 
   const [path, setPath] = useState<string>('');
   const [loaded, setLoaded] = useState(false);
@@ -33,9 +36,9 @@ export const Image = (props: ImageProps) => {
     if (file) {
       setPath(window.URL.createObjectURL(file));
     } else {
-      setPath(`${baseUrl}/settings/files/${fileId}`);
+      setPath(`${baseUrl}/api/settings/files/${fileId}?version=${version || 0}`);
     }
-  }, [baseUrl, file, fileId]);
+  }, [baseUrl, file, fileId, version]);
 
   const handleError = () => {
     setPath(fallback);

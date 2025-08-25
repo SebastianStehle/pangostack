@@ -1,15 +1,13 @@
 import { useMutation } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useClients } from 'src/api';
 import { Forms, Image } from 'src/components';
 import { toastError } from 'src/components/ToastError';
-import { useTheme } from 'src/hooks';
 import { texts } from 'src/texts';
-
 export interface FileUploadProps {
-  // The file property.
-  property: 'logo' | 'loginLogo' | 'loginBackground';
+  // The file ID.
+  fileId: string;
 
   // The fallback image.
   fallback: string;
@@ -20,42 +18,31 @@ export interface FileUploadProps {
   // The hint to describe the file.
   hints?: string;
 }
-
 export const FileUpload = (props: FileUploadProps) => {
-  const { fallback, hints, property, title } = props;
-
+  const { fallback, fileId, hints, title } = props;
   const clients = useClients();
-  const { refetch, setTheme } = useTheme();
   const [file, setFile] = useState<File | undefined>(undefined);
-
   const updating = useMutation({
     mutationFn: (request: File) => {
-      return clients.settings.postFile(property, request);
+      return clients.settings.postFile(fileId, request);
     },
     onSuccess: () => {
       toast.success(texts.theme.fileUploadSucceeded);
-      refetch();
     },
     onError: async (error) => {
       toastError(texts.theme.fileUploadFailed, error);
     },
   });
-
-  useEffect(() => {
-    setTheme({ [property]: file });
-  }, [file, property, setTheme]);
-
   const upload = () => {
     if (file) {
       updating.mutate(file);
     }
   };
-
   return (
     <>
       <div className="flex flex-row items-center gap-8">
         <div className="relative">
-          <Image size="10rem" baseUrl={clients.url} fallback={fallback} file={file} fileId={property} />
+          <Image baseUrl={clients.url} fallback={fallback} file={file} fileId={fileId} size="10rem" />
         </div>
 
         <div className="divider divider-horizontal"></div>
@@ -65,12 +52,12 @@ export const FileUpload = (props: FileUploadProps) => {
 
           <div className="flex flex-row gap-2">
             <input
-              type="file"
               className="file-input file-input-bordered w-full max-w-xs"
               onChange={(event) => setFile(event.target.files?.[0])}
+              type="file"
             />
 
-            <button type="submit" className="btn btn-primary w-auto" disabled={!file} onClick={upload || updating.isPending}>
+            <button className="btn btn-primary w-auto" disabled={!file} onClick={upload || updating.isPending} type="submit">
               {texts.common.save}
             </button>
           </div>

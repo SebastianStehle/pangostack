@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -32,6 +32,11 @@ export const NewServicePage = (props: NewServicePageProps) => {
   const navigate = useNavigate();
   const { isSticky, sentinelRef } = useStickyObserver();
 
+  const { data: loadedService } = useQuery({
+    queryKey: ['service', serviceId],
+    queryFn: () => clients.services.getService(serviceId),
+  });
+
   const creating = useMutation({
     mutationFn: (request: CreateServiceVersionDto) => {
       request.environment ||= {};
@@ -45,6 +50,10 @@ export const NewServicePage = (props: NewServicePageProps) => {
 
   const form = useForm<CreateServiceVersionDto>({ resolver: RESOLVER, defaultValues: { isActive: true } });
 
+  if (!loadedService) {
+    return <div>{texts.common.notFound}</div>;
+  }
+
   return (
     <div className="relative">
       <FormProvider {...form}>
@@ -57,10 +66,12 @@ export const NewServicePage = (props: NewServicePageProps) => {
             <FormAlert className="sticky top-2 z-10" common={texts.services.createVersionFailed} error={creating.error} />
 
             <div ref={sentinelRef}>
-              <div className="alert alert-info mb-4">
-                <Icon icon="info" />
-                <span>{texts.services.definitionHint}</span>
-              </div>
+              {loadedService.isPublic && (
+                <div className="alert alert-info mb-4">
+                  <Icon icon="info" />
+                  <span>{texts.services.definitionCreationHint}</span>
+                </div>
+              )}
 
               <Forms.Text name="name" label={texts.common.name} vertical required />
 

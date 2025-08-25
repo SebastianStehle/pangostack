@@ -54,7 +54,7 @@ export const UsersPage = () => {
   return (
     <Page>
       <AdminHeader title={texts.users.headline}>
-        <RefreshButton isLoading={isFetching} onClick={refetch} />
+        <RefreshButton sm isLoading={isFetching} onClick={refetch} />
 
         <Search value={query} onSearch={setQuery} />
 

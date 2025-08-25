@@ -4,13 +4,14 @@ import { AdminHeader, Icon, TransientNavLink } from 'src/components';
 import { useTypedParams } from 'src/hooks';
 import { texts } from 'src/texts';
 import { Deployments } from './Deployments';
+import { ServiceSummary } from './ServiceSummary';
 import { ServiceVersions } from './ServiceVersions';
 
 export const ServicePage = () => {
   const { serviceId } = useTypedParams({ serviceId: 'int' });
   const clients = useClients();
 
-  const { data: loadedServices } = useQuery({
+  const { data: loadedServices, refetch } = useQuery({
     queryKey: ['services'],
     queryFn: () => clients.services.getServices(),
   });
@@ -30,8 +31,8 @@ export const ServicePage = () => {
       </AdminHeader>
 
       <div className="flex flex-col gap-8">
+        <ServiceSummary service={service} onEdit={refetch} />
         <ServiceVersions serviceId={serviceId} />
-
         <Deployments serviceId={serviceId} />
       </div>
     </>
