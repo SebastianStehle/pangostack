@@ -8,7 +8,7 @@ import { texts } from 'src/texts';
 import { UpsertServiceDialog } from '../UpsertServiceDialog';
 
 export interface ServiceSummaryProps {
-  // The service.
+  // The service to render.
   service: ServiceDto;
 
   // When the service has been updated.
@@ -65,7 +65,7 @@ export const ServiceSummary = (props: ServiceSummaryProps) => {
               fallback="/logo-square.svg"
             />
 
-            <div className="flex gap-2">
+            <div className="flex justify-center gap-2">
               <button className="btn btn-sm btn-primary btn-circle" onClick={() => fileInput.current?.click()}>
                 <Icon size={12} icon="edit" />
               </button>
@@ -83,7 +83,7 @@ export const ServiceSummary = (props: ServiceSummaryProps) => {
             </div>
           </div>
 
-          <div className="grow">
+          <div className="flex grow flex-col gap-2">
             <h2 className="text-2xl">{service.name}</h2>
 
             <Markdown>{service.description}</Markdown>

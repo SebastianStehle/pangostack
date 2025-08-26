@@ -120,29 +120,35 @@ export interface ServicePublicDto {
      */
     afterInstallationInstructions: string | null;
     /**
+     * Indicates if this is a prerelease which should not be selectable.
+     * @type {boolean}
+     * @memberof ServicePublicDto
+     */
+    isPreRelease: boolean;
+    /**
      * The expression to calculate the total number of Core.
      * @type {string}
      * @memberof ServicePublicDto
      */
-    totalCores: string;
+    totalCores: string | null;
     /**
      * The expression to calculate the total memory.
      * @type {string}
      * @memberof ServicePublicDto
      */
-    totalMemoryGB: string;
+    totalMemoryGB: string | null;
     /**
      * The expression to calculate the total volume size.
      * @type {string}
      * @memberof ServicePublicDto
      */
-    totalVolumeGB: string;
+    totalVolumeGB: string | null;
     /**
      * The expression to calculate the total storage.
      * @type {string}
      * @memberof ServicePublicDto
      */
-    totalStorageGB: string;
+    totalStorageGB: string | null;
 }
 
 
@@ -175,6 +181,7 @@ export function instanceOfServicePublicDto(value: object): boolean {
     isInstance = isInstance && "pricingModel" in value;
     isInstance = isInstance && "parameters" in value;
     isInstance = isInstance && "afterInstallationInstructions" in value;
+    isInstance = isInstance && "isPreRelease" in value;
     isInstance = isInstance && "totalCores" in value;
     isInstance = isInstance && "totalMemoryGB" in value;
     isInstance = isInstance && "totalVolumeGB" in value;
@@ -207,6 +214,7 @@ export function ServicePublicDtoFromJSONTyped(json: any, ignoreDiscriminator: bo
         'pricingModel': json['pricingModel'],
         'parameters': ((json['parameters'] as Array<any>).map(ParameterDefinitionDtoFromJSON)),
         'afterInstallationInstructions': json['afterInstallationInstructions'],
+        'isPreRelease': json['isPreRelease'],
         'totalCores': json['totalCores'],
         'totalMemoryGB': json['totalMemoryGB'],
         'totalVolumeGB': json['totalVolumeGB'],
@@ -237,6 +245,7 @@ export function ServicePublicDtoToJSON(value?: ServicePublicDto | null): any {
         'pricingModel': value.pricingModel,
         'parameters': ((value.parameters as Array<any>).map(ParameterDefinitionDtoToJSON)),
         'afterInstallationInstructions': value.afterInstallationInstructions,
+        'isPreRelease': value.isPreRelease,
         'totalCores': value.totalCores,
         'totalMemoryGB': value.totalMemoryGB,
         'totalVolumeGB': value.totalVolumeGB,

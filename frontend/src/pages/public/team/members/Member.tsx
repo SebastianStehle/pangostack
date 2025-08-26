@@ -19,7 +19,7 @@ export const Member = (props: MemberProps) => {
 
   return (
     <div className="card card-border bg-base border-slate-300">
-      <div className="card-body">
+      <div className="card-body p-6">
         <div className="flex-column flex items-center gap-8">
           <div className="grow">
             <div className="text-mdx font-semibold">{member.user.email}</div>

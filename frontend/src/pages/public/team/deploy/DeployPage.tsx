@@ -7,6 +7,7 @@ import { Icon, TransientNavLink } from 'src/components';
 import { useTypedParams } from 'src/hooks';
 import { texts } from 'src/texts';
 import { DeploymentForm, DeploymentUpdate } from './DeploymentForm';
+import { Service } from './Service';
 
 export const DeployPage = () => {
   const { teamId } = useTypedParams({ teamId: 'int' });
@@ -54,26 +55,17 @@ export const DeployPage = () => {
           <DeploymentForm service={service} onSubmit={creating.mutate} isPending={creating.isPending} />
         </>
       ) : loadedServices != null ? (
-        <>
-          <p className="text-mdx mb-2">{texts.deployments.selectService}</p>
+        <div className="flex flex-col gap-2">
+          <p className="text-mdx">{texts.deployments.selectService}</p>
 
           <div className="flex flex-col gap-2">
             {(loadedServices?.items || []).map((service) => (
-              <div
-                key={service.id}
-                className="card card-border bg-base pointer cursor-pointer border-slate-200 shadow-sm"
-                onClick={() => setService(service)}
-              >
-                <div className="card-body">
-                  <h2 className="card-title">
-                    <div className="badge badge-primary badge-sm me-1 rounded-full font-normal">{service.version}</div>
-                    {service.name}
-                  </h2>
-                </div>
-              </div>
+              <Service key={service.id} service={service} onClick={setService} url={clients.url} />
             ))}
           </div>
-        </>
+
+          <p className="mt-4 text-xs text-slate-500">* {texts.common.priceFromHint}</p>
+        </div>
       ) : (
         <></>
       )}

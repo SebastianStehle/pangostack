@@ -44,7 +44,7 @@ export function buildServiceVersion(source: ServiceVersionEntity, isDefault: boo
   return { id, definition, environment, isActive, isDefault, name, numDeployments: handledDeployments.size };
 }
 
-export function buildServicePublic(source: ServiceEntity, serviceVersion: ServiceVersionEntity): ServicePublic {
+export function buildServicePublic(source: ServiceEntity, serviceVersion?: ServiceVersionEntity | null): ServicePublic {
   const {
     id,
     currency,
@@ -57,24 +57,25 @@ export function buildServicePublic(source: ServiceEntity, serviceVersion: Servic
     pricePerStorageGBMonth,
   } = source;
 
-  const definition = serviceVersion.definition;
+  const definition = serviceVersion?.definition;
 
   return {
     id,
-    afterInstallationInstructions: definition.afterInstallationInstructions,
+    afterInstallationInstructions: definition?.afterInstallationInstructions || '',
     currency,
     description,
     fixedPrice,
+    isPreRelease: !definition,
     name,
-    parameters: definition.parameters,
+    parameters: definition?.parameters || [],
     pricePerCoreHour,
     pricePerMemoryGBHour,
     pricePerStorageGBMonth,
     pricePerVolumeGBHour: pricePerVolumeGBHour,
-    prices: definition.prices,
-    pricingModel: definition.pricingModel,
-    usage: definition.usage,
-    version: serviceVersion.name,
+    prices: definition?.prices || [],
+    pricingModel: definition?.pricingModel || 'fixed',
+    usage: definition?.usage,
+    version: serviceVersion?.name || '',
   };
 }
 

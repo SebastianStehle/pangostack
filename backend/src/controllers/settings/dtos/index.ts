@@ -93,6 +93,19 @@ export class SettingsDto {
   footerText?: string | null;
 
   @ApiProperty({
+    description: 'The header links.',
+    nullable: true,
+    type: [LinkDto],
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayMinSize(0)
+  @ArrayMaxSize(10)
+  @ValidateNested({ each: true })
+  @Type(() => LinkDto)
+  headerLinks?: LinkDto[] | null;
+
+  @ApiProperty({
     description: 'The footer links.',
     nullable: true,
     type: [LinkDto],
@@ -109,6 +122,7 @@ export class SettingsDto {
     const result = new SettingsDto();
     result.name = source.name;
     result.headerColor = source.headerColor;
+    result.headerLinks = source.headerLinks?.map(LinkDto.fromDomain) || null;
     result.footerLinks = source.footerLinks?.map(LinkDto.fromDomain) || null;
     result.footerText = source.footerText;
     result.customCss = source.customCss;

@@ -35,28 +35,30 @@ export const TeamCreatePage = () => {
   const form = useForm<UpsertTeamDto>({ resolver: RESOLVER });
 
   return (
-    <div className="container mx-auto -mt-10 max-w-[1000px] px-4">
-      <div className="card-body rounded-lg bg-white p-8 shadow-xl">
-        <h2 className="card-title text-2xl">{texts.teams.createTitle}</h2>
-        <p className="mb-4">{texts.teams.createText}</p>
+    <div className="container mx-auto -mt-30 max-w-[1000px] px-4">
+      <div className="card mb-8 rounded-[20px] border-10 border-black/20 shadow-xl">
+        <div className="card-body rounded-[12px] bg-white p-8">
+          <h2 className="card-title text-2xl">{texts.teams.createTitle}</h2>
+          <p className="mb-4">{texts.teams.createText}</p>
 
-        <FormProvider {...form}>
-          <form onSubmit={form.handleSubmit((v) => creating.mutate(v))}>
-            <fieldset disabled={creating.isPending}>
-              <FormAlert common={texts.theme.updateFailed} error={creating.error} />
+          <FormProvider {...form}>
+            <form onSubmit={form.handleSubmit((v) => creating.mutate(v))}>
+              <fieldset disabled={creating.isPending}>
+                <FormAlert common={texts.theme.updateFailed} error={creating.error} />
 
-              <Forms.Text name="name" label={texts.common.name} vertical />
+                <Forms.Text name="name" label={texts.common.name} vertical />
 
-              <Forms.Row name="submit" vertical>
-                <div>
-                  <button type="submit" className="btn btn-primary w-auto">
-                    {texts.common.save}
-                  </button>
-                </div>
-              </Forms.Row>
-            </fieldset>
-          </form>
-        </FormProvider>
+                <Forms.Row name="submit" vertical>
+                  <div>
+                    <button type="submit" className="btn btn-primary w-auto">
+                      {texts.common.save}
+                    </button>
+                  </div>
+                </Forms.Row>
+              </fieldset>
+            </form>
+          </FormProvider>
+        </div>
       </div>
     </div>
   );

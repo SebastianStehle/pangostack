@@ -11,12 +11,10 @@ export const ServicePage = () => {
   const { serviceId } = useTypedParams({ serviceId: 'int' });
   const clients = useClients();
 
-  const { data: loadedServices, refetch } = useQuery({
-    queryKey: ['services'],
-    queryFn: () => clients.services.getServices(),
+  const { data: service, refetch } = useQuery({
+    queryKey: ['service', serviceId],
+    queryFn: () => clients.services.getService(serviceId),
   });
-
-  const service = loadedServices?.items.find((x) => x.id === serviceId);
 
   if (!service) {
     return null;

@@ -61,13 +61,9 @@ export const DeploymentPage = () => {
         </TransientNavLink>
 
         <div className="grow">
-          <h2 className="text-3xl">
+          <h2 className="text-2xl">
             {texts.deployments.deploymentHeadline} {deployment.name || deployment?.serviceName}
           </h2>
-
-          <div className="mt-1 opacity-50">
-            {deployment.serviceName}, {deployment.serviceVersion}
-          </div>
         </div>
 
         <a className="btn btn-success disabled">{texts.deployments.edit}</a>

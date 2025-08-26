@@ -13,7 +13,10 @@ export interface Settings {
   // The header color.
   headerColor?: string | null;
 
-  // The footer link.
+  // The heade links.
+  headerLinks?: SettingLink[] | null;
+
+  // The footer links.
   footerLinks?: SettingLink[] | null;
 
   // The footer text, for example for copyright infos.

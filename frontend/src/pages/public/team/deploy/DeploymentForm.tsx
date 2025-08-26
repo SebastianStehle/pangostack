@@ -149,13 +149,13 @@ export const DeploymentForm = (props: DeploymentFormProps) => {
                 )}
 
                 <button type="submit" className="btn btn-primary w-auto">
-                  {texts.common.save}
+                  {texts.deployments.deployButton}
                 </button>
               </Forms.Row>
             </fieldset>
           </div>
           <div className="w-100">
-            <div className="card card-border bg-base sticky top-4 border-slate-300 shadow-sm">
+            <div className="card card-border bg-base sticky top-4 border-slate-300">
               <div className="card-body">
                 <h2 className="card-title text-xl">{texts.deployments.estimatedPrice}</h2>
                 <DeploymentSummary service={service} />

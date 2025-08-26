@@ -20,6 +20,7 @@ export type IconType =
   | 'bar-chart'
   | 'bird'
   | 'check-circle'
+  | 'chevron-right'
   | 'clipboard'
   | 'close'
   | 'droplet'
@@ -191,6 +192,23 @@ export const Icon = (props: IconProps) => {
         >
           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
           <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      );
+    case 'chevron-right':
+      return (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+          width={actualSize}
+          height={actualSize}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={actualStroke}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="9 18 15 12 9 6"></polyline>
         </svg>
       );
     case 'clipboard':
@@ -585,7 +603,6 @@ export const Icon = (props: IconProps) => {
     case 'no-document':
       return (
         <svg width={actualSize} viewBox="0 0 250 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="250" height="200" fill="white" />
           <path
             fill-rule="evenodd"
             clip-rule="evenodd"
@@ -639,7 +656,6 @@ export const Icon = (props: IconProps) => {
     case 'no-connection':
       return (
         <svg width={actualSize} viewBox="0 0 250 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="250" height="200" fill="white" />
           <path
             fill-rule="evenodd"
             clip-rule="evenodd"

@@ -27,6 +27,9 @@ export class SettingEntity {
   customCss?: string | null;
 
   @Column('simple-json', { nullable: true })
+  headerLinks?: SettingLink[] | null;
+
+  @Column('simple-json', { nullable: true })
   footerLinks?: SettingLink[] | null;
 
   @Column('text', { nullable: true })

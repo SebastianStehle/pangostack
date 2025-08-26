@@ -22,16 +22,31 @@ export const PublicPage = () => {
     return null;
   }
 
+  const headerLinks = theme.headerLinks || [];
+  const footerLinks = theme.footerLinks || [];
+  const footerText = theme.footerText;
+
   return (
     <div>
-      <div className="bg-header h-50">
+      <div className="bg-header h-54">
         <div className="container mx-auto max-w-[1000px] px-4">
           <div className="flex max-w-[1000px] justify-between py-4">
             <TransientNavLink to="/" className="btn btn-link text-primary-content! text-2xl no-underline!">
               {theme.name}
             </TransientNavLink>
 
-            <div className="flex flex-row gap-4">
+            <div className="flex flex-row gap-2">
+              {headerLinks.map((link, i) => (
+                <a
+                  key={i}
+                  href={link.url}
+                  target="_blank"
+                  className="btn bg-opacity-50 text-primary-content! rounded-full border-0 bg-transparent shadow-none transition-colors duration-500 ease-in-out hover:bg-black/20"
+                >
+                  {link.title}
+                </a>
+              ))}
+
               <TeamsDropdown teams={teams?.items || []} />
 
               <ProfileButton menuPlacement="bottom-end" style="avatar" />
@@ -49,6 +64,27 @@ export const PublicPage = () => {
           element={team ? <TransientNavigate to={`/teams/${team.id}`} /> : <TransientNavigate to="/teams/create" />}
         />
       </Routes>
+
+      {footerText && footerLinks.length > 0 && (
+        <div className="bg-black">
+          <div className="bg-header/50 mt-30">
+            <div className="text-primary-content! container mx-auto flex max-w-[1000px] items-center gap-6 px-4 py-10">
+              {footerText && <span className="text-sm opacity-80">{footerText}</span>}
+
+              {footerLinks.map((link, i) => (
+                <a
+                  key={i}
+                  href={link.url}
+                  target="_blank"
+                  className="btn bg-opacity-50 text-primary-content! rounded-full border-0 bg-transparent shadow-none transition-colors duration-500 ease-in-out hover:bg-black/20"
+                >
+                  {link.title}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

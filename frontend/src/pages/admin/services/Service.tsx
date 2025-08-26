@@ -9,7 +9,7 @@ export interface ServiceProps {
   // The service to render.
   service: ServiceDto;
 
-  // Invoked when updating.
+  // When the service has been updated
   onUpdate: (service: ServiceDto) => void;
 }
 

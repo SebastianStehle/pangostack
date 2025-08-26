@@ -14,7 +14,7 @@ export const Deployment = (props: DeploymentProps) => {
   return (
     <TransientNavLink
       to={deployment.id.toString()}
-      className="card card-border bg-base hover:border-primary border-slate-200 transition-colors duration-600 ease-in-out"
+      className="card card-border bg-base hover:border-primary cursor-pointer border-slate-300 transition-colors duration-500 ease-in-out"
     >
       <div className="card-body p-6">
         <h2 className="card-title">

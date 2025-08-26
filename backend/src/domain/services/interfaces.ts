@@ -142,6 +142,9 @@ export interface ServicePublic {
   // The pricing model.
   pricingModel: ServicePricingModel;
 
+  // Indicates if this is a prerelease which should not be selectable.
+  isPreRelease: boolean;
+
   // The instructions to show after the installation has been made.
   afterInstallationInstructions?: string | null;
 
@@ -164,7 +167,7 @@ export interface ServicePublic {
   parameters: ParameterDefinition[];
 
   // The usage definition.
-  usage: UsageDefinition;
+  usage?: UsageDefinition;
 }
 
 export interface ServicePrice {

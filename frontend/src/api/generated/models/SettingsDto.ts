@@ -72,6 +72,12 @@ export interface SettingsDto {
      */
     footerText: string | null;
     /**
+     * The header links.
+     * @type {Array<LinkDto>}
+     * @memberof SettingsDto
+     */
+    headerLinks: Array<LinkDto> | null;
+    /**
      * The footer links.
      * @type {Array<LinkDto>}
      * @memberof SettingsDto
@@ -91,6 +97,7 @@ export function instanceOfSettingsDto(value: object): boolean {
     isInstance = isInstance && "welcomeText" in value;
     isInstance = isInstance && "customCss" in value;
     isInstance = isInstance && "footerText" in value;
+    isInstance = isInstance && "headerLinks" in value;
     isInstance = isInstance && "footerLinks" in value;
 
     return isInstance;
@@ -113,6 +120,7 @@ export function SettingsDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'welcomeText': json['welcomeText'],
         'customCss': json['customCss'],
         'footerText': json['footerText'],
+        'headerLinks': (json['headerLinks'] === null ? null : (json['headerLinks'] as Array<any>).map(LinkDtoFromJSON)),
         'footerLinks': (json['footerLinks'] === null ? null : (json['footerLinks'] as Array<any>).map(LinkDtoFromJSON)),
     };
 }
@@ -133,6 +141,7 @@ export function SettingsDtoToJSON(value?: SettingsDto | null): any {
         'welcomeText': value.welcomeText,
         'customCss': value.customCss,
         'footerText': value.footerText,
+        'headerLinks': (value.headerLinks === null ? null : (value.headerLinks as Array<any>).map(LinkDtoToJSON)),
         'footerLinks': (value.footerLinks === null ? null : (value.footerLinks as Array<any>).map(LinkDtoToJSON)),
     };
 }

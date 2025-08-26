@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useMemo, useState } from 'react';
 import { DeploymentDto, useClients } from 'src/api';
-import { Empty, Spinner } from 'src/components';
+import { Empty, RefreshButton, Spinner } from 'src/components';
 import LogViewer from 'src/components/LogViewer';
 import { texts } from 'src/texts';
 
@@ -19,6 +19,8 @@ export const DeploymentLog = (props: DeploymentLogProps) => {
     data: loadedLogs,
     isFetched,
     isLoading,
+    isRefetching,
+    refetch,
   } = useQuery({
     queryKey: ['deployment-logs', deployment.id],
     queryFn: () => {
@@ -54,23 +56,30 @@ export const DeploymentLog = (props: DeploymentLogProps) => {
     <>
       {isLoading && !isFetched && <Spinner visible={true} />}
 
-      {isFetched && instances.length === 1 && (
-        <Empty icon="no-document" label={texts.billing.emptyLabel} text={texts.billing.emptyText} />
-      )}
-
       {instances.length > 0 && (
         <div className="bg-base-200 rounded-lg p-2">
-          <div role="tablist" className="tabs tabs-box shadow-none">
-            {instances.map((instance) => (
-              <a
-                role="tab"
-                className={classNames('tab', { 'tab-active': instance.id === selectedInstanceId })}
-                onClick={() => setSelectedInstanceID(instance.id)}
-              >
-                {instance.id}
-              </a>
-            ))}
+          <div className="mb-4 flex gap-4">
+            <div className="grow overflow-x-auto">
+              <div role="tablist" className="tabs tabs-box flex-nowrap shadow-none">
+                {instances.map((instance) => (
+                  <a
+                    role="tab"
+                    className={classNames('tab shrink-0', { 'tab-active': instance.id === selectedInstanceId })}
+                    onClick={() => setSelectedInstanceID(instance.id)}
+                  >
+                    {instance.id}
+                  </a>
+                ))}
+              </div>
+            </div>
+            <div className="pe-2 pt-2">
+              <RefreshButton sm isLoading={isRefetching} onClick={refetch} />
+            </div>
           </div>
+
+          {isFetched && instances.length === 0 && (
+            <Empty icon="no-document" label={texts.deployments.emptyLog} text={texts.deployments.emptyLogText} />
+          )}
 
           {selectedInstance && <LogViewer messages={selectedInstance.messages} />}
         </div>

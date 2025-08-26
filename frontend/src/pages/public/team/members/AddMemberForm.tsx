@@ -47,7 +47,7 @@ export const AddMemberForm = (props: AddMemberFormProps) => {
     <FormProvider {...form}>
       <form autoComplete="off" onSubmit={form.handleSubmit((v) => creating.mutate(v))}>
         <fieldset disabled={creating.isPending}>
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             <div className="grow">
               <Forms.Text vertical name="userIdOrEmail" placeholder={texts.common.email} autoComplete="off" required />
             </div>

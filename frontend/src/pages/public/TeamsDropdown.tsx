@@ -24,10 +24,12 @@ export const TeamsDropdown = (props: TeamDropdownProps) => {
     <OverlayDropdown
       placement="bottom-end"
       button={() => (
-        <button className="btn btn-primary bg-opacity-50 rounded-full bg-black/10">{team?.name ?? texts.teams.selectTeam}</button>
+        <button className="btn btn-primary bg-opacity-50 rounded-full bg-black/20 transition-colors duration-500 ease-in-out hover:bg-black/30">
+          {team?.name ?? texts.teams.selectTeam}
+        </button>
       )}
     >
-      <ul tabIndex={0} className="dropdown-menu m">
+      <ul tabIndex={0} className="dropdown-menu mt-1">
         <li>
           {teams.map((team) => (
             <TransientNavLink key={team.id} to={`/teams/${team.id}`}>

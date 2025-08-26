@@ -1,6 +1,6 @@
 import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ServiceEntity, ServiceRepository } from 'src/domain/database';
+import { ServiceEntity, ServiceRepository, ServiceVersionEntity, ServiceVersionRepository } from 'src/domain/database';
 import { ServicePublic } from '../interfaces';
 import { buildServicePublic } from './utils';
 
@@ -15,17 +15,16 @@ export class GetServicesPublicHandler implements IQueryHandler<GetServicesPublic
   constructor(
     @InjectRepository(ServiceEntity)
     private readonly services: ServiceRepository,
+    @InjectRepository(ServiceVersionEntity)
+    private readonly serviceVersions: ServiceVersionRepository,
   ) {}
 
   async execute(): Promise<GetServicesPublicResult> {
-    const entities = await this.services.find({ relations: ['versions'] });
+    const entities = await this.services.find({ where: { isPublic: true } });
     const result: ServicePublic[] = [];
 
     for (const entity of entities) {
-      const version = entity.versions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).find((x) => x.isActive);
-      if (!version) {
-        continue;
-      }
+      const version = await this.serviceVersions.findOne({ where: { serviceId: entity.id }, order: { createdAt: 'DESC' } });
 
       result.push(buildServicePublic(entity, version));
     }

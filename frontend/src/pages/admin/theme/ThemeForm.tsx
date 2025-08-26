@@ -59,6 +59,12 @@ export const ThemeForm = () => {
 
           <div className="h-4" />
 
+          <Forms.Row name="headerLinks" label={texts.theme.headerLinks}>
+            <Links name="headerLinks" />
+          </Forms.Row>
+
+          <div className="h-4" />
+
           <Forms.Text name="footerText" label={texts.theme.footerText} />
 
           <Forms.Row name="footerLinks" label={texts.theme.footerLinks}>

@@ -639,28 +639,38 @@ export class ServicePublicDto {
   afterInstallationInstructions?: string | null;
 
   @ApiProperty({
-    description: 'The expression to calculate the total number of Core.',
+    description: 'Indicates if this is a prerelease which should not be selectable.',
     required: true,
   })
-  totalCores: string;
+  isPreRelease: boolean;
+
+  @ApiProperty({
+    description: 'The expression to calculate the total number of Core.',
+    nullable: true,
+    type: 'string',
+  })
+  totalCores?: string | null;
 
   @ApiProperty({
     description: 'The expression to calculate the total memory.',
-    required: true,
+    nullable: true,
+    type: 'string',
   })
-  totalMemoryGB: string;
+  totalMemoryGB?: string | null;
 
   @ApiProperty({
     description: 'The expression to calculate the total volume size.',
-    required: true,
+    nullable: true,
+    type: 'string',
   })
-  totalVolumeGB: string;
+  totalVolumeGB?: string | null;
 
   @ApiProperty({
     description: 'The expression to calculate the total storage.',
-    required: true,
+    nullable: true,
+    type: 'string',
   })
-  totalStorageGB: string;
+  totalStorageGB?: string | null;
 
   static fromDomain(source: ServicePublic): ServicePublicDto {
     const result = new ServicePublicDto();
@@ -669,6 +679,7 @@ export class ServicePublicDto {
     result.currency = source.currency;
     result.description = source.description;
     result.fixedPrice = source.fixedPrice;
+    result.isPreRelease = source.isPreRelease;
     result.name = source.name;
     result.parameters = source.parameters.map(ParameterDefinitionDto.fromDomain);
     result.pricePerCoreHour = source.pricePerCoreHour;
@@ -677,9 +688,9 @@ export class ServicePublicDto {
     result.pricePerVolumeGBHour = source.pricePerVolumeGBHour;
     result.prices = source.prices?.map(ServicePriceDto.fromDomain) || [];
     result.pricingModel = source.pricingModel;
-    result.totalCores = source.usage.totalCores;
-    result.totalMemoryGB = source.usage.totalMemoryGB;
-    result.totalVolumeGB = source.usage.totalVolumeGB;
+    result.totalCores = source.usage?.totalCores;
+    result.totalMemoryGB = source.usage?.totalMemoryGB;
+    result.totalVolumeGB = source.usage?.totalVolumeGB;
     result.version = source.version;
     return result;
   }

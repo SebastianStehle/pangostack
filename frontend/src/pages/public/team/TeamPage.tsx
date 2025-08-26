@@ -27,7 +27,7 @@ export const TeamPage = () => {
   }
 
   return (
-    <div className="container mx-auto -mt-22 max-w-[1000px] px-4">
+    <div className="container mx-auto -mt-30 max-w-[1000px] px-4">
       <ul className="menu menu-horizontal">
         <li>
           <TransientNavLink
@@ -63,8 +63,8 @@ export const TeamPage = () => {
         </li>
       </ul>
 
-      <div className="card mb-8 rounded-lg bg-white shadow-xl">
-        <div className="card-body p-8">
+      <div className="card mb-8 rounded-[20px] border-10 border-black/20 shadow-xl">
+        <div className="card-body rounded-[12px] bg-white p-8">
           <Routes>
             <Route path="billing" element={<BillingPage />} />
             <Route path="deployments" element={<DeploymentsPage />} />
