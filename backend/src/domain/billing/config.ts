@@ -11,5 +11,6 @@ export const billingConfig = registerAs('billing', () => ({
     addOnIdVolume: process.env.BILLING_CHARGEBEE_ADDON_ID_VOLUME,
     fixedPriceDescription: process.env.BILLING_CHARGEBEE_FIXED_PRICE_DESCRIPTION,
     planId: process.env.BILLING_CHARGEBEE_PLAN_ID,
+    teamPrefix: process.env.BILLING_CHARGEBEE_TEAMPREFIX,
   },
 }));

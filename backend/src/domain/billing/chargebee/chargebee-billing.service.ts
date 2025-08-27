@@ -6,14 +6,15 @@ import { BillingError, BillingService, Charges, CreateSubscriptionResult, Invoic
 import { findCustomer, findSubscription } from './utils';
 
 interface ChargebeeConfig {
-  apiKey: string;
-  planId: string;
-  addOnIdCores: string;
-  addOnIdStorage: string;
-  addOnIdMemory: string;
-  addOnIdVolume: string;
-  fixedPriceDescription: string;
   site: string;
+  addOnIdCores: string;
+  addOnIdMemory: string;
+  addOnIdStorage: string;
+  addOnIdVolume: string;
+  apiKey: string;
+  fixedPriceDescription: string;
+  planId: string;
+  teamPrefix?: string;
 }
 
 @Injectable()
@@ -218,11 +219,11 @@ export class ChargebeeBillingService implements BillingService {
   }
 
   private async getOrCreateCustomer(teamId: number): Promise<Customer> {
-    const id = `team_${teamId}`;
+    const id = `${this.config.teamPrefix || 'pango_team'}_${teamId}`;
 
-    const customer1 = await findCustomer(this.chargebee, id);
-    if (customer1) {
-      return customer1;
+    const existing = await findCustomer(this.chargebee, id);
+    if (existing) {
+      return existing;
     }
 
     try {
@@ -236,9 +237,9 @@ export class ChargebeeBillingService implements BillingService {
       }
     }
 
-    const customer2 = await findCustomer(this.chargebee, id);
-    if (customer2) {
-      return customer2;
+    const resolved = await findCustomer(this.chargebee, id);
+    if (resolved) {
+      return resolved;
     }
 
     throw new Error(`Failed to create or retrieve customer.`);
