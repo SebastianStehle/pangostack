@@ -9,6 +9,15 @@ interface DeploymentSummaryProps {
   service: ServicePublicDto;
 }
 
+type Row = {
+  label: string;
+  price: number;
+  totalPrice: number;
+  totalUnits: number;
+  unit: string;
+  billingPeriod: string;
+};
+
 export const DeploymentSummary = (props: DeploymentSummaryProps) => {
   const { service } = props;
   const values = useWatch();
@@ -22,11 +31,15 @@ export const DeploymentSummary = (props: DeploymentSummaryProps) => {
       return [];
     }
 
-    const buildRow = (label: string, formula: string, price: number, unitFactorLabel: string, factor: number, unit = '') => {
+    const buildRow = (label: string, formula: string | null, price: number, factor: number, billingPeriod: string, unit = '') => {
+      if (!formula) {
+        return null;
+      }
+
       const totalUnits = +evaluateExpression(formula, context);
       const totalPrice = totalUnits * price * factor;
 
-      return { totalPrice, totalUnits, label, price, factor, unit, unitFactorLabel };
+      return { totalPrice, totalUnits, label, price, unit, billingPeriod } as Row;
     };
 
     return [
@@ -34,34 +47,34 @@ export const DeploymentSummary = (props: DeploymentSummaryProps) => {
         texts.deployments.resourceCores, //
         service.totalCores,
         service.pricePerCoreHour,
-        texts.common.perHour,
         30 * 24,
+        texts.common.perHour,
       ),
       buildRow(
         texts.deployments.resourceMemory,
         service.totalMemoryGB,
         service.pricePerMemoryGBHour,
-        texts.common.perHour,
         30 * 24,
+        texts.common.perHour,
         'GB',
       ),
       buildRow(
         texts.deployments.resourceVolumes,
         service.totalVolumeGB,
         service.pricePerVolumeGBHour,
-        texts.common.perHour,
         1,
+        texts.common.perHour,
         'GB',
       ),
       buildRow(
         texts.deployments.resourceStorage,
         service.totalStorageGB,
         service.pricePerStorageGBMonth,
-        texts.common.perMonth,
         1,
+        texts.common.perMonth,
         'GB',
       ),
-    ];
+    ].filter((x) => !!x) as Row[];
   }, [service, values]);
 
   const plan = useMemo(() => {
@@ -108,7 +121,7 @@ export const DeploymentSummary = (props: DeploymentSummaryProps) => {
               <td className="px-0 text-xs">{row.unit}</td>
               <td className="px-1">*</td>
               <td className="ps-0 text-right">{formatMoney(row.price, service.currency)}</td>
-              <td className="px-0 text-xs">/ {row.unitFactorLabel}</td>
+              <td className="px-0 text-xs">/ {row.billingPeriod}</td>
               <td className="px-1">=</td>
               <th className="px-0 text-right">{formatMoney(row.totalPrice, service.currency)}</th>
             </tr>
