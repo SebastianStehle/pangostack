@@ -69,7 +69,7 @@ export const VersionPage = (props: VersionPageProps) => {
           <fieldset disabled={creating.isPending}>
             <FormAlert className="sticky top-2 z-10" common={texts.services.createVersionFailed} error={creating.error} />
 
-            <div ref={sentinelRef}>
+            <div>
               {loadedService.isPublic && (
                 <div className="alert alert-info mb-4">
                   <Icon icon="info" />
@@ -103,6 +103,8 @@ export const VersionPage = (props: VersionPageProps) => {
                 vertical
               />
             </div>
+
+            <div ref={sentinelRef} className="h-px" />
 
             <div
               className={classNames('sticky right-0 bottom-0 left-0 z-[100] -mx-4 mt-4 bg-slate-50 px-4 py-4', {

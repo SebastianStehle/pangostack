@@ -29,4 +29,7 @@ export class DeploymentUsageEntity {
 
   @Column()
   totalStorageGB: number;
+
+  @Column()
+  fixedPricing: number;
 }

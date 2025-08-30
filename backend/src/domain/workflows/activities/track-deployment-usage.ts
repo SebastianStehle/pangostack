@@ -6,7 +6,7 @@ import {
   DeploymentUsageEntity,
   DeploymentUsageRepository,
 } from 'src/domain/database';
-import { evaluateParameters, evaluateUsage } from 'src/domain/definitions';
+import { evaluateParameters, evaluatePrices, evaluateUsage } from 'src/domain/definitions';
 import { getEvaluationContext, getResourceUniqueId } from 'src/domain/services';
 import { WorkerClient } from 'src/domain/workers';
 import { Activity } from '../registration';
@@ -62,15 +62,13 @@ export class TrackDeploymentUsageActivity implements Activity<TrackDeploymentUsa
     // The storage needs to be measured directly from the provider.
     const totalStorageGB = usageFromWorker.resources.reduce((a, c) => a + c.totalStorageGB, 0);
 
-    if (totalStorageGB === 0 && update.serviceVersion.definition.pricingModel === 'fixed') {
-      // There is nothing to track as the pricing model is fixed.
-      return;
-    }
-
     const { totalCores, totalMemoryGB, totalVolumeGB } = evaluateUsage(update.serviceVersion.definition, context);
     if (totalCores === 0 && totalMemoryGB === 0 && totalVolumeGB === 0 && totalStorageGB === 0) {
       return;
     }
+
+    // Sums up all prices in the definition.
+    const fixedPricing = evaluatePrices(update.serviceVersion.definition, context);
 
     const deploymentUsage = this.deploymentUsages.create({
       deploymentId,
@@ -80,6 +78,7 @@ export class TrackDeploymentUsageActivity implements Activity<TrackDeploymentUsa
       totalMemoryGB,
       totalVolumeGB,
       totalStorageGB,
+      fixedPricing,
     });
 
     await this.deploymentUsages.save(deploymentUsage);

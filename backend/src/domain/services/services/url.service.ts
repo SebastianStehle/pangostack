@@ -21,7 +21,7 @@ export class UrlService {
   confirmUrl(deploymentId: number, token: string, redirectUr?: string | null) {
     const url = new URL(this.baseUrl);
 
-    url.pathname = `/deployments/${deploymentId}/confirm`;
+    url.pathname = `/api/deployments/${deploymentId}/confirm`;
 
     url.searchParams.set('token', token);
     if (redirectUr) {
@@ -34,7 +34,7 @@ export class UrlService {
   cancelUrl(deploymentId: number, token: string, redirectUr?: string | null) {
     const url = new URL(this.baseUrl);
 
-    url.pathname = `/deployments/${deploymentId}/cancel`;
+    url.pathname = `/api/deployments/${deploymentId}/cancel`;
 
     url.searchParams.set('token', token);
     if (redirectUr) {

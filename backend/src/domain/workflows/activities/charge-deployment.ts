@@ -1,6 +1,6 @@
 import { Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { BillingService, Charges } from 'src/domain/billing';
+import { BillingService } from 'src/domain/billing';
 import {
   BilledDeploymentEntity,
   BilledDeploymentRepository,
@@ -11,8 +11,6 @@ import {
   DeploymentUsageEntity,
   DeploymentUsageRepository,
 } from 'src/domain/database';
-import { evaluatePrices } from 'src/domain/definitions';
-import { getEvaluationContext } from 'src/domain/services';
 import { saveAndFind } from 'src/lib';
 import { Activity } from '../registration';
 
@@ -28,6 +26,7 @@ export type AggregatedUsage = {
   totalMemoryGB: number;
   totalVolumeGB: number;
   totalStorageGB: number;
+  fixedPricing: number;
 };
 
 @Activity(chargeDeployment)
@@ -84,6 +83,7 @@ export class ChargeDeploymentActivity implements Activity<ChargeDeploymentParam>
     const usage = await this.deploymentUsages
       .createQueryBuilder('usage')
       .select('usage.deploymentId', 'deploymentId')
+      .addSelect('SUM(usage.fixedPricing)', 'fixedPricing')
       .addSelect('SUM(usage.totalCores)', 'totalCores')
       .addSelect('SUM(usage.totalMemoryGB)', 'totalMemoryGB')
       .addSelect('SUM(usage.totalVolumeGB)', 'totalVolumeGB')
@@ -93,40 +93,20 @@ export class ChargeDeploymentActivity implements Activity<ChargeDeploymentParam>
       .groupBy('usage.deploymentId')
       .getRawOne<AggregatedUsage>();
 
-    let charges: Charges;
-    if (update.serviceVersion.definition.pricingModel === 'fixed') {
-      const { context } = getEvaluationContext(update);
+    const { totalCores, totalMemoryGB, totalStorageGB, totalVolumeGB, fixedPricing } = usage || {
+      totalCores: 0,
+      totalMemoryGB: 0,
+      totalStorageGB: 0,
+      totalVolumeGB: 0,
+      fixedPricing: 0,
+    };
 
-      // Sums up all prices in the definition.
-      const pricing = evaluatePrices(update.serviceVersion.definition, context);
-
-      charges = {
+    const fixedPrice = service.fixedPrice + fixedPricing;
+    if (fixedPrice > 0 || totalCores > 0 || totalMemoryGB > 0 || totalVolumeGB > 0 || fixedPrice > 0) {
+      const charges = {
         dateFrom: dateFrom,
         dateTo: dateTo,
-        fixedPrice: service.fixedPrice + pricing,
-        pricePerCoreHour: service.pricePerCoreHour,
-        pricePerMemoryGBHour: service.pricePerMemoryGBHour,
-        pricePerStorageGBMonth: service.pricePerStorageGBMonth,
-        pricePerVolumeGBHour: service.pricePerVolumeGBHour,
-        totalCoreHours: 0,
-        totalMemoryGBHours: 0,
-        totalStorageGB: 0,
-        totalVolumeGBHours: 0,
-      };
-    } else {
-      if (!usage) {
-        return;
-      }
-
-      const { totalCores, totalMemoryGB, totalStorageGB, totalVolumeGB } = usage;
-      if (totalCores === 0 && totalMemoryGB === 0 && totalStorageGB === 0 && totalVolumeGB === 0) {
-        return;
-      }
-
-      charges = {
-        dateFrom: dateFrom,
-        dateTo: dateTo,
-        fixedPrice: service.fixedPrice,
+        fixedPrice: service.fixedPrice + fixedPricing,
         pricePerCoreHour: service.pricePerCoreHour,
         pricePerMemoryGBHour: service.pricePerMemoryGBHour,
         pricePerStorageGBMonth: service.pricePerStorageGBMonth,
@@ -136,10 +116,10 @@ export class ChargeDeploymentActivity implements Activity<ChargeDeploymentParam>
         totalStorageGB: totalStorageGB,
         totalVolumeGBHours: totalVolumeGB,
       };
-    }
 
-    this.logger.log(`Deployment ${deploymentId} charged.`, { charges });
-    await this.billingService.chargeDeployment(deployment.teamId, deploymentId, charges);
+      this.logger.log(`Deployment ${deploymentId} charged.`, { charges });
+      await this.billingService.chargeDeployment(deployment.teamId, deploymentId, charges);
+    }
 
     // Ensure that we bill every month only once per user.
     await saveAndFind(this.billedDeployments, { deploymentId, dateFrom, dateTo });

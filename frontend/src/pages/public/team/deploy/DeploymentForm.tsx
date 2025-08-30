@@ -1,10 +1,12 @@
 import { yupResolver } from '@hookform/resolvers/yup';
+import classNames from 'classnames';
 import { useEffect, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { ObjectShape } from 'yup';
 import { ParameterDefinitionDto, ServicePublicDto } from 'src/api';
 import { FormAlert, Forms } from 'src/components';
+import { useStickyObserver } from 'src/hooks';
 import { isNumber } from 'src/lib';
 import { texts } from 'src/texts';
 import { DeploymentControl } from './DeploymentControl';
@@ -33,6 +35,7 @@ export type DeploymentUpdate = { name: string | null; parameters: Record<string,
 
 export const DeploymentForm = (props: DeploymentFormProps) => {
   const { error, isPending, onCancel, onSubmit, service, value } = props;
+  const { isSticky, sentinelRef } = useStickyObserver();
 
   const resolver = useMemo(() => {
     const shape: ObjectShape = {};
@@ -128,30 +131,40 @@ export const DeploymentForm = (props: DeploymentFormProps) => {
         <div className="flex gap-8">
           <div className="grow">
             <fieldset disabled={isPending}>
-              <FormAlert common={texts.theme.updateFailed} error={error} />
+              <div>
+                <FormAlert common={texts.theme.updateFailed} error={error} />
 
-              <Forms.Text name="name" label={texts.common.name} maxLength={100} />
+                <Forms.Text name="name" label={texts.common.name} maxLength={100} />
 
-              {groupedParameters.map(([label, parameters]) => (
-                <section className="mb-4" key={label}>
-                  <legend className="legend">{label}</legend>
-                  {parameters.map((parameter) => (
-                    <DeploymentControl key={parameter.name} parameter={parameter} />
-                  ))}
-                </section>
-              ))}
+                {groupedParameters.map(([label, parameters]) => (
+                  <section className="mb-4" key={label}>
+                    <legend className="legend">{label}</legend>
+                    {parameters.map((parameter) => (
+                      <DeploymentControl key={parameter.name} parameter={parameter} />
+                    ))}
+                  </section>
+                ))}
+              </div>
 
-              <Forms.Row name="submit">
-                {onCancel && (
-                  <button type="button" className="btn btn-primary w-auto" onClick={onCancel}>
-                    {texts.common.cancel}
+              <div ref={sentinelRef} className="h-px" />
+
+              <div
+                className={classNames('sticky right-0 bottom-0 left-0 z-[100] -mx-4 bg-white px-4 py-4', {
+                  'border-t-[1px] border-gray-300': isSticky,
+                })}
+              >
+                <Forms.Row name="submit">
+                  {onCancel && (
+                    <button type="button" className="btn btn-primary w-auto" onClick={onCancel}>
+                      {texts.common.cancel}
+                    </button>
+                  )}
+
+                  <button type="submit" className="btn btn-primary w-auto">
+                    {texts.deployments.deployButton}
                   </button>
-                )}
-
-                <button type="submit" className="btn btn-primary w-auto">
-                  {texts.deployments.deployButton}
-                </button>
-              </Forms.Row>
+                </Forms.Row>
+              </div>
             </fieldset>
           </div>
           <div className="w-100">

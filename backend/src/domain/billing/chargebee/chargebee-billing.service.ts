@@ -32,10 +32,12 @@ export class ChargebeeBillingService implements BillingService {
   }
 
   async hasSubscription(teamId: number, deploymentId: number): Promise<boolean> {
+    const customer = await this.getOrCreateCustomer(teamId);
+
     const subscriptionId = `deployment_${deploymentId}`;
     const subscription = await findSubscription(this.chargebee, subscriptionId);
 
-    return !!subscription && subscription.customer_id !== teamId.toString();
+    return !!subscription && subscription.customer_id === customer.id;
   }
 
   async createSubscription(
