@@ -11,6 +11,7 @@ const dirName = fileURLToPath(new URL('.', import.meta.url));
 export default defineConfig({
   build: {
     chunkSizeWarningLimit: 3000,
+    sourcemap: true,
   },
   resolve: {
     alias: {

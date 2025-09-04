@@ -409,7 +409,8 @@ export function evaluateUsage(service: ServiceDefinition, context: DefinitionCon
 export function validateParameters(service: ServiceDefinition, target: Record<string, any>, previous?: Record<string, string>) {
   const errors: ValidationError[] = [];
 
-  for (const [key, definition] of Object.entries(service.parameters)) {
+  for (const definition of service.parameters) {
+    const key = definition.name;
     const valueExists = key in target;
     const valueRaw = target[key];
 
