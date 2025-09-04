@@ -63,7 +63,7 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
   async execute(command: CreateDeployment): Promise<CreateDeploymentResult> {
     const { confirmUrl, cancelUrl, name, parameters, serviceId, teamId, user } = command;
 
-    const service = await this.services.findOneBy({ id: serviceId });
+    const service = await this.services.findOneBy({ id: serviceId, isPublic: true });
     if (!service) {
       throw new NotFoundException(`Service ${serviceId} not found.`);
     }
