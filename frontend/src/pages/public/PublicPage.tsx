@@ -27,7 +27,7 @@ export const PublicPage = () => {
   const footerText = theme.footerText;
 
   return (
-    <div>
+    <div className="flex min-h-screen flex-col">
       <div className="bg-header h-54">
         <div className="container mx-auto max-w-[1000px] px-4">
           <div className="flex max-w-[1000px] justify-between py-4">
@@ -55,19 +55,21 @@ export const PublicPage = () => {
         </div>
       </div>
 
-      <Routes>
-        <Route path="/teams/create" element={<TeamCreatePage />} />
-        <Route path="/teams/:teamId/*" element={<TeamPage />} />
+      <div className="flex-1">
+        <Routes>
+          <Route path="/teams/create" element={<TeamCreatePage />} />
+          <Route path="/teams/:teamId/*" element={<TeamPage />} />
 
-        <Route
-          path="*"
-          element={team ? <TransientNavigate to={`/teams/${team.id}`} /> : <TransientNavigate to="/teams/create" />}
-        />
-      </Routes>
+          <Route
+            path="*"
+            element={team ? <TransientNavigate to={`/teams/${team.id}`} /> : <TransientNavigate to="/teams/create" />}
+          />
+        </Routes>
+      </div>
 
       {footerText && footerLinks.length > 0 && (
-        <div className="bg-black">
-          <div className="bg-header/50 mt-30">
+        <div className="mt-30 bg-black">
+          <div className="bg-header/50">
             <div className="text-primary-content! container mx-auto flex max-w-[1000px] items-center gap-6 px-4 py-10">
               {footerText && <span className="text-sm opacity-80">{footerText}</span>}
 
