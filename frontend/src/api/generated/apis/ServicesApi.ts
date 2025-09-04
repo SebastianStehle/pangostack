@@ -21,6 +21,7 @@ import type {
   CreateServiceVersionDto,
   DeploymentsDto,
   ServiceDto,
+  ServicePublicDto,
   ServiceVersionDto,
   ServiceVersionsDto,
   ServicesDto,
@@ -36,6 +37,8 @@ import {
     DeploymentsDtoToJSON,
     ServiceDtoFromJSON,
     ServiceDtoToJSON,
+    ServicePublicDtoFromJSON,
+    ServicePublicDtoToJSON,
     ServiceVersionDtoFromJSON,
     ServiceVersionDtoToJSON,
     ServiceVersionsDtoFromJSON,
@@ -69,6 +72,10 @@ export interface GetServiceDeploymentsRequest {
     serviceId: number;
     page?: number;
     pageSize?: number;
+}
+
+export interface GetServicePublicRequest {
+    serviceId: number;
 }
 
 export interface GetServiceVersionRequest {
@@ -261,6 +268,42 @@ export class ServicesApi extends runtime.BaseAPI {
      */
     async getServiceDeployments(serviceId: number, page?: number, pageSize?: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentsDto> {
         const response = await this.getServiceDeploymentsRaw({ serviceId: serviceId, page: page, pageSize: pageSize }, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Gets the service with the public properties.
+     * 
+     */
+    async getServicePublicRaw(requestParameters: GetServicePublicRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ServicePublicDto>> {
+        if (requestParameters.serviceId === null || requestParameters.serviceId === undefined) {
+            throw new runtime.RequiredError('serviceId','Required parameter requestParameters.serviceId was null or undefined when calling getServicePublic.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/api/services/public/{serviceId}`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ServicePublicDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Gets the service with the public properties.
+     * 
+     */
+    async getServicePublic(serviceId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ServicePublicDto> {
+        const response = await this.getServicePublicRaw({ serviceId: serviceId }, initOverrides);
         return await response.value();
     }
 

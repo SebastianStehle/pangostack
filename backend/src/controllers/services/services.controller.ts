@@ -20,6 +20,7 @@ import { IntParam } from 'src/lib';
 import {
   CreateServiceVersionDto,
   ServiceDto,
+  ServicePublicDto,
   ServicesDto,
   ServicesPublicDto,
   ServiceVersionDto,
@@ -59,6 +60,28 @@ export class ServicesController {
     const { services } = await this.queryBus.execute(new GetServicesPublicQuery());
 
     return ServicesPublicDto.fromDomain(services);
+  }
+
+  @Get('/public/:serviceId')
+  @ApiOperation({ operationId: 'getServicePublic', description: 'Gets the service with the public properties.' })
+  @ApiParam({
+    name: 'serviceId',
+    description: 'The ID of the service.',
+    required: true,
+    type: 'number',
+  })
+  @ApiOkResponse({ type: ServicePublicDto })
+  @Role(BUILTIN_USER_GROUP_ADMIN)
+  @UseGuards(RoleGuard)
+  async getServicePublic(@IntParam('serviceId') serviceId: number) {
+    const { services } = await this.queryBus.execute(new GetServicesPublicQuery());
+    const service = services.find((x) => x.id === serviceId);
+
+    if (!service) {
+      throw new NotFoundException();
+    }
+
+    return ServicePublicDto.fromDomain(service);
   }
 
   @Post('')

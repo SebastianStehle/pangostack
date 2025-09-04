@@ -41,11 +41,11 @@ export interface ServicePriceDto {
      */
     test: string;
     /**
-     * The total amount in the currency of the service.
+     * The price per hour in the currency of the service.
      * @type {number}
      * @memberof ServicePriceDto
      */
-    amount: number;
+    pricePerHour: number;
 }
 
 /**
@@ -56,7 +56,7 @@ export function instanceOfServicePriceDto(value: object): boolean {
     isInstance = isInstance && "label" in value;
     isInstance = isInstance && "target" in value;
     isInstance = isInstance && "test" in value;
-    isInstance = isInstance && "amount" in value;
+    isInstance = isInstance && "pricePerHour" in value;
 
     return isInstance;
 }
@@ -74,7 +74,7 @@ export function ServicePriceDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
         'label': json['label'],
         'target': json['target'],
         'test': json['test'],
-        'amount': json['amount'],
+        'pricePerHour': json['pricePerHour'],
     };
 }
 
@@ -90,7 +90,7 @@ export function ServicePriceDtoToJSON(value?: ServicePriceDto | null): any {
         'label': value.label,
         'target': value.target,
         'test': value.test,
-        'amount': value.amount,
+        'pricePerHour': value.pricePerHour,
     };
 }
 

@@ -25,11 +25,6 @@ export const DeploymentPage = () => {
   const clients = useClients();
   const [tab, setTab] = useState<'overview' | 'usage' | 'log'>('overview');
 
-  const { data: loadedServices } = useQuery({
-    queryKey: ['services-public'],
-    queryFn: () => clients.services.getServicesPublic(),
-  });
-
   const { data: loadedStatus } = useQuery({
     queryKey: ['deployment-status', teamId, deploymentId],
     queryFn: () => clients.deployments.getDeploymentStatus(deploymentId),
@@ -40,18 +35,24 @@ export const DeploymentPage = () => {
     queryFn: () => clients.deployments.getDeployment(deploymentId),
   });
 
+  const serviceId = deployment?.serviceId || 0;
+
+  const { data: loadedService } = useQuery({
+    queryKey: ['service', serviceId],
+    queryFn: async () => (!serviceId ? null : await clients.services.getServicePublic(serviceId)),
+  });
+
   if (!deployment) {
     return <Spinner visible={true} />;
   }
 
-  const service = (loadedServices?.items || []).find((x) => x.id === deployment.serviceId);
   const status = loadedStatus?.resources || [];
 
-  if (!service) {
+  if (!loadedService) {
     return <Spinner visible={true} />;
   }
 
-  const displayParameters = service.parameters.filter((x) => x.display);
+  const displayParameters = loadedService.parameters.filter((x) => x.display);
 
   return (
     <div className="flex flex-col gap-8">
@@ -130,14 +131,14 @@ export const DeploymentPage = () => {
             </div>
           )}
 
-          {service.afterInstallationInstructions && (
+          {loadedService.afterInstallationInstructions && (
             <div>
               <h2 className="mb-3 flex items-center gap-3 text-xl">
                 <Icon icon="info" size={16} className="inline-block" /> {texts.common.instructions}
               </h2>
               <div className="card card-border bg-base border-slate-300">
                 <div className="card-body">
-                  <DeploymentInstructions deployment={deployment} text={service.afterInstallationInstructions} />
+                  <DeploymentInstructions deployment={deployment} text={loadedService.afterInstallationInstructions} />
                 </div>
               </div>
             </div>

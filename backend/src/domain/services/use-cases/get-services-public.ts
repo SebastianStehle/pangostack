@@ -1,10 +1,15 @@
 import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FindOptionsWhere } from 'typeorm';
 import { ServiceEntity, ServiceRepository, ServiceVersionEntity, ServiceVersionRepository } from 'src/domain/database';
 import { ServicePublic } from '../interfaces';
 import { buildServicePublic } from './utils';
 
-export class GetServicesPublicQuery extends Query<GetServicesPublicResult> {}
+export class GetServicesPublicQuery extends Query<GetServicesPublicResult> {
+  constructor(public readonly publicOnly = true) {
+    super();
+  }
+}
 
 export class GetServicesPublicResult {
   constructor(public readonly services: ServicePublic[]) {}
@@ -19,8 +24,14 @@ export class GetServicesPublicHandler implements IQueryHandler<GetServicesPublic
     private readonly serviceVersions: ServiceVersionRepository,
   ) {}
 
-  async execute(): Promise<GetServicesPublicResult> {
-    const entities = await this.services.find({ where: { isPublic: true } });
+  async execute(query: GetServicesPublicQuery): Promise<GetServicesPublicResult> {
+    const { publicOnly } = query;
+    const where: FindOptionsWhere<ServiceEntity> = {};
+    if (publicOnly) {
+      where.isPublic = true;
+    }
+
+    const entities = await this.services.find({ where });
     const result: ServicePublic[] = [];
 
     for (const entity of entities) {
