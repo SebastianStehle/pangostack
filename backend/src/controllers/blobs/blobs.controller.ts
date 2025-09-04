@@ -11,7 +11,7 @@ export class BlobsController {
 
   @Get(':blobId')
   @ApiExcludeEndpoint()
-  async getLogo(@Param('blobId') blobId: string) {
+  async getBlob(@Param('blobId') blobId: string) {
     const { file } = await this.queryBus.execute(new GetBlobQuery(blobId));
 
     if (!file) {

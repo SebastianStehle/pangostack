@@ -211,6 +211,8 @@ export const texts = {
     appName: 'App Name',
     appNameHints: 'The name of this app, used for the title and the menu.',
     customCss: 'Custom CSS',
+    favicon: 'Favicon',
+    faviconHint: 'The icon shown in the browser tab',
     files: 'Files',
     footerLinks: 'Footer Links',
     footerText: 'Footer Text',

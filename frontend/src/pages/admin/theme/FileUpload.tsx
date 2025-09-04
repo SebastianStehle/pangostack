@@ -9,7 +9,7 @@ import { texts } from 'src/texts';
 
 export interface FileUploadProps {
   // The file property.
-  property: 'logo' | 'loginLogo' | 'loginBackground';
+  property: 'logo' | 'loginLogo' | 'loginBackground' | 'favicon';
 
   // The fallback image.
   fallback: string;

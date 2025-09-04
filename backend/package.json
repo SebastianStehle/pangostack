@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@date-fns/utc": "^2.1.1",
+    "@fiahfy/ico": "^0.0.5",
     "@nestjs/axios": "^4.0.1",
     "@nestjs/cache-manager": "^3.0.1",
     "@nestjs/common": "^11.1.6",
@@ -65,6 +66,7 @@
     "postgresql": "^0.0.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
+    "sharp": "^0.34.3",
     "typeorm": "^0.3.26",
     "winston": "^3.17.0",
     "yaml": "^2.8.1"

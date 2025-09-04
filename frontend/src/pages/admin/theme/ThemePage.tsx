@@ -39,6 +39,13 @@ export const ThemePage = () => {
             title={texts.theme.loginBackground}
             fallback="/login-background.svg"
           />
+
+          <FileUpload
+            property="favicon"
+            hints={texts.theme.faviconHint}
+            title={texts.theme.favicon}
+            fallback="/login-square.svg"
+          />
         </div>
       </div>
     </Page>
