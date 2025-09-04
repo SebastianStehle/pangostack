@@ -4,7 +4,7 @@ import { NodeSSH } from 'node-ssh';
 import { pollUntil } from 'src/lib';
 import { defineResource, Resource, ResourceApplyResult, ResourceRequest, ResourceStatusResult } from '../interface';
 
-type Parameters = { apiKey: string; region: string; plan: string; app: string };
+type Parameters = { apiKey: string; region: string; plan: string; app: string; backup: boolean; };
 
 type Context = { host: string; sshUser: string; sshPassword: string; };
 
@@ -36,6 +36,11 @@ export class VultrVmResource implements Resource {
       app: {
         description: 'The ID of the app from the marketplace.',
         type: 'string',
+        required: true,
+      },
+      backup: {
+        description: 'Indicates of automatic backups are enabled.',
+        type: 'boolean',
         required: true,
       },
     },
@@ -127,21 +132,24 @@ export class VultrVmResource implements Resource {
     }
   }
 
-  private async createInstance(vultr: ReturnType<typeof initializeVultrClient>, id: string, request: ResourceRequest<Parameters, ResourceContext>, logContext: any) {
-    const { region, plan, app } = request.parameters;
+  private async createInstance(vultr: ReturnType<typeof initializeVultrClient>, label: string, request: ResourceRequest<Parameters, ResourceContext>, logContext: any) {
+    const { backup, region, plan, app } = request.parameters;
 
-    let instance = await findInstance(vultr, id);
+    const backups = backup ? 'enable' : 'disable';
+
+    let instance = await findInstance(vultr, label);
     if (instance) {
-      await vultr.instances.updateInstance({ 'instance-id': id, plan });
+      await vultr.instances.updateInstance({ 'instance-id': label, plan, backups });
 
       this.logger.log({ message: 'Using existing instance, waiting for VM details to be ready', context: logContext });
       instance = await waitForInstance(vultr, instance, request.timeoutMs, true);
     } else {
       const response = await vultr.instances.createInstance({
+        backups,
         image_id: app.toString(),
+        label,
         plan,
         region,
-        label: id,
       });
 
       instance = response.instance;
@@ -234,13 +242,13 @@ function isValidIp(instance: any) {
   return instance.main_ip && instance.main_ip !== '0.0.0.0';
 }
 
-async function findInstance(vultr: ReturnType<typeof initializeVultrClient>, id: string) {
+async function findInstance(vultr: ReturnType<typeof initializeVultrClient>, label: string) {
   let cursor: string | null = null;
   while (true) {
     const response = await vultr.instances.listInstances({ cursor });
 
     for (const instance of response.instances) {
-      if (instance.label === id) {
+      if (instance.label === label) {
         return instance;
       }
     }

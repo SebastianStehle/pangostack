@@ -5,14 +5,10 @@ import { endOfDayTimestamp, startOfDayTimestamp } from 'src/lib';
 import { BillingError, BillingService, Charges, CreateSubscriptionResult, Invoice, InvoiceStatus } from '../interface';
 import { findCustomer, findSubscription } from './utils';
 
-interface ChargebeeConfig {
+export interface ChargebeeConfig {
   site: string;
-  addOnIdCores: string;
-  addOnIdMemory: string;
-  addOnIdStorage: string;
-  addOnIdVolume: string;
   apiKey: string;
-  fixedPriceDescription: string;
+  addons: Record<string, string>;
   planId: string;
   teamPrefix?: string;
 }
@@ -100,11 +96,21 @@ export class ChargebeeBillingService implements BillingService {
   async chargeDeployment(teamId: number, deploymentId: number, charges: Charges): Promise<any> {
     try {
       const customer = await this.getOrCreateCustomer(teamId);
-
       const subscriptionId = `deployment_${deploymentId}`;
-      const subscription = await findSubscription(this.chargebee, subscriptionId);
+
+      let subscription = await findSubscription(this.chargebee, subscriptionId);
       if (!subscription || subscription.customer_id !== customer.id) {
-        throw new Error(`Cannot find subscription for deployment ${deploymentId}.`);
+        const result = await this.chargebee.subscription.createForCustomer(customer.id, {
+          id: subscriptionId,
+          plan_id: this.config.planId,
+          plan_quantity: undefined,
+        });
+
+        if (!result.subscription) {
+          throw new Error(`Cannot find subscription for deployment ${deploymentId} and customer ${customer.id}.`);
+        }
+
+        subscription = result.subscription;
       }
 
       let date_from = startOfDayTimestamp(charges.dateFrom);
@@ -118,15 +124,20 @@ export class ChargebeeBillingService implements BillingService {
         date_to = subscription.created_at! + 1;
       }
 
-      const addCharge = async (addonId: string, units: number, pricePerUnit: number) => {
-        if (units === 0 || pricePerUnit === 0) {
-          return;
+      for (const item of charges.items) {
+        if (item.quantity === 0 || item.pricePerUnit === 0) {
+          continue;
+        }
+
+        const addon = this.config.addons[item.identifier];
+        if (!addon) {
+          throw new BillingError(`Failed to get addon for identifier '${item.identifier}'`);
         }
 
         const result = await this.chargebee.subscription.chargeAddonAtTermEnd(subscription.id, {
-          addon_id: addonId,
-          addon_quantity: units,
-          addon_unit_price: pricePerUnit * 100,
+          addon_id: addon,
+          addon_quantity: item.quantity,
+          addon_unit_price: item.pricePerUnit * 100,
           date_from,
           date_to,
         });
@@ -134,19 +145,14 @@ export class ChargebeeBillingService implements BillingService {
         if (result.httpStatusCode && result.httpStatusCode >= 400) {
           throw new BillingError(`Failed to add addon, got status {result.httpStatusCode}`);
         }
-      };
+      }
 
-      await addCharge(this.config.addOnIdCores, charges.totalCoreHours, charges.pricePerCoreHour);
-      await addCharge(this.config.addOnIdMemory, charges.totalMemoryGBHours, charges.pricePerMemoryGBHour);
-      await addCharge(this.config.addOnIdVolume, charges.totalVolumeGBHours, charges.pricePerVolumeGBHour);
-      await addCharge(this.config.addOnIdStorage, charges.totalStorageGB, charges.pricePerStorageGBMonth);
-
-      if (charges.fixedPrice) {
+      if (charges.fixedPrice && charges.fixedPriceDescription) {
         await this.chargebee.subscription.addChargeAtTermEnd(subscription.id, {
           amount: charges.fixedPrice * 100,
           date_from,
           date_to,
-          description: this.config.fixedPriceDescription,
+          description: charges.fixedPriceDescription,
         });
       }
     } catch (ex: any) {

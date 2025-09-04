@@ -1,19 +1,16 @@
-import { yupResolver } from '@hookform/resolvers/yup';
 import classNames from 'classnames';
 import { useEffect, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import * as Yup from 'yup';
-import { ObjectShape } from 'yup';
-import { ParameterDefinitionDto, ServicePublicDto } from 'src/api';
+import { DeploymentDto, ParameterDefinitionDto, ServicePublicDto } from 'src/api';
 import { FormAlert, Forms } from 'src/components';
 import { useStickyObserver } from 'src/hooks';
-import { isNumber } from 'src/lib';
 import { texts } from 'src/texts';
 import { DeploymentControl } from './DeploymentControl';
 import { DeploymentSummary } from './DeploymentSummary';
+import { useDeploymentResolver } from './hooks';
 
 export interface DeploymentFormProps {
-  value?: Record<string, any>;
+  value?: DeploymentDto;
 
   // The service.
   service: ServicePublicDto;
@@ -36,64 +33,7 @@ export type DeploymentUpdate = { name: string | null; parameters: Record<string,
 export const DeploymentForm = (props: DeploymentFormProps) => {
   const { error, isPending, onCancel, onSubmit, service, value } = props;
   const { isSticky, sentinelRef } = useStickyObserver();
-
-  const resolver = useMemo(() => {
-    const shape: ObjectShape = {};
-
-    for (const parameter of service.parameters) {
-      const label = parameter.label || parameter.name;
-
-      if (parameter.type === 'boolean') {
-        let boolean = Yup.bool().label(label);
-
-        if (parameter.required) {
-          boolean = boolean.required();
-        }
-
-        shape[parameter.name] = boolean;
-      } else if (parameter.type === 'number') {
-        let number = Yup.number().label(label);
-
-        if (parameter.required) {
-          number = number.required();
-        }
-
-        if (isNumber(parameter.minValue)) {
-          number = number.min(parameter.minValue);
-        }
-
-        if (isNumber(parameter.maxValue)) {
-          number = number.max(parameter.maxValue);
-        }
-
-        shape[parameter.name] = number;
-      } else if (parameter.type === 'string') {
-        let string = Yup.string().label(label);
-
-        if (parameter.required) {
-          string = string.required();
-        }
-
-        if (isNumber(parameter.minLength)) {
-          string = string.min(parameter.minLength);
-        }
-
-        if (isNumber(parameter.maxLength)) {
-          string = string.max(parameter.maxLength);
-        }
-
-        shape[parameter.name] = string;
-      }
-    }
-
-    const schema = Yup.object().shape({
-      name: Yup.string().max(100).nullable(),
-
-      parameters: Yup.object().shape(shape),
-    });
-
-    return yupResolver<DeploymentUpdate>(schema as any);
-  }, [service]);
+  const resolver = useDeploymentResolver(service);
 
   const defaultValue = useMemo(() => {
     const parameters: Record<string, any> = {};
@@ -140,7 +80,9 @@ export const DeploymentForm = (props: DeploymentFormProps) => {
                   <section className="mb-4" key={label}>
                     <legend className="legend">{label}</legend>
                     {parameters.map((parameter) => (
-                      <DeploymentControl key={parameter.name} parameter={parameter} />
+                      <fieldset disabled={!!value && !!parameter.immutable}>
+                        <DeploymentControl key={parameter.name} parameter={parameter} />
+                      </fieldset>
                     ))}
                   </section>
                 ))}

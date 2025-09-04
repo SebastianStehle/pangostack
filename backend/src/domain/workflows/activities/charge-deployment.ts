@@ -1,6 +1,7 @@
 import { Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { BillingService } from 'src/domain/billing';
+import { Between } from 'typeorm';
+import { BillingService, Charges } from 'src/domain/billing';
 import {
   BilledDeploymentEntity,
   BilledDeploymentRepository,
@@ -78,45 +79,67 @@ export class ChargeDeploymentActivity implements Activity<ChargeDeploymentParam>
       return;
     }
 
+    const definition = update.serviceVersion.definition;
     const service = update.serviceVersion.service;
+    const usages = await this.deploymentUsages.find({ where: { deploymentId, trackDate: Between(dateFrom, dateTo) } });
 
-    const usage = await this.deploymentUsages
-      .createQueryBuilder('usage')
-      .select('usage.deploymentId', 'deploymentId')
-      .addSelect('SUM(usage.fixedPricing)', 'fixedPricing')
-      .addSelect('SUM(usage.totalCores)', 'totalCores')
-      .addSelect('SUM(usage.totalMemoryGB)', 'totalMemoryGB')
-      .addSelect('SUM(usage.totalVolumeGB)', 'totalVolumeGB')
-      .addSelect('MAX(usage.totalStorageGB)', 'totalStorageGB')
-      .where('usage.trackDate BETWEEN :dateFrom AND :dateTo', { dateFrom, dateTo })
-      .where('usage.deploymentId = :deploymentId', { deploymentId })
-      .groupBy('usage.deploymentId')
-      .getRawOne<AggregatedUsage>();
-
-    const { totalCores, totalMemoryGB, totalStorageGB, totalVolumeGB, fixedPricing } = usage || {
-      totalCores: 0,
-      totalMemoryGB: 0,
-      totalStorageGB: 0,
-      totalVolumeGB: 0,
-      fixedPricing: 0,
+    const charges: Charges = {
+      dateFrom: dateFrom,
+      dateTo: dateTo,
+      items: [],
+      fixedPrice: service.fixedPrice,
+      fixedPriceDescription: service.fixedPriceDescription,
     };
 
-    const fixedPrice = service.fixedPrice + fixedPricing;
-    if (fixedPrice > 0 || totalCores > 0 || totalMemoryGB > 0 || totalVolumeGB > 0 || fixedPrice > 0) {
-      const charges = {
-        dateFrom: dateFrom,
-        dateTo: dateTo,
-        fixedPrice: service.fixedPrice + fixedPricing,
-        pricePerCoreHour: service.pricePerCoreHour,
-        pricePerMemoryGBHour: service.pricePerMemoryGBHour,
-        pricePerStorageGBMonth: service.pricePerStorageGBMonth,
-        pricePerVolumeGBHour: service.pricePerVolumeGBHour,
-        totalCoreHours: totalCores,
-        totalMemoryGBHours: totalMemoryGB,
-        totalStorageGB: totalStorageGB,
-        totalVolumeGBHours: totalVolumeGB,
-      };
+    let totalCores = 0;
+    let totalMemoryGB = 0;
+    let totalStorageGB = 0;
+    let totalVolumeGB = 0;
+    const additionals: Record<string, { quantity: number; pricePerUnit: number }> = {};
+    for (const usage of usages) {
+      totalCores += usage.totalCores;
+      totalMemoryGB += usage.totalMemoryGB;
+      totalStorageGB += usage.totalStorageGB;
+      totalVolumeGB += usage.totalVolumeGB;
 
+      if (definition.prices) {
+        for (const [identifier, additional] of Object.entries(usage.additionalPrices)) {
+          if (additional.quantity <= 0) {
+            continue;
+          }
+
+          const price = definition.prices.find((x) => x.billingIdentifier === identifier);
+          if (!price || additional.quantity <= 0) {
+            continue;
+          }
+
+          const sum = (additionals[identifier] ||= { quantity: 0, pricePerUnit: price.pricePerHour });
+          sum.quantity += additional.quantity;
+        }
+      }
+    }
+
+    for (const [identifier, additional] of Object.entries(additionals)) {
+      charges.items.push({ identifier, ...additional });
+    }
+
+    if (totalCores > 0) {
+      charges.items.push({ identifier: 'core', quantity: totalCores, pricePerUnit: service.pricePerCoreHour });
+    }
+
+    if (totalMemoryGB > 0) {
+      charges.items.push({ identifier: 'memory', quantity: totalMemoryGB, pricePerUnit: service.pricePerMemoryGBHour });
+    }
+
+    if (totalMemoryGB > 0) {
+      charges.items.push({ identifier: 'storage', quantity: totalStorageGB, pricePerUnit: service.pricePerStorageGBMonth });
+    }
+
+    if (totalVolumeGB > 0) {
+      charges.items.push({ identifier: 'volume', quantity: totalVolumeGB, pricePerUnit: service.pricePerVolumeGBHour });
+    }
+
+    if (charges.items.length > 0 || (charges.fixedPrice && charges.fixedPriceDescription)) {
       this.logger.log(`Deployment ${deploymentId} charged.`, { charges });
       await this.billingService.chargeDeployment(deployment.teamId, deploymentId, charges);
     }

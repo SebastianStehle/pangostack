@@ -45,6 +45,7 @@ export const texts = {
     name: 'Name',
     no: 'No',
     notFound: 'Not found',
+    notPublic: 'Not public',
     notReady: 'Not ready',
     overview: 'Overview',
     page: (page: number, total: number) => `Page ${page} of ${total}`,
@@ -98,6 +99,7 @@ export const texts = {
   },
   dashboard: {},
   deployments: {
+    basePrice: 'Base Price',
     checkChartWarning: 'Days are based on UTC time. Health checks are tested every 15 minutes.',
     create: 'New Deployment',
     deployButton: 'Deploy Now',

@@ -16,6 +16,7 @@ import {
   WorkerEntity,
   WorkerRepository,
 } from 'src/domain/database';
+import { validateParameters } from 'src/domain/definitions';
 import { User } from 'src/domain/users';
 import { WorkflowService } from 'src/domain/workflows';
 import { saveAndFind } from 'src/lib';
@@ -75,6 +76,9 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     if (!version) {
       throw new NotFoundException(`Service ${serviceId} has no active version.`);
     }
+
+    // Dynamic validation with the definition.
+    validateParameters(version.definition, parameters);
 
     const worker = await this.workers.findOne({ where: { endpoint: Not(IsNull()) } });
     if (!worker) {

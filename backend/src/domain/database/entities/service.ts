@@ -62,6 +62,9 @@ export class ServiceEntity {
   })
   fixedPrice: number = 0;
 
+  @Column('varchar', { length: 100, nullable: true })
+  fixedPriceDescription?: string | null;
+
   @Column({ default: true })
   isPublic: boolean = true;
 

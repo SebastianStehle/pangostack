@@ -495,6 +495,14 @@ export class ParameterDefinitionDto {
   maxLength?: number | null;
 
   @ApiProperty({
+    description: 'The editor.',
+    enum: ['default', 'textarea'],
+    nullable: true,
+    type: String,
+  })
+  editor?: 'default' | 'textarea' | null;
+
+  @ApiProperty({
     description: 'Optional section for grouping.',
     nullable: true,
     type: Number,
@@ -506,6 +514,7 @@ export class ParameterDefinitionDto {
     result.allowedValues = source.allowedValues?.map(ParameterAllowedvalueDto.fromDomain) || null;
     result.defaultValue = source.defaultValue;
     result.display = source.display;
+    result.editor = source.editor;
     result.immutable = source.immutable;
     result.label = source.label;
     result.maxLength = source.maxLength;
@@ -523,6 +532,12 @@ export class ParameterDefinitionDto {
 
 export class ServicePriceDto {
   @ApiProperty({
+    description: 'The label of the price.',
+    required: true,
+  })
+  label: string;
+
+  @ApiProperty({
     description: 'The target value.',
     required: true,
   })
@@ -535,16 +550,17 @@ export class ServicePriceDto {
   test: string;
 
   @ApiProperty({
-    description: 'The total amount in the currency of the service.',
+    description: 'The price per hour in the currency of the service.',
     required: true,
   })
-  amount: number;
+  pricePerHour: number;
 
   static fromDomain(source: ServicePrice): ServicePriceDto {
     const result = new ServicePriceDto();
+    result.label = source.label;
     result.target = source.target;
     result.test = source.test;
-    result.amount = source.amount;
+    result.pricePerHour = source.pricePerHour;
     return result;
   }
 }

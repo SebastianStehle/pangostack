@@ -171,6 +171,9 @@ export interface ServicePublic {
 }
 
 export interface ServicePrice {
+  // The label of the price.
+  label: string;
+
   // The target value.
   target: string;
 
@@ -178,7 +181,7 @@ export interface ServicePrice {
   test: string;
 
   // The total amount in the currency of the service.
-  amount: number;
+  pricePerHour: number;
 }
 
 export interface ResourceNodeStatus {

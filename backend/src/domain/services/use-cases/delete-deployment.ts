@@ -40,7 +40,7 @@ export class DeleteDeploymentHandler implements ICommandHandler<DeleteDeployment
       throw new NotFoundException(`Deployment ${deploymentId} not found`);
     }
 
-    if (!policy) {
+    if (!policy.isAllowed(deployment)) {
       throw new ForbiddenException();
     }
 

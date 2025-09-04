@@ -1,16 +1,14 @@
 import { registerAs } from '@nestjs/config';
+import { parseEnvironmentMap } from 'src/lib';
+import { ChargebeeConfig } from './chargebee/chargebee-billing.service';
 
 export const billingConfig = registerAs('billing', () => ({
   type: process.env.BILLING_TYPE,
   chargebee: {
     site: process.env.BILLING_CHARGEBEE_SITE,
     apiKey: process.env.BILLING_CHARGEBEE_APIKEY,
-    addOnIdCores: process.env.BILLING_CHARGEBEE_ADDON_ID_CORES,
-    addOnIdMemory: process.env.BILLING_CHARGEBEE_ADDON_ID_MEMORY,
-    addOnIdStorage: process.env.BILLING_CHARGEBEE_ADDON_ID_STORAGE,
-    addOnIdVolume: process.env.BILLING_CHARGEBEE_ADDON_ID_VOLUME,
-    fixedPriceDescription: process.env.BILLING_CHARGEBEE_FIXED_PRICE_DESCRIPTION,
+    addons: parseEnvironmentMap('BILLING_CHARGEBEE_ADDON_'),
     planId: process.env.BILLING_CHARGEBEE_PLAN_ID,
     teamPrefix: process.env.BILLING_CHARGEBEE_TEAMPREFIX,
-  },
+  } as ChargebeeConfig,
 }));

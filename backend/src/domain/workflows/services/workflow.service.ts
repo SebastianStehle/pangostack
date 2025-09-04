@@ -148,7 +148,7 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
         spec: {
           calendars: [
             {
-              dayOfMonth: 5,
+              dayOfMonth: 1,
             },
           ],
         },
@@ -156,6 +156,25 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
           type: 'startWorkflow',
           workflowId: 'charge-deployments',
           workflowType: workflows.chargeDeployments,
+          taskQueue: 'billing',
+        },
+      }),
+    );
+
+    await this.tryRegister(() =>
+      client.schedule.create({
+        scheduleId: 'cleanup-failed-deployments',
+        spec: {
+          intervals: [
+            {
+              every: '1h',
+            },
+          ],
+        },
+        action: {
+          type: 'startWorkflow',
+          workflowId: 'cleanup-failed-deployments',
+          workflowType: workflows.cleanupFailedDeployments,
           taskQueue: 'billing',
         },
       }),

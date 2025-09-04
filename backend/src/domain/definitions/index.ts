@@ -83,6 +83,10 @@ class ParameterDefinitionClass {
   maxLength?: number | null;
 
   @IsOptional()
+  @IsIn(['default', 'textarea'])
+  editor?: 'default' | 'textarea' | null;
+
+  @IsOptional()
   @IsString()
   section?: string | null;
 }
@@ -182,6 +186,14 @@ class UsageDefinitionClass {
 class ServicePriceClass {
   @IsDefined()
   @IsString()
+  label: string;
+
+  @IsDefined()
+  @IsString()
+  billingIdentifier: string;
+
+  @IsDefined()
+  @IsString()
   target: string;
 
   @IsDefined()
@@ -190,7 +202,7 @@ class ServicePriceClass {
 
   @IsDefined()
   @IsNumber()
-  amount: number;
+  pricePerHour: number;
 }
 
 class ServiceDefinitionClass {
@@ -324,21 +336,24 @@ export function evaluateHealthChecks(resource: ResourceDefinition, context: Defi
   });
 }
 
-export function evaluatePrices(service: ServiceDefinition, context: DefinitionContext): number {
+type EvaluatedPrices = Record<string, { quantity: number }>;
+
+export function evaluatePrices(service: ServiceDefinition, context: DefinitionContext): EvaluatedPrices {
   if (!service.prices || service.prices.length === 0) {
-    return 0;
+    return {};
   }
 
-  let total = 0;
+  const result: EvaluatedPrices = {};
   for (const price of service.prices) {
     const target = evaluateExpression(price.target, context);
 
     if (target == price.test) {
-      total += price.amount;
+      const byIdentifier = result[price.billingIdentifier] || { quantity: 0 };
+      byIdentifier.quantity++;
     }
   }
 
-  return total;
+  return result;
 }
 
 export function evaluateParameters(resource: ResourceDefinition, context: DefinitionContext) {
@@ -391,31 +406,32 @@ export function evaluateUsage(service: ServiceDefinition, context: DefinitionCon
   return { totalCores, totalMemoryGB, totalVolumeGB };
 }
 
-export function validateDefinitionValue(service: ServiceDefinition, target: Record<string, any>) {
+export function validateParameters(service: ServiceDefinition, target: Record<string, any>, previous?: Record<string, string>) {
   const errors: ValidationError[] = [];
 
   for (const [key, definition] of Object.entries(service.parameters)) {
     const valueExists = key in target;
     const valueRaw = target[key];
-    let value = valueRaw;
 
     const constraints: Record<string, any> = {};
-    const error: ValidationError = {
-      property: `parameters.${key}`,
-      constraints,
-    };
 
     if (!valueExists && definition.required) {
-      constraints!['isDefined'] = '$property is required but was not provided';
+      constraints['isDefined'] = '$property is required but was not provided';
+    }
+
+    if (definition.immutable && previous && previous[key] !== valueRaw) {
+      constraints['isImmutable'] = '$property is immutable and cannot be changed';
     }
 
     if (valueExists) {
+      let value = valueRaw;
+
       if (definition.type === 'boolean') {
         if (typeof value === 'string') {
-          const valLower = value.toLowerCase();
-          if (valLower === 'true' || valLower === '1') {
+          const lower = value.toLowerCase();
+          if (lower === 'true' || lower === '1') {
             value = true;
-          } else if (valLower === 'false' || valLower === '0') {
+          } else if (lower === 'false' || lower === '0') {
             value = false;
           }
         } else if (typeof value === 'number') {
@@ -465,6 +481,8 @@ export function validateDefinitionValue(service: ServiceDefinition, target: Reco
     }
 
     if (Object.keys(constraints).length > 0) {
+      const error: ValidationError = { property: `parameters.${key}`, constraints };
+
       errors.push(error);
     }
   }

@@ -62,23 +62,31 @@ export class TrackDeploymentUsageActivity implements Activity<TrackDeploymentUsa
     // The storage needs to be measured directly from the provider.
     const totalStorageGB = usageFromWorker.resources.reduce((a, c) => a + c.totalStorageGB, 0);
 
+    // Sums up all prices in the definition.
+    const totalPrices = evaluatePrices(update.serviceVersion.definition, context);
+
+    // Get the usage for pay per use definitions.
     const { totalCores, totalMemoryGB, totalVolumeGB } = evaluateUsage(update.serviceVersion.definition, context);
-    if (totalCores === 0 && totalMemoryGB === 0 && totalVolumeGB === 0 && totalStorageGB === 0) {
+
+    if (
+      totalCores === 0 &&
+      totalMemoryGB === 0 &&
+      totalVolumeGB === 0 &&
+      totalStorageGB === 0 &&
+      Object.keys(totalPrices).length === 0
+    ) {
       return;
     }
 
-    // Sums up all prices in the definition.
-    const fixedPricing = evaluatePrices(update.serviceVersion.definition, context);
-
     const deploymentUsage = this.deploymentUsages.create({
+      additionalPrices: totalPrices,
       deploymentId,
-      trackDate,
-      trackHour,
       totalCores,
       totalMemoryGB,
-      totalVolumeGB,
       totalStorageGB,
-      fixedPricing,
+      totalVolumeGB,
+      trackDate,
+      trackHour,
     });
 
     await this.deploymentUsages.save(deploymentUsage);

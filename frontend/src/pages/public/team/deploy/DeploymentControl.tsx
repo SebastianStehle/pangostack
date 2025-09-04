@@ -2,7 +2,7 @@ import { ParameterDefinitionDto } from 'src/api';
 import { Forms } from 'src/components';
 
 export const DeploymentControl = ({ parameter }: { parameter: ParameterDefinitionDto }) => {
-  const { allowedValues, maxValue, minValue, maxLength, step, name, label, hint, type } = parameter;
+  const { allowedValues, editor, maxValue, minValue, maxLength, step, name, label, hint, type } = parameter;
   const fullName = `parameters.${name}`;
 
   if (type === 'boolean') {
@@ -22,6 +22,8 @@ export const DeploymentControl = ({ parameter }: { parameter: ParameterDefinitio
     return <Forms.Number name={fullName} label={label || name} hints={hint} />;
   } else if (type === 'string' && allowedValues && allowedValues.length > 0) {
     return <Forms.Select name={fullName} label={label || name} hints={hint} options={allowedValues} />;
+  } else if (type === 'string' && editor === 'textarea') {
+    return <Forms.Textarea name={fullName} label={label || name} hints={hint} />;
   } else if (type === 'string') {
     return <Forms.Text name={fullName} label={label || name} hints={hint} maxLength={maxLength || undefined} />;
   } else {

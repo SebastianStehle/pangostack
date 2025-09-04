@@ -30,6 +30,6 @@ export class DeploymentUsageEntity {
   @Column()
   totalStorageGB: number;
 
-  @Column()
-  fixedPricing: number;
+  @Column('simple-json', { default: '{}' })
+  additionalPrices: Record<string, { quantity: number }> = {};
 }

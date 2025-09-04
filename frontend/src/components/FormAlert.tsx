@@ -34,7 +34,7 @@ export const FormAlert = (props: FormAlertProps) => {
   }
 
   return (
-    <div className={classNames('alert alert-error mb-4', className)}>
+    <div className={classNames('alert alert-error mb-4 max-h-64 overflow-y-scroll', className)}>
       <Icon icon="alert-circle" /> <Markdown>{message}</Markdown>
     </div>
   );

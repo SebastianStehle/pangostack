@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { NodeSSH } from 'node-ssh';
-import { composeDown, composeUp, getContainers, getLogs, pollUntil } from 'src/lib';
+import { composeDown, composeUp, getContainers, getLogs, parseEnvironment, pollUntil } from 'src/lib';
 import { defineResource, Resource, ResourceApplyResult, ResourceLogResult, ResourceRequest, ResourceStatusResult } from '../interface';
 
-type Parameters = { host: string; sshUser: string; sshPassword: string; dockerComposeUrl: string };
+type Parameters = { host: string; sshUser: string; sshPassword: string; dockerComposeUrl: string; environment?: string };
 
 @Injectable()
 export class DockerComposeSshResource implements Resource {
@@ -33,6 +33,10 @@ export class DockerComposeSshResource implements Resource {
         type: 'string',
         required: true,
       },
+      environment: {
+        description: 'The additional environment variables.',
+        type: 'string',
+      },
     },
     context: {},
   });
@@ -42,7 +46,7 @@ export class DockerComposeSshResource implements Resource {
   }
 
   async apply(id: string, request: ResourceRequest<Parameters>): Promise<ResourceApplyResult> {
-    const { dockerComposeUrl, host, sshUser, sshPassword, ...others } = request.parameters;
+    const { dockerComposeUrl, host, environment, sshUser, sshPassword, ...others } = request.parameters;
 
     const logContext: any = { id, host };
     try {
@@ -55,8 +59,16 @@ export class DockerComposeSshResource implements Resource {
           return true;
         });
 
+        // Custom defined variables do not override direct paramters (aka others).
+        const env = parseEnvironment(environment);
+        for (const [key, value] of Object.entries(others)) {
+          if (value) {
+            env[key] = value;
+          }
+        }
+
         this.logger.log({ message: 'Instance accepted SSH connection, deploying docker', context: logContext });
-        await composeUp(ssh, dockerComposeUrl, others, request.timeoutMs, (message) => {
+        await composeUp(ssh, dockerComposeUrl, env, request.timeoutMs, (message) => {
           this.logger.log({ message, context: logContext });
         });
       } finally {

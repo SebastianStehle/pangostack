@@ -114,6 +114,12 @@ export interface ParameterDefinitionDto {
      */
     maxLength: number | null;
     /**
+     * The editor.
+     * @type {string}
+     * @memberof ParameterDefinitionDto
+     */
+    editor: ParameterDefinitionDtoEditorEnum | null;
+    /**
      * Optional section for grouping.
      * @type {number}
      * @memberof ParameterDefinitionDto
@@ -131,6 +137,15 @@ export const ParameterDefinitionDtoTypeEnum = {
     Boolean: 'boolean'
 } as const;
 export type ParameterDefinitionDtoTypeEnum = typeof ParameterDefinitionDtoTypeEnum[keyof typeof ParameterDefinitionDtoTypeEnum];
+
+/**
+ * @export
+ */
+export const ParameterDefinitionDtoEditorEnum = {
+    Default: 'default',
+    Textarea: 'textarea'
+} as const;
+export type ParameterDefinitionDtoEditorEnum = typeof ParameterDefinitionDtoEditorEnum[keyof typeof ParameterDefinitionDtoEditorEnum];
 
 
 /**
@@ -152,6 +167,7 @@ export function instanceOfParameterDefinitionDto(value: object): boolean {
     isInstance = isInstance && "minLength" in value;
     isInstance = isInstance && "step" in value;
     isInstance = isInstance && "maxLength" in value;
+    isInstance = isInstance && "editor" in value;
     isInstance = isInstance && "section" in value;
 
     return isInstance;
@@ -181,6 +197,7 @@ export function ParameterDefinitionDtoFromJSONTyped(json: any, ignoreDiscriminat
         'minLength': json['minLength'],
         'step': json['step'],
         'maxLength': json['maxLength'],
+        'editor': json['editor'],
         'section': json['section'],
     };
 }
@@ -208,6 +225,7 @@ export function ParameterDefinitionDtoToJSON(value?: ParameterDefinitionDto | nu
         'minLength': value.minLength,
         'step': value.step,
         'maxLength': value.maxLength,
+        'editor': value.editor,
         'section': value.section,
     };
 }

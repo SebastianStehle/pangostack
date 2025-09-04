@@ -12,6 +12,7 @@ import {
   WorkerEntity,
   WorkerRepository,
 } from 'src/domain/database';
+import { validateParameters } from 'src/domain/definitions';
 import { User } from 'src/domain/users';
 import { WorkflowService } from 'src/domain/workflows';
 import { saveAndFind } from 'src/lib';
@@ -51,14 +52,14 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
   ) {}
 
   async execute(command: UpdateDeployment): Promise<UpdateDeploymentResult> {
-    const { deploymentId, name, parameters, policy, user, versionId } = command;
+    const { deploymentId, name, policy, user, versionId } = command;
 
     const deployment = await this.deployments.findOne({ where: { id: deploymentId } });
     if (!deployment) {
       throw new NotFoundException(`Deployment ${deploymentId} not found`);
     }
 
-    if (!policy) {
+    if (!policy.isAllowed(deployment)) {
       throw new ForbiddenException();
     }
 
@@ -93,6 +94,11 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
       version = candidateVersion;
     }
 
+    const parameters = lastUpdate.parameters || command.parameters;
+
+    // Event validate with the current parameters to ensure that they still match to the current version.
+    validateParameters(version.definition, parameters, lastUpdate.parameters);
+
     const worker = await this.workerRepository.findOne({ where: { endpoint: Not(IsNull()) } });
     if (!worker) {
       throw new NotFoundException('No worker registered.');
@@ -113,7 +119,7 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
       deployment,
       deploymentId: deployment.id,
       environment,
-      parameters: parameters || lastUpdate.parameters,
+      parameters,
       serviceVersion: version,
       serviceVersionId: version.id,
     });

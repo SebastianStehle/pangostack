@@ -66,7 +66,11 @@ export const DeploymentPage = () => {
           </h2>
         </div>
 
-        <a className="btn btn-success disabled">{texts.deployments.edit}</a>
+        {deployment?.status === 'Completed' && (
+          <TransientNavLink className="btn btn-success" to={'update'}>
+            {texts.deployments.edit}
+          </TransientNavLink>
+        )}
       </div>
 
       <div className="-mx-8 border-b border-gray-200 px-4">

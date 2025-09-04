@@ -8,6 +8,7 @@ import { texts } from 'src/texts';
 import { BillingPage } from './billing/BillingPage';
 import { DeployPage } from './deploy/DeployPage';
 import { DeploymentPage } from './deployment/DeploymentPage';
+import { UpdateDeploymentPage } from './deployment/update/UpdateDeploymentPage';
 import { DeploymentsPage } from './deployments/DeploymentsPage';
 import { MembersPage } from './members/MembersPage';
 import { SettingsPage } from './settings/SettingsPage';
@@ -69,6 +70,7 @@ export const TeamPage = () => {
             <Route path="billing" element={<BillingPage />} />
             <Route path="deployments" element={<DeploymentsPage />} />
             <Route path="deployments/:deploymentId" element={<DeploymentPage />} />
+            <Route path="deployments/:deploymentId/update" element={<UpdateDeploymentPage />} />
             <Route path="deployments/new" element={<DeployPage />} />
             <Route path="members" element={<MembersPage />} />
             <Route path="settings" element={<SettingsPage />} />

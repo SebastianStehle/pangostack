@@ -23,6 +23,12 @@ import { exists, mapValues } from '../runtime';
  */
 export interface ServicePriceDto {
     /**
+     * The label of the price.
+     * @type {string}
+     * @memberof ServicePriceDto
+     */
+    label: string;
+    /**
      * The target value.
      * @type {string}
      * @memberof ServicePriceDto
@@ -47,6 +53,7 @@ export interface ServicePriceDto {
  */
 export function instanceOfServicePriceDto(value: object): boolean {
     let isInstance = true;
+    isInstance = isInstance && "label" in value;
     isInstance = isInstance && "target" in value;
     isInstance = isInstance && "test" in value;
     isInstance = isInstance && "amount" in value;
@@ -64,6 +71,7 @@ export function ServicePriceDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
     }
     return {
         
+        'label': json['label'],
         'target': json['target'],
         'test': json['test'],
         'amount': json['amount'],
@@ -79,6 +87,7 @@ export function ServicePriceDtoToJSON(value?: ServicePriceDto | null): any {
     }
     return {
         
+        'label': value.label,
         'target': value.target,
         'test': value.test,
         'amount': value.amount,

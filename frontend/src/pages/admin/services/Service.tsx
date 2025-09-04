@@ -23,7 +23,11 @@ export const Service = memo((props: ServiceProps) => {
         className="text-normal block flex min-w-0 grow items-center gap-2 truncate text-ellipsis"
       >
         {service.latestVersion && <VersionLabel version={service.latestVersion} />}
-
+        {service.isPublic === false && (
+          <span title={texts.common.notPublic}>
+            <Icon size={12} icon="eye-off" />
+          </span>
+        )}
         {service.name}
       </TransientNavLink>
 

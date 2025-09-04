@@ -47,7 +47,7 @@ export class GetDeploymentChecksHandler implements IQueryHandler<GetDeploymentCh
       throw new NotFoundException(`Deployment ${deploymentId} not found`);
     }
 
-    if (!policy) {
+    if (!policy.isAllowed(deployment)) {
       throw new ForbiddenException();
     }
 

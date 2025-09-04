@@ -40,17 +40,17 @@ export class GetDeploymentHandler implements IQueryHandler<GetDeploymentQuery, G
   async execute(query: GetDeploymentQuery): Promise<GetDeploymentResult> {
     const { deploymentId, policy } = query;
 
-    const entity = await this.deployments.findOne({ where: { id: deploymentId }, order: { id: 'DESC' } });
-    if (!entity) {
+    const deployment = await this.deployments.findOne({ where: { id: deploymentId }, order: { id: 'DESC' } });
+    if (!deployment) {
       return new GetDeploymentResult();
     }
 
-    if (!policy) {
+    if (!policy.isAllowed(deployment)) {
       throw new ForbiddenException();
     }
 
     const lastUpdate = await this.deploymentUpdates.findOne({
-      where: { deploymentId: entity.id },
+      where: { deploymentId: deployment.id },
       order: { id: 'DESC' },
       relations: ['serviceVersion', 'serviceVersion.service'],
     });
@@ -60,10 +60,10 @@ export class GetDeploymentHandler implements IQueryHandler<GetDeploymentQuery, G
     }
 
     const lastCheck = await this.deploymentChecks.findOne({
-      where: { deploymentId: entity.id },
+      where: { deploymentId: deployment.id },
       order: { id: 'DESC' },
     });
 
-    return new GetDeploymentResult(buildDeployment(entity, lastUpdate, lastCheck));
+    return new GetDeploymentResult(buildDeployment(deployment, lastUpdate, lastCheck));
   }
 }

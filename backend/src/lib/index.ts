@@ -1,5 +1,6 @@
 export * from './db';
 export * from './copy';
+export * from './environment';
 export * from './expression';
 export * from './errors';
 export * from './format';

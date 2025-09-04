@@ -21,38 +21,31 @@ export interface Invoice {
 export type InvoiceStatus = 'Paid' | 'PaymentDue' | 'NotPaid' | 'Voided' | 'Pending';
 
 export interface Charges {
-  // The price per Core and hour in the selected currency.
-  pricePerCoreHour: number;
-
-  // The price per Memory in GB and hour in the selected currency.
-  pricePerMemoryGBHour: number;
-
-  // The price per Storage in GB and hour in the selected currency.
-  pricePerStorageGBMonth: number;
-
-  // The price per Disk in GB and hour in the selected currency.
-  pricePerVolumeGBHour: number;
+  // The items.
+  items: ChargeItem[];
 
   // The additional fixed price.
-  fixedPrice: number;
+  fixedPrice?: number | null;
 
-  // The total Core hours.
-  totalCoreHours: number;
-
-  // The total Memory GB hours.
-  totalMemoryGBHours: number;
-
-  // The total Disk GB hours.
-  totalVolumeGBHours: number;
-
-  // The total storage.
-  totalStorageGB: number;
+  // The description for the fixed price.
+  fixedPriceDescription?: string | null;
 
   // The start of the billing period.
   dateFrom: string;
 
   // The end of the billing period.
   dateTo: string;
+}
+
+export interface ChargeItem {
+  // The identifier.
+  identifier: string;
+
+  // The total number of items.
+  quantity: number;
+
+  // The costs per item.
+  pricePerUnit: number;
 }
 
 export class BillingError extends Error {
