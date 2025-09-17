@@ -7,6 +7,7 @@ import { useTypedParams } from 'src/hooks';
 import { texts } from 'src/texts';
 import { BillingPage } from './billing/BillingPage';
 import { DeployPage } from './deploy/DeployPage';
+import { DeployServicesPage } from './deploy/DeployServicesPage';
 import { DeploymentPage } from './deployment/DeploymentPage';
 import { UpdateDeploymentPage } from './deployment/update/UpdateDeploymentPage';
 import { DeploymentsPage } from './deployments/DeploymentsPage';
@@ -71,7 +72,8 @@ export const TeamPage = () => {
             <Route path="deployments" element={<DeploymentsPage />} />
             <Route path="deployments/:deploymentId" element={<DeploymentPage />} />
             <Route path="deployments/:deploymentId/update" element={<UpdateDeploymentPage />} />
-            <Route path="deployments/new" element={<DeployPage />} />
+            <Route path="deployments/new" element={<DeployServicesPage />} />
+            <Route path="deployments/new/:serviceId" element={<DeployPage />} />
             <Route path="members" element={<MembersPage />} />
             <Route path="settings" element={<SettingsPage />} />
 

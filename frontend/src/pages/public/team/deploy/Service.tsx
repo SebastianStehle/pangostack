@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { memo } from 'react';
 import Markdown from 'react-markdown';
 import { ServicePublicDto } from 'src/api';
-import { Icon, Image } from 'src/components';
+import { Icon, Image, TransientNavLink } from 'src/components';
 import { formatMoney } from 'src/lib';
 import { texts } from 'src/texts';
 
@@ -12,35 +12,26 @@ export interface ServiceProps {
 
   // The base URL.
   url: string;
-
-  // Invoked when clicked.
-  onClick: (service: ServicePublicDto) => void;
 }
 
 export const Service = memo((props: ServiceProps) => {
-  const { onClick, service, url } = props;
+  const { service, url } = props;
 
   let cheapestPrice = Number.MAX_VALUE;
   if (service.pricingModel === 'fixed') {
     for (const price of service.prices) {
-      if (price.amount < cheapestPrice) {
-        cheapestPrice = price.amount;
+      if (price.pricePerHour < cheapestPrice) {
+        cheapestPrice = price.pricePerHour;
       }
     }
   }
 
-  const doClick = () => {
-    if (!service.isPreRelease) {
-      onClick(service);
-    }
-  };
-
   return (
-    <div
+    <TransientNavLink
+      to={service.id.toString()}
       className={classNames('card card-border bg-base border-slate-300', {
         'hover:border-primary group cursor-pointer transition-colors duration-500 ease-in-out': !service.isPreRelease,
       })}
-      onClick={doClick}
     >
       <div className="card-body">
         <div className="flex items-center gap-8">
@@ -66,7 +57,7 @@ export const Service = memo((props: ServiceProps) => {
                 <div>
                   <span className="text-2xl">{formatMoney(cheapestPrice, service.currency)} *</span>
                 </div>
-                <div className="pe-3 text-slate-500">{texts.common.perMonth}</div>
+                <div className="pe-3 text-slate-500">{texts.common.perHour}</div>
               </div>
             )}
           </div>
@@ -81,6 +72,6 @@ export const Service = memo((props: ServiceProps) => {
           </div>
         </div>
       </div>
-    </div>
+    </TransientNavLink>
   );
 });

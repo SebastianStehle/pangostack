@@ -86,7 +86,7 @@ export const VersionPage = (props: VersionPageProps) => {
                 name="definition"
                 noWrap
                 required
-                readOnly={creating.isPending || loadedService.isPublic}
+                readOnly={creating.isPending}
                 valueMode="string"
                 vertical
               />

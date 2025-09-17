@@ -48,7 +48,7 @@ export const DeploymentSummary = (props: DeploymentSummaryProps) => {
       service.totalCores,
       service.pricePerCoreHour,
       30 * 24,
-      texts.common.perHour,
+      texts.common.hour,
       '',
     );
 
@@ -57,7 +57,7 @@ export const DeploymentSummary = (props: DeploymentSummaryProps) => {
       service.totalMemoryGB,
       service.pricePerMemoryGBHour,
       30 * 24,
-      texts.common.perHour,
+      texts.common.hour,
       'GB',
     );
 
@@ -66,7 +66,7 @@ export const DeploymentSummary = (props: DeploymentSummaryProps) => {
       service.totalVolumeGB,
       service.pricePerVolumeGBHour,
       1,
-      texts.common.perHour,
+      texts.common.hour,
       'GB',
     );
 
@@ -75,19 +75,19 @@ export const DeploymentSummary = (props: DeploymentSummaryProps) => {
       service.totalStorageGB,
       service.pricePerStorageGBMonth,
       1,
-      texts.common.perMonth,
+      texts.common.month,
       'GB',
     );
 
     for (const price of service.prices) {
       const target = evaluateExpression(price.target, context);
       if (target === price.test) {
-        const totalPrice = 30 * 24 * price.amount;
+        const totalPrice = 30 * 24 * price.pricePerHour;
 
         rows.push({
           label: price.label,
-          period: texts.common.perHour,
-          price: price.amount,
+          period: texts.common.hour,
+          price: price.pricePerHour,
           totalPrice,
           totalUnits: '',
           unit: '',

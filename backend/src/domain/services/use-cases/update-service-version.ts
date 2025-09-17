@@ -37,13 +37,8 @@ export class UpdateServiceVersionHandler implements ICommandHandler<UpdateServic
       throw new NotFoundException(`Service Update ${serviceId} not found.`);
     }
 
-    // If the service is active, we can only update the active state so that we do not mess up existing deployments.
-    if (version.service.isPublic) {
-      assignDefined(version, { isActive, environment });
-    } else {
-      assignDefined(version, { definition, environment, isActive });
-    }
-
+    // Assign the object manually to avoid updating unexpected values.
+    assignDefined(version, { definition, environment, isActive });
     await this.serviceVersions.save(version);
 
     return new UpdateServiceVersionResult(buildServiceVersion(version, false));

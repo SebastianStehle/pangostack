@@ -51,7 +51,6 @@ class ParameterDefinitionClass {
   hint?: string | null;
 
   @IsOptional()
-  @IsNumber()
   defaultValue?: any | null;
 
   @IsOptional()
