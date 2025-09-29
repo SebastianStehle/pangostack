@@ -38,7 +38,7 @@ export const DeploymentPage = () => {
   const serviceId = deployment?.serviceId || 0;
 
   const { data: loadedService } = useQuery({
-    queryKey: ['service', serviceId],
+    queryKey: ['service-public', serviceId],
     queryFn: async () => (!serviceId ? null : await clients.services.getServicePublic(serviceId)),
   });
 

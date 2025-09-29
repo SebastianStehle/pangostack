@@ -135,7 +135,7 @@ export class VultrVmResource implements Resource {
   private async createInstance(vultr: ReturnType<typeof initializeVultrClient>, label: string, request: ResourceRequest<Parameters, ResourceContext>, logContext: any) {
     const { backup, region, plan, app } = request.parameters;
 
-    const backups = backup ? 'enable' : 'disable';
+    const backups = backup ? 'enabled' : 'disabled';
 
     let instance = await findInstance(vultr, label);
     if (instance) {
@@ -154,7 +154,14 @@ export class VultrVmResource implements Resource {
 
       instance = response.instance;
       if (!instance) {
-        const message = `Instance could not be deployed:\n${JSON.stringify(response, undefined, 2)}`;
+        let details = '';
+        if (response instanceof Error) {
+          details = response.message;
+        } else {
+          details = JSON.stringify(response, undefined, 2);
+        }
+
+        const message = `No instance returned:\n${details}`;
 
         this.logger.error({ message, context: logContext });
         throw Error(message);
