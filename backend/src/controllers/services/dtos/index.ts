@@ -371,7 +371,7 @@ export class ServiceVersionsDto {
   }
 }
 
-class ParameterAllowedvalueDto {
+class ParameterAllowedValueDto {
   @ApiProperty({
     description: 'The value.',
     required: true,
@@ -391,8 +391,8 @@ class ParameterAllowedvalueDto {
   })
   hint?: string | null;
 
-  static fromDomain(source: ParameterAllowedvalue): ParameterAllowedvalueDto {
-    const result = new ParameterAllowedvalueDto();
+  static fromDomain(source: ParameterAllowedvalue): ParameterAllowedValueDto {
+    const result = new ParameterAllowedValueDto();
     result.value = source.value;
     result.label = source.label;
     result.hint = source.hint;
@@ -455,9 +455,9 @@ export class ParameterDefinitionDto {
   @ApiProperty({
     description: 'Allowed values for the parameter.',
     nullable: true,
-    type: [ParameterAllowedvalueDto],
+    type: [ParameterAllowedValueDto],
   })
-  allowedValues?: ParameterAllowedvalueDto[] | null;
+  allowedValues?: ParameterAllowedValueDto[] | null;
 
   @ApiProperty({
     description: 'Minimum value for numeric parameters.',
@@ -511,10 +511,11 @@ export class ParameterDefinitionDto {
 
   static fromDomain(source: ParameterDefinition): ParameterDefinitionDto {
     const result = new ParameterDefinitionDto();
-    result.allowedValues = source.allowedValues?.map(ParameterAllowedvalueDto.fromDomain) || null;
+    result.allowedValues = source.allowedValues?.map(ParameterAllowedValueDto.fromDomain) || null;
     result.defaultValue = source.defaultValue;
     result.display = source.display;
     result.editor = source.editor;
+    result.hint = source.hint;
     result.immutable = source.immutable;
     result.label = source.label;
     result.maxLength = source.maxLength;

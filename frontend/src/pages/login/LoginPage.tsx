@@ -46,7 +46,7 @@ export const LoginPage = () => {
         <Image
           baseUrl={clients.url}
           className="max-h-2/3 max-w-2/3"
-          fallback="/login-image.svg"
+          fallback="/login-background.svg"
           fileId="loginImage"
           size="auto"
         />

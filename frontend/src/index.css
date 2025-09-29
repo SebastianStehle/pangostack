@@ -111,7 +111,7 @@
 }
 
 .form-row {
-  @apply mb-6;
+  @apply mb-3;
 }
 
 .form-row:last-child {

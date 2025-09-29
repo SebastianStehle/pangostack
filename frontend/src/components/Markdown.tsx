@@ -14,7 +14,7 @@ export const Markdown = (props: MarkdownProps) => {
   const { children } = props;
 
   return (
-    <ReactMarkdown className="markdown" components={{ a: LinkRenderer, code: Code }}>
+    <ReactMarkdown className="markdown overflow-hidden" components={{ a: LinkRenderer, code: Code }}>
       {children}
     </ReactMarkdown>
   );
