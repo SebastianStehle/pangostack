@@ -44,8 +44,8 @@ export interface FormEditorProps {
   // Indicator if the field is required.
   required?: boolean;
 
-  // Indicator if the field is readonly.
-  readOnly?: boolean;
+  // Indicator if the field is immutable.
+  immutable?: boolean;
 
   // The layout.
   vertical?: boolean;
@@ -89,7 +89,7 @@ export namespace Forms {
   };
 
   export const Row = (props: FormRowProps & { aligned?: boolean }) => {
-    const { aligned, children, className, hideError, hints, name, label, readOnly, required, vertical } = props;
+    const { aligned, children, className, hideError, hints, name, label, immutable, required, vertical } = props;
 
     const labelText = (
       <>
@@ -105,7 +105,7 @@ export namespace Forms {
             *
           </span>
         )}
-        {label && readOnly && <div className="badge badge-sm badge-error">{texts.common.readonly}</div>}
+        {label && immutable && <div className="badge badge-sm badge-error">{texts.common.immutable}</div>}
       </>
     );
 

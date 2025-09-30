@@ -10,11 +10,11 @@ export const DeploymentControl = ({
 }) => {
   const { allowedValues, editor, immutable, maxValue, minValue, maxLength, step, name, label, hint, required, type } = parameter;
   const props: FormEditorProps = {
-    name: `parameters.${name}`,
-    label: label || name,
     hints: hint,
+    immutable: !!immutable,
+    label: label || name,
+    name: `parameters.${name}`,
     required,
-    readOnly: !!immutable,
   };
 
   if (type === 'boolean') {
