@@ -139,7 +139,16 @@ export class VultrVmResource implements Resource {
 
     let instance = await findInstance(vultr, label);
     if (instance) {
-      await vultr.instances.updateInstance({ 'instance-id': label, plan, backups });
+      if (plan !== instance.plan) {
+        const response = await vultr.instances.updateInstance({ 'instance-id': instance.id, plan });
+  
+        if (response instanceof Error) {
+          const message = `Failed to update instance:\n${response.message}`;
+        
+          this.logger.error({ message, context: logContext });
+          throw Error(message);
+        }
+      }
 
       this.logger.log({ message: 'Using existing instance, waiting for VM details to be ready', context: logContext });
       instance = await waitForInstance(vultr, instance, request.timeoutMs, true);

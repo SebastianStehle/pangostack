@@ -24,13 +24,7 @@ export const UpdateDeploymentPage = () => {
 
   const updating = useMutation({
     mutationFn: ({ name, parameters }: DeploymentUpdate) => {
-      return clients.deployments.putDeployment(deploymentId, {
-        name,
-        parameters,
-        serviceId: service!.id,
-        confirmUrl: '/deployments',
-        cancelUrl: '/deployments',
-      });
+      return clients.deployments.putDeployment(deploymentId, { name, parameters, versionId: null });
     },
     onSuccess: () => {
       navigate(`/teams/${teamId}/deployments/${deploymentId}`);
@@ -55,7 +49,7 @@ export const UpdateDeploymentPage = () => {
           <Icon icon="arrow-left" size={16} />
         </TransientNavLink>
 
-        <h2 className="grow text-2xl">{texts.deployments.deployHeadline}</h2>
+        <h2 className="grow text-2xl">{texts.deployments.updateHeadline}</h2>
       </div>
 
       <DeploymentForm service={service} onSubmit={updating.mutate} isPending={updating.isPending} value={deployment} />

@@ -25,8 +25,8 @@ export class UpdateDeployment extends Command<UpdateDeploymentResult> {
     public readonly deploymentId: number,
     public readonly policy: DeploymentPolicy,
     public readonly name: string | undefined | null,
-    public readonly parameters: Record<string, string> | null,
-    public readonly versionId: number | null,
+    public readonly parameters: Record<string, string> | undefined | null,
+    public readonly versionId: number | undefined | null,
     public readonly user: User,
   ) {
     super();
@@ -64,9 +64,9 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
     }
 
     const lastUpdate = await this.deploymentUpdates.findOne({
-      where: { deploymentId },
+      where: { deploymentId, status: 'Completed' },
       order: { id: 'DESC' },
-      relations: ['serviceVersion'],
+      relations: ['serviceVersion', 'serviceVersion.service'],
     });
     if (!lastUpdate) {
       throw new NotFoundException(`Deployment ${deploymentId} was never really created`);
@@ -76,6 +76,7 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
     if (versionId) {
       const candidateVersion = await this.serviceVersions.findOne({
         where: { id: versionId, isActive: true },
+        order: { name: 'DESC' },
         relations: ['service'],
       });
 
@@ -94,7 +95,7 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
       version = candidateVersion;
     }
 
-    const parameters = lastUpdate.parameters || command.parameters;
+    const parameters = command.parameters || lastUpdate.parameters;
 
     // Event validate with the current parameters to ensure that they still match to the current version.
     validateParameters(version.definition, parameters, lastUpdate.parameters);
@@ -112,17 +113,23 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
     // The environment settings from the version overwrite the service.
     const environment = { ...version.service.environment, ...version.environment };
 
-    const update = await saveAndFind(this.deploymentUpdates, {
-      context: {},
-      createdAt: undefined,
-      createdBy: user?.id || 'UNKNOWN',
-      deployment,
-      deploymentId: deployment.id,
-      environment,
-      parameters,
-      serviceVersion: version,
-      serviceVersionId: version.id,
-    });
+    const update = await saveAndFind(
+      this.deploymentUpdates,
+      {
+        context: lastUpdate.context,
+        createdAt: undefined,
+        createdBy: user?.id || 'UNKNOWN',
+        deployment,
+        deploymentId: deployment.id,
+        environment,
+        parameters,
+        resourceConnections: lastUpdate.resourceConnections,
+        resourceContexts: lastUpdate.resourceContexts,
+        serviceVersion: version,
+        serviceVersionId: version.id,
+      },
+      { relations: ['serviceVersion', 'serviceVersion.service'] },
+    );
 
     await this.workflows.createDeployment(deployment.id, update, lastUpdate);
 

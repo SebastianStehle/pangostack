@@ -142,6 +142,8 @@ function validate(descriptor: ResourceDescriptor, target: Record<string, any>) {
     if (Object.keys(constraints).length > 0) {
       errors.push({ property: `parameters.${key}`, constraints });
     }
+
+    target[key] = value;
   }
 
   if (errors.length > 0) {

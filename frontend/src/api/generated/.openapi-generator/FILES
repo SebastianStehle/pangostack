@@ -29,7 +29,7 @@ models/InvoiceDto.ts
 models/InvoicesDto.ts
 models/LinkDto.ts
 models/LoginDto.ts
-models/ParameterAllowedvalueDto.ts
+models/ParameterAllowedValueDto.ts
 models/ParameterDefinitionDto.ts
 models/ProfileDto.ts
 models/ResourceInstanceLogDto.ts
@@ -48,6 +48,7 @@ models/SettingsDto.ts
 models/TeamDto.ts
 models/TeamUserDto.ts
 models/TeamsDto.ts
+models/UpdateDeploymentDto.ts
 models/UpdateServiceVersionDto.ts
 models/UpsertServiceDto.ts
 models/UpsertTeamDto.ts

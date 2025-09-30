@@ -78,25 +78,25 @@ export const NewServicePage = (props: NewServicePageProps) => {
               <Forms.Boolean name="isActive" label={texts.services.isActive} vertical />
 
               <Forms.Code
+                disabled={creating.isPending}
                 height="1000px"
                 label={texts.services.definition}
                 mode="yaml"
                 name="definition"
                 noWrap
                 required
-                readOnly={creating.isPending}
                 valueMode="string"
                 vertical
               />
 
               <Forms.Code
+                disabled={creating.isPending}
                 height="200px"
                 label={texts.common.environment}
                 mode="javascript"
                 name="environment"
                 noWrap
                 required={false}
-                readOnly={creating.isPending}
                 valueMode="object"
                 vertical
               />

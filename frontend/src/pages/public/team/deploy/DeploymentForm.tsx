@@ -80,8 +80,8 @@ export const DeploymentForm = (props: DeploymentFormProps) => {
                   <section className="mb-4" key={label}>
                     <legend className="legend">{label}</legend>
                     {parameters.map((parameter) => (
-                      <fieldset className="form-row" disabled={!!value && !!parameter.immutable}>
-                        <DeploymentControl key={parameter.name} parameter={parameter} />
+                      <fieldset key={parameter.name} className="form-row" disabled={!!value && !!parameter.immutable}>
+                        <DeploymentControl key={parameter.name} parameter={parameter} initialValue={value?.parameters} />
                       </fieldset>
                     ))}
                   </section>

@@ -43,6 +43,10 @@ class ParameterDefinitionClass {
   immutable?: boolean;
 
   @IsOptional()
+  @IsBoolean()
+  upgradeOnly?: boolean;
+
+  @IsOptional()
   @IsString()
   label?: string | null;
 

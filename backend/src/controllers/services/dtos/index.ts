@@ -427,6 +427,12 @@ export class ParameterDefinitionDto {
   immutable?: boolean | null;
 
   @ApiProperty({
+    description: 'Indicates if the parameter can only be updated.',
+    nullable: true,
+  })
+  upgradeOnly?: boolean | null;
+
+  @ApiProperty({
     description: 'Indicates if the parameter should be displayed.',
     nullable: true,
   })
@@ -527,6 +533,7 @@ export class ParameterDefinitionDto {
     result.section = source.section;
     result.step = source.step;
     result.type = source.type;
+    result.upgradeOnly = source.upgradeOnly;
     return result;
   }
 }

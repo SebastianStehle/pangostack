@@ -1,6 +1,6 @@
 import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, FindOptionsWhere } from 'typeorm';
+import { FindManyOptions, FindOptionsWhere, Not } from 'typeorm';
 import {
   DeploymentCheckEntity,
   DeploymentCheckRepository,
@@ -48,6 +48,7 @@ export class GetDeploymentsHandler implements IQueryHandler<GetDeploymentsQuery,
 
     if (teamId > 0) {
       where.teamId = teamId;
+      where.status = Not('Pending');
     }
 
     if (serviceId > 0) {

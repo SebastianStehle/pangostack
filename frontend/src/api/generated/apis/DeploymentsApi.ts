@@ -26,6 +26,7 @@ import type {
   DeploymentStatusDto,
   DeploymentUsageSummariesDto,
   DeploymentsDto,
+  UpdateDeploymentDto,
 } from '../models/index';
 import {
     CreateDeploymentDtoFromJSON,
@@ -44,6 +45,8 @@ import {
     DeploymentUsageSummariesDtoToJSON,
     DeploymentsDtoFromJSON,
     DeploymentsDtoToJSON,
+    UpdateDeploymentDtoFromJSON,
+    UpdateDeploymentDtoToJSON,
 } from '../models/index';
 
 export interface DeleteDeploymentRequest {
@@ -103,7 +106,7 @@ export interface PostTeamDeploymentRequest {
 
 export interface PutDeploymentRequest {
     deploymentId: number;
-    createDeploymentDto: CreateDeploymentDto;
+    updateDeploymentDto: UpdateDeploymentDto;
 }
 
 /**
@@ -584,8 +587,8 @@ export class DeploymentsApi extends runtime.BaseAPI {
             throw new runtime.RequiredError('deploymentId','Required parameter requestParameters.deploymentId was null or undefined when calling putDeployment.');
         }
 
-        if (requestParameters.createDeploymentDto === null || requestParameters.createDeploymentDto === undefined) {
-            throw new runtime.RequiredError('createDeploymentDto','Required parameter requestParameters.createDeploymentDto was null or undefined when calling putDeployment.');
+        if (requestParameters.updateDeploymentDto === null || requestParameters.updateDeploymentDto === undefined) {
+            throw new runtime.RequiredError('updateDeploymentDto','Required parameter requestParameters.updateDeploymentDto was null or undefined when calling putDeployment.');
         }
 
         const queryParameters: any = {};
@@ -603,7 +606,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
-            body: CreateDeploymentDtoToJSON(requestParameters.createDeploymentDto),
+            body: UpdateDeploymentDtoToJSON(requestParameters.updateDeploymentDto),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => DeploymentDtoFromJSON(jsonValue));
@@ -613,8 +616,8 @@ export class DeploymentsApi extends runtime.BaseAPI {
      * Updates a deployment.
      * 
      */
-    async putDeployment(deploymentId: number, createDeploymentDto: CreateDeploymentDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentDto> {
-        const response = await this.putDeploymentRaw({ deploymentId: deploymentId, createDeploymentDto: createDeploymentDto }, initOverrides);
+    async putDeployment(deploymentId: number, updateDeploymentDto: UpdateDeploymentDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentDto> {
+        const response = await this.putDeploymentRaw({ deploymentId: deploymentId, updateDeploymentDto: updateDeploymentDto }, initOverrides);
         return await response.value();
     }
 

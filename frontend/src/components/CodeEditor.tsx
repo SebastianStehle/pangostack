@@ -21,8 +21,8 @@ export interface CodeEditorProps {
   // The optional number;
   height?: string;
 
-  // Make the editor readonly.
-  readOnly?: boolean;
+  // Make the editor disabled.
+  disabled?: boolean;
 
   // Disable wrapping.
   noWrap?: boolean;
@@ -38,7 +38,7 @@ export interface CodeEditorProps {
 }
 
 export const CodeEditor = (props: CodeEditorProps) => {
-  const { autoScrollBottom, height, mode, noWrap, onBlur, onChange, readOnly, value, valueMode } = props;
+  const { autoScrollBottom, height, mode, noWrap, onBlur, onChange, disabled, value, valueMode } = props;
 
   const [internalValue, setInternalValue] = useState(() => stringifyValue(value));
   const editorRef = useRef<AceEditor>(null);
@@ -95,7 +95,7 @@ export const CodeEditor = (props: CodeEditorProps) => {
         mode={mode}
         onBlur={onBlur}
         onChange={doChange}
-        readOnly={readOnly}
+        readOnly={disabled}
         ref={editorRef}
         value={internalValue}
         width="100%"

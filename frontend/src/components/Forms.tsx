@@ -44,6 +44,9 @@ export interface FormEditorProps {
   // Indicator if the field is required.
   required?: boolean;
 
+  // Indicator if the field is readonly.
+  readOnly?: boolean;
+
   // The layout.
   vertical?: boolean;
 
@@ -72,7 +75,7 @@ export interface CodeFormEditorProps extends FormEditorProps, Omit<CodeEditorPro
 export interface FormRowProps extends FormEditorProps, PropsWithChildren {}
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
-export module Forms {
+export namespace Forms {
   export const Error = ({ name }: { name: string }) => {
     const { fieldState, formState } = useController({ name });
 
@@ -86,24 +89,31 @@ export module Forms {
   };
 
   export const Row = (props: FormRowProps & { aligned?: boolean }) => {
-    const { aligned, children, className, hideError, hints, name, label, required, vertical } = props;
+    const { aligned, children, className, hideError, hints, name, label, readOnly, required, vertical } = props;
+
+    const labelText = (
+      <>
+        {label}
+
+        {label && required && (
+          <span
+            className="text-error px-1 font-bold"
+            data-tooltip-id="default"
+            data-tooltip-content={texts.common.required}
+            data-tooltip-delay-show={1000}
+          >
+            *
+          </span>
+        )}
+        {label && readOnly && <div className="badge badge-sm badge-error">{texts.common.readonly}</div>}
+      </>
+    );
 
     return vertical ? (
       <div className={classNames('form-row flex flex-col', className, { 'items-center': aligned })}>
         {label && (
           <label className="mb-1 text-sm font-semibold" htmlFor={name}>
-            {label}
-
-            {label && required && (
-              <span
-                className="text-error px-1 font-bold"
-                data-tooltip-id="default"
-                data-tooltip-content={texts.common.required}
-                data-tooltip-delay-show={1000}
-              >
-                *
-              </span>
-            )}
+            {labelText}
           </label>
         )}
 
@@ -116,18 +126,7 @@ export module Forms {
     ) : (
       <div className={classNames('form-row flex flex-row', className, { 'items-center': aligned })}>
         <label className="my-3 w-48 shrink-0 text-sm font-semibold" htmlFor={name}>
-          {label}
-
-          {label && required && (
-            <span
-              className="text-error px-1 font-bold"
-              data-tooltip-id="default"
-              data-tooltip-content={texts.common.required}
-              data-tooltip-delay-show={1000}
-            >
-              *
-            </span>
-          )}
+          {labelText}
         </label>
 
         <div className="min-w-0 grow">

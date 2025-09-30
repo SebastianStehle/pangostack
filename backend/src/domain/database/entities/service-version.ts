@@ -35,7 +35,7 @@ export class ServiceVersionEntity {
   @Column()
   serviceId: number;
 
-  @ManyToOne(() => ServiceEntity, (service) => service.versions, { onDelete: 'CASCADE' })
+  @ManyToOne(() => ServiceEntity, (service) => service.versions, { onDelete: 'CASCADE', eager: true })
   @JoinColumn({ name: 'serviceId' })
   service: ServiceEntity;
 

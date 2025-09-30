@@ -63,20 +63,22 @@ export class UpdateDeploymentDto {
   @ApiProperty({
     description: 'The optional name to describe the deployment.',
     nullable: true,
+    type: String,
     maxLength: 100,
   })
   @IsOptional()
-  @IsNumber()
+  @IsString()
   @MaxLength(100)
   name?: string;
 
   @ApiProperty({
     description: 'The ID of the version when an update is made.',
-    required: true,
+    nullable: true,
+    type: Number,
   })
   @IsOptional()
   @IsNumber()
-  versionId?: number;
+  versionId?: number | null;
 
   @ApiProperty({
     description: 'The parameters.',

@@ -22,13 +22,13 @@ import { GetTeamsQuery, User } from 'src/domain/users';
 import { IntParam, IntQuery } from 'src/lib';
 import { TeamPermissionGuard } from '../TeamPermissionGuard';
 import {
-  CreateDeploymentDto,
   DeploymentCheckSummariesDto,
   DeploymentDto,
   DeploymentLogsDto,
   DeploymentsDto,
   DeploymentStatusDto,
   DeploymentUsageSummariesDto,
+  UpdateDeploymentDto,
 } from './dtos';
 
 @Controller('api/deployments')
@@ -98,10 +98,10 @@ export class DeploymentsController {
   @ApiOkResponse({ type: DeploymentDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard)
-  async putDeployment(@Req() req: Request, @IntParam('deploymentId') deploymentId: number, @Body() body: CreateDeploymentDto) {
+  async putDeployment(@Req() req: Request, @IntParam('deploymentId') deploymentId: number, @Body() body: UpdateDeploymentDto) {
     const policy = await this.getPolicy(req.user);
 
-    const command = new UpdateDeployment(deploymentId, policy, body.name, body.parameters, body.serviceId, req.user);
+    const command = new UpdateDeployment(deploymentId, policy, body.name, body.parameters, body.versionId, req.user);
     const { deployment } = await this.commandBus.execute(command);
 
     return DeploymentDto.fromDomain(deployment);

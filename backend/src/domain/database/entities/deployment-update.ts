@@ -19,7 +19,7 @@ export class DeploymentUpdateEntity {
   @Column()
   serviceVersionId: number;
 
-  @ManyToOne(() => ServiceVersionEntity, (version) => version.deploymentUpdates, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => ServiceVersionEntity, (version) => version.deploymentUpdates, { onDelete: 'RESTRICT', eager: true })
   @JoinColumn({ name: 'serviceVersionId' })
   serviceVersion: ServiceVersionEntity;
 

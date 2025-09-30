@@ -19,33 +19,33 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface ParameterAllowedvalueDto
+ * @interface ParameterAllowedValueDto
  */
-export interface ParameterAllowedvalueDto {
+export interface ParameterAllowedValueDto {
     /**
      * The value.
      * @type {object}
-     * @memberof ParameterAllowedvalueDto
+     * @memberof ParameterAllowedValueDto
      */
     value: object;
     /**
      * The display label.
      * @type {string}
-     * @memberof ParameterAllowedvalueDto
+     * @memberof ParameterAllowedValueDto
      */
     label: string;
     /**
      * The hints to explain the value.
      * @type {string}
-     * @memberof ParameterAllowedvalueDto
+     * @memberof ParameterAllowedValueDto
      */
     hint: string | null;
 }
 
 /**
- * Check if a given object implements the ParameterAllowedvalueDto interface.
+ * Check if a given object implements the ParameterAllowedValueDto interface.
  */
-export function instanceOfParameterAllowedvalueDto(value: object): boolean {
+export function instanceOfParameterAllowedValueDto(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "value" in value;
     isInstance = isInstance && "label" in value;
@@ -54,11 +54,11 @@ export function instanceOfParameterAllowedvalueDto(value: object): boolean {
     return isInstance;
 }
 
-export function ParameterAllowedvalueDtoFromJSON(json: any): ParameterAllowedvalueDto {
-    return ParameterAllowedvalueDtoFromJSONTyped(json, false);
+export function ParameterAllowedValueDtoFromJSON(json: any): ParameterAllowedValueDto {
+    return ParameterAllowedValueDtoFromJSONTyped(json, false);
 }
 
-export function ParameterAllowedvalueDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): ParameterAllowedvalueDto {
+export function ParameterAllowedValueDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): ParameterAllowedValueDto {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -70,7 +70,7 @@ export function ParameterAllowedvalueDtoFromJSONTyped(json: any, ignoreDiscrimin
     };
 }
 
-export function ParameterAllowedvalueDtoToJSON(value?: ParameterAllowedvalueDto | null): any {
+export function ParameterAllowedValueDtoToJSON(value?: ParameterAllowedValueDto | null): any {
     if (value === undefined) {
         return undefined;
     }

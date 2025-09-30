@@ -60,6 +60,7 @@ export const texts = {
     perMonth: 'per month',
     priceFrom: 'from',
     priceFromHint: 'Depending on the selected resources.',
+    readonly: 'Readonly',
     remove: 'Remove',
     rename: 'Rename',
     required: 'Required field',
@@ -109,7 +110,7 @@ export const texts = {
     deployingInfo:
       'This instance is currently deployed. Your resources may still be finishing installing and booting up during the first few minutes of activation.',
     deploymentHeadline: 'Deployment',
-    edit: 'Edit Deployment (Soon)',
+    edit: 'Edit Deployment',
     empty: 'No deployments found',
     emptyLabel: 'No deployment yet',
     emptyText: 'Install a service to create your first deployment.',
@@ -131,6 +132,7 @@ export const texts = {
     totalStorageGB: 'Storage (GB)',
     totalSuccesses: 'Successes',
     totalVolumeGB: 'Volume (GB)',
+    updateHeadline: 'Update Deployment',
     usageChartWarning: 'Days are based on UTC time. Usage will be measured once per hour.',
   },
   login: {
