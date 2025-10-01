@@ -5,13 +5,13 @@ export function parseEnvironment(text?: string | null): Record<string, any> {
 
   const result: Record<string, any> = {};
 
-  for (const line of text.split("\n")) {
+  for (const line of text.split('\n')) {
     const trimmed = line.trim();
     if (!trimmed) {
       continue;
     }
 
-    const index = trimmed.indexOf("=");
+    const index = trimmed.indexOf('=');
     if (index === -1) {
       continue;
     }

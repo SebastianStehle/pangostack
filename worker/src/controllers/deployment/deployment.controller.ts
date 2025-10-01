@@ -41,7 +41,7 @@ export class DeploymentController {
     }
 
     validate(resource.descriptor, body.parameters);
-    
+
     await (resource.verify?.(body.resourceUniqueId, body) ?? Promise.resolve(true));
   }
 
@@ -150,7 +150,6 @@ function validate(descriptor: ResourceDescriptor, target: Record<string, any>) {
     throw new BadRequestException(flattenValidationErrors(errors));
   }
 }
-
 
 export function flattenValidationErrors(validationErrors: ValidationError[]): string[] {
   const result: string[] = [];

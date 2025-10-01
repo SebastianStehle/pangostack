@@ -4,9 +4,9 @@ import { NodeSSH } from 'node-ssh';
 import { pollUntil } from 'src/lib';
 import { defineResource, Resource, ResourceApplyResult, ResourceRequest, ResourceStatusResult } from '../interface';
 
-type Parameters = { apiKey: string; region: string; plan: string; app: string; backup: boolean; };
+type Parameters = { apiKey: string; region: string; plan: string; app: string; backup: boolean };
 
-type Context = { host: string; sshUser: string; sshPassword: string; };
+type Context = { host: string; sshUser: string; sshPassword: string };
 
 type ResourceContext = { password: string };
 
@@ -60,7 +60,7 @@ export class VultrVmResource implements Resource {
         type: 'string',
         required: true,
       },
-    }
+    },
   });
 
   async describe(): Promise<any> {
@@ -87,7 +87,10 @@ export class VultrVmResource implements Resource {
 
       let instance = await this.createInstance(vultr, id, request, logContext);
       if (!request.resourceContext.password) {
-        this.logger.error({ message: 'Instance has no password. Previous attempt has failed. Deleting VM and trying again.', context: logContext });
+        this.logger.error({
+          message: 'Instance has no password. Previous attempt has failed. Deleting VM and trying again.',
+          context: logContext,
+        });
         await vultr.instances.deleteInstance({ 'instance-id': id });
 
         instance = await this.createInstance(vultr, id, request, logContext);
@@ -132,7 +135,12 @@ export class VultrVmResource implements Resource {
     }
   }
 
-  private async createInstance(vultr: ReturnType<typeof initializeVultrClient>, label: string, request: ResourceRequest<Parameters, ResourceContext>, logContext: any) {
+  private async createInstance(
+    vultr: ReturnType<typeof initializeVultrClient>,
+    label: string,
+    request: ResourceRequest<Parameters, ResourceContext>,
+    logContext: any,
+  ) {
     const { backup, region, plan, app } = request.parameters;
 
     const backups = backup ? 'enabled' : 'disabled';
@@ -141,10 +149,10 @@ export class VultrVmResource implements Resource {
     if (instance) {
       if (plan !== instance.plan) {
         const response = await vultr.instances.updateInstance({ 'instance-id': instance.id, plan });
-  
+
         if (response instanceof Error) {
           const message = `Failed to update instance:\n${response.message}`;
-        
+
           this.logger.error({ message, context: logContext });
           throw Error(message);
         }

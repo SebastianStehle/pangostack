@@ -5,7 +5,7 @@ import { pollUntil } from 'src/lib';
 
 type Parameters = { apiKey: string; cluster: string; tier: number };
 
-type Context = { s3HostName: string; s3AccessKey: string; s3SecretKey: string; }
+type Context = { s3HostName: string; s3AccessKey: string; s3SecretKey: string };
 
 @Injectable()
 export class VultrStorageResource implements Resource {
@@ -47,7 +47,7 @@ export class VultrStorageResource implements Resource {
         type: 'string',
         required: true,
       },
-    }
+    },
   });
 
   async apply(id: string, request: ResourceRequest<Parameters>): Promise<ResourceApplyResult<Context>> {
