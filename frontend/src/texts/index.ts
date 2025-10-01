@@ -120,6 +120,7 @@ export const texts = {
     estimatedPriceText: 'Price is monthly, based on a 30-day average, assuming no changes to parameters.',
     fixedPrice: 'Fixed Price',
     headline: 'Deployments',
+    immutableTooltip: 'This field cannot be changed anymore after the deployment has been created.',
     resources: 'Resources',
     resourceCores: 'Cores',
     resourceMemory: 'Memory',

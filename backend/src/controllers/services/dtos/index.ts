@@ -453,6 +453,13 @@ export class ParameterDefinitionDto {
   hint?: string | null;
 
   @ApiProperty({
+    description: 'Placeholder for input fields.',
+    nullable: true,
+    type: String,
+  })
+  placeholder?: string | null;
+
+  @ApiProperty({
     description: 'The default value of the parameter.',
     nullable: true,
   })
@@ -529,6 +536,7 @@ export class ParameterDefinitionDto {
     result.minLength = source.minLength;
     result.minValue = source.minValue;
     result.name = source.name;
+    result.placeholder = source.placeholder;
     result.required = source.required;
     result.section = source.section;
     result.step = source.step;

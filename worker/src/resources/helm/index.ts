@@ -15,6 +15,7 @@ import {
   ResourceStatusResult,
   ResourceWorkloadStatus,
 } from '../interface';
+import { dotToNested } from 'src/lib';
 
 type Parameters = {
   config: string;
@@ -90,10 +91,12 @@ export class HelmResource implements Resource {
 
       let valuesFilePath: string | null = null;
       if (Object.keys(others).length > 0) {
+        const nested = dotToNested(others);
+
         const tempDir = os.tmpdir();
         const tempPath = path.join(tempDir, `kubeconfig-${uuidv4()}.yaml`);
 
-        await fs.writeFile(tempPath, toYAML(others));
+        await fs.writeFile(tempPath, toYAML(nested));
         args.push('-f', tempPath);
         valuesFilePath = tempPath;
       }

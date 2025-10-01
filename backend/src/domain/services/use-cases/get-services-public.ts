@@ -35,7 +35,7 @@ export class GetServicesPublicHandler implements IQueryHandler<GetServicesPublic
     const result: ServicePublic[] = [];
 
     for (const entity of entities) {
-      const version = await this.serviceVersions.findOne({ where: { serviceId: entity.id }, order: { createdAt: 'DESC' } });
+      const version = await this.serviceVersions.findOne({ where: { serviceId: entity.id }, order: { name: 'ASC' } });
 
       result.push(buildServicePublic(entity, version));
     }

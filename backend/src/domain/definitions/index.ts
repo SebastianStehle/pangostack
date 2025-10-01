@@ -52,6 +52,10 @@ class ParameterDefinitionClass {
 
   @IsOptional()
   @IsString()
+  placeholder?: string | null;
+
+  @IsOptional()
+  @IsString()
   hint?: string | null;
 
   @IsOptional()
@@ -173,17 +177,17 @@ class ResourceDefinitionClass {
 }
 
 class UsageDefinitionClass {
-  @IsDefined()
+  @IsOptional()
   @IsString()
-  totalCores: string;
+  totalCores?: string;
 
-  @IsDefined()
+  @IsOptional()
   @IsString()
-  totalMemoryGB: string;
+  totalMemoryGB?: string;
 
-  @IsDefined()
+  @IsOptional()
   @IsString()
-  totalVolumeGB: string;
+  totalVolumeGB?: string;
 }
 
 class ServicePriceClass {
@@ -392,7 +396,7 @@ export function evaluateParameters(resource: ResourceDefinition, context: Defini
 }
 
 export function evaluateUsage(service: ServiceDefinition, context: DefinitionContext) {
-  const evaluate = (expression: string) => {
+  const evaluate = (expression: string | undefined) => {
     const result = evaluateExpression(expression, context);
     const parsed = parseInt(result, 10);
     if (isNaN(parsed)) {

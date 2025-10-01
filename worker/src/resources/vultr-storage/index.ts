@@ -1,13 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { initialize as initializeVultrClient } from '@vultr/vultr-node';
 import { defineResource, Resource, ResourceApplyResult, ResourceRequest, ResourceStatusResult, ResourceUsage } from '../interface';
+import { pollUntil } from 'src/lib';
 
-type Parameters = { apiKey: string; cluster: string; tier: string };
+type Parameters = { apiKey: string; cluster: string; tier: number };
 
 type Context = { s3HostName: string; s3AccessKey: string; s3SecretKey: string; }
 
 @Injectable()
 export class VultrStorageResource implements Resource {
+  private readonly logger = new Logger(VultrStorageResource.name);
+
   descriptor = defineResource<Parameters, Context>({
     name: 'vultr-storage',
     description: 'Creates a vultr storage account.',
@@ -24,7 +27,7 @@ export class VultrStorageResource implements Resource {
       },
       tier: {
         description: 'The tier of the storage account.',
-        type: 'string',
+        type: 'number',
         required: true,
       },
     },
@@ -50,40 +53,62 @@ export class VultrStorageResource implements Resource {
   async apply(id: string, request: ResourceRequest<Parameters>): Promise<ResourceApplyResult<Context>> {
     const { apiKey, cluster, tier } = request.parameters;
 
-    const vultr = initializeVultrClient({
-      apiKey,
-    });
+    const logContext: any = { id };
+    try {
+      const vultr = initializeVultrClient({
+        apiKey,
+      });
 
-    const result = await vultr.blockStorage.createStorage({
-      cluster_id: cluster,
-      tier_id: tier,
-      label: id,
-    });
+      let storage = await findStorage(vultr, id);
+      if (storage) {
+        this.logger.log({ message: 'Using existing storage, waiting for storage details to be ready', context: logContext });
+        storage = await waitForInstance(vultr, storage, request.timeoutMs);
+      } else {
+        const response = await vultr.objectStorage.createObjectStorage({
+          cluster_id: cluster,
+          tier_id: tier,
+          label: id,
+        });
 
-    return {
-      context: {
-        s3HostName: result.s3_hostname,
-        s3AccessKey: result.s3_access_key,
-        s3SecretKey: result.s3_secret_key,
-      },
-      connection: {
-        hostName: {
-          value: result.s3_hostname,
-          label: 'Host Name',
-          isPublic: true,
+        if (response instanceof Error) {
+          const message = `Failed to create storage:\n${response.message}`;
+
+          this.logger.error({ message, context: logContext });
+          throw Error(message);
+        }
+
+        this.logger.log({ message: 'Using new storage, waiting for storage details to be ready', context: logContext });
+        storage = await waitForInstance(vultr, storage, request.timeoutMs);
+      }
+
+      return {
+        context: {
+          s3HostName: storage.s3_hostname,
+          s3AccessKey: storage.s3_access_key,
+          s3SecretKey: storage.s3_secret_key,
         },
-        accessKey: {
-          value: result.s3_access_key,
-          label: 'Access Key',
-          isPublic: true,
+        connection: {
+          hostName: {
+            value: storage.s3_hostname,
+            label: 'Host Name',
+            isPublic: true,
+          },
+          accessKey: {
+            value: storage.s3_access_key,
+            label: 'Access Key',
+            isPublic: true,
+          },
+          secretKey: {
+            value: storage.s3_secret_key,
+            label: 'Secret Key',
+            isPublic: true,
+          },
         },
-        secretKey: {
-          value: result.s3_secret_key,
-          label: 'Secret Key',
-          isPublic: true,
-        },
-      },
-    };
+      };
+    } catch (ex: any) {
+      this.logger.error({ message: `Storage could not be deployed: ${ex.message}`, context: logContext });
+      throw ex;
+    }
   }
 
   async delete(id: string, request: ResourceRequest<Parameters>) {
@@ -157,10 +182,27 @@ export class VultrStorageResource implements Resource {
   }
 }
 
+async function waitForInstance(vultr: ReturnType<typeof initializeVultrClient>, instance: any, timeout: number) {
+  const storageId = instance.id;
+
+  await pollUntil(timeout, async () => {
+    const { object_storage: storage } = await vultr.objectStorage.getObjectStorage({ 'object-storage-id': storageId });
+
+    return isActiveStatus(storage);
+  });
+
+  const { object_storage: newStorage } = await vultr.instances.getInstance({ 'object-storage-id': storageId });
+  return newStorage;
+}
+
+function isActiveStatus(storage: any) {
+  return storage.server_status === 'ok' || storage.server_status === 'active';
+}
+
 async function findStorage(vultr: ReturnType<typeof initializeVultrClient>, id: string) {
   let cursor: string | null = null;
   while (true) {
-    const response = await vultr.blockStorage.listStorages({ cursor });
+    const response = await vultr.objectStorage.listObjectStorages({ cursor });
 
     for (const storage of response.object_storages) {
       if (storage.label === id) {

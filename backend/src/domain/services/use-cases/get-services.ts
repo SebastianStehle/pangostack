@@ -18,7 +18,7 @@ export class GetServicesHandler implements IQueryHandler<GetServicesQuery, GetSe
   ) {}
 
   async execute(): Promise<GetServicesResult> {
-    const entities = await this.services.find({ relations: ['versions', 'versions.deploymentUpdates'] });
+    const entities = await this.services.find({ relations: ['versions', 'versions.deploymentUpdates'], order: { name: 'ASC' } });
     const result = entities.map(buildService);
 
     return new GetServicesResult(result);

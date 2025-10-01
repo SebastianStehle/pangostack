@@ -78,6 +78,12 @@ export interface ParameterDefinitionDto {
      */
     hint: string | null;
     /**
+     * Placeholder for input fields.
+     * @type {string}
+     * @memberof ParameterDefinitionDto
+     */
+    placeholder: string | null;
+    /**
      * The default value of the parameter.
      * @type {object}
      * @memberof ParameterDefinitionDto
@@ -167,6 +173,7 @@ export function instanceOfParameterDefinitionDto(value: object): boolean {
     isInstance = isInstance && "display" in value;
     isInstance = isInstance && "label" in value;
     isInstance = isInstance && "hint" in value;
+    isInstance = isInstance && "placeholder" in value;
     isInstance = isInstance && "defaultValue" in value;
     isInstance = isInstance && "allowedValues" in value;
     isInstance = isInstance && "minValue" in value;
@@ -198,6 +205,7 @@ export function ParameterDefinitionDtoFromJSONTyped(json: any, ignoreDiscriminat
         'display': json['display'],
         'label': json['label'],
         'hint': json['hint'],
+        'placeholder': json['placeholder'],
         'defaultValue': json['defaultValue'],
         'allowedValues': (json['allowedValues'] === null ? null : (json['allowedValues'] as Array<any>).map(ParameterAllowedValueDtoFromJSON)),
         'minValue': json['minValue'],
@@ -227,6 +235,7 @@ export function ParameterDefinitionDtoToJSON(value?: ParameterDefinitionDto | nu
         'display': value.display,
         'label': value.label,
         'hint': value.hint,
+        'placeholder': value.placeholder,
         'defaultValue': value.defaultValue,
         'allowedValues': (value.allowedValues === null ? null : (value.allowedValues as Array<any>).map(ParameterAllowedValueDtoToJSON)),
         'minValue': value.minValue,
