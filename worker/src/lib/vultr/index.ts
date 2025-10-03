@@ -1,14 +1,15 @@
 import * as https from 'https';
-import { Configuration, FetchError, InstancesApi, RequiredError, ResponseError, S3Api } from './generated';
+import { Configuration, FetchError, RequiredError, ResponseError } from './generated';
+import { InstancesApi } from './generated/apis/InstancesApi';
+import { RegionApi } from './generated/apis/RegionApi';
+import { S3Api } from './generated/apis/S3Api';
 
-export class WorkerClient {
+export class VultrClient {
   public readonly objectStorages: S3Api;
+  public readonly regions: RegionApi;
   public readonly instances: InstancesApi;
 
-  constructor(
-    public readonly basePath: string,
-    public readonly apiKey?: string,
-  ) {
+  constructor(public readonly apiKey?: string) {
     const configuration = new Configuration({
       headers: {
         ['Authorization']: `Bearer ${apiKey}`,
@@ -32,10 +33,10 @@ export class WorkerClient {
         const cause = new ResponseError(response, 'Response returned an error code');
         throw await buildError(cause);
       },
-      basePath,
     });
 
     this.objectStorages = new S3Api(configuration);
+    this.regions = new RegionApi(configuration);
     this.instances = new InstancesApi(configuration);
   }
 }

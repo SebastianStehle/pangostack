@@ -1,21 +1,59 @@
 export function dotToNested(obj: Record<string, any>): Record<string, any> {
   const result: Record<string, any> = {};
 
-  for (const key of Object.keys(obj)) {
-    const value = obj[key];
-    const parts = key.split('.');
+  for (const [key, value] of Object.entries(obj)) {
+    // Split by unespaced dot only
+    const keys = key.split(/(?<!\\)\./).map((k) => k.replace(/\\\./g, '.'));
 
     let current = result;
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
 
-      if (i === parts.length - 1) {
-        current[part] = value;
+    let convertedValue = value;
+    if (typeof value === 'string') {
+      if (/^-?\d+$/.test(value)) {
+        convertedValue = parseInt(value, 10);
+      } else if (value.toLowerCase() === 'true') {
+        convertedValue = true;
+      } else if (value.toLowerCase() === 'false') {
+        convertedValue = false;
       } else {
-        current[part] = current[part] || {};
-        current = current[part];
+        convertedValue = value.trim().replace(/^["']|["']$/g, '');
       }
     }
+
+    keys.forEach((part, index) => {
+      const arrayIndex = /^\d+$/.test(part) ? parseInt(part, 10) : -1;
+      const nextPart = keys[index + 1];
+
+      if (index === keys.length - 1) {
+        if (arrayIndex >= 0) {
+          if (!Array.isArray(current)) {
+            current = [];
+          }
+
+          current[arrayIndex] = convertedValue;
+        } else {
+          current[part] = convertedValue;
+        }
+      } else {
+        if (arrayIndex >= 0) {
+          if (!Array.isArray(current)) {
+            current = [];
+          }
+
+          if (!current[arrayIndex] || typeof current[arrayIndex] !== 'object') {
+            current[arrayIndex] = /^\d+$/.test(nextPart) ? [] : {};
+          }
+
+          current = current[arrayIndex];
+        } else {
+          if (!current[part] || typeof current[part] !== 'object') {
+            current[part] = /^\d+$/.test(nextPart) ? [] : {};
+          }
+
+          current = current[part];
+        }
+      }
+    });
   }
 
   return result;

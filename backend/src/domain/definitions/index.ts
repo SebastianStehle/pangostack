@@ -387,7 +387,7 @@ export function evaluateParameters(resource: ResourceDefinition, context: Defini
 
       const mapped = mapping.map[value];
       if (mapped) {
-        result[key] = mapped;
+        result[key] = evaluateExpression(mapped, context);
       }
     }
   }

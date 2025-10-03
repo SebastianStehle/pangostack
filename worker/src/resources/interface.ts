@@ -62,7 +62,7 @@ export interface ResourceRequest<T = ParametersOrContext, TResourceContext = Rec
   timeoutMs: number;
 }
 
-export interface ResourceApplyResult<TContext extends ParametersOrContext = {}> {
+export interface ResourceApplyResult<TContext extends ParametersOrContext = any> {
   // Context values added or overwritten in the deployment.
   context: TContext;
 
@@ -111,6 +111,9 @@ export interface ResourceWorkloadStatus {
 export interface ResourceStatusResult {
   // Workloads created under this status.
   workloads: ResourceWorkloadStatus[];
+
+  // Provides values how to connect to the resource, for example Api Keys.
+  connection?: Record<string, { value: string; label: string; isPublic: boolean }>;
 }
 
 export interface ResourceUsage {
@@ -121,7 +124,7 @@ export interface ResourceUsage {
 export interface Resource {
   descriptor: ResourceDescriptor;
 
-  apply(id: string, request: ResourceRequest): Promise<ResourceApplyResult>;
+  apply(id: string, request: ResourceRequest, logCOntext: Record<string, any>): Promise<ResourceApplyResult>;
 
   verify?(id: string, request: ResourceRequest): Promise<boolean>;
 
@@ -135,5 +138,7 @@ export interface Resource {
 
   describe?(): Promise<any>;
 }
+
+export type LogContext = Record<string, any>;
 
 export const RESOURCES_TOKEN = 'RESOURCE';

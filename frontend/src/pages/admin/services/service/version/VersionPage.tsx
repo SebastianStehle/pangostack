@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { UpdateServiceVersionDto, useClients } from 'src/api';
 import { AdminHeader, FormAlert, Forms, Icon } from 'src/components';
 import { useStickyObserver, useTypedParams } from 'src/hooks';
@@ -18,7 +18,6 @@ export const VersionPage = (props: VersionPageProps) => {
   const { onUpdate } = props;
   const { serviceId, versionId } = useTypedParams({ serviceId: 'int', versionId: 'int' });
   const clients = useClients();
-  const navigate = useNavigate();
   const { isSticky, sentinelRef } = useStickyObserver();
 
   const { data: loadedService } = useQuery({
@@ -38,7 +37,7 @@ export const VersionPage = (props: VersionPageProps) => {
     },
     onSuccess: () => {
       onUpdate();
-      navigate(`../${serviceId}`);
+      toast.success(texts.services.updateVersionSucceeded);
     },
   });
 

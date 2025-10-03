@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Inject, Post, ValidationError } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Inject, Logger, Post, ValidationError } from '@nestjs/common';
 import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { isBoolean, isNumber, isString } from 'class-validator';
 import { Resource, ResourceDescriptor, RESOURCES_TOKEN } from 'src/resources/interface';
@@ -9,6 +9,8 @@ import { ResourceApplyResponseDto, ResourcesDeleteRequestDto } from './dto';
 @ApiTags('deployment')
 @ApiDefaultResponses()
 export class DeploymentController {
+  private readonly logger = new Logger(DeploymentController.name);
+
   constructor(
     @Inject(RESOURCES_TOKEN)
     private readonly resources: Map<string, Resource>,
@@ -23,12 +25,33 @@ export class DeploymentController {
       throw new BadRequestException(`Unknown resource type ${body.resourceType}`);
     }
 
-    validate(resource.descriptor, body.parameters);
+    const logContext: any = { id: body.resourceUniqueId, type: body.resourceType };
 
-    const result = await resource.apply(body.resourceUniqueId, body);
-    const response = ResourceApplyResponseDto.fromDomain(result);
+    this.logger.log({ message: `Resource ${body.resourceType}: Apply`, context: logContext });
+    try {
+      validate(resource.descriptor, body.parameters);
 
-    return response;
+      const result = await resource.apply(body.resourceUniqueId, body, logContext);
+      const response = ResourceApplyResponseDto.fromDomain(result);
+
+      this.logger.log({
+        message: `Resource ${body.resourceType}: Applied with success`,
+        context: logContext,
+      });
+
+      return response;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        this.logger.error({ message: `Resource ${body.resourceType}: Applied with error`, context: { ...logContext, stack: error.stack } });
+      } else {
+        this.logger.error({
+          message: `Resource ${body.resourceType}: Applied with unexpected error`,
+          context: { ...logContext, error: JSON.stringify(error) },
+        });
+      }
+
+      throw error;
+    }
   }
 
   @Post('verify')

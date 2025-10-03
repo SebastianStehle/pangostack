@@ -15,63 +15,61 @@
  */
 
 import { mapValues } from '../runtime';
-import type { Meta } from './Meta';
-import { MetaFromJSON, MetaFromJSONTyped, MetaToJSON, MetaToJSONTyped } from './Meta';
-import type { Region } from './Region';
-import { RegionFromJSON, RegionFromJSONTyped, RegionToJSON, RegionToJSONTyped } from './Region';
+import type { GetInstanceBandwidth200ResponseBandwidth } from './GetInstanceBandwidth200ResponseBandwidth';
+import {
+  GetInstanceBandwidth200ResponseBandwidthFromJSON,
+  GetInstanceBandwidth200ResponseBandwidthFromJSONTyped,
+  GetInstanceBandwidth200ResponseBandwidthToJSON,
+  GetInstanceBandwidth200ResponseBandwidthToJSONTyped,
+} from './GetInstanceBandwidth200ResponseBandwidth';
 
 /**
  *
  * @export
- * @interface ListRegions200Response
+ * @interface GetInstanceBandwidth200Response
  */
-export interface ListRegions200Response {
+export interface GetInstanceBandwidth200Response {
   /**
    *
-   * @type {Array<Region>}
-   * @memberof ListRegions200Response
+   * @type {GetInstanceBandwidth200ResponseBandwidth}
+   * @memberof GetInstanceBandwidth200Response
    */
-  regions?: Array<Region>;
-  /**
-   *
-   * @type {Meta}
-   * @memberof ListRegions200Response
-   */
-  meta?: Meta;
+  bandwidth?: GetInstanceBandwidth200ResponseBandwidth;
 }
 
 /**
- * Check if a given object implements the ListRegions200Response interface.
+ * Check if a given object implements the GetInstanceBandwidth200Response interface.
  */
-export function instanceOfListRegions200Response(value: object): value is ListRegions200Response {
+export function instanceOfGetInstanceBandwidth200Response(value: object): value is GetInstanceBandwidth200Response {
   return true;
 }
 
-export function ListRegions200ResponseFromJSON(json: any): ListRegions200Response {
-  return ListRegions200ResponseFromJSONTyped(json, false);
+export function GetInstanceBandwidth200ResponseFromJSON(json: any): GetInstanceBandwidth200Response {
+  return GetInstanceBandwidth200ResponseFromJSONTyped(json, false);
 }
 
-export function ListRegions200ResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): ListRegions200Response {
+export function GetInstanceBandwidth200ResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): GetInstanceBandwidth200Response {
   if (json == null) {
     return json;
   }
   return {
-    regions: json['regions'] == null ? undefined : (json['regions'] as Array<any>).map(RegionFromJSON),
-    meta: json['meta'] == null ? undefined : MetaFromJSON(json['meta']),
+    bandwidth: json['bandwidth'] == null ? undefined : GetInstanceBandwidth200ResponseBandwidthFromJSON(json['bandwidth']),
   };
 }
 
-export function ListRegions200ResponseToJSON(json: any): ListRegions200Response {
-  return ListRegions200ResponseToJSONTyped(json, false);
+export function GetInstanceBandwidth200ResponseToJSON(json: any): GetInstanceBandwidth200Response {
+  return GetInstanceBandwidth200ResponseToJSONTyped(json, false);
 }
 
-export function ListRegions200ResponseToJSONTyped(value?: ListRegions200Response | null, ignoreDiscriminator: boolean = false): any {
+export function GetInstanceBandwidth200ResponseToJSONTyped(
+  value?: GetInstanceBandwidth200Response | null,
+  ignoreDiscriminator: boolean = false,
+): any {
   if (value == null) {
     return value;
   }
 
   return {
-    regions: value['regions'] == null ? undefined : (value['regions'] as Array<any>).map(RegionToJSON),
-    meta: MetaToJSON(value['meta']),
+    bandwidth: GetInstanceBandwidth200ResponseBandwidthToJSON(value['bandwidth']),
   };
 }

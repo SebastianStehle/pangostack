@@ -17,61 +17,64 @@
 import { mapValues } from '../runtime';
 import type { Meta } from './Meta';
 import { MetaFromJSON, MetaFromJSONTyped, MetaToJSON, MetaToJSONTyped } from './Meta';
-import type { Region } from './Region';
-import { RegionFromJSON, RegionFromJSONTyped, RegionToJSON, RegionToJSONTyped } from './Region';
+import type { BaremetalIpv6 } from './BaremetalIpv6';
+import { BaremetalIpv6FromJSON, BaremetalIpv6FromJSONTyped, BaremetalIpv6ToJSON, BaremetalIpv6ToJSONTyped } from './BaremetalIpv6';
 
 /**
  *
  * @export
- * @interface ListRegions200Response
+ * @interface GetInstanceIpv6200Response
  */
-export interface ListRegions200Response {
+export interface GetInstanceIpv6200Response {
   /**
    *
-   * @type {Array<Region>}
-   * @memberof ListRegions200Response
+   * @type {Array<BaremetalIpv6>}
+   * @memberof GetInstanceIpv6200Response
    */
-  regions?: Array<Region>;
+  ipv6s?: Array<BaremetalIpv6>;
   /**
    *
    * @type {Meta}
-   * @memberof ListRegions200Response
+   * @memberof GetInstanceIpv6200Response
    */
   meta?: Meta;
 }
 
 /**
- * Check if a given object implements the ListRegions200Response interface.
+ * Check if a given object implements the GetInstanceIpv6200Response interface.
  */
-export function instanceOfListRegions200Response(value: object): value is ListRegions200Response {
+export function instanceOfGetInstanceIpv6200Response(value: object): value is GetInstanceIpv6200Response {
   return true;
 }
 
-export function ListRegions200ResponseFromJSON(json: any): ListRegions200Response {
-  return ListRegions200ResponseFromJSONTyped(json, false);
+export function GetInstanceIpv6200ResponseFromJSON(json: any): GetInstanceIpv6200Response {
+  return GetInstanceIpv6200ResponseFromJSONTyped(json, false);
 }
 
-export function ListRegions200ResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): ListRegions200Response {
+export function GetInstanceIpv6200ResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): GetInstanceIpv6200Response {
   if (json == null) {
     return json;
   }
   return {
-    regions: json['regions'] == null ? undefined : (json['regions'] as Array<any>).map(RegionFromJSON),
+    ipv6s: json['ipv6s'] == null ? undefined : (json['ipv6s'] as Array<any>).map(BaremetalIpv6FromJSON),
     meta: json['meta'] == null ? undefined : MetaFromJSON(json['meta']),
   };
 }
 
-export function ListRegions200ResponseToJSON(json: any): ListRegions200Response {
-  return ListRegions200ResponseToJSONTyped(json, false);
+export function GetInstanceIpv6200ResponseToJSON(json: any): GetInstanceIpv6200Response {
+  return GetInstanceIpv6200ResponseToJSONTyped(json, false);
 }
 
-export function ListRegions200ResponseToJSONTyped(value?: ListRegions200Response | null, ignoreDiscriminator: boolean = false): any {
+export function GetInstanceIpv6200ResponseToJSONTyped(
+  value?: GetInstanceIpv6200Response | null,
+  ignoreDiscriminator: boolean = false,
+): any {
   if (value == null) {
     return value;
   }
 
   return {
-    regions: value['regions'] == null ? undefined : (value['regions'] as Array<any>).map(RegionToJSON),
+    ipv6s: value['ipv6s'] == null ? undefined : (value['ipv6s'] as Array<any>).map(BaremetalIpv6ToJSON),
     meta: MetaToJSON(value['meta']),
   };
 }

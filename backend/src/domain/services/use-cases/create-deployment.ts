@@ -105,8 +105,12 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
       this.urlService.cancelUrl(deployment.id, confirmToken, cancelUrl),
     );
 
-    // The environment settings from the version overwrite the service.
-    const environment = { ...service.environment, ...version.environment };
+    const environment = {
+      ...service.environment,
+      // The environment settings from the version overwrite the service.
+      ...version.environment,
+      deploymentId: deployment.id.toString(),
+    };
 
     const update = await saveAndFind(
       this.deploymentUpdates,

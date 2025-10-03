@@ -21,33 +21,33 @@ import type {
   AttachInstanceNetworkRequest,
   AttachInstanceVpc2Request,
   AttachInstanceVpcRequest,
-  CreateBaremetalReverseIpv4Request,
-  CreateBaremetalReverseIpv6Request,
   CreateInstance202Response,
   CreateInstanceBackupScheduleRequest,
   CreateInstanceIpv4Request,
   CreateInstanceRequest,
+  CreateInstanceReverseIpv4Request,
+  CreateInstanceReverseIpv6Request,
   DetachInstanceIso202Response,
   DetachInstanceNetworkRequest,
   DetachInstanceVpc2Request,
   DetachInstanceVpcRequest,
-  GetBandwidthBaremetal200Response,
   GetInstance200Response,
   GetInstanceBackupSchedule200Response,
+  GetInstanceBandwidth200Response,
+  GetInstanceIpv4200Response,
+  GetInstanceIpv6200Response,
   GetInstanceIsoStatus200Response,
   GetInstanceJob200Response,
   GetInstanceNeighbors200Response,
   GetInstanceUpgrades200Response,
   GetInstanceUserdata200Response,
-  GetIpv4Baremetal200Response,
-  GetIpv6Baremetal200Response,
   HaltInstancesRequest,
   ListInstanceIpv6Reverse200Response,
   ListInstancePrivateNetworks200Response,
   ListInstanceVpc2200Response,
   ListInstanceVpcs200Response,
   ListInstances200Response,
-  PostBaremetalInstanceIdIpv4ReverseDefaultRequest,
+  PostInstancesInstanceIdIpv4ReverseDefaultRequest,
   RebootInstancesRequest,
   ReinstallInstanceRequest,
   RestoreInstance202Response,
@@ -66,10 +66,6 @@ import {
   AttachInstanceVpc2RequestToJSON,
   AttachInstanceVpcRequestFromJSON,
   AttachInstanceVpcRequestToJSON,
-  CreateBaremetalReverseIpv4RequestFromJSON,
-  CreateBaremetalReverseIpv4RequestToJSON,
-  CreateBaremetalReverseIpv6RequestFromJSON,
-  CreateBaremetalReverseIpv6RequestToJSON,
   CreateInstance202ResponseFromJSON,
   CreateInstance202ResponseToJSON,
   CreateInstanceBackupScheduleRequestFromJSON,
@@ -78,6 +74,10 @@ import {
   CreateInstanceIpv4RequestToJSON,
   CreateInstanceRequestFromJSON,
   CreateInstanceRequestToJSON,
+  CreateInstanceReverseIpv4RequestFromJSON,
+  CreateInstanceReverseIpv4RequestToJSON,
+  CreateInstanceReverseIpv6RequestFromJSON,
+  CreateInstanceReverseIpv6RequestToJSON,
   DetachInstanceIso202ResponseFromJSON,
   DetachInstanceIso202ResponseToJSON,
   DetachInstanceNetworkRequestFromJSON,
@@ -86,12 +86,16 @@ import {
   DetachInstanceVpc2RequestToJSON,
   DetachInstanceVpcRequestFromJSON,
   DetachInstanceVpcRequestToJSON,
-  GetBandwidthBaremetal200ResponseFromJSON,
-  GetBandwidthBaremetal200ResponseToJSON,
   GetInstance200ResponseFromJSON,
   GetInstance200ResponseToJSON,
   GetInstanceBackupSchedule200ResponseFromJSON,
   GetInstanceBackupSchedule200ResponseToJSON,
+  GetInstanceBandwidth200ResponseFromJSON,
+  GetInstanceBandwidth200ResponseToJSON,
+  GetInstanceIpv4200ResponseFromJSON,
+  GetInstanceIpv4200ResponseToJSON,
+  GetInstanceIpv6200ResponseFromJSON,
+  GetInstanceIpv6200ResponseToJSON,
   GetInstanceIsoStatus200ResponseFromJSON,
   GetInstanceIsoStatus200ResponseToJSON,
   GetInstanceJob200ResponseFromJSON,
@@ -102,10 +106,6 @@ import {
   GetInstanceUpgrades200ResponseToJSON,
   GetInstanceUserdata200ResponseFromJSON,
   GetInstanceUserdata200ResponseToJSON,
-  GetIpv4Baremetal200ResponseFromJSON,
-  GetIpv4Baremetal200ResponseToJSON,
-  GetIpv6Baremetal200ResponseFromJSON,
-  GetIpv6Baremetal200ResponseToJSON,
   HaltInstancesRequestFromJSON,
   HaltInstancesRequestToJSON,
   ListInstanceIpv6Reverse200ResponseFromJSON,
@@ -118,8 +118,8 @@ import {
   ListInstanceVpcs200ResponseToJSON,
   ListInstances200ResponseFromJSON,
   ListInstances200ResponseToJSON,
-  PostBaremetalInstanceIdIpv4ReverseDefaultRequestFromJSON,
-  PostBaremetalInstanceIdIpv4ReverseDefaultRequestToJSON,
+  PostInstancesInstanceIdIpv4ReverseDefaultRequestFromJSON,
+  PostInstancesInstanceIdIpv4ReverseDefaultRequestToJSON,
   RebootInstancesRequestFromJSON,
   RebootInstancesRequestToJSON,
   ReinstallInstanceRequestFromJSON,
@@ -168,14 +168,14 @@ export interface CreateInstanceIpv4OperationRequest {
   createInstanceIpv4Request?: CreateInstanceIpv4Request;
 }
 
-export interface CreateInstanceReverseIpv4Request {
+export interface CreateInstanceReverseIpv4OperationRequest {
   instanceId: string;
-  createBaremetalReverseIpv4Request?: CreateBaremetalReverseIpv4Request;
+  createInstanceReverseIpv4Request?: CreateInstanceReverseIpv4Request;
 }
 
-export interface CreateInstanceReverseIpv6Request {
+export interface CreateInstanceReverseIpv6OperationRequest {
   instanceId: string;
-  createBaremetalReverseIpv6Request?: CreateBaremetalReverseIpv6Request;
+  createInstanceReverseIpv6Request?: CreateInstanceReverseIpv6Request;
 }
 
 export interface DeleteInstanceRequest {
@@ -298,9 +298,9 @@ export interface ListInstancesRequest {
   showPendingCharges?: boolean;
 }
 
-export interface PostInstancesInstanceIdIpv4ReverseDefaultRequest {
+export interface PostInstancesInstanceIdIpv4ReverseDefaultOperationRequest {
   instanceId: string;
-  postBaremetalInstanceIdIpv4ReverseDefaultRequest?: PostBaremetalInstanceIdIpv4ReverseDefaultRequest;
+  postInstancesInstanceIdIpv4ReverseDefaultRequest?: PostInstancesInstanceIdIpv4ReverseDefaultRequest;
 }
 
 export interface RebootInstanceRequest {
@@ -766,7 +766,7 @@ export class InstancesApi extends runtime.BaseAPI {
    * Create Instance Reverse IPv4
    */
   async createInstanceReverseIpv4Raw(
-    requestParameters: CreateInstanceReverseIpv4Request,
+    requestParameters: CreateInstanceReverseIpv4OperationRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<runtime.ApiResponse<void>> {
     if (requestParameters['instanceId'] == null) {
@@ -800,7 +800,7 @@ export class InstancesApi extends runtime.BaseAPI {
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
-        body: CreateBaremetalReverseIpv4RequestToJSON(requestParameters['createBaremetalReverseIpv4Request']),
+        body: CreateInstanceReverseIpv4RequestToJSON(requestParameters['createInstanceReverseIpv4Request']),
       },
       initOverrides,
     );
@@ -814,11 +814,11 @@ export class InstancesApi extends runtime.BaseAPI {
    */
   async createInstanceReverseIpv4(
     instanceId: string,
-    createBaremetalReverseIpv4Request?: CreateBaremetalReverseIpv4Request,
+    createInstanceReverseIpv4Request?: CreateInstanceReverseIpv4Request,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<void> {
     await this.createInstanceReverseIpv4Raw(
-      { instanceId: instanceId, createBaremetalReverseIpv4Request: createBaremetalReverseIpv4Request },
+      { instanceId: instanceId, createInstanceReverseIpv4Request: createInstanceReverseIpv4Request },
       initOverrides,
     );
   }
@@ -828,7 +828,7 @@ export class InstancesApi extends runtime.BaseAPI {
    * Create Instance Reverse IPv6
    */
   async createInstanceReverseIpv6Raw(
-    requestParameters: CreateInstanceReverseIpv6Request,
+    requestParameters: CreateInstanceReverseIpv6OperationRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<runtime.ApiResponse<void>> {
     if (requestParameters['instanceId'] == null) {
@@ -862,7 +862,7 @@ export class InstancesApi extends runtime.BaseAPI {
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
-        body: CreateBaremetalReverseIpv6RequestToJSON(requestParameters['createBaremetalReverseIpv6Request']),
+        body: CreateInstanceReverseIpv6RequestToJSON(requestParameters['createInstanceReverseIpv6Request']),
       },
       initOverrides,
     );
@@ -876,11 +876,11 @@ export class InstancesApi extends runtime.BaseAPI {
    */
   async createInstanceReverseIpv6(
     instanceId: string,
-    createBaremetalReverseIpv6Request?: CreateBaremetalReverseIpv6Request,
+    createInstanceReverseIpv6Request?: CreateInstanceReverseIpv6Request,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<void> {
     await this.createInstanceReverseIpv6Raw(
-      { instanceId: instanceId, createBaremetalReverseIpv6Request: createBaremetalReverseIpv6Request },
+      { instanceId: instanceId, createInstanceReverseIpv6Request: createInstanceReverseIpv6Request },
       initOverrides,
     );
   }
@@ -1405,7 +1405,7 @@ export class InstancesApi extends runtime.BaseAPI {
   async getInstanceBandwidthRaw(
     requestParameters: GetInstanceBandwidthRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<GetBandwidthBaremetal200Response>> {
+  ): Promise<runtime.ApiResponse<GetInstanceBandwidth200Response>> {
     if (requestParameters['instanceId'] == null) {
       throw new runtime.RequiredError(
         'instanceId',
@@ -1443,7 +1443,7 @@ export class InstancesApi extends runtime.BaseAPI {
       initOverrides,
     );
 
-    return new runtime.JSONApiResponse(response, (jsonValue) => GetBandwidthBaremetal200ResponseFromJSON(jsonValue));
+    return new runtime.JSONApiResponse(response, (jsonValue) => GetInstanceBandwidth200ResponseFromJSON(jsonValue));
   }
 
   /**
@@ -1454,7 +1454,7 @@ export class InstancesApi extends runtime.BaseAPI {
     instanceId: string,
     dateRange?: number,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<GetBandwidthBaremetal200Response> {
+  ): Promise<GetInstanceBandwidth200Response> {
     const response = await this.getInstanceBandwidthRaw({ instanceId: instanceId, dateRange: dateRange }, initOverrides);
     return await response.value();
   }
@@ -1466,7 +1466,7 @@ export class InstancesApi extends runtime.BaseAPI {
   async getInstanceIpv4Raw(
     requestParameters: GetInstanceIpv4Request,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<GetIpv4Baremetal200Response>> {
+  ): Promise<runtime.ApiResponse<GetInstanceIpv4200Response>> {
     if (requestParameters['instanceId'] == null) {
       throw new runtime.RequiredError(
         'instanceId',
@@ -1512,7 +1512,7 @@ export class InstancesApi extends runtime.BaseAPI {
       initOverrides,
     );
 
-    return new runtime.JSONApiResponse(response, (jsonValue) => GetIpv4Baremetal200ResponseFromJSON(jsonValue));
+    return new runtime.JSONApiResponse(response, (jsonValue) => GetInstanceIpv4200ResponseFromJSON(jsonValue));
   }
 
   /**
@@ -1525,7 +1525,7 @@ export class InstancesApi extends runtime.BaseAPI {
     perPage?: number,
     cursor?: string,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<GetIpv4Baremetal200Response> {
+  ): Promise<GetInstanceIpv4200Response> {
     const response = await this.getInstanceIpv4Raw(
       { instanceId: instanceId, publicNetwork: publicNetwork, perPage: perPage, cursor: cursor },
       initOverrides,
@@ -1540,7 +1540,7 @@ export class InstancesApi extends runtime.BaseAPI {
   async getInstanceIpv6Raw(
     requestParameters: GetInstanceIpv6Request,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<GetIpv6Baremetal200Response>> {
+  ): Promise<runtime.ApiResponse<GetInstanceIpv6200Response>> {
     if (requestParameters['instanceId'] == null) {
       throw new runtime.RequiredError(
         'instanceId',
@@ -1574,7 +1574,7 @@ export class InstancesApi extends runtime.BaseAPI {
       initOverrides,
     );
 
-    return new runtime.JSONApiResponse(response, (jsonValue) => GetIpv6Baremetal200ResponseFromJSON(jsonValue));
+    return new runtime.JSONApiResponse(response, (jsonValue) => GetInstanceIpv6200ResponseFromJSON(jsonValue));
   }
 
   /**
@@ -1584,7 +1584,7 @@ export class InstancesApi extends runtime.BaseAPI {
   async getInstanceIpv6(
     instanceId: string,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<GetIpv6Baremetal200Response> {
+  ): Promise<GetInstanceIpv6200Response> {
     const response = await this.getInstanceIpv6Raw({ instanceId: instanceId }, initOverrides);
     return await response.value();
   }
@@ -2335,7 +2335,7 @@ export class InstancesApi extends runtime.BaseAPI {
    * Set Default Reverse DNS Entry
    */
   async postInstancesInstanceIdIpv4ReverseDefaultRaw(
-    requestParameters: PostInstancesInstanceIdIpv4ReverseDefaultRequest,
+    requestParameters: PostInstancesInstanceIdIpv4ReverseDefaultOperationRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<runtime.ApiResponse<void>> {
     if (requestParameters['instanceId'] == null) {
@@ -2369,7 +2369,7 @@ export class InstancesApi extends runtime.BaseAPI {
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
-        body: PostBaremetalInstanceIdIpv4ReverseDefaultRequestToJSON(requestParameters['postBaremetalInstanceIdIpv4ReverseDefaultRequest']),
+        body: PostInstancesInstanceIdIpv4ReverseDefaultRequestToJSON(requestParameters['postInstancesInstanceIdIpv4ReverseDefaultRequest']),
       },
       initOverrides,
     );
@@ -2383,11 +2383,11 @@ export class InstancesApi extends runtime.BaseAPI {
    */
   async postInstancesInstanceIdIpv4ReverseDefault(
     instanceId: string,
-    postBaremetalInstanceIdIpv4ReverseDefaultRequest?: PostBaremetalInstanceIdIpv4ReverseDefaultRequest,
+    postInstancesInstanceIdIpv4ReverseDefaultRequest?: PostInstancesInstanceIdIpv4ReverseDefaultRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<void> {
     await this.postInstancesInstanceIdIpv4ReverseDefaultRaw(
-      { instanceId: instanceId, postBaremetalInstanceIdIpv4ReverseDefaultRequest: postBaremetalInstanceIdIpv4ReverseDefaultRequest },
+      { instanceId: instanceId, postInstancesInstanceIdIpv4ReverseDefaultRequest: postInstancesInstanceIdIpv4ReverseDefaultRequest },
       initOverrides,
     );
   }

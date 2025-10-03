@@ -1,5 +1,5 @@
-import { ApiProperty, ApiExtraModels, getSchemaPath } from '@nestjs/swagger';
-import { ResourceValueDescriptor, ResourceDescriptor } from 'src/resources/interface';
+import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
+import { ResourceDescriptor, ResourceValueDescriptor } from 'src/resources/interface';
 
 export class ResourceValueDto {
   @ApiProperty({

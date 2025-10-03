@@ -15,7 +15,7 @@ module.exports = {
   ],
   root: true,
   env: { node: true, jest: true },
-  ignorePatterns: ['.eslintrc.js', '**/database/interfaces.ts'],
+  ignorePatterns: ['.eslintrc.js'],
   rules: {
     'import/order': [
       'error',

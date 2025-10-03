@@ -182,6 +182,7 @@ export const texts = {
     updateFailed: 'Failed to update Service',
     updateVersion: 'Update Service Version',
     updateVersionFailed: 'Failed to update Service Version',
+    updateVersionSucceeded: 'Service Version Updated',
     versions: 'Versions',
     verify: 'Verify',
     verifySuccess: 'Service definition is valid.',

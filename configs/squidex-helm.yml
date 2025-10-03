@@ -1,0 +1,205 @@
+parameters:
+  - name: domain
+    label: Public Domain
+    type: string
+    required: true
+    display: true
+
+  - name: region
+    label: Region
+    type: string
+    required: true
+    display: true
+    allowedValues:
+      - value: ams
+        label: Amsterdam
+    immutable: true
+
+  - name: squidexNodes
+    label: Number of Nodes
+    type: number
+    required: true
+    defaultValue: 1
+    minValue: 1
+    maxValue: 12
+    section: Squidex
+
+  - name: squidexCoresPerNode
+    label: Cores per Node
+    type: number
+    required: true
+    defaultValue: 1
+    minValue: 1
+    maxValue: 4
+    section: Squidex
+
+  - name: squidexMemoryPerNode
+    label: Memory (GB) per Node
+    type: number
+    required: true
+    defaultValue: 2
+    minValue: 2
+    maxValue: 3
+    section: Squidex
+
+  - name: mongoDbNodes
+    label: Number of Nodes
+    type: number
+    required: true
+    defaultValue: 3
+    minValue: 3
+    maxValue: 12
+    section: MongoDB
+
+  - name: mongoDbCoresPerNode
+    label: Cores per Node
+    type: number
+    required: true
+    defaultValue: 1
+    minValue: 1
+    maxValue: 4
+    section: MongoDB
+
+  - name: mongoDbMemoryPerNode
+    label: Memory (GB) per Node
+    type: number
+    required: true
+    defaultValue: 2
+    minValue: 2
+    maxValue: 3
+    section: MongoDB
+
+  - name: mongoDbVolumePerNode
+    label: Storage (GB) per Node
+    type: number
+    required: true
+    defaultValue: 50
+    minValue: 50
+    maxValue: 2000
+    step: 10
+    immutable: true
+    section: MongoDB
+
+  - name: googleClient
+    label: Google Client ID
+    type: string
+    required: false
+    section: Authentication
+
+  - name: googleSecret
+    label: Google Client Secret
+    type: string
+    required: false
+    section: Authentication
+
+  - name: microsoftClient
+    label: Microsoft Client ID
+    type: string
+    required: false
+    section: Authentication
+
+  - name: microsoftSecret
+    label: Microsoft Client Secret
+    type: string
+    required: false
+    section: Authentication
+
+  - name: githubClient
+    label: Github Client ID
+    type: string
+    required: false
+    section: Authentication
+
+  - name: githubSecret
+    label: Github Client Secret
+    type: string
+    required: false
+    section: Authentication
+
+  - name: environment
+    label: Environment
+    type: string
+    editor: textarea
+    required: false
+    section: More
+    hint: Additional environment variables in the format key=value
+
+afterInstallationInstructions: Create a new A record from your domain **${parameters.domain}** to the IP address of the load balancer.
+
+pricingModel: pay_per_use
+
+resources:
+  - name: Storage
+    id: storage
+    type: vultr-storage
+    parameters:
+      apiKey: ${env.storageApiKey}
+      bucket: squidex
+      tier: 2
+    mappings:
+      cluster:
+        value: ${parameters.region}
+        map:
+          ams: "6"
+
+  - name: Squidex
+    id: squidex
+    type: helm
+    parameters:
+      autoscaling.enabled: false
+      chartName: squidex/squidex7
+      chartVersion: 2.0.2
+      deployment.replicaCount: ${parameters.squidexNodes}
+      env.ASSETSTORE__AMAZONS3__ACCESSKEY: ${context.storage.s3AccessKey}
+      env.ASSETSTORE__AMAZONS3__BUCKET: squidex
+      env.ASSETSTORE__AMAZONS3__SECRETKEY: ${context.storage.s3SecretKey}
+      env.ASSETSTORE__AMAZONS3__SERVICEURL: https://${context.storage.s3HostName}
+      env.ASSETSTORE__TYPE: AmazonS3
+      env.BASE__URL: https://${parameters.domain}
+      env.IDENTITY__GITHUBCLIENT: ${parameters.githubClient}
+      env.IDENTITY__GITHUBSECRET: ${parameters.githubSecret}
+      env.IDENTITY__GOOGLECLIENT: ${parameters.googleClient}
+      env.IDENTITY__GOOGLESECRET: ${parameters.googleSecret}
+      env.IDENTITY__MICROSOFTCLIENT: ${parameters.microsoftClient}
+      env.IDENTITY__MICROSOFTSECRET: ${parameters.microsoftSecret}
+      env.LOGGING__LEVEL: Information
+      env.URLS__BASEURL: https://${parameters.domain}
+      environment: ${parameters.environment}
+      image.tag: 7.21.0
+      ingress.annotations.cert-manager\.io/cluster-issuer: letsencrypt-prod
+      ingress.annotations.traefik\.ingress\.kubernetes\.io/redirect-entry-point: websecure
+      ingress.annotations.traefik\.ingress\.kubernetes\.io/router\.tls: '"true"'
+      ingress.enabled: true
+      ingress.hostName: ${parameters.domain}
+      ingress.ingressClassName: traefik
+      ingress.tls.0.certResolver: letsencrypt
+      ingress.tls.0.hosts.0: ${parameters.domain}
+      ingress.tls.0.secretName: secret-${env.deploymentId}-tls
+      mongodb.persistence.size: ${parameters.mongoDbVolumePerNode}Gi
+      mongodb.persistence.storageClass: vultr-block-storage
+      mongodb.replicaCount: ${parameters.mongoDbNodes}
+      mongodb.resources.limits.cpu: ${parameters.mongoDbCoresPerNode}
+      mongodb.resources.limits.memory: ${parameters.mongoDbMemoryPerNode}Gi
+      mongodb.resources.requests.cpu: ${parameters.mongoDbCoresPerNode}
+      mongodb.resources.requests.memory: ${parameters.mongoDbMemoryPerNode}Gi
+      networkPolicy.enabled: false
+      repositoryName: squidex
+      repositoryUrl: https://squidex.github.io/squidex/helm/
+      resources.limits.cpu: ${parameters.squidexCoresPerNode}
+      resources.limits.memory: ${parameters.squidexMemoryPerNode}Gi
+      resources.requests.cpu: ${parameters.squidexCoresPerNode}
+      resources.requests.memory: ${parameters.squidexMemoryPerNode}Gi
+    healthChecks:
+      - name: Default
+        url: https://${parameters.domain}/healthz
+        type: http
+    mappings:
+      config:
+        value: ${parameters.region}
+        map:
+          ams: ${env.k8ConfigAMS}
+
+usage:
+  totalCores: ${parameters.mongoDbNodes * parameters.mongoDbCoresPerNode + (parameters.squidexNodes + 1) * parameters.squidexCoresPerNode}
+  totalMemoryGB: ${parameters.mongoDbNodes * parameters.mongoDbMemoryPerNode + (parameters.squidexNodes + 1) * parameters.squidexMemoryPerNode}
+  totalVolumeGB: ${parameters.mongoDbNodes * parameters.mongoDbVolumePerNode}

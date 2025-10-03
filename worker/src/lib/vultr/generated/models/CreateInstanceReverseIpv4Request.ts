@@ -15,63 +15,63 @@
  */
 
 import { mapValues } from '../runtime';
-import type { Meta } from './Meta';
-import { MetaFromJSON, MetaFromJSONTyped, MetaToJSON, MetaToJSONTyped } from './Meta';
-import type { Region } from './Region';
-import { RegionFromJSON, RegionFromJSONTyped, RegionToJSON, RegionToJSONTyped } from './Region';
-
 /**
  *
  * @export
- * @interface ListRegions200Response
+ * @interface CreateInstanceReverseIpv4Request
  */
-export interface ListRegions200Response {
+export interface CreateInstanceReverseIpv4Request {
   /**
-   *
-   * @type {Array<Region>}
-   * @memberof ListRegions200Response
+   * The IPv4 address.
+   * @type {string}
+   * @memberof CreateInstanceReverseIpv4Request
    */
-  regions?: Array<Region>;
+  ip: string;
   /**
-   *
-   * @type {Meta}
-   * @memberof ListRegions200Response
+   * The IPv4 reverse entry.
+   * @type {string}
+   * @memberof CreateInstanceReverseIpv4Request
    */
-  meta?: Meta;
+  reverse: string;
 }
 
 /**
- * Check if a given object implements the ListRegions200Response interface.
+ * Check if a given object implements the CreateInstanceReverseIpv4Request interface.
  */
-export function instanceOfListRegions200Response(value: object): value is ListRegions200Response {
+export function instanceOfCreateInstanceReverseIpv4Request(value: object): value is CreateInstanceReverseIpv4Request {
+  if (!('ip' in value) || value['ip'] === undefined) return false;
+  if (!('reverse' in value) || value['reverse'] === undefined) return false;
   return true;
 }
 
-export function ListRegions200ResponseFromJSON(json: any): ListRegions200Response {
-  return ListRegions200ResponseFromJSONTyped(json, false);
+export function CreateInstanceReverseIpv4RequestFromJSON(json: any): CreateInstanceReverseIpv4Request {
+  return CreateInstanceReverseIpv4RequestFromJSONTyped(json, false);
 }
 
-export function ListRegions200ResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): ListRegions200Response {
+export function CreateInstanceReverseIpv4RequestFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateInstanceReverseIpv4Request {
   if (json == null) {
     return json;
   }
   return {
-    regions: json['regions'] == null ? undefined : (json['regions'] as Array<any>).map(RegionFromJSON),
-    meta: json['meta'] == null ? undefined : MetaFromJSON(json['meta']),
+    ip: json['ip'],
+    reverse: json['reverse'],
   };
 }
 
-export function ListRegions200ResponseToJSON(json: any): ListRegions200Response {
-  return ListRegions200ResponseToJSONTyped(json, false);
+export function CreateInstanceReverseIpv4RequestToJSON(json: any): CreateInstanceReverseIpv4Request {
+  return CreateInstanceReverseIpv4RequestToJSONTyped(json, false);
 }
 
-export function ListRegions200ResponseToJSONTyped(value?: ListRegions200Response | null, ignoreDiscriminator: boolean = false): any {
+export function CreateInstanceReverseIpv4RequestToJSONTyped(
+  value?: CreateInstanceReverseIpv4Request | null,
+  ignoreDiscriminator: boolean = false,
+): any {
   if (value == null) {
     return value;
   }
 
   return {
-    regions: value['regions'] == null ? undefined : (value['regions'] as Array<any>).map(RegionToJSON),
-    meta: MetaToJSON(value['meta']),
+    ip: value['ip'],
+    reverse: value['reverse'],
   };
 }
