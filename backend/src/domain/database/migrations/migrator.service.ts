@@ -15,32 +15,37 @@ export class MigratorService implements OnApplicationBootstrap {
       return;
     }
 
-    const tables: { table_name: string }[] = await this.dataSource.query(`
-      SELECT table_name 
-      FROM information_schema.tables 
-      WHERE 
-        table_schema = 'public' AND 
-        table_type = 'BASE TABLE' AND 
-        table_name != 'migrations';
-    `);
+    try {
+      // Run the migrations once to get the migration-table.
+      await this.dataSource.runMigrations();
+    } catch {
+      const tables: { table_name: string }[] = await this.dataSource.query(`
+        SELECT table_name 
+        FROM information_schema.tables 
+        WHERE 
+          table_schema = 'public' AND 
+          table_type = 'BASE TABLE' AND 
+          table_name != 'migrations';
+      `);
 
-    if (tables.length > 0) {
-      this.logger.log('Found existing tables. Inserting Init script to migrations.');
-      const MIGRATION_NAME = 'Init1760346162798';
-      const MIGRATION_TIME = 1760346162798;
+      if (tables.length > 0) {
+        this.logger.log('Found existing tables. Inserting Init script to migrations.');
+        const MIGRATION_NAME = 'Init1760346162798';
+        const MIGRATION_TIME = 1760346162798;
 
-      await this.dataSource.query(
-        `
-        INSERT INTO migrations ("timestamp", "name")
-        SELECT $1, $2
-        WHERE NOT EXISTS (
-          SELECT 1 FROM migrations WHERE "timestamp" = $1
+        await this.dataSource.query(
+          `
+          INSERT INTO migrations ("timestamp", "name")
+          SELECT $1, $2
+          WHERE NOT EXISTS (
+            SELECT 1 FROM migrations WHERE "timestamp" = $1
+          );
+        `,
+          [MIGRATION_TIME, MIGRATION_NAME],
         );
-      `,
-        [MIGRATION_TIME, MIGRATION_NAME],
-      );
-    }
+      }
 
-    await this.dataSource.runMigrations();
+      await this.dataSource.runMigrations();
+    }
   }
 }
