@@ -36,9 +36,9 @@ export async function deployResources({
   const { workerApiKey, workerEndpoint } = await getWorker({});
   try {
     if (previousResourceIds) {
-      for (const resourceId of previousResourceIds) {
-        const inPrevious = previousResourceIds.indexOf(resourceId) >= 0;
-        if (!inPrevious && previousUpdateId) {
+      for (const resourceId of previousResourceIds.reverse()) {
+        const inCurrent = resourceIds.indexOf(resourceId) >= 0;
+        if (!inCurrent && previousUpdateId) {
           await deleteResource({
             deploymentId,
             resourceId,

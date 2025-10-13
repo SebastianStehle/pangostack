@@ -2,6 +2,7 @@ export * from './charge-deployments';
 export * from './cleanup-deployments-checks';
 export * from './cleanup-deployments-usages';
 export * from './cleanup-failed-deployments';
+export * from './delete-deployment';
 export * from './delete-resources';
 export * from './deploy-resources';
 export * from './deployment-coordinator';

@@ -1,8 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 
-type Fn<ARGS extends any[], R> = (...args: ARGS) => R;
+type Fn<ARGS extends unknown[], R> = (...args: ARGS) => R;
 
-export const useEventCallback = <A extends any[], R>(fn: Fn<A, R>): Fn<A, R> => {
+export const useEventCallback = <A extends unknown[], R>(fn: Fn<A, R>): Fn<A, R> => {
   const ref = useRef<Fn<A, R>>(fn);
 
   useLayoutEffect(() => {
@@ -14,7 +14,7 @@ export const useEventCallback = <A extends any[], R>(fn: Fn<A, R>): Fn<A, R> => 
       (...args: A): R => {
         return ref.current(...args);
       },
-    [],
+    [ref],
   );
 };
 

@@ -87,13 +87,16 @@ export class DockerComposeSshResource implements Resource {
     };
   }
 
-  async delete(_id: string, request: ResourceRequest<Parameters>) {
+  async delete(id: string, request: ResourceRequest<Parameters>) {
     const { host, sshUser, sshPassword } = request.parameters;
+    try {
+      const ssh = new NodeSSH();
+      await ssh.connect({ host, username: sshUser, password: sshPassword });
 
-    const ssh = new NodeSSH();
-    await ssh.connect({ host, username: sshUser, password: sshPassword });
-
-    await composeDown(ssh);
+      await composeDown(ssh);
+    } catch {
+      this.logger.warn(`Failed to delete resource ${id}. Host has probably been deleted already`);
+    }
   }
 
   async log(_id: string, request: ResourceRequest<Parameters>): Promise<ResourceLogResult> {

@@ -168,7 +168,7 @@ export class VultrVmResource implements Resource {
       return;
     }
 
-    await vultr.instances.deleteInstance(id);
+    await vultr.instances.deleteInstance(vm.id!);
   }
 
   async status(id: string, request: ResourceRequest<Parameters, ResourceContext>): Promise<ResourceStatusResult> {

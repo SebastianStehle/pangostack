@@ -1,4 +1,5 @@
 import { condition, executeChild, setHandler } from '@temporalio/workflow';
+import { deleteDeployment } from './delete-deployment';
 import { deleteResources } from './delete-resources';
 import { deployResources } from './deploy-resources';
 import { DeploymentSignal, signalDeploymentAction } from './signals';
@@ -22,7 +23,7 @@ export async function deploymentCoordinator({ deploymentId }: { deploymentId: nu
 
     if (action === 'Update') {
       await executeChild(deployResources, {
-        workflowId: `deployment-${deploymentId}-update-${updateId}`,
+        workflowId: `deployment-resource-${deploymentId}-update-${updateId}`,
         args: [
           {
             previousResourceIds,
@@ -35,12 +36,21 @@ export async function deploymentCoordinator({ deploymentId }: { deploymentId: nu
       });
     } else {
       await executeChild(deleteResources, {
-        workflowId: `deployment-${deploymentId}-delete`,
+        workflowId: `deployment-resource-${deploymentId}-delete`,
         args: [
           {
             deploymentId,
             resourceIds,
             updateId,
+          },
+        ],
+      });
+
+      await executeChild(deleteDeployment, {
+        workflowId: `deployment-${deploymentId}-delete`,
+        args: [
+          {
+            deploymentId,
           },
         ],
       });

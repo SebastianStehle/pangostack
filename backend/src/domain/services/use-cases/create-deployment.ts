@@ -110,6 +110,7 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
       // The environment settings from the version overwrite the service.
       ...version.environment,
       deploymentId: deployment.id.toString(),
+      deploymentUuid: uuid.v4(),
     };
 
     const update = await saveAndFind(

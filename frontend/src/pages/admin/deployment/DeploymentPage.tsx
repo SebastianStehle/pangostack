@@ -1,9 +1,12 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useClients } from 'src/api';
+import { toast } from 'react-toastify';
 import {
   AdminHeader,
+  ConfirmDialog,
   DeploymentDisplayParameter,
   DeploymentHealthChart,
   DeploymentInstructions,
@@ -25,6 +28,7 @@ import { texts } from 'src/texts';
 export const DeploymentPage = () => {
   const { deploymentId, teamId } = useTypedParams({ deploymentId: 'int', teamId: 'int' });
   const clients = useClients();
+  const navigate = useNavigate();
   const [tab, setTab] = useState<'overview' | 'usage' | 'log'>('overview');
 
   const { data: loadedServices } = useQuery({
@@ -44,6 +48,16 @@ export const DeploymentPage = () => {
   const { data: deployment } = useQuery({
     queryKey: ['deployment', deploymentId],
     queryFn: () => clients.deployments.getDeployment(deploymentId),
+  });
+
+  const deleting = useMutation({
+    mutationFn: () => {
+      return clients.deployments.deleteDeployment(deploymentId);
+    },
+    onSuccess: () => {
+      toast.info(texts.deployments.deleteConfirmed);
+      navigate('../');
+    },
   });
 
   if (!deployment) {
@@ -66,6 +80,18 @@ export const DeploymentPage = () => {
         title={`${texts.deployments.deploymentHeadline} ${deployment.name || deployment?.serviceName}`}
       >
         <RefreshButton sm isLoading={isFetchingServices} onClick={refetch} />
+
+        <ConfirmDialog
+          title={texts.deployments.deleteConfirmTitle}
+          text={texts.deployments.deleteConfirmText}
+          onPerform={deleting.mutate}
+        >
+          {({ onClick }) => (
+            <button type="button" className="btn btn-square btn-error" onClick={onClick}>
+              <Icon size={18} icon="trash" />
+            </button>
+          )}
+        </ConfirmDialog>
       </AdminHeader>
 
       <div className="card bg-base-100 shadow">

@@ -13,7 +13,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "dev": "nest start --watch",
-    "generate-vultr": " node ./scripts/cleanup-openapi.js && npx rimraf ./src/lib/vultr/generated && npx @openapitools/openapi-generator-cli generate -g typescript-fetch -i ./src/lib/vultr/openapi-filtered.json -o ./src/lib/vultr/generated --skip-validate-spec --additional-properties=useSingleRequestParameter=false,ensureUniqueParams=false --schema-mappings=float=number && node ./scripts/add-ts-ignore.js"
+    "generate-vultr": " node ./scripts/cleanup-openapi.js && npx rimraf ./src/lib/vultr/generated && npx @openapitools/openapi-generator-cli generate -g typescript-fetch -i ./src/lib/vultr/openapi-filtered.json -o ./src/lib/vultr/generated --skip-validate-spec --additional-properties=useSingleRequestParameter=false,ensureUniqueParams=false --schema-mappings=float=number && node ../scripts/add-ts-ignore.js ./src/lib/vultr/generated"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.901.0",

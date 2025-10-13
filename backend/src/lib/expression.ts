@@ -1,6 +1,6 @@
 import { isString } from './types';
 
-type EvalContext = Record<string, any>;
+type EvalContext = Record<string, unknown>;
 
 export function evaluateExpression(template: string | undefined, context: EvalContext): string {
   if (!template) {

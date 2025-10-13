@@ -1,4 +1,4 @@
-import { CreateBucketCommand, S3Client } from '@aws-sdk/client-s3';
+import { BucketAlreadyExists, CreateBucketCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
 import { Injectable, Logger } from '@nestjs/common';
 import { pollUntil } from 'src/lib';
 import { VultrClient } from 'src/lib/vultr';
@@ -88,12 +88,20 @@ export class VultrStorageResource implements Resource {
       const s3Client = new S3Client({
         region: 'us-east-1',
         credentials: { accessKeyId: storage.s3AccessKey!, secretAccessKey: storage.s3SecretKey! },
-        endpoint: `https:${storage.s3Hostname}`,
+        endpoint: `https://${storage.s3Hostname}`,
       });
 
-      const command = new CreateBucketCommand({ Bucket: bucket });
-      await s3Client.send(command);
-      this.logger.log({ message: 'Bucket created successfully', context: logContext });
+      try {
+        const command = new CreateBucketCommand({ Bucket: bucket });
+        await s3Client.send(command);
+        this.logger.log({ message: 'Bucket created successfully', context: logContext });
+      } catch (ex: unknown) {
+        if (!(ex instanceof BucketAlreadyExists)) {
+          throw ex;
+        } else {
+          this.logger.log({ message: 'Bucket already exists', context: logContext });
+        }
+      }
     }
 
     return {
@@ -134,8 +142,44 @@ export class VultrStorageResource implements Resource {
     await vultr.objectStorages.deleteObjectStorage(storage.id!);
   }
 
-  async usage(): Promise<ResourceUsage> {
-    return { totalStorageGB: 0 };
+  async usage(id: string, request: ResourceRequest<Parameters>): Promise<ResourceUsage> {
+    const { apiKey, bucket } = request.parameters;
+
+    if (!bucket) {
+      return { totalStorageGB: 0 };
+    }
+
+    const vultr = new VultrClient(apiKey);
+    const storage = await findStorage(vultr, id);
+    if (!storage) {
+      return { totalStorageGB: 0 };
+    }
+
+    const s3Client = new S3Client({
+      region: 'us-east-1',
+      credentials: { accessKeyId: storage.s3AccessKey!, secretAccessKey: storage.s3SecretKey! },
+      endpoint: `https://${storage.s3Hostname}`,
+    });
+
+    let continuationToken: string | undefined = undefined;
+    let totalSize = 0;
+    do {
+      const command: ListObjectsV2Command = new ListObjectsV2Command({
+        Bucket: bucket,
+        ContinuationToken: continuationToken,
+      });
+
+      const response = await s3Client.send(command);
+      if (response.Contents) {
+        for (const obj of response.Contents) {
+          totalSize += obj.Size ?? 0;
+        }
+      }
+
+      continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined;
+    } while (continuationToken);
+
+    return { totalStorageGB: totalSize / (1024 * 1024) };
   }
 
   async status(id: string, request: ResourceRequest<Parameters>): Promise<ResourceStatusResult> {

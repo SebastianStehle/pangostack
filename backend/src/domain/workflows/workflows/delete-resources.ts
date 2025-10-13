@@ -20,7 +20,7 @@ const { getWorker } = proxyActivities<typeof activities>({
 export async function deleteResources({ deploymentId, resourceIds, updateId }: DeleteResourcesParam): Promise<void> {
   const { workerApiKey, workerEndpoint } = await getWorker({});
 
-  for (const resourceId of resourceIds) {
+  for (const resourceId of resourceIds.reverse()) {
     await deleteResource({
       workerApiKey,
       workerEndpoint,

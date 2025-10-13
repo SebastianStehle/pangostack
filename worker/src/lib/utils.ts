@@ -1,13 +1,13 @@
-export function dotToNested(obj: Record<string, any>): Record<string, any> {
-  const result: Record<string, any> = {};
+export function dotToNested(obj: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
 
   for (const [key, value] of Object.entries(obj)) {
     // Split by unespaced dot only
     const keys = key.split(/(?<!\\)\./).map((k) => k.replace(/\\\./g, '.'));
 
-    let current = result;
+    let current: any = result;
 
-    let convertedValue = value;
+    let convertedValue: unknown = value;
     if (typeof value === 'string') {
       if (/^-?\d+$/.test(value)) {
         convertedValue = parseInt(value, 10);

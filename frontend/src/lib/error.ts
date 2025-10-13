@@ -16,7 +16,7 @@ export async function buildError(common: string, details?: string | Error | null
         errorDetails = response.message;
       }
     } catch {
-      console.error('Server response is an not a JSON object.');
+      console.error('Server response is not a JSON object.');
     }
   }
 

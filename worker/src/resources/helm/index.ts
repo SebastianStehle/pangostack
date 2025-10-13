@@ -12,7 +12,6 @@ import {
   Resource,
   ResourceApplyResult,
   ResourceLogResult,
-  ResourceNodeStatus,
   ResourceRequest,
   ResourceStatusResult,
   ResourceWorkloadStatus,
@@ -143,14 +142,14 @@ export class HelmResource implements Resource {
       // The namespace also identifies the resource.
       const namespace = getNamespace(id);
 
-      await execa('helm', ['uninstall', namespace, '--namespace', namespace]);
+      await execa('helm', ['uninstall', namespace, '--namespace', namespace, '--ignore-not-found']);
     } finally {
       await k8.cleanup();
     }
   }
 
   async status(id: string, request: ResourceRequest<Parameters>): Promise<ResourceStatusResult> {
-    const { config } = request.parameters;
+    const { config, chartName } = request.parameters;
     const k8 = await this.getK8Service(config);
 
     const result: ResourceStatusResult = { workloads: [] };
@@ -185,9 +184,7 @@ export class HelmResource implements Resource {
               continue;
             }
 
-            const node: ResourceNodeStatus = { name: podName, isReady: isPodReady(pod.status) };
-
-            workloadResult.nodes.push(node);
+            workloadResult.nodes.push({ name: getPodName(podName, namespace, chartName), isReady: isPodReady(pod.status) });
           }
         }
 
@@ -209,14 +206,14 @@ export class HelmResource implements Resource {
   }
 
   async log(id: string, request: ResourceRequest<Parameters>): Promise<ResourceLogResult> {
-    const { config } = request.parameters;
+    const { chartName, config } = request.parameters;
     const k8 = await this.getK8Service(config);
 
+    const result: ResourceLogResult = { instances: [] };
     try {
       const namespace = getNamespace(id);
-      const pods = await k8.v1Core.listNamespacedPod({ namespace });
-      const logs: ResourceLogResult = { instances: [] };
 
+      const pods = await k8.v1Core.listNamespacedPod({ namespace });
       for (const pod of pods.items) {
         const podName = pod.metadata?.name;
         if (!podName) {
@@ -228,10 +225,10 @@ export class HelmResource implements Resource {
           namespace,
         });
 
-        logs.instances.push({ instanceId: podName, messages });
+        result.instances.push({ instanceId: getPodName(podName, namespace, chartName), messages });
       }
 
-      return logs;
+      return result;
     } finally {
       await k8.cleanup();
     }
@@ -277,6 +274,16 @@ function getNamespace(id: string) {
     .replace(/[^a-z0-9]+$/, ''); // 5. Re-trim trailing non-alphanum (again after slicing)
 
   return `resource-${trimmedId}`;
+}
+
+function getPodName(podName: string, namespace: string, chartName: string): string {
+  const lastPart = chartName.split('/');
+
+  if (podName.startsWith(`${namespace}-`)) {
+    podName = podName.substring(namespace.length + 1);
+  }
+
+  return `${lastPart[lastPart.length - 1]}-${podName}`;
 }
 
 function isPodReady(status?: k8s.V1PodStatus): boolean {

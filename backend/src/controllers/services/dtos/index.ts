@@ -346,7 +346,7 @@ export class ServiceVersionDto {
   static fromDomain(source: ServiceVersion): ServiceVersionDto {
     const result = new ServiceVersionDto();
     result.id = source.id;
-    result.definition = definitionToYaml(source.definition);
+    result.definition = source.definitionSource ? source.definitionSource : definitionToYaml(source.definition);
     result.environment = source.environment;
     result.isActive = source.isActive;
     result.isDefault = source.isDefault;

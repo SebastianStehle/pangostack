@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { TerminusModule } from '@nestjs/terminus';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { AuthController } from './controllers/auth/auth.controller';
@@ -13,6 +14,7 @@ import { FaviconController } from './controllers/blobs/favicon.controller';
 import { DeploymentsController } from './controllers/deployments/deployments.controller';
 import { ServiceDeploymentsController } from './controllers/deployments/service-deployments.controller';
 import { TeamDeploymentsController } from './controllers/deployments/team-deployments.controller';
+import { HealthController } from './controllers/health/health.controller';
 import { ServicesController } from './controllers/services/services.controller';
 import { SettingsController } from './controllers/settings/settings.controller';
 import { TeamsController } from './controllers/users/teams.controller';
@@ -45,6 +47,7 @@ import { SettingsModule } from './domain/settings';
 import { UsersModule } from './domain/users/module';
 import { WorkersModule } from './domain/workers/module';
 import { WorkflowModule } from './domain/workflows';
+import { HealthModule } from './health';
 
 @Module({
   imports: [
@@ -53,9 +56,11 @@ import { WorkflowModule } from './domain/workflows';
     CacheModule.register({ isGlobal: true, shouldCloneBeforeSet: false }),
     ConfigModule.forRoot({ load: [billingConfig] }),
     CqrsModule,
+    HealthModule,
     ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', 'assets') }),
     ServicesModule,
     SettingsModule,
+    TerminusModule.forRoot(),
     UsersModule,
     WorkersModule,
     WorkflowModule,
@@ -100,6 +105,7 @@ import { WorkflowModule } from './domain/workflows';
     BlobsController,
     DeploymentsController,
     FaviconController,
+    HealthController,
     ServiceDeploymentsController,
     ServicesController,
     SettingsController,

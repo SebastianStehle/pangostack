@@ -26,6 +26,9 @@ export class ServiceVersionEntity {
   @Column('simple-json')
   definition: ServiceDefinition;
 
+  @Column('text', { nullable: true })
+  definitionSource?: string | null;
+
   @Column('simple-json')
   environment: Record<string, string> = {};
 
