@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
-
 export function isString(value: unknown): value is string {
   return typeof value === 'string' || value instanceof String;
 }
