@@ -2,7 +2,7 @@ export function dotToNested(obj: Record<string, unknown>): Record<string, unknow
   const result: Record<string, unknown> = {};
 
   for (const [key, value] of Object.entries(obj)) {
-    // Split by unespaced dot only
+    // Split by unescaped dot only
     const keys = key.split(/(?<!\\)\./).map((k) => k.replace(/\\\./g, '.'));
 
     let current: any = result;

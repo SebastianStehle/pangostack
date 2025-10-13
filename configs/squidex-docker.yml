@@ -16,7 +16,7 @@ parameters:
       - value: fra
         label: Frankfurt
       - value: ams
-        label: Amsterday
+        label: Amsterdam
       - value: ewr
         label: New Jersey
 

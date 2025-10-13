@@ -9,7 +9,7 @@ export class TemporalHealthIndicator {
     private readonly health: HealthIndicatorService,
   ) {}
 
-  async pingTemporal(key: string): Promise<HealthIndicatorResult<any>> {
+  async pingTemporal(key: string): Promise<HealthIndicatorResult> {
     const indicator = this.health.check(key);
 
     try {

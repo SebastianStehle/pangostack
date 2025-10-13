@@ -27,7 +27,7 @@ export class AllExceptionsInterceptor implements NestInterceptor {
 
         const outMessage = error?.message;
         if (typeof outMessage === 'string') {
-          payload.message = message;
+          payload.message = outMessage;
         }
 
         if (typeof error === 'object' && Object.keys(error).length > 0) {
