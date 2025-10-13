@@ -102,7 +102,7 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
           args: [],
           type: 'startWorkflow',
           workflowId: 'cleanup-deployments-checks',
-          workflowType: workflows.cleanupDeploymentsUsages,
+          workflowType: workflows.cleanupDeploymentsChecks,
           taskQueue: 'checks',
         },
       }),
@@ -185,9 +185,11 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
     try {
       await action();
     } catch (ex) {
-      if (!is(ex, ScheduleAlreadyRunning)) {
-        throw ex;
+      if (is(ex, ScheduleAlreadyRunning)) {
+        this.logger.debug('Schedule already exists, skipping registration');
+        return;
       }
+      throw ex;
     }
   }
 
@@ -215,7 +217,7 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
         signalArgs: [
           {
             action: 'Update',
-            previousUpdateId: deploymentUpdate?.id || null,
+            previousUpdateId: previousUpdate?.id || null,
             previousResourceIds: previousUpdate?.serviceVersion.definition.resources.map((x) => x.id) || null,
             resourceIds: deploymentUpdate.serviceVersion.definition.resources.map((x) => x.id),
             updateId: deploymentUpdate.id,

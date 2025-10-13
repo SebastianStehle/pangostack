@@ -1,6 +1,7 @@
 import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor } from '@nestjs/common';
 import { HttpException, InternalServerErrorException } from '@nestjs/common';
 import { catchError, Observable, throwError } from 'rxjs';
+import { safeStringify } from './log';
 
 @Injectable()
 export class AllExceptionsInterceptor implements NestInterceptor {
@@ -9,21 +10,24 @@ export class AllExceptionsInterceptor implements NestInterceptor {
   intercept(_context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       catchError((error) => {
-        if (error instanceof Error) {
-          this.logger.error(error.message, error.stack);
-        } else {
-          this.logger.error('Non-error thrown', JSON.stringify(error));
-        }
+        const message = error instanceof Error ? error.message : 'Unknown error';
+
+        const stack =
+          error instanceof Error //
+            ? error.stack //
+            : error?.stack || (typeof error === 'object' ? safeStringify(error) : '');
+
+        this.logger.error(message, stack);
 
         if (error instanceof HttpException) {
           return throwError(() => error);
         }
 
-        const payload: any = { statusCode: 500 };
+        const payload: Record<string, unknown> = { statusCode: 500 };
 
-        const message = error?.message;
-        if (typeof message === 'string') {
-          payload.message = message;
+        const outMessage = error?.message;
+        if (typeof outMessage === 'string') {
+          payload.message = outMessage;
         }
 
         if (typeof error === 'object' && Object.keys(error).length > 0) {

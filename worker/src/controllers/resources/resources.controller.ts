@@ -13,7 +13,6 @@ export class ResourcesController {
     private readonly resources: Map<string, Resource>,
   ) {}
 
-  
   @Get('')
   @ApiOperation({ operationId: 'getResources', description: 'Gets the available resource types.' })
   @ApiOkResponse({ type: ResourcesTypesDto })

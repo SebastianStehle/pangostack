@@ -215,7 +215,7 @@ export class ServicesController {
     const definition = yamlToDefinition(yaml);
     await validateDefinition(definition);
 
-    const command = new CreateServiceVersion(serviceId, { ...other, definition });
+    const command = new CreateServiceVersion(serviceId, { ...other, definition, definitionSource: yaml });
     const { serviceVersion } = await this.commandBus.execute(command);
 
     return ServiceVersionDto.fromDomain(serviceVersion);
@@ -266,7 +266,7 @@ export class ServicesController {
     const definition = yamlToDefinition(yaml);
     await validateDefinition(definition);
 
-    const command = new UpdateServiceVersion(versionId, { ...other, definition });
+    const command = new UpdateServiceVersion(versionId, { ...other, definition, definitionSource: yaml });
     const { serviceVersion } = await this.commandBus.execute(command);
 
     return ServiceVersionDto.fromDomain(serviceVersion);

@@ -1,9 +1,22 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, Repository, UpdateDateColumn } from 'typeorm';
-import { DecimalToNumberTransformer } from 'src/lib';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Repository,
+  UpdateDateColumn,
+  ValueTransformer,
+} from 'typeorm';
 import { DeploymentEntity } from './deployment';
 import { ServiceVersionEntity } from './service-version';
 
 export type ServiceRepository = Repository<ServiceEntity>;
+
+const DecimalToNumberTransformer: ValueTransformer = {
+  to: (value: number): number => value,
+  from: (value: string): number => parseFloat(value),
+};
 
 @Entity({ name: 'services' })
 export class ServiceEntity {

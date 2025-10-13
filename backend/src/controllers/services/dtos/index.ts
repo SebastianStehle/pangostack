@@ -346,7 +346,7 @@ export class ServiceVersionDto {
   static fromDomain(source: ServiceVersion): ServiceVersionDto {
     const result = new ServiceVersionDto();
     result.id = source.id;
-    result.definition = definitionToYaml(source.definition);
+    result.definition = source.definitionSource ? source.definitionSource : definitionToYaml(source.definition);
     result.environment = source.environment;
     result.isActive = source.isActive;
     result.isDefault = source.isDefault;
@@ -376,7 +376,7 @@ class ParameterAllowedValueDto {
     description: 'The value.',
     required: true,
   })
-  value: any;
+  value: string;
 
   @ApiProperty({
     description: 'The display label.',
@@ -391,11 +391,19 @@ class ParameterAllowedValueDto {
   })
   hint?: string | null;
 
+  @ApiProperty({
+    description: 'The display label.',
+    nullable: true,
+    type: [String],
+  })
+  updateFrom?: string[];
+
   static fromDomain(source: ParameterAllowedvalue): ParameterAllowedValueDto {
     const result = new ParameterAllowedValueDto();
     result.value = source.value;
     result.label = source.label;
     result.hint = source.hint;
+    result.updateFrom = source.updateFrom;
     return result;
   }
 }
@@ -427,12 +435,6 @@ export class ParameterDefinitionDto {
   immutable?: boolean | null;
 
   @ApiProperty({
-    description: 'Indicates if the parameter can only be updated.',
-    nullable: true,
-  })
-  upgradeOnly?: boolean | null;
-
-  @ApiProperty({
     description: 'Indicates if the parameter should be displayed.',
     nullable: true,
   })
@@ -451,6 +453,13 @@ export class ParameterDefinitionDto {
     type: String,
   })
   hint?: string | null;
+
+  @ApiProperty({
+    description: 'Placeholder for input fields.',
+    nullable: true,
+    type: String,
+  })
+  placeholder?: string | null;
 
   @ApiProperty({
     description: 'The default value of the parameter.',
@@ -529,11 +538,11 @@ export class ParameterDefinitionDto {
     result.minLength = source.minLength;
     result.minValue = source.minValue;
     result.name = source.name;
+    result.placeholder = source.placeholder;
     result.required = source.required;
     result.section = source.section;
     result.step = source.step;
     result.type = source.type;
-    result.upgradeOnly = source.upgradeOnly;
     return result;
   }
 }

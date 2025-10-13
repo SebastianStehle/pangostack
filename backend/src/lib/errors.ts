@@ -6,7 +6,7 @@ export class InternalError {
 
   constructor(
     public readonly content: string,
-    public readonly options?: { cause: any },
+    public readonly options?: { cause: unknown },
   ) {
     let message = content;
 

@@ -1,8 +1,14 @@
-type EvalContext = Record<string, any>;
+import { isString } from './types';
 
-export function evaluateExpression(template: string, context: EvalContext): string {
+type EvalContext = Record<string, unknown>;
+
+export function evaluateExpression(template: string | undefined, context: EvalContext): string {
   if (!template) {
     return '';
+  }
+
+  if (!isString(template)) {
+    return JSON.stringify(template);
   }
 
   return template.replace(/\$\{([^}]+)\}/g, (_, expr) => {

@@ -107,5 +107,5 @@ export const CodeEditor = (props: CodeEditorProps) => {
 
 const stringifyValue = (value: any): string => {
   if (value == null) return '';
-  return isString(value) ? value : JSON.stringify(value);
+  return isString(value) ? value : JSON.stringify(value, undefined, 2);
 };

@@ -1,7 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { NodeSSH } from 'node-ssh';
 import { composeDown, composeUp, getContainers, getLogs, parseEnvironment, pollUntil } from 'src/lib';
-import { defineResource, Resource, ResourceApplyResult, ResourceLogResult, ResourceRequest, ResourceStatusResult } from '../interface';
+import {
+  defineResource,
+  LogContext,
+  Resource,
+  ResourceApplyResult,
+  ResourceLogResult,
+  ResourceRequest,
+  ResourceStatusResult,
+} from '../interface';
 
 type Parameters = { host: string; sshUser: string; sshPassword: string; dockerComposeUrl: string; environment?: string };
 
@@ -9,7 +17,7 @@ type Parameters = { host: string; sshUser: string; sshPassword: string; dockerCo
 export class DockerComposeSshResource implements Resource {
   private readonly logger = new Logger(DockerComposeSshResource.name);
 
-  descriptor = defineResource<Parameters, {}>({
+  descriptor = defineResource<Parameters, any>({
     name: 'docker-compose-ssh',
     description: 'Applies a docker compose file over SSH.',
     parameters: {
@@ -45,53 +53,50 @@ export class DockerComposeSshResource implements Resource {
     return {};
   }
 
-  async apply(id: string, request: ResourceRequest<Parameters>): Promise<ResourceApplyResult> {
+  async apply(_: string, request: ResourceRequest<Parameters>, logContext: LogContext): Promise<ResourceApplyResult> {
     const { dockerComposeUrl, host, environment, sshUser, sshPassword, ...others } = request.parameters;
 
-    const logContext: any = { id, host };
+    const ssh = new NodeSSH();
     try {
       this.logger.log({ message: 'Waiting for SSH connection', context: logContext });
 
-      const ssh = new NodeSSH();
-      try {
-        await pollUntil(request.timeoutMs, async () => {
-          await ssh.connect({ host, username: sshUser, password: sshPassword });
-          return true;
-        });
+      await pollUntil(request.timeoutMs, async () => {
+        await ssh.connect({ host, username: sshUser, password: sshPassword });
+        return true;
+      });
 
-        // Custom defined variables do not override direct paramters (aka others).
-        const env = parseEnvironment(environment);
-        for (const [key, value] of Object.entries(others)) {
-          if (value) {
-            env[key] = value;
-          }
+      // Custom defined variables do not override direct paramters (aka others).
+      const env = parseEnvironment(environment);
+      for (const [key, value] of Object.entries(others)) {
+        if (value) {
+          env[key] = value;
         }
-
-        this.logger.log({ message: 'Instance accepted SSH connection, deploying docker', context: logContext });
-        await composeUp(ssh, dockerComposeUrl, env, request.timeoutMs, (message) => {
-          this.logger.log({ message, context: logContext });
-        });
-      } finally {
-        ssh.dispose();
       }
 
-      return {
-        context: {},
-        connection: {},
-      };
-    } catch (ex: any) {
-      this.logger.error({ message: `Instance could not be deployed: ${ex.message}`, context: logContext });
-      throw ex;
+      this.logger.log({ message: 'Instance accepted SSH connection, deploying docker', context: logContext });
+      await composeUp(ssh, dockerComposeUrl, env, request.timeoutMs, (message) => {
+        this.logger.log({ message, context: logContext });
+      });
+    } finally {
+      ssh.dispose();
     }
+
+    return {
+      context: {},
+      connection: {},
+    };
   }
 
-  async delete(_id: string, request: ResourceRequest<Parameters>) {
+  async delete(id: string, request: ResourceRequest<Parameters>) {
     const { host, sshUser, sshPassword } = request.parameters;
+    try {
+      const ssh = new NodeSSH();
+      await ssh.connect({ host, username: sshUser, password: sshPassword });
 
-    const ssh = new NodeSSH();
-    await ssh.connect({ host, username: sshUser, password: sshPassword });
-
-    await composeDown(ssh);
+      await composeDown(ssh);
+    } catch {
+      this.logger.warn(`Failed to delete resource ${id}. Host has probably been deleted already`);
+    }
   }
 
   async log(_id: string, request: ResourceRequest<Parameters>): Promise<ResourceLogResult> {

@@ -107,21 +107,21 @@ export const DeploymentSummary = (props: DeploymentSummaryProps) => {
       <table className="table table-fixed">
         <colgroup>
           <col />
-          <col className="w-[30px]" />
-          <col className="w-[30px]" />
+          <col className="w-[35px]" />
           <col className="w-[20px]" />
-          <col className="w-[50px]" />
-          <col className="w-[60px]" />
-          <col className="w-[10px]" />
+          <col className="w-[15px]" />
+          <col className="w-[45px]" />
+          <col className="w-[40px]" />
+          <col className="w-[20px]" />
           <col />
         </colgroup>
         <tbody>
           {rows.map((row) => (
             <tr key={row.label}>
               <td className="px-0">{row.label}</td>
-              <td className="px-0">{row.totalUnits}</td>
-              <td className="px-0 text-xs">{row.unit}</td>
-              <td className="px-1">{row.totalUnits ? '*' : ''}</td>
+              <td className="px-0 text-right">{row.totalUnits}</td>
+              <td className="px-1 text-center text-xs">{row.unit}</td>
+              <td className="px-0">{row.totalUnits ? '*' : ''}</td>
               <td className="ps-0 text-right">{formatMoney(row.price, service.currency)}</td>
               <td className="px-0 text-xs">/ {row.period}</td>
               <td className="px-1">=</td>

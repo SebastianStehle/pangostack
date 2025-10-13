@@ -32,14 +32,21 @@ export class CreateServiceVersionHandler implements ICommandHandler<CreateServic
 
   async execute(request: CreateServiceVersion): Promise<CreateServiceVersionResult> {
     const { serviceId, values } = request;
-    const { definition, environment, isActive, name } = values;
+    const { definition, definitionSource, environment, isActive, name } = values;
 
     const service = await this.services.findOneBy({ id: serviceId });
     if (!service) {
       throw new NotFoundException(`Service ${serviceId} not found.`);
     }
 
-    const version = await saveAndFind(this.serviceVersions, { definition, environment, isActive, name, serviceId });
+    const version = await saveAndFind(this.serviceVersions, {
+      definition,
+      definitionSource,
+      environment,
+      isActive,
+      name,
+      serviceId,
+    });
 
     return new CreateServiceVersionResult(buildServiceVersion(version, false));
   }

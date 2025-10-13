@@ -1,9 +1,4 @@
-import { DeepPartial, FindOneOptions, ObjectLiteral, Repository, ValueTransformer } from 'typeorm';
-
-export const DecimalToNumberTransformer: ValueTransformer = {
-  to: (value: number): number => value,
-  from: (value: string): number => parseFloat(value),
-};
+import { DeepPartial, FindOneOptions, ObjectLiteral, Repository } from 'typeorm';
 
 export async function saveAndFind<T extends ObjectLiteral>(
   repository: Repository<T>,

@@ -1,0 +1,188 @@
+parameters:
+  - name: domain
+    label: Public Domain
+    type: string
+    required: true
+    display: true
+    hint: Only add the domain name, not the full URL.
+
+  - name: region
+    label: Region
+    type: string
+    required: true
+    defaultValue: fra
+    display: true
+    allowedValues:
+      - value: fra
+        label: Frankfurt
+      - value: ams
+        label: Amsterdam
+      - value: ewr
+        label: New Jersey
+
+  - name: plan
+    label: Plan
+    type: string
+    required: true
+    defaultValue: cores_4
+    display: true
+    allowedValues:
+      - value: cores_4
+        label: 4 Cores, 8 GB RAM, 160 GB SSD
+        updateFrom: []
+      - value: cores_6
+        label: 6 Cores, 16 GB RAM, 320 GB SSD
+        updateFrom: [cores_4]
+      - value: cores_8
+        label: 8 Cores, 32 GB RAM, 640 GB SSD
+        updateFrom: [cores_4, cores_6]
+      - value: cores_16
+        label: 16 Cores, 64 GB RAM, 1280 GB SSD
+        updateFrom: [cores_4, cores_6, cores_8]
+
+  - name: backup
+    label: Backup
+    type: boolean
+    required: true
+    defaultValue: false
+
+  - name: googleClient
+    label: Google Client ID
+    type: string
+    required: false
+    section: Authentication
+
+  - name: googleSecret
+    label: Google Client Secret
+    type: string
+    required: false
+    section: Authentication
+
+  - name: microsoftClient
+    label: Microsoft Client ID
+    type: string
+    required: false
+    section: Authentication
+
+  - name: microsoftSecret
+    label: Microsoft Client Secret
+    type: string
+    required: false
+    section: Authentication
+
+  - name: githubClient
+    label: Github Client ID
+    type: string
+    required: false
+    section: Authentication
+
+  - name: githubSecret
+    label: Github Client Secret
+    type: string
+    required: false
+    section: Authentication
+
+  - name: environment
+    label: Environment
+    type: string
+    editor: textarea
+    required: false
+    section: More
+    hint: Additional environment variables in the format key=value
+
+afterInstallationInstructions: |-
+  Create a new A record from your domain **${parameters.domain}** to the IP address of the virtual machine.
+
+  Ensure that you do not enable https termination in Cloudflare.
+
+pricingModel: fixed
+
+resources:
+  - name: Virtual Machine
+    id: vm
+    type: vultr-vm
+    parameters:
+      backup: ${parameters.backup}
+      apiKey: ${env.apiKey}
+      app: docker
+      region: ${parameters.region}
+    mappings:
+      plan:
+        value: ${parameters.plan}
+        map:
+          cores_4: vc2-4c-8gb
+          cores_6: vc2-6c-16gb
+          cores_8: vc2-8c-32gb
+          cores_16: vc2-16c-64gb
+
+  - name: Squidex
+    id: squidex
+    type: docker-compose-ssh
+    parameters:
+      dockerComposeUrl: https://raw.githubusercontent.com/Squidex/squidex-hosting/refs/heads/master/docker-compose/docker-compose.yml
+      host: ${context.vm.host}
+      sshUser: ${context.vm.sshUser}
+      sshPassword: ${context.vm.sshPassword}
+      environment: ${parameters.environment}
+      SQUIDEX_GITHUBCLIENT: ${parameters.githubClient}
+      SQUIDEX_GITHUBSECRET: ${parameters.githubSecret}
+      SQUIDEX_GOOGLECLIENT: ${parameters.googleClient}
+      SQUIDEX_GOOGLESECRET: ${parameters.googleSecret}
+      SQUIDEX_MICROSOFTCLIENT: ${parameters.microsoftClient}
+      SQUIDEX_MICROSOFTSECRET: ${parameters.microsoftSecret}
+      SQUIDEX_DOMAIN: ${parameters.domain}
+      SQUIDEX_ADMINEMAIL: changeme@squidex.io
+      SQUIDEX_ADMINPASSWORD: changeme
+    healthChecks:
+      - name: Default
+        url: https://${parameters.domain}/healthz
+        type: http
+
+prices:
+  - billingIdentifier: machine
+    label: Machine
+    target: ${parameters.plan}
+    test: cores_4
+    pricePerHour: 0.12
+
+  - billingIdentifier: backup
+    label: Backup
+    target: ${parameters.plan}_${parameters.backup}
+    test: cores_4_true
+    pricePerHour: 0.06
+
+  - billingIdentifier: machine
+    label: Machine
+    target: ${parameters.plan}
+    test: cores_6
+    pricePerHour: 0.24
+
+  - billingIdentifier: backup
+    label: Backup
+    target: ${parameters.plan}_${parameters.backup}
+    test: cores_6_true
+    pricePerHour: 0.12
+
+  - billingIdentifier: machine
+    label: Machine
+    target: ${parameters.plan}
+    test: cores_8
+    pricePerHour: 0.48
+
+  - billingIdentifier: backup
+    label: Backup
+    target: ${parameters.plan}_${parameters.backup}
+    test: cores_8_true
+    pricePerHour: 0.24
+
+  - billingIdentifier: machine
+    label: Machine
+    target: ${parameters.plan}
+    test: cores_16
+    pricePerHour: 0.96
+
+  - billingIdentifier: backup
+    label: Backup
+    target: ${parameters.plan}_${parameters.backup}
+    test: cores_16_true
+    pricePerHour: 0.48

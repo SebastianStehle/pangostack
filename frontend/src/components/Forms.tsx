@@ -1,4 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
+/* eslint-disable @typescript-eslint/no-namespace */
 import { ChangeEventData } from '@yaireo/tagify';
 import Tags from '@yaireo/tagify/dist/react.tagify';
 import classNames from 'classnames';
@@ -44,8 +45,8 @@ export interface FormEditorProps {
   // Indicator if the field is required.
   required?: boolean;
 
-  // Indicator if the field is immutable.
-  immutable?: boolean;
+  // Optional badge.
+  badge?: { text: string; tooltip?: string };
 
   // The layout.
   vertical?: boolean;
@@ -74,7 +75,6 @@ export interface CodeFormEditorProps extends FormEditorProps, Omit<CodeEditorPro
 
 export interface FormRowProps extends FormEditorProps, PropsWithChildren {}
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Forms {
   export const Error = ({ name }: { name: string }) => {
     const { fieldState, formState } = useController({ name });
@@ -89,12 +89,11 @@ export namespace Forms {
   };
 
   export const Row = (props: FormRowProps & { aligned?: boolean }) => {
-    const { aligned, children, className, hideError, hints, name, label, immutable, required, vertical } = props;
+    const { aligned, badge, children, className, hideError, hints, name, label, required, vertical } = props;
 
     const labelText = (
       <>
         {label}
-
         {label && required && (
           <span
             className="text-error px-1 font-bold"
@@ -105,7 +104,16 @@ export namespace Forms {
             *
           </span>
         )}
-        {label && immutable && <div className="badge badge-sm badge-error">{texts.common.immutable}</div>}
+        {label && badge && (
+          <span
+            className="badge badge-sm badge-primary"
+            data-tooltip-id="default"
+            data-tooltip-content={badge.tooltip}
+            data-tooltip-delay-show={1000}
+          >
+            {badge.text}
+          </span>
+        )}
       </>
     );
 
@@ -121,11 +129,11 @@ export namespace Forms {
 
         {children}
 
-        <FormDescription hints={hints} />
+        <FormDescription className="mb-2" hints={hints} />
       </div>
     ) : (
       <div className={classNames('form-row flex flex-row', className, { 'items-center': aligned })}>
-        <label className="my-3 w-48 shrink-0 text-sm font-semibold" htmlFor={name}>
+        <label className="my-3 w-42 shrink-0 pe-2 text-sm font-semibold" htmlFor={name}>
           {labelText}
         </label>
 
@@ -134,7 +142,7 @@ export namespace Forms {
 
           {children}
 
-          <FormDescription hints={hints} />
+          <FormDescription className="mb-2" hints={hints} />
         </div>
       </div>
     );

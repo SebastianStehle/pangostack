@@ -3,4 +3,8 @@ import { App } from './App.tsx';
 import 'react-toastify/dist/ReactToastify.min.css';
 import './index.css';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(<App />);
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error('Root element not found');
+}
+ReactDOM.createRoot(rootElement).render(<App />);

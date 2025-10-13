@@ -1,4 +1,4 @@
-type EvalContext = Record<string, any>;
+type EvalContext = Record<string, unknown>;
 
 export function evaluateExpression(template: string, context: EvalContext): string {
   if (!template) {

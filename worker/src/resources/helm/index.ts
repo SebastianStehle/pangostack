@@ -6,11 +6,12 @@ import { Injectable } from '@nestjs/common';
 import { execa } from 'execa';
 import { v4 as uuidv4 } from 'uuid';
 import { stringify as toYAML } from 'yaml';
+import { dotToNested } from 'src/lib';
 import {
   defineResource,
   Resource,
   ResourceApplyResult,
-  ResourceNodeStatus,
+  ResourceLogResult,
   ResourceRequest,
   ResourceStatusResult,
   ResourceWorkloadStatus,
@@ -26,7 +27,7 @@ type Parameters = {
 
 @Injectable()
 export class HelmResource implements Resource {
-  descriptor = defineResource<Parameters, {}>({
+  descriptor = defineResource<Parameters, any>({
     name: 'helm',
     description: 'Creates a vultr storage account.',
     parameters: {
@@ -86,14 +87,20 @@ export class HelmResource implements Resource {
         '--namespace',
         namespace,
         '--create-namespace',
+        '--reset-values',
+        '--set',
+        'global.security.allowInsecureImages=true',
       ];
 
       let valuesFilePath: string | null = null;
       if (Object.keys(others).length > 0) {
+        const nested = dotToNested(others);
+
         const tempDir = os.tmpdir();
         const tempPath = path.join(tempDir, `kubeconfig-${uuidv4()}.yaml`);
+        const yaml = toYAML(nested);
 
-        await fs.writeFile(tempPath, toYAML(others));
+        await fs.writeFile(tempPath, yaml);
         args.push('-f', tempPath);
         valuesFilePath = tempPath;
       }
@@ -108,12 +115,12 @@ export class HelmResource implements Resource {
             namespace: {
               value: namespace,
               label: 'Namespace',
-              isPublic: true,
+              isPublic: false,
             },
             config: {
               value: config,
               label: 'Kubernetes Config',
-              isPublic: true,
+              isPublic: false,
             },
           },
         };
@@ -135,14 +142,14 @@ export class HelmResource implements Resource {
       // The namespace also identifies the resource.
       const namespace = getNamespace(id);
 
-      await execa('helm', ['uninstall', namespace, '--namespace', namespace]);
+      await execa('helm', ['uninstall', namespace, '--namespace', namespace, '--ignore-not-found']);
     } finally {
       await k8.cleanup();
     }
   }
 
   async status(id: string, request: ResourceRequest<Parameters>): Promise<ResourceStatusResult> {
-    const { config } = request.parameters;
+    const { config, chartName } = request.parameters;
     const k8 = await this.getK8Service(config);
 
     const result: ResourceStatusResult = { workloads: [] };
@@ -177,9 +184,7 @@ export class HelmResource implements Resource {
               continue;
             }
 
-            const node: ResourceNodeStatus = { name: podName, isReady: isPodReady(pod.status) };
-
-            workloadResult.nodes.push(node);
+            workloadResult.nodes.push({ name: getPodName(podName, namespace, chartName), isReady: isPodReady(pod.status) });
           }
         }
 
@@ -198,6 +203,35 @@ export class HelmResource implements Resource {
     }
 
     return result;
+  }
+
+  async log(id: string, request: ResourceRequest<Parameters>): Promise<ResourceLogResult> {
+    const { chartName, config } = request.parameters;
+    const k8 = await this.getK8Service(config);
+
+    const result: ResourceLogResult = { instances: [] };
+    try {
+      const namespace = getNamespace(id);
+
+      const pods = await k8.v1Core.listNamespacedPod({ namespace });
+      for (const pod of pods.items) {
+        const podName = pod.metadata?.name;
+        if (!podName) {
+          continue;
+        }
+
+        const messages = await k8.v1Core.readNamespacedPodLog({
+          name: podName,
+          namespace,
+        });
+
+        result.instances.push({ instanceId: getPodName(podName, namespace, chartName), messages });
+      }
+
+      return result;
+    } finally {
+      await k8.cleanup();
+    }
   }
 
   private async getK8Service(config?: string) {
@@ -240,6 +274,16 @@ function getNamespace(id: string) {
     .replace(/[^a-z0-9]+$/, ''); // 5. Re-trim trailing non-alphanum (again after slicing)
 
   return `resource-${trimmedId}`;
+}
+
+function getPodName(podName: string, namespace: string, chartName: string): string {
+  const lastPart = chartName.split('/');
+
+  if (podName.startsWith(`${namespace}-`)) {
+    podName = podName.substring(namespace.length + 1);
+  }
+
+  return `${lastPart[lastPart.length - 1]}-${podName}`;
 }
 
 function isPodReady(status?: k8s.V1PodStatus): boolean {

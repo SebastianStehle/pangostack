@@ -20,7 +20,11 @@ const SESSION_SECRET = getSecret();
 
 export function appSession(app: INestApplication) {
   return session({
-    cookie: { sameSite: 'none', secure: true, maxAge: SEVEN_DAYS_IN_MS },
+    cookie: {
+      sameSite: IS_PRODUCTION ? 'none' : 'lax',
+      secure: IS_PRODUCTION,
+      maxAge: SEVEN_DAYS_IN_MS,
+    },
     proxy: true,
     saveUninitialized: true,
     secret: SESSION_SECRET,

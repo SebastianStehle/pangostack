@@ -54,12 +54,6 @@ export interface ParameterDefinitionDto {
      */
     immutable: object | null;
     /**
-     * Indicates if the parameter can only be updated.
-     * @type {object}
-     * @memberof ParameterDefinitionDto
-     */
-    upgradeOnly: object | null;
-    /**
      * Indicates if the parameter should be displayed.
      * @type {object}
      * @memberof ParameterDefinitionDto
@@ -77,6 +71,12 @@ export interface ParameterDefinitionDto {
      * @memberof ParameterDefinitionDto
      */
     hint: string | null;
+    /**
+     * Placeholder for input fields.
+     * @type {string}
+     * @memberof ParameterDefinitionDto
+     */
+    placeholder: string | null;
     /**
      * The default value of the parameter.
      * @type {object}
@@ -163,10 +163,10 @@ export function instanceOfParameterDefinitionDto(value: object): boolean {
     isInstance = isInstance && "type" in value;
     isInstance = isInstance && "required" in value;
     isInstance = isInstance && "immutable" in value;
-    isInstance = isInstance && "upgradeOnly" in value;
     isInstance = isInstance && "display" in value;
     isInstance = isInstance && "label" in value;
     isInstance = isInstance && "hint" in value;
+    isInstance = isInstance && "placeholder" in value;
     isInstance = isInstance && "defaultValue" in value;
     isInstance = isInstance && "allowedValues" in value;
     isInstance = isInstance && "minValue" in value;
@@ -194,10 +194,10 @@ export function ParameterDefinitionDtoFromJSONTyped(json: any, ignoreDiscriminat
         'type': json['type'],
         'required': json['required'],
         'immutable': json['immutable'],
-        'upgradeOnly': json['upgradeOnly'],
         'display': json['display'],
         'label': json['label'],
         'hint': json['hint'],
+        'placeholder': json['placeholder'],
         'defaultValue': json['defaultValue'],
         'allowedValues': (json['allowedValues'] === null ? null : (json['allowedValues'] as Array<any>).map(ParameterAllowedValueDtoFromJSON)),
         'minValue': json['minValue'],
@@ -223,10 +223,10 @@ export function ParameterDefinitionDtoToJSON(value?: ParameterDefinitionDto | nu
         'type': value.type,
         'required': value.required,
         'immutable': value.immutable,
-        'upgradeOnly': value.upgradeOnly,
         'display': value.display,
         'label': value.label,
         'hint': value.hint,
+        'placeholder': value.placeholder,
         'defaultValue': value.defaultValue,
         'allowedValues': (value.allowedValues === null ? null : (value.allowedValues as Array<any>).map(ParameterAllowedValueDtoToJSON)),
         'minValue': value.minValue,

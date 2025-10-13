@@ -1,5 +1,6 @@
 import { ParameterDefinitionDto } from 'src/api';
 import { FormEditorProps, Forms } from 'src/components';
+import { texts } from 'src/texts';
 
 export const DeploymentControl = ({
   parameter,
@@ -8,12 +9,27 @@ export const DeploymentControl = ({
   parameter: ParameterDefinitionDto;
   initialValue?: Record<string, any>;
 }) => {
-  const { allowedValues, editor, immutable, maxValue, minValue, maxLength, step, name, label, hint, required, type } = parameter;
+  const {
+    allowedValues,
+    editor,
+    hint: hints,
+    immutable,
+    label,
+    maxLength,
+    maxValue,
+    minValue,
+    name,
+    placeholder,
+    required,
+    step,
+    type,
+  } = parameter;
   const props: FormEditorProps = {
-    hints: hint,
-    immutable: !!immutable,
+    badge: immutable ? { text: texts.common.immutable, tooltip: texts.deployments.immutableTooltip } : undefined,
+    hints,
     label: label || name,
     name: `parameters.${name}`,
+    placeholder: placeholder || undefined,
     required,
   };
 
@@ -25,12 +41,9 @@ export const DeploymentControl = ({
     return <Forms.Number {...props} />;
   } else if (type === 'string' && allowedValues && allowedValues.length > 0) {
     let values = allowedValues;
-    if (initialValue && parameter.upgradeOnly) {
-      const currentValue = initialValue[parameter.name];
-      const currentIndex = allowedValues.findIndex((x) => x.value === currentValue);
-      if (currentIndex >= 0) {
-        values = values.filter((_, i) => i >= currentIndex);
-      }
+    if (initialValue) {
+      const current = initialValue[name];
+      values = values.filter((x) => x.value === current || !x.updateFrom || x.updateFrom.includes(current));
     }
 
     return <Forms.Select {...props} options={values} />;

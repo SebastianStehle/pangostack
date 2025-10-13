@@ -15,6 +15,7 @@ import {
   CleanupDeploymentsChecksActivity,
   CleanupDeploymentUsagesActivity,
   CleanupFailedDeployments,
+  DeleteDeploymentActivity,
   DeleteResourceActivity,
   DeployResourceActivity,
   GetDeploymentsActivity,
@@ -45,6 +46,7 @@ import { TemporalService, WorkflowService } from './services';
     CleanupDeploymentsChecksActivity,
     CleanupDeploymentUsagesActivity,
     CleanupFailedDeployments,
+    DeleteDeploymentActivity,
     DeleteResourceActivity,
     DeployResourceActivity,
     GetDeploymentsActivity,
@@ -55,6 +57,6 @@ import { TemporalService, WorkflowService } from './services';
     UpdateDeploymentActivity,
     WorkflowService,
   ],
-  exports: [WorkflowService],
+  exports: [TemporalService, WorkflowService],
 })
 export class WorkflowModule {}

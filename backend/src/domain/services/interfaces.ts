@@ -60,8 +60,11 @@ export interface ServiceVersion {
   // The name of the version.
   name: string;
 
-  // The YAML definition.
+  // The definition as JSON.
   definition: ServiceDefinition;
+
+  // The original YAML definition.
+  definitionSource?: string | null;
 
   // The environment settings.
   environment: Record<string, string>;
@@ -167,7 +170,7 @@ export interface ServicePublic {
   parameters: ParameterDefinition[];
 
   // The usage definition.
-  usage?: UsageDefinition;
+  usage?: UsageDefinition | null;
 }
 
 export interface ServicePrice {

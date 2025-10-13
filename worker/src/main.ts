@@ -38,4 +38,8 @@ async function bootstrap() {
   app.useGlobalInterceptors(new AllExceptionsInterceptor());
   await app.listen(3100);
 }
-bootstrap();
+
+bootstrap().catch((error) => {
+  console.error('Failed to start worker application:', error);
+  process.exit(1);
+});

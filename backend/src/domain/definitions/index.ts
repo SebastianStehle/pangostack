@@ -43,12 +43,12 @@ class ParameterDefinitionClass {
   immutable?: boolean;
 
   @IsOptional()
-  @IsBoolean()
-  upgradeOnly?: boolean;
+  @IsString()
+  label?: string | null;
 
   @IsOptional()
   @IsString()
-  label?: string | null;
+  placeholder?: string | null;
 
   @IsOptional()
   @IsString()
@@ -97,7 +97,7 @@ class ParameterDefinitionClass {
 class ParameterAllowedvalueClass {
   @IsDefined()
   @IsString()
-  value: any;
+  value: string;
 
   @IsDefined()
   @IsString()
@@ -106,6 +106,11 @@ class ParameterAllowedvalueClass {
   @IsOptional()
   @IsString()
   hint?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  updateFrom?: string[];
 }
 
 class ResourceHealtCheckClass {
@@ -173,17 +178,17 @@ class ResourceDefinitionClass {
 }
 
 class UsageDefinitionClass {
-  @IsDefined()
+  @IsOptional()
   @IsString()
-  totalCores: string;
+  totalCores?: string;
 
-  @IsDefined()
+  @IsOptional()
   @IsString()
-  totalMemoryGB: string;
+  totalMemoryGB?: string;
 
-  @IsDefined()
+  @IsOptional()
   @IsString()
-  totalVolumeGB: string;
+  totalVolumeGB?: string;
 }
 
 class ServicePriceClass {
@@ -236,10 +241,10 @@ class ServiceDefinitionClass {
   @Type(() => ResourceDefinitionClass)
   resources: ResourceDefinitionClass[];
 
-  @IsDefined()
+  @IsOptional()
   @ValidateNested()
   @Type(() => UsageDefinitionClass)
-  usage: UsageDefinitionClass;
+  usage?: UsageDefinitionClass | null;
 }
 
 export type ParameterAllowedvalue = InstanceType<typeof ParameterAllowedvalueClass>;
@@ -383,7 +388,7 @@ export function evaluateParameters(resource: ResourceDefinition, context: Defini
 
       const mapped = mapping.map[value];
       if (mapped) {
-        result[key] = mapped;
+        result[key] = evaluateExpression(mapped, context);
       }
     }
   }
@@ -392,7 +397,7 @@ export function evaluateParameters(resource: ResourceDefinition, context: Defini
 }
 
 export function evaluateUsage(service: ServiceDefinition, context: DefinitionContext) {
-  const evaluate = (expression: string) => {
+  const evaluate = (expression: string | undefined) => {
     const result = evaluateExpression(expression, context);
     const parsed = parseInt(result, 10);
     if (isNaN(parsed)) {
@@ -402,9 +407,9 @@ export function evaluateUsage(service: ServiceDefinition, context: DefinitionCon
     return parsed;
   };
 
-  const totalCores = evaluate(service.usage.totalCores);
-  const totalMemoryGB = evaluate(service.usage.totalMemoryGB);
-  const totalVolumeGB = evaluate(service.usage.totalVolumeGB);
+  const totalCores = evaluate(service.usage?.totalCores);
+  const totalMemoryGB = evaluate(service.usage?.totalMemoryGB);
+  const totalVolumeGB = evaluate(service.usage?.totalVolumeGB);
 
   return { totalCores, totalMemoryGB, totalVolumeGB };
 }
