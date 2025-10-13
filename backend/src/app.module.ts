@@ -42,6 +42,7 @@ import {
   UserGroupEntity,
   WorkerEntity,
 } from './domain/database';
+import { Init1760346162798, MigratorService } from './domain/database/migrations';
 import { ServicesModule } from './domain/services';
 import { SettingsModule } from './domain/settings';
 import { UsersModule } from './domain/users/module';
@@ -68,9 +69,9 @@ import { HealthModule } from './health';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        url: config.getOrThrow('DB_URL'),
-        type: config.get('DB_TYPE') || 'postgres',
+      useFactory: (configService: ConfigService) => ({
+        url: configService.getOrThrow('DB_URL'),
+        type: configService.get('DB_TYPE') || 'postgres',
         retryAttempts: 10,
         retryDelay: 100,
         entities: [
@@ -92,7 +93,7 @@ import { HealthModule } from './health';
           UserGroupEntity,
           WorkerEntity,
         ],
-        synchronize: true,
+        migrations: [Init1760346162798],
       }),
       dataSourceFactory: async (options) => {
         const dataSource = await new DataSource(options!).initialize();
@@ -116,5 +117,6 @@ import { HealthModule } from './health';
     UsersController,
     WorkersController,
   ],
+  providers: [MigratorService],
 })
 export class AppModule {}

@@ -15,7 +15,8 @@
       "start:prod": "node dist/main",
       "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --max-warnings 0",
       "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --max-warnings 0 --fix",
-      "typeorm": "typeorm-ts-node-commonjs",
+      "typeorm": "ts-node ./node_modules/typeorm/cli",
+      "typeorm:generate-migrations": "npm run typeorm migration:generate -- -d ./src/domain/database/data-source.ts",
       "test": "jest",
       "test:watch": "jest --watch",
       "test:cov": "jest --coverage",
@@ -74,9 +75,6 @@
       "yaml": "^2.8.1"
    },
    "devDependencies": {
-      "@types/node": "^24.3.0",
-      "ts-node": "^10.9.2",
-      "typescript": "^5.9.2",
       "@nestjs/cli": "^11.0.10",
       "@nestjs/schematics": "^11.0.7",
       "@nestjs/testing": "^11.1.6",
@@ -87,6 +85,7 @@
       "@types/express-session": "^1.18.2",
       "@types/jest": "^30.0.0",
       "@types/multer": "^2.0.0",
+      "@types/node": "^24.3.0",
       "@types/passport-github2": "^1.2.9",
       "@types/passport-google-oauth2": "^0.1.10",
       "@types/passport-jwt": "^4.0.1",
@@ -110,7 +109,9 @@
       "supertest": "^7.1.4",
       "ts-jest": "^29.4.1",
       "ts-loader": "^9.5.1",
-      "tsconfig-paths": "^4.2.0"
+      "ts-node": "^10.9.2",
+      "tsconfig-paths": "^4.2.0",
+      "typescript": "^5.9.2"
    },
    "jest": {
       "moduleFileExtensions": [
