@@ -170,7 +170,7 @@ export interface ServicePublic {
   parameters: ParameterDefinition[];
 
   // The usage definition.
-  usage?: UsageDefinition;
+  usage?: UsageDefinition | null;
 }
 
 export interface ServicePrice {

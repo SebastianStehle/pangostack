@@ -42,7 +42,7 @@ import {
   UserGroupEntity,
   WorkerEntity,
 } from './domain/database';
-import { Init1760346162798, MigratorService } from './domain/database/migrations';
+import { AddDefinitionSource1760346848861, Init1760346162798, MigratorService } from './domain/database/migrations';
 import { ServicesModule } from './domain/services';
 import { SettingsModule } from './domain/settings';
 import { UsersModule } from './domain/users/module';
@@ -93,7 +93,7 @@ import { HealthModule } from './health';
           UserGroupEntity,
           WorkerEntity,
         ],
-        migrations: [Init1760346162798],
+        migrations: [Init1760346162798, AddDefinitionSource1760346848861],
       }),
       dataSourceFactory: async (options) => {
         const dataSource = await new DataSource(options!).initialize();

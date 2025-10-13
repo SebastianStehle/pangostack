@@ -54,12 +54,6 @@ export interface ParameterDefinitionDto {
      */
     immutable: object | null;
     /**
-     * Indicates if the parameter can only be updated.
-     * @type {object}
-     * @memberof ParameterDefinitionDto
-     */
-    upgradeOnly: object | null;
-    /**
      * Indicates if the parameter should be displayed.
      * @type {object}
      * @memberof ParameterDefinitionDto
@@ -169,7 +163,6 @@ export function instanceOfParameterDefinitionDto(value: object): boolean {
     isInstance = isInstance && "type" in value;
     isInstance = isInstance && "required" in value;
     isInstance = isInstance && "immutable" in value;
-    isInstance = isInstance && "upgradeOnly" in value;
     isInstance = isInstance && "display" in value;
     isInstance = isInstance && "label" in value;
     isInstance = isInstance && "hint" in value;
@@ -201,7 +194,6 @@ export function ParameterDefinitionDtoFromJSONTyped(json: any, ignoreDiscriminat
         'type': json['type'],
         'required': json['required'],
         'immutable': json['immutable'],
-        'upgradeOnly': json['upgradeOnly'],
         'display': json['display'],
         'label': json['label'],
         'hint': json['hint'],
@@ -231,7 +223,6 @@ export function ParameterDefinitionDtoToJSON(value?: ParameterDefinitionDto | nu
         'type': value.type,
         'required': value.required,
         'immutable': value.immutable,
-        'upgradeOnly': value.upgradeOnly,
         'display': value.display,
         'label': value.label,
         'hint': value.hint,

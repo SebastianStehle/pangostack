@@ -124,7 +124,10 @@ parameters:
     section: More
     hint: Additional environment variables in the format key=value
 
-afterInstallationInstructions: Create a new A record from your domain **${parameters.domain}** to the IP address of the load balancer.
+afterInstallationInstructions: |-
+  Create a new A record from your domain **${parameters.domain}** to the IP address of our load balancer, depending on the region:
+
+  * Amsterdam: <IP_ADDRESS>
 
 pricingModel: pay_per_use
 
@@ -134,7 +137,7 @@ resources:
     type: vultr-storage
     parameters:
       apiKey: ${env.storageApiKey}
-      bucket: squidex
+      bucket: squidex-${context.deploymentUuid}
       tier: 2
     mappings:
       cluster:
@@ -146,35 +149,40 @@ resources:
     id: squidex
     type: helm
     parameters:
-      autoscaling.enabled: false
       chartName: squidex/squidex7
       chartVersion: 2.0.2
       deployment.replicaCount: ${parameters.squidexNodes}
-      env.ASSETSTORE__AMAZONS3__ACCESSKEY: ${context.storage.s3AccessKey}
-      env.ASSETSTORE__AMAZONS3__BUCKET: squidex
-      env.ASSETSTORE__AMAZONS3__SECRETKEY: ${context.storage.s3SecretKey}
-      env.ASSETSTORE__AMAZONS3__SERVICEURL: https://${context.storage.s3HostName}
-      env.ASSETSTORE__TYPE: AmazonS3
+      autoscaling.enabled: false
+      resources.limits.cpu: ${parameters.squidexCoresPerNode}
+      resources.limits.memory: ${parameters.squidexMemoryPerNode}Gi
+      resources.requests.cpu: ${parameters.squidexCoresPerNode}
+      resources.requests.memory: ${parameters.squidexMemoryPerNode}Gi
       env.BASE__URL: https://${parameters.domain}
       env.IDENTITY__GITHUBCLIENT: ${parameters.githubClient}
       env.IDENTITY__GITHUBSECRET: ${parameters.githubSecret}
       env.IDENTITY__GOOGLECLIENT: ${parameters.googleClient}
       env.IDENTITY__GOOGLESECRET: ${parameters.googleSecret}
       env.IDENTITY__MICROSOFTCLIENT: ${parameters.microsoftClient}
-      env.IDENTITY__MICROSOFTSECRET: ${parameters.microsoftSecret}
       env.LOGGING__LEVEL: Information
+      env.IDENTITY__MICROSOFTSECRET: ${parameters.microsoftSecret}
+      env.ASSETSTORE__AMAZONS3__ACCESSKEY: ${context.storage.s3AccessKey}
+      env.ASSETSTORE__AMAZONS3__SERVICEURL: https://${context.storage.s3HostName}
+      env.ASSETSTORE__AMAZONS3__SECRETKEY: ${context.storage.s3SecretKey}
+      env.ASSETSTORE__AMAZONS3__BUCKET: squidex-${context.deploymentUuid}
+      env.ASSETSTORE__TYPE: AmazonS3
       env.URLS__BASEURL: https://${parameters.domain}
+      networkPolicy.enabled: false
       environment: ${parameters.environment}
-      image.tag: 7.21.0
-      ingress.annotations.cert-manager\.io/cluster-issuer: letsencrypt-prod
       ingress.annotations.traefik\.ingress\.kubernetes\.io/redirect-entry-point: websecure
       ingress.annotations.traefik\.ingress\.kubernetes\.io/router\.tls: '"true"'
+      ingress.annotations.cert-manager\.io/cluster-issuer: letsencrypt-prod
       ingress.enabled: true
+      image.tag: 7.21.0
+      ingress.tls.0.certResolver: letsencrypt
       ingress.hostName: ${parameters.domain}
       ingress.ingressClassName: traefik
-      ingress.tls.0.certResolver: letsencrypt
-      ingress.tls.0.hosts.0: ${parameters.domain}
       ingress.tls.0.secretName: secret-${env.deploymentId}-tls
+      ingress.tls.0.hosts.0: ${parameters.domain}
       mongodb.persistence.size: ${parameters.mongoDbVolumePerNode}Gi
       mongodb.persistence.storageClass: vultr-block-storage
       mongodb.replicaCount: ${parameters.mongoDbNodes}
@@ -182,15 +190,11 @@ resources:
       mongodb.resources.limits.memory: ${parameters.mongoDbMemoryPerNode}Gi
       mongodb.resources.requests.cpu: ${parameters.mongoDbCoresPerNode}
       mongodb.resources.requests.memory: ${parameters.mongoDbMemoryPerNode}Gi
-      networkPolicy.enabled: false
       repositoryName: squidex
       repositoryUrl: https://squidex.github.io/squidex/helm/
-      resources.limits.cpu: ${parameters.squidexCoresPerNode}
-      resources.limits.memory: ${parameters.squidexMemoryPerNode}Gi
-      resources.requests.cpu: ${parameters.squidexCoresPerNode}
-      resources.requests.memory: ${parameters.squidexMemoryPerNode}Gi
     healthChecks:
       - name: Default
+        # Check the public domain.
         url: https://${parameters.domain}/healthz
         type: http
     mappings:

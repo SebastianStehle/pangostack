@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { NodeSSH } from 'node-ssh';
 import { pollUntil } from 'src/lib';
 import { VultrClient } from 'src/lib/vultr';
+import { InstanceGet } from 'src/lib/vultr/generated';
 import { defineResource, LogContext, Resource, ResourceApplyResult, ResourceRequest, ResourceStatusResult } from '../interface';
 
 type Parameters = { apiKey: string; region: string; plan: string; app: string; backup: boolean };
@@ -89,12 +90,12 @@ export class VultrVmResource implements Resource {
         message: 'Instance has no password. Previous attempt has failed. Deleting VM and trying again.',
         context: logContext,
       });
-      await vultr.instances.deleteInstance(id);
+      await vultr.instances.deleteInstance(vm.id!);
 
       vm = await this.createInstance(vultr, id, request, logContext);
     }
 
-    if (isValidIp(vm.mainIp)) {
+    if (isValidIp(vm)) {
       logContext.ip = vm.mainIp;
     }
 
@@ -211,19 +212,19 @@ async function waitForInstance(vultr: VultrClient, instance: any, timeout: numbe
   await pollUntil(timeout, async () => {
     const { instance } = await vultr.instances.getInstance(instanceId);
 
-    return isActiveStatus(instance) && isValidIp(instance) && (hasPassword || instance?.defaultPassword);
+    return !!instance && isActiveStatus(instance) && isValidIp(instance) && (hasPassword || !!instance.defaultPassword);
   });
 
   const { instance: newInstane } = await vultr.instances.getInstance(instanceId);
   return newInstane!;
 }
 
-function isActiveStatus(instance: any) {
-  return instance.server_status === 'ok' || instance.server_status === 'active';
+function isActiveStatus(instance: InstanceGet) {
+  return instance.serverStatus === 'ok' || instance.serverStatus === 'active';
 }
 
-function isValidIp(instance: any) {
-  return instance.main_ip && instance.main_ip !== '0.0.0.0';
+function isValidIp(instance: InstanceGet) {
+  return !!instance.mainIp && instance.mainIp !== '0.0.0.0';
 }
 
 async function findInstance(vultr: VultrClient, label: string) {

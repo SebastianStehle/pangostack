@@ -41,12 +41,9 @@ export const DeploymentControl = ({
     return <Forms.Number {...props} />;
   } else if (type === 'string' && allowedValues && allowedValues.length > 0) {
     let values = allowedValues;
-    if (initialValue && parameter.upgradeOnly) {
-      const currentValue = initialValue[parameter.name];
-      const currentIndex = allowedValues.findIndex((x) => x.value === currentValue);
-      if (currentIndex >= 0) {
-        values = values.filter((_, i) => i >= currentIndex);
-      }
+    if (initialValue) {
+      const current = initialValue[name];
+      values = values.filter((x) => x.value === current || !x.updateFrom || x.updateFrom.includes(current));
     }
 
     return <Forms.Select {...props} options={values} />;

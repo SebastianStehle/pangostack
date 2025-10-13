@@ -220,15 +220,15 @@ async function waitForStorage(vultr: VultrClient, instance: any, timeout: number
   await pollUntil(timeout, async () => {
     const { objectStorage: storage } = await vultr.objectStorages.getObjectStorage(storageId);
 
-    return isActiveStatus(storage);
+    return !!storage && isActiveStatus(storage);
   });
 
   const { objectStorage: newStorage } = await vultr.objectStorages.getObjectStorage(storageId);
   return newStorage!;
 }
 
-function isActiveStatus(storage: ObjectStorage | undefined) {
-  return storage?.status === 'ok' || storage?.status === 'active';
+function isActiveStatus(storage: ObjectStorage) {
+  return storage.status === 'ok' || storage.status === 'active';
 }
 
 async function findStorage(vultr: VultrClient, id: string) {

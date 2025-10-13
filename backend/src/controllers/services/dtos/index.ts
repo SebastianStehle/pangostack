@@ -376,7 +376,7 @@ class ParameterAllowedValueDto {
     description: 'The value.',
     required: true,
   })
-  value: any;
+  value: string;
 
   @ApiProperty({
     description: 'The display label.',
@@ -391,11 +391,19 @@ class ParameterAllowedValueDto {
   })
   hint?: string | null;
 
+  @ApiProperty({
+    description: 'The display label.',
+    nullable: true,
+    type: [String],
+  })
+  updateFrom?: string[];
+
   static fromDomain(source: ParameterAllowedvalue): ParameterAllowedValueDto {
     const result = new ParameterAllowedValueDto();
     result.value = source.value;
     result.label = source.label;
     result.hint = source.hint;
+    result.updateFrom = source.updateFrom;
     return result;
   }
 }
@@ -425,12 +433,6 @@ export class ParameterDefinitionDto {
     nullable: true,
   })
   immutable?: boolean | null;
-
-  @ApiProperty({
-    description: 'Indicates if the parameter can only be updated.',
-    nullable: true,
-  })
-  upgradeOnly?: boolean | null;
 
   @ApiProperty({
     description: 'Indicates if the parameter should be displayed.',
@@ -541,7 +543,6 @@ export class ParameterDefinitionDto {
     result.section = source.section;
     result.step = source.step;
     result.type = source.type;
-    result.upgradeOnly = source.upgradeOnly;
     return result;
   }
 }

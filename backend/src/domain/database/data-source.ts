@@ -19,6 +19,7 @@ import { UserEntity } from './entities/user';
 import { UserGroupEntity } from './entities/user-group';
 import { WorkerEntity } from './entities/worker';
 import { Init1760346162798 } from './migrations/1760346162798-Init';
+import { AddDefinitionSource1760346848861 } from './migrations/1760346848861-AddDefinitionSource';
 
 config();
 
@@ -46,5 +47,5 @@ export default new DataSource({
     UserGroupEntity,
     WorkerEntity,
   ],
-  migrations: [Init1760346162798],
+  migrations: [Init1760346162798, AddDefinitionSource1760346848861],
 });

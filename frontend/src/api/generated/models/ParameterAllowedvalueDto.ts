@@ -24,10 +24,10 @@ import { exists, mapValues } from '../runtime';
 export interface ParameterAllowedValueDto {
     /**
      * The value.
-     * @type {object}
+     * @type {string}
      * @memberof ParameterAllowedValueDto
      */
-    value: object;
+    value: string;
     /**
      * The display label.
      * @type {string}
@@ -40,6 +40,12 @@ export interface ParameterAllowedValueDto {
      * @memberof ParameterAllowedValueDto
      */
     hint: string | null;
+    /**
+     * The display label.
+     * @type {Array<string>}
+     * @memberof ParameterAllowedValueDto
+     */
+    updateFrom: Array<string> | null;
 }
 
 /**
@@ -50,6 +56,7 @@ export function instanceOfParameterAllowedValueDto(value: object): boolean {
     isInstance = isInstance && "value" in value;
     isInstance = isInstance && "label" in value;
     isInstance = isInstance && "hint" in value;
+    isInstance = isInstance && "updateFrom" in value;
 
     return isInstance;
 }
@@ -67,6 +74,7 @@ export function ParameterAllowedValueDtoFromJSONTyped(json: any, ignoreDiscrimin
         'value': json['value'],
         'label': json['label'],
         'hint': json['hint'],
+        'updateFrom': json['updateFrom'],
     };
 }
 
@@ -82,6 +90,7 @@ export function ParameterAllowedValueDtoToJSON(value?: ParameterAllowedValueDto 
         'value': value.value,
         'label': value.label,
         'hint': value.hint,
+        'updateFrom': value.updateFrom,
     };
 }
 

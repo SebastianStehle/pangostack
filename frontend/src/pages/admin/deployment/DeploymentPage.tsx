@@ -2,8 +2,8 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useClients } from 'src/api';
 import { toast } from 'react-toastify';
+import { useClients } from 'src/api';
 import {
   AdminHeader,
   ConfirmDialog,

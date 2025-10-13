@@ -33,7 +33,7 @@ export function buildDeployment(
 }
 
 export function buildServiceVersion(source: ServiceVersionEntity, isDefault: boolean): ServiceVersion {
-  const { id, definition, environment, isActive, name } = source;
+  const { id, definition, definitionSource, environment, isActive, name } = source;
 
   const handledDeployments = new Set<number>();
   if (source.deploymentUpdates) {
@@ -42,7 +42,7 @@ export function buildServiceVersion(source: ServiceVersionEntity, isDefault: boo
     }
   }
 
-  return { id, definition, environment, isActive, isDefault, name, numDeployments: handledDeployments.size };
+  return { id, definition, definitionSource, environment, isActive, isDefault, name, numDeployments: handledDeployments.size };
 }
 
 export function buildServicePublic(source: ServiceEntity, serviceVersion?: ServiceVersionEntity | null): ServicePublic {
