@@ -2,6 +2,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TeamEntity, TeamRepository, TeamUserEntity, TeamUserRepository, UserEntity, UserRepository } from 'src/domain/database';
+import { NotificationsService } from 'src/domain/notifications';
 import { Team, User } from '../interfaces';
 import { buildTeam } from './utils';
 
@@ -23,6 +24,7 @@ export class SetTeamUserResponse {
 @CommandHandler(SetTeamUser)
 export class SetTeamUserHandler implements ICommandHandler<SetTeamUser, any> {
   constructor(
+    private readonly notifications: NotificationsService,
     @InjectRepository(UserEntity)
     private readonly users: UserRepository,
     @InjectRepository(TeamEntity)
@@ -66,6 +68,9 @@ export class SetTeamUserHandler implements ICommandHandler<SetTeamUser, any> {
     if (!withUsers) {
       throw new NotFoundException(`Team ${teamId} was deleted in the meantime.`);
     }
+
+    // This method will catch exceptions.
+    await this.notifications.subscribe(user.id, `teams/${team.id}`);
 
     return new SetTeamUserResponse(buildTeam(withUsers));
   }

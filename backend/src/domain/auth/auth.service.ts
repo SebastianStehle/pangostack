@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
@@ -13,17 +13,19 @@ import {
   UserGroupRepository,
   UserRepository,
 } from '../database';
+import { NotificationsService } from '../notifications';
 import { User } from '../users';
 import { AuthConfig } from './interfaces';
 
 @Injectable()
-export class AuthService implements OnModuleInit {
+export class AuthService implements OnApplicationBootstrap {
   private readonly logger = new Logger(AuthService.name);
 
   public readonly config: Readonly<AuthConfig>;
 
   constructor(
     private readonly configService: ConfigService,
+    private readonly notifications: NotificationsService,
     @InjectRepository(UserEntity)
     private readonly users: UserRepository,
     @InjectRepository(UserGroupEntity)
@@ -102,7 +104,7 @@ export class AuthService implements OnModuleInit {
     }
   }
 
-  async onModuleInit(): Promise<any> {
+  async onApplicationBootstrap(): Promise<any> {
     await this.setupUsers();
     await this.setupAdmins();
   }
@@ -129,8 +131,10 @@ export class AuthService implements OnModuleInit {
       existing.userGroupId = BUILTIN_USER_GROUP_ADMIN;
       existing.passwordHash ||= await bcrypt.hash(password, 10);
       existing.apiKey ||= apiKey;
-
       await this.users.save(existing);
+
+      // This method will catch exceptions.
+      await this.notifications.upsertUsers([existing]);
 
       this.logger.log(`Created user with email '${email}'.`);
     } else {

@@ -2,6 +2,7 @@ import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserEntity, UserRepository } from 'src/domain/database';
+import { NotificationsService } from 'src/domain/notifications';
 import { User } from '../interfaces';
 import { buildUser } from './utils';
 
@@ -20,6 +21,7 @@ export class CreateUserResult {
 @CommandHandler(CreateUser)
 export class CreateUserHandler implements ICommandHandler<CreateUser, CreateUserResult> {
   constructor(
+    private readonly notifications: NotificationsService,
     @InjectRepository(UserEntity)
     private readonly users: UserRepository,
   ) {}
@@ -37,6 +39,9 @@ export class CreateUserHandler implements ICommandHandler<CreateUser, CreateUser
       userGroupId,
     });
     await this.users.save(user);
+
+    // This method will catch exceptions.
+    await this.notifications.upsertUsers([user]);
 
     return new CreateUserResult(buildUser(user));
   }

@@ -14,7 +14,7 @@ export async function chargeDeployments(): Promise<void> {
   const dateFrom = lastMonthStartUtcDate();
   const dateTo = lastMonthEndUtcDate();
 
-  for (const deploymentId of deployments) {
+  for (const { id: deploymentId } of deployments) {
     try {
       await chargeDeployment({ deploymentId, dateFrom, dateTo });
     } catch (ex: any) {

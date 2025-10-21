@@ -47,7 +47,7 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
     @InjectRepository(ServiceVersionEntity)
     private readonly serviceVersions: ServiceVersionRepository,
     @InjectRepository(WorkerEntity)
-    private readonly workerRepository: WorkerRepository,
+    private readonly workers: WorkerRepository,
     private readonly workflows: WorkflowService,
   ) {}
 
@@ -100,7 +100,7 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
     // Event validate with the current parameters to ensure that they still match to the current version.
     validateParameters(version.definition, parameters, lastUpdate.parameters);
 
-    const worker = await this.workerRepository.findOne({ where: { endpoint: Not(IsNull()) } });
+    const worker = await this.workers.findOne({ where: { endpoint: Not(IsNull()) } });
     if (!worker) {
       throw new NotFoundException('No worker registered.');
     }

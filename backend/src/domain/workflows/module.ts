@@ -10,6 +10,7 @@ import {
   WorkerEntity,
 } from 'src/domain/database';
 import { BillingModule } from '../billing';
+import { NotificationModule } from '../notifications';
 import {
   ChargeDeploymentActivity,
   CleanupDeploymentsChecksActivity,
@@ -20,6 +21,7 @@ import {
   DeployResourceActivity,
   GetDeploymentsActivity,
   GetWorkerActivity,
+  NotifyActivity,
   TrackDeploymentHealthActivity,
   TrackDeploymentUsageActivity,
   UpdateDeploymentActivity,
@@ -31,6 +33,7 @@ import { TemporalService, WorkflowService } from './services';
   imports: [
     BillingModule,
     ConfigModule,
+    NotificationModule,
     TypeOrmModule.forFeature([
       BilledDeploymentEntity,
       DeploymentEntity,
@@ -51,6 +54,7 @@ import { TemporalService, WorkflowService } from './services';
     DeployResourceActivity,
     GetDeploymentsActivity,
     GetWorkerActivity,
+    NotifyActivity,
     TemporalService,
     TrackDeploymentHealthActivity,
     TrackDeploymentUsageActivity,

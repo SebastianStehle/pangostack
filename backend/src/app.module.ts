@@ -43,6 +43,8 @@ import {
   WorkerEntity,
 } from './domain/database';
 import { AddDefinitionSource1760346848861, Init1760346162798, MigratorService } from './domain/database/migrations';
+import { notifoConfig } from './domain/notifications';
+import { NotificationModule } from './domain/notifications';
 import { ServicesModule } from './domain/services';
 import { SettingsModule } from './domain/settings';
 import { UsersModule } from './domain/users/module';
@@ -55,9 +57,10 @@ import { HealthModule } from './health';
     AuthModule,
     BillingModule,
     CacheModule.register({ isGlobal: true, shouldCloneBeforeSet: false }),
-    ConfigModule.forRoot({ load: [billingConfig] }),
+    ConfigModule.forRoot({ load: [billingConfig, notifoConfig] }),
     CqrsModule,
     HealthModule,
+    NotificationModule,
     ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', 'assets') }),
     ServicesModule,
     SettingsModule,

@@ -14,7 +14,7 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
 
   constructor(
     @InjectRepository(UserEntity)
-    private readonly userRepository: UserRepository,
+    private readonly users: UserRepository,
   ) {
     super();
   }
@@ -23,10 +23,10 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
     const apiKey = this.findApiKey(request);
 
     if (apiKey) {
-      return await this.userRepository.findOneBy({ apiKey });
+      return await this.users.findOneBy({ apiKey });
     } else if (request.session.user) {
       // Always replace the current user to get the current user group in the domain layer.
-      return await this.userRepository.findOneBy({ id: request.session.user.id });
+      return await this.users.findOneBy({ id: request.session.user.id });
     }
 
     return null;

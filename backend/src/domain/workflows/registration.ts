@@ -4,11 +4,11 @@ import { ModulesContainer } from '@nestjs/core';
 
 export const ACTIVITY_METADATA = 'ACTIVITY';
 
-export const Activity = (activityFunction: Function): ClassDecorator => {
-  return (target: object) => {
+export function Activity<T, R>(activityFunction: (param: T) => Promise<R>): ClassDecorator {
+  return <TFunction extends Function>(target: TFunction) => {
     Reflect.defineMetadata(ACTIVITY_METADATA, { name: activityFunction.name }, target);
   };
-};
+}
 
 export interface Activity<T, R = any> {
   execute: (param: T) => Promise<R>;

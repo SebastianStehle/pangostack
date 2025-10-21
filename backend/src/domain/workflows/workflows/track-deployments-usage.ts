@@ -16,7 +16,7 @@ export async function trackDeploymentsUsage(): Promise<void> {
   const trackDate = todayUtcDate();
   const trackHour = new Date().getUTCHours();
 
-  for (const deploymentId of deployments) {
+  for (const { id: deploymentId } of deployments) {
     try {
       await trackDeploymentUsage({
         deploymentId,

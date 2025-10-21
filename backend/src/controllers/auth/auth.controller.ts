@@ -3,12 +3,16 @@ import { ApiExcludeEndpoint, ApiNoContentResponse, ApiOkResponse, ApiOperation, 
 import { Request } from 'express';
 import { GithubAuthGuard, GoogleAuthGuard, LocalAuthGuard, MicrosoftAuthGuard, OAuthAuthGuard } from 'src/domain/auth';
 import { AuthService } from 'src/domain/auth/auth.service';
+import { NotificationsService } from 'src/domain/notifications';
 import { AuthSettingsDto, LoginDto, ProfileDto } from './dtos';
 
 @Controller('api/auth')
 @ApiTags('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   @Get('settings')
   @ApiOperation({ operationId: 'getAuthSettings', description: 'The settings.' })
@@ -24,7 +28,8 @@ export class AuthController {
   @ApiOkResponse({ type: ProfileDto })
   @UseGuards(LocalAuthGuard)
   async getProfile(@Req() req: Request) {
-    return ProfileDto.fromDomain(req.user);
+    const notifo = await this.notifications.getToken(req.user.id);
+    return ProfileDto.fromDomain(req.user, notifo);
   }
 
   @Get('logout')
@@ -32,10 +37,7 @@ export class AuthController {
   @Redirect()
   async getLogout(@Req() req: Request, @Query('redirectUrl') redirectUrl?: string) {
     await this.authService.logout(req);
-
-    const url = this.getRedirectUrl(req, redirectUrl);
-
-    return { url };
+    return this.getRedirectUrl(req, redirectUrl);
   }
 
   @Post('login')
@@ -57,10 +59,7 @@ export class AuthController {
   @UseGuards(GithubAuthGuard)
   async githubAuthCallback(@Req() req: Request, @Query('state') state: string) {
     await this.authService.login(req.user, req);
-
-    const url = this.getRedirectUrl(req, state);
-
-    return { url };
+    return this.getRedirectUrl(req, state);
   }
 
   @Get('login/google')
@@ -75,10 +74,7 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   async googleAuthCallback(@Req() req: Request, @Query('state') state: string) {
     await this.authService.login(req.user, req);
-
-    const url = this.getRedirectUrl(req, state);
-
-    return { url };
+    return this.getRedirectUrl(req, state);
   }
 
   @Get('login/microsoft')
@@ -93,10 +89,7 @@ export class AuthController {
   @UseGuards(MicrosoftAuthGuard)
   async microsoftAuthCallback(@Req() req: Request, @Query('state') state: string) {
     await this.authService.login(req.user, req);
-
-    const url = this.getRedirectUrl(req, state);
-
-    return { url };
+    return this.getRedirectUrl(req, state);
   }
 
   @Get('login/oauth')
@@ -111,10 +104,7 @@ export class AuthController {
   @UseGuards(OAuthAuthGuard)
   async oauthAuthCallback(@Req() req: Request, @Query('state') state: string) {
     await this.authService.login(req.user, req);
-
-    const url = this.getRedirectUrl(req, state);
-
-    return { url };
+    return this.getRedirectUrl(req, state);
   }
 
   private getRedirectUrl(req: Request, url?: string) {
@@ -125,14 +115,14 @@ export class AuthController {
     }
 
     if (!IS_PRODUCTION) {
-      return finalUrl;
+      return { url: finalUrl };
     }
 
     if (finalUrl.startsWith(this.authService.config.baseUrl)) {
-      return finalUrl;
+      return { url: finalUrl };
     }
 
-    return this.authService.config.baseUrl;
+    return { url: this.authService.config.baseUrl };
   }
 }
 

@@ -1,4 +1,5 @@
 import { proxyActivities } from '@temporalio/workflow';
+import { Topics } from 'src/domain/notifications/topics';
 import type * as activities from '../activities';
 
 export interface DeployResourcesParam {
@@ -17,7 +18,7 @@ const { deleteResource, deployResource } = proxyActivities<typeof activities>({
   },
 });
 
-const { updateDeployment, getWorker } = proxyActivities<typeof activities>({
+const { updateDeployment, getDeployment, getWorker, notify } = proxyActivities<typeof activities>({
   startToCloseTimeout: '30s',
   retry: {
     maximumAttempts: 3,
@@ -62,5 +63,29 @@ export async function deployResources({
     await updateDeployment({ updateId, status: 'Completed' });
   } catch (ex) {
     await updateDeployment({ updateId, status: 'Failed', error: `${ex}` });
+  }
+
+  const deployment = await getDeployment({ id: deploymentId });
+  if (!deployment) {
+    return;
+  }
+
+  const topic = Topics.team(deployment.teamId);
+  if (previousResourceIds) {
+    await notify({
+      topic,
+      templateCode: 'DEPLOYMENT_UPDATED',
+      properties: {
+        ...deployment,
+      },
+    });
+  } else {
+    await notify({
+      topic,
+      templateCode: 'DEPLOYMENT_CREATED',
+      properties: {
+        ...deployment,
+      },
+    });
   }
 }

@@ -124,13 +124,29 @@ export class ProfileDto {
   })
   isAdmin: boolean;
 
-  static fromDomain(source: User) {
+  @ApiProperty({
+    description: 'The api key for notifo.',
+    nullable: true,
+    type: String,
+  })
+  notifoApiKey?: string | null;
+
+  @ApiProperty({
+    description: 'The URL for notifo.',
+    nullable: true,
+    type: String,
+  })
+  notifoUrl?: string | null;
+
+  static fromDomain(source: User, notifo: { apiKey: string; url: string } | null) {
     const result = new ProfileDto();
     result.id = source.id;
     result.email = source.email;
     result.isAdmin = source.userGroupId === BUILTIN_USER_GROUP_ADMIN;
     result.name = source.name ?? source.email;
     result.picture = source.picture;
+    result.notifoApiKey = notifo?.apiKey;
+    result.notifoUrl = notifo?.url;
     return result;
   }
 }
