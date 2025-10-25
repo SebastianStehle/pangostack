@@ -1,6 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { config } from 'dotenv';
 import { DataSource } from 'typeorm';
+import { DbConfig } from './config';
 import { BilledDeploymentEntity } from './entities/billed-deployment';
 import { BlobEntity } from './entities/blob';
 import { CacheEntity } from './entities/cache';
@@ -23,11 +24,10 @@ import { AddDefinitionSource1760346848861 } from './migrations/1760346848861-Add
 
 config();
 
-const configService = new ConfigService();
+const dbConfig = new ConfigService().getOrThrow<DbConfig>('db');
 
 export default new DataSource({
-  url: configService.getOrThrow('DB_URL'),
-  type: (configService.get('DB_TYPE') || 'postgres') as 'postgres',
+  ...dbConfig,
   entities: [
     BilledDeploymentEntity,
     BlobEntity,

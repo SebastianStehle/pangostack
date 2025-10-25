@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { LibModule } from 'src/lib';
 import { SessionEntity, UserEntity, UserGroupEntity } from '../database';
 import { NotificationModule } from '../notifications';
 import { AuthService } from './auth.service';
@@ -14,6 +15,7 @@ import { OAuthStrategy } from './strategies/oauth-strategy';
 @Module({
   imports: [
     ConfigModule,
+    LibModule,
     NotificationModule,
     PassportModule,
     TypeOrmModule.forFeature([SessionEntity, UserEntity, UserGroupEntity]),

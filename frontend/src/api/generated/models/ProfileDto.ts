@@ -52,6 +52,18 @@ export interface ProfileDto {
      * @memberof ProfileDto
      */
     isAdmin: boolean;
+    /**
+     * The api key for notifo.
+     * @type {string}
+     * @memberof ProfileDto
+     */
+    notifoApiKey: string | null;
+    /**
+     * The URL for notifo.
+     * @type {string}
+     * @memberof ProfileDto
+     */
+    notifoUrl: string | null;
 }
 
 /**
@@ -64,6 +76,8 @@ export function instanceOfProfileDto(value: object): boolean {
     isInstance = isInstance && "email" in value;
     isInstance = isInstance && "picture" in value;
     isInstance = isInstance && "isAdmin" in value;
+    isInstance = isInstance && "notifoApiKey" in value;
+    isInstance = isInstance && "notifoUrl" in value;
 
     return isInstance;
 }
@@ -83,6 +97,8 @@ export function ProfileDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         'email': json['email'],
         'picture': json['picture'],
         'isAdmin': json['isAdmin'],
+        'notifoApiKey': json['notifoApiKey'],
+        'notifoUrl': json['notifoUrl'],
     };
 }
 
@@ -100,6 +116,8 @@ export function ProfileDtoToJSON(value?: ProfileDto | null): any {
         'email': value.email,
         'picture': value.picture,
         'isAdmin': value.isAdmin,
+        'notifoApiKey': value.notifoApiKey,
+        'notifoUrl': value.notifoUrl,
     };
 }
 

@@ -1,6 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeploymentEntity, DeploymentRepository } from 'src/domain/database';
-import { last } from 'src/lib';
+import { last, UrlService } from 'src/lib';
 import { Activity } from '../registration';
 
 export type GetDeploymentParam = { id: number };
@@ -10,11 +10,13 @@ export type GetDeploymentResult = {
   serviceName: string;
   serviceVersion: string;
   teamId: number;
+  url: string;
 } | null;
 
 @Activity(getDeployment)
 export class GetDeploymentActivity implements Activity<GetDeploymentParam, GetDeploymentResult> {
   constructor(
+    private readonly urlService: UrlService,
     @InjectRepository(DeploymentEntity)
     private readonly deployments: DeploymentRepository,
   ) {}
@@ -36,6 +38,7 @@ export class GetDeploymentActivity implements Activity<GetDeploymentParam, GetDe
       serviceName: deployment.service.name,
       serviceVersion: last(deployment.updates).serviceVersion.name,
       teamId: deployment.teamId,
+      url: this.urlService.deploymentUrl(deployment.teamId, deployment.id),
     };
   }
 }

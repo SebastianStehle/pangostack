@@ -2,13 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-google-oauth2';
 import { User } from 'src/domain/users';
+import { UrlService } from 'src/lib';
 import { AuthService } from '../auth.service';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
-  constructor(authService: AuthService) {
+  constructor(authService: AuthService, urlService: UrlService) {
     super({
-      callbackURL: `${authService.config.baseUrl}/api/auth/login/google/callback`,
+      callbackURL: urlService.buildUrl('/api/auth/login/google/callback'),
       clientID: authService.config.google?.clientId || 'INVALID',
       clientSecret: authService.config.google?.clientSecret || 'INVALID',
       scope: ['profile', 'email'],

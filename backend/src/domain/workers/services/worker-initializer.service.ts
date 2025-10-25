@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not } from 'typeorm';
 import { WorkerEntity, WorkerRepository } from 'src/domain/database';
+import { WorkerConfig } from '../config';
 
 @Injectable()
 export class WorkerInitializerService implements OnApplicationBootstrap {
@@ -18,7 +19,7 @@ export class WorkerInitializerService implements OnApplicationBootstrap {
       return;
     }
 
-    const endpoint = this.configService.get('WORKER_ENDPOINT') || 'http://localhost:3000';
+    const endpoint = this.configService.get<WorkerConfig>('worker')?.endpoint || 'http://localhost:3000';
 
     worker = this.workers.create({ endpoint });
     await this.workers.save(worker);

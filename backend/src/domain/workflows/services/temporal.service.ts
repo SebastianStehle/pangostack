@@ -2,19 +2,19 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Client } from '@temporalio/client';
 import { NativeConnection } from '@temporalio/worker';
+import { WorkflowConfig } from '../config';
 
 @Injectable()
 export class TemporalService {
   private readonly connection: Promise<NativeConnection>;
-  private readonly client: Promise<Client>;
+  private readonly client: Promise<Client> = (async () => {
+    return new Client({ connection: await this.connection });
+  })();
 
   constructor(configService: ConfigService) {
-    this.connection = this.createConnection({
-      address: configService.get('TEMPORAL_ADDRESS'),
-      apiKey: configService.get('TEMPORAL_APIKEY'),
-    });
+    const config = configService.getOrThrow<WorkflowConfig>('workflow.temporal');
 
-    this.client = this.createClient();
+    this.connection = this.createConnection(config.temporal);
   }
 
   public async getClient(): Promise<[NativeConnection, Client]> {
@@ -23,9 +23,5 @@ export class TemporalService {
 
   private async createConnection(config: { address?: string; apiKey?: string }): Promise<NativeConnection> {
     return NativeConnection.connect(config);
-  }
-
-  private async createClient(): Promise<Client> {
-    return new Client({ connection: await this.connection });
   }
 }

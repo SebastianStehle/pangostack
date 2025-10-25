@@ -153,11 +153,36 @@
 }
 
 .log .ace_editor {
-  background-color: transparent;
+  @apply bg-transparent;
 }
 
 .log > div {
-  border: 0;
+  @apply border-0;
+}
+
+.notifo-button {
+  @apply btn !px-4 flex items-center rounded-full border-0 bg-transparent shadow-none transition-colors duration-500 ease-in-out hover:bg-black/20;
+}
+
+.notifo-seen-label {
+  @apply !top-0 !right-0;
+}
+
+.notifo-modal {
+  @apply top-[2rem];
+}
+
+.notifo-button > svg {
+  @apply h-[1.2rem];
+}
+
+.notifo-powered svg {
+  @apply inline-block;
+}
+
+.notifo {
+  --color-button: white !important;
+  display: flex !important;
 }
 
 .Toastify__toast-container {

@@ -58,6 +58,7 @@
       "date-fns": "^4.1.0",
       "date-fns-tz": "^3.2.0",
       "express-session": "^1.18.2",
+      "joi": "^18.0.1",
       "logform": "^2.7.0",
       "nest-winston": "^1.10.2",
       "passport-custom": "^1.1.1",

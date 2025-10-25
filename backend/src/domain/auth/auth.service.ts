@@ -15,7 +15,7 @@ import {
 } from '../database';
 import { NotificationsService } from '../notifications';
 import { User } from '../users';
-import { AuthConfig } from './interfaces';
+import { AuthConfig } from './config';
 
 @Injectable()
 export class AuthService implements OnApplicationBootstrap {
@@ -24,84 +24,14 @@ export class AuthService implements OnApplicationBootstrap {
   public readonly config: Readonly<AuthConfig>;
 
   constructor(
-    private readonly configService: ConfigService,
+    configService: ConfigService,
     private readonly notifications: NotificationsService,
     @InjectRepository(UserEntity)
     private readonly users: UserRepository,
     @InjectRepository(UserGroupEntity)
     private readonly userGroups: UserGroupRepository,
   ) {
-    const config: AuthConfig = {
-      baseUrl: configService.get('AUTH_BASEURL') || 'https://localhost:3000',
-    };
-
-    this.configureGithub(configService, config);
-    this.configureGoogle(configService, config);
-    this.configureMicrosoft(configService, config);
-    this.configureOAuth2(configService, config);
-    config.enablePassword = configService.get('AUTH_ENABLE_PASSWORD');
-
-    this.config = config;
-  }
-
-  private configureGithub(configService: ConfigService, config: AuthConfig) {
-    const clientId = configService.get('AUTH_GITHUB_CLIENTID');
-    const clientSecret = configService.get('AUTH_GITHUB_CLIENTSECRET');
-
-    if (clientId && clientSecret) {
-      config.github = {
-        clientId,
-        clientSecret,
-      };
-    }
-  }
-
-  private configureGoogle(configService: ConfigService, config: AuthConfig) {
-    const clientId = configService.get('AUTH_GOOGLE_CLIENTID');
-    const clientSecret = configService.get('AUTH_GOOGLE_CLIENTSECRET');
-
-    if (clientId && clientSecret) {
-      config.google = {
-        clientId,
-        clientSecret,
-      };
-    }
-  }
-
-  private configureMicrosoft(configService: ConfigService, config: AuthConfig) {
-    const clientId = configService.get('AUTH_MICROSOFT_CLIENTID');
-    const clientSecret = configService.get('AUTH_MICROSOFT_CLIENTSECRET');
-    const tenant = configService.get('AUTH_MICROSOFT_TENANT');
-
-    if (clientId && clientSecret) {
-      config.microsoft = {
-        clientId,
-        clientSecret,
-        tenant,
-      };
-    }
-  }
-
-  private configureOAuth2(configService: ConfigService, config: AuthConfig) {
-    const authorizationURL = configService.get('AUTH_OAUTH_AUTHORIZATION_URL');
-    const brandColor = configService.get('AUTH_OAUTH_BRAND_COLOR');
-    const brandName = configService.get('AUTH_OAUTH_BRAND_NAME');
-    const clientId = configService.get('AUTH_OAUTH_CLIENTID');
-    const clientSecret = configService.get('AUTH_OAUTH_CLIENTSECRET');
-    const tokenURL = configService.get('AUTH_OAUTH_TOKEN_URL');
-    const userInfoURL = configService.get('AUTH_OAUTH_USER_INFO_URL');
-
-    if (authorizationURL && clientId && clientSecret && tokenURL && userInfoURL) {
-      config.oauth = {
-        authorizationURL,
-        brandColor,
-        brandName,
-        clientId,
-        clientSecret,
-        tokenURL,
-        userInfoURL,
-      };
-    }
+    this.config = configService.getOrThrow<AuthConfig>('auth');
   }
 
   async onApplicationBootstrap(): Promise<any> {
@@ -110,9 +40,7 @@ export class AuthService implements OnApplicationBootstrap {
   }
 
   private async setupAdmins() {
-    const email = this.configService.get('AUTH_INITIALUSER_EMAIL');
-    const apiKey = this.configService.get('AUTH_INITIALUSER_APIKEY');
-    const password = this.configService.get('AUTH_INITIALUSER_PASSWORD');
+    const { email, password, apiKey } = this.config.initialUser || {};
 
     if (!email || !password) {
       return;
@@ -125,20 +53,15 @@ export class AuthService implements OnApplicationBootstrap {
       return;
     }
 
-    const existing = await this.users.findOneBy({ email: email });
-
+    let existing = await this.users.findOneBy({ email: email });
     if (existing) {
+      existing.apiKey ||= apiKey;
       existing.userGroupId = BUILTIN_USER_GROUP_ADMIN;
       existing.passwordHash ||= await bcrypt.hash(password, 10);
-      existing.apiKey ||= apiKey;
-      await this.users.save(existing);
 
-      // This method will catch exceptions.
-      await this.notifications.upsertUsers([existing]);
-
-      this.logger.log(`Created user with email '${email}'.`);
+      this.logger.log(`Creating user with email '${email}'.`);
     } else {
-      await saveAndFind(this.users, {
+      existing = this.users.create({
         id: uuid.v4(),
         apiKey,
         email,
@@ -147,8 +70,13 @@ export class AuthService implements OnApplicationBootstrap {
         userGroupId: BUILTIN_USER_GROUP_ADMIN,
       });
 
-      this.logger.log(`Created initial user with email '${email}'.`);
+      this.logger.log(`Creating initial user with email '${email}'.`);
     }
+
+    await this.users.save(existing);
+
+    // This method will catch exceptions.
+    await this.notifications.upsertUsers([existing]);
   }
 
   private async setupUsers() {
@@ -213,10 +141,7 @@ export class AuthService implements OnApplicationBootstrap {
         user.userGroupId = BUILTIN_USER_GROUP_DEFAULT;
       }
 
-      await this.users.save(user);
-
-      // Reload the user again to get the default values from the database.
-      fromDB = await this.users.findOneBy({ id: user.id });
+      fromDB = await saveAndFind(this.users, user);
     }
 
     await new Promise((resolve) => {

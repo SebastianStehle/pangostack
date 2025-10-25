@@ -1,5 +1,5 @@
 import { ActivityFailure, log, proxyActivities } from '@temporalio/workflow';
-import { lastMonthEndUtcDate, lastMonthStartUtcDate } from 'src/lib/time';
+import { lastMonthEndUtcDate, lastMonthStartUtcDate } from 'src/lib/helpers/time';
 import type * as activities from '../activities';
 
 const { chargeDeployment, getDeployments } = proxyActivities<typeof activities>({

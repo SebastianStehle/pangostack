@@ -1,12 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NotifoClient } from '@notifo/notifo';
-
-export interface NotifoConfig {
-  apiKey: string;
-  apiUrl: string;
-  appId: string;
-}
+import { NotifoConfig } from '../config';
 
 @Injectable()
 export class NotificationsService {
@@ -15,9 +10,9 @@ export class NotificationsService {
   private readonly config?: NotifoConfig;
 
   constructor(configService: ConfigService) {
-    this.config = configService.get<NotifoConfig>('notifo');
+    this.config = configService.get<NotifoConfig>('notification.notifo');
 
-    if (this.config?.apiKey && this.config?.apiUrl) {
+    if (this.config?.apiKey && this.config?.apiUrl && this.config.appId) {
       this.client = new NotifoClient({ apiKey: this.config.apiKey, url: this.config.apiUrl });
     }
   }
@@ -27,22 +22,32 @@ export class NotificationsService {
       return null;
     }
 
-    const user = await this.client.users.getUser(this.config.appId, userId);
+    const user = await this.client.users.getUser(this.config.appId!, userId);
     if (!user) {
       return null;
     }
 
-    return { apiKey: user.apiKey, url: this.config.apiUrl };
+    return { apiKey: user.apiKey, url: this.config.apiUrl! };
   }
 
-  async notify(topic: string, templateCode: string, properties = {}) {
+  async notify(topic: string, templateCode: string, properties: Record<string, string> = {}, url?: string) {
     if (!this.client || !this.config) {
       return;
     }
 
     try {
-      await this.client.events.postEvents(this.config.appId, {
-        requests: [{ topic, templateCode, properties }],
+      if (url) {
+        properties['url'] = url;
+      }
+
+      await this.client.events.postEvents(this.config.appId!, {
+        requests: [
+          {
+            topic,
+            templateCode,
+            properties,
+          },
+        ],
       });
     } catch (ex: unknown) {
       this.logger.error(`Failed to notify users at topic ${topic}`, ex);
@@ -55,7 +60,7 @@ export class NotificationsService {
     }
 
     try {
-      await this.client.users.postSubscriptions(this.config.appId, userId, {
+      await this.client.users.postSubscriptions(this.config.appId!, userId, {
         subscribe: [{ topicPrefix: topic }],
       });
     } catch (ex: unknown) {
@@ -69,7 +74,7 @@ export class NotificationsService {
     }
 
     try {
-      await this.client.users.postSubscriptions(this.config.appId, userId, {
+      await this.client.users.postSubscriptions(this.config.appId!, userId, {
         unsubscribe: [topic],
       });
     } catch (ex: unknown) {
@@ -83,8 +88,14 @@ export class NotificationsService {
     }
 
     try {
-      await this.client.users.postUsers(this.config.appId, {
-        requests: users.map((u) => ({ ...u, settings: { email: { send: 'Send', condition: 'Always', required: 'Inherit' } } })),
+      await this.client.users.postUsers(this.config.appId!, {
+        requests: users.map((u) => ({
+          id: u.id,
+          emailAddress: u.email,
+          fullName: u.name,
+          scheduling: undefined,
+          settings: { email: { send: 'Send', condition: 'Always', required: 'Inherit' } },
+        })),
       });
     } catch (ex: unknown) {
       this.logger.error('Failed to upsert users', ex);

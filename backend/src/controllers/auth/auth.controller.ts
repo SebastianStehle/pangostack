@@ -4,6 +4,7 @@ import { Request } from 'express';
 import { GithubAuthGuard, GoogleAuthGuard, LocalAuthGuard, MicrosoftAuthGuard, OAuthAuthGuard } from 'src/domain/auth';
 import { AuthService } from 'src/domain/auth/auth.service';
 import { NotificationsService } from 'src/domain/notifications';
+import { UrlService } from 'src/lib';
 import { AuthSettingsDto, LoginDto, ProfileDto } from './dtos';
 
 @Controller('api/auth')
@@ -12,6 +13,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly notifications: NotificationsService,
+    private readonly urlService: UrlService,
   ) {}
 
   @Get('settings')
@@ -118,11 +120,11 @@ export class AuthController {
       return { url: finalUrl };
     }
 
-    if (finalUrl.startsWith(this.authService.config.baseUrl)) {
+    if (this.urlService.isValidRedirectUrl(finalUrl)) {
       return { url: finalUrl };
     }
 
-    return { url: this.authService.config.baseUrl };
+    return { url: this.urlService.buildUrl('/') };
   }
 }
 

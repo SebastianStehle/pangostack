@@ -17,21 +17,27 @@ export async function trackDeploymentsHealths(): Promise<void> {
     try {
       const result = await trackDeploymentHealth({ deploymentId });
 
+      const deploymentProperties: Record<string, string> = Object.fromEntries(
+        Object.entries(deployment).map(([key, value]) => [key, String(value)]),
+      );
+
       if (result === 'BecomeDegraded') {
         await notify({
           topic: Topics.team(deployment.teamId),
           templateCode: 'DEPLOYMENT_UNHEALTHY',
           properties: {
-            ...deployment,
+            ...deploymentProperties,
           },
+          url: deployment.url,
         });
       } else if (result === 'BecomeHealthy') {
         await notify({
           topic: Topics.team(deployment.teamId),
           templateCode: 'DEPLOYMENT_HEALTHY',
           properties: {
-            ...deployment,
+            ...deploymentProperties,
           },
+          url: deployment.url,
         });
       }
     } catch (ex) {

@@ -1,5 +1,5 @@
 export * from './auth.service';
-export * from './interfaces';
+export * from './config';
 export * from './role.decorator';
 export * from './role.guard';
 export * from './session-storage';

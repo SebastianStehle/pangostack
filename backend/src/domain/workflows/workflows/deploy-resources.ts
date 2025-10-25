@@ -70,22 +70,28 @@ export async function deployResources({
     return;
   }
 
+  const deploymentProperties: Record<string, string> = Object.fromEntries(
+    Object.entries(deployment).map(([key, value]) => [key, String(value)]),
+  );
+
   const topic = Topics.team(deployment.teamId);
   if (previousResourceIds) {
     await notify({
       topic,
       templateCode: 'DEPLOYMENT_UPDATED',
       properties: {
-        ...deployment,
+        ...deploymentProperties,
       },
+      url: deployment.url,
     });
   } else {
     await notify({
       topic,
       templateCode: 'DEPLOYMENT_CREATED',
       properties: {
-        ...deployment,
+        ...deploymentProperties,
       },
+      url: deployment.url,
     });
   }
 }

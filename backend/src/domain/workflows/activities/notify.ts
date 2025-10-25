@@ -1,7 +1,7 @@
 import { NotificationsService } from 'src/domain/notifications';
 import { Activity } from '../registration';
 
-export type NotifyParams = { topic: string; templateCode: string; properties: object };
+export type NotifyParams = { topic: string; templateCode: string; properties: Record<string, string>; url?: string };
 
 @Activity(notify)
 export class NotifyActivity implements Activity<NotifyParams> {

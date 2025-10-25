@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { AuthConfig } from 'src/domain/auth/interfaces';
+import { AuthConfig } from 'src/domain/auth';
 import { BUILTIN_USER_GROUP_ADMIN } from 'src/domain/database';
 import { User } from 'src/domain/users';
 

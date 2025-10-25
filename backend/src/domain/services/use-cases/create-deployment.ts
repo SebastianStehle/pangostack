@@ -19,9 +19,8 @@ import {
 import { validateParameters } from 'src/domain/definitions';
 import { User } from 'src/domain/users';
 import { WorkflowService } from 'src/domain/workflows';
-import { saveAndFind } from 'src/lib';
+import { saveAndFind, UrlService } from 'src/lib';
 import { Deployment } from '../interfaces';
-import { UrlService } from '../services/url.service';
 import { buildDeployment } from './utils';
 
 export class CreateDeployment extends Command<CreateDeploymentResult> {
