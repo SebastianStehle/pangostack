@@ -3,17 +3,15 @@ import * as Joi from 'joi';
 
 export interface WorkflowConfig {
   temporal: {
-    address: string;
-    apiKey: string;
+    address?: string;
+    apiKey?: string;
   };
 }
 
-export const WORKFLOW_CONFIG_SCHEMA = Joi.object<WorkflowConfig>({
-  temporal: Joi.object<WorkflowConfig['temporal']>({
-    address: Joi.string().required(),
-    apiKey: Joi.string().required(),
-  }),
-});
+export const WORKFLOW_ENV_SCHEMA = Joi.object({
+  TEMPORAL_ADDRESS: Joi.string().optional(),
+  TEMPORAL_APIKEY: Joi.string().optional(),
+}).unknown(true);
 
 export const workflowConfig = registerAs<WorkflowConfig>('workflow', () => ({
   temporal: {

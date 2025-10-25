@@ -3,15 +3,15 @@ import * as Joi from 'joi';
 
 export interface UrlsConfig {
   baseUrl?: string;
-  uiUrl?: string;
+  baseUI?: string;
 }
 
-export const URLS_CONFIG_SCHEMA = Joi.object<UrlsConfig>({
-  baseUrl: Joi.string().uri().optional(),
-  uiUrl: Joi.string().uri().optional(),
-});
+export const URLS_ENV_SCHEMA = Joi.object({
+  URLS_BASEURL: Joi.string().uri().optional(),
+  URLS_BASEUIURL: Joi.string().uri().optional(),
+}).unknown(true);
 
 export const urlsConfig = registerAs<UrlsConfig>('urls', () => ({
   baseUrl: process.env.URLS_BASEURL,
-  uiUrl: process.env.URLS_UIURL,
+  baseUI: process.env.URLS_BASEUIURL,
 }));

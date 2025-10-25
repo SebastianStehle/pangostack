@@ -22,14 +22,14 @@ import { TeamsController } from './controllers/users/teams.controller';
 import { UserGroupsController } from './controllers/users/user-groups.controller';
 import { UsersController } from './controllers/users/users.controller';
 import { WorkersController } from './controllers/workers/workers.controller';
-import { AUTH_CONFIG_SCHEMA, authConfig } from './domain/auth';
+import { AUTH_ENV_SCHEMA, authConfig } from './domain/auth';
 import { AuthModule } from './domain/auth/module';
-import { BILLING_CONFIG_SCHEMA, billingConfig, BillingModule } from './domain/billing';
+import { BILLING_ENV_SCHEMA, billingConfig, BillingModule } from './domain/billing';
 import {
   BilledDeploymentEntity,
   BlobEntity,
   CacheEntity,
-  DB_CONFIG_SCHEMA,
+  DB_ENV_SCHEMA,
   DbConfig,
   dbConfig,
   DeploymentCheckEntity,
@@ -48,16 +48,18 @@ import {
   WorkerEntity,
 } from './domain/database';
 import { AddDefinitionSource1760346848861, Init1760346162798, MigratorService } from './domain/database/migrations';
-import { NOTIFICATION_CONFIG_SCHEMA, notificationConfig } from './domain/notifications';
+import { NOTIFICATION_ENV_SCHEMA, notificationConfig } from './domain/notifications';
 import { NotificationModule } from './domain/notifications';
 import { ServicesModule } from './domain/services';
 import { SettingsModule } from './domain/settings';
 import { UsersModule } from './domain/users/module';
-import { WORKER_CONFIG_SCHEMA, workerConfig } from './domain/workers';
+import { WORKER_ENV_SCHEMA, workerConfig } from './domain/workers';
 import { WorkersModule } from './domain/workers/module';
-import { WORKFLOW_CONFIG_SCHEMA, workflowConfig, WorkflowModule } from './domain/workflows';
+import { WORKFLOW_ENV_SCHEMA, workflowConfig, WorkflowModule } from './domain/workflows';
 import { HealthModule } from './health';
-import { LibModule, URLS_CONFIG_SCHEMA, urlsConfig } from './lib';
+import { LibModule, URLS_ENV_SCHEMA, urlsConfig } from './lib';
+
+const combineSchemas = (...schemas: Joi.ObjectSchema[]) => schemas.reduce((acc, schema) => acc.concat(schema));
 
 @Module({
   imports: [
@@ -67,15 +69,15 @@ import { LibModule, URLS_CONFIG_SCHEMA, urlsConfig } from './lib';
     ConfigModule.forRoot({
       load: [authConfig, billingConfig, dbConfig, notificationConfig, urlsConfig, workflowConfig, workerConfig],
       isGlobal: true,
-      validationSchema: Joi.object({
-        auth: AUTH_CONFIG_SCHEMA,
-        billing: BILLING_CONFIG_SCHEMA,
-        db: DB_CONFIG_SCHEMA,
-        notification: NOTIFICATION_CONFIG_SCHEMA,
-        urls: URLS_CONFIG_SCHEMA,
-        workflow: WORKFLOW_CONFIG_SCHEMA,
-        worker: WORKER_CONFIG_SCHEMA,
-      }),
+      validationSchema: combineSchemas(
+        AUTH_ENV_SCHEMA,
+        BILLING_ENV_SCHEMA,
+        DB_ENV_SCHEMA,
+        NOTIFICATION_ENV_SCHEMA,
+        URLS_ENV_SCHEMA,
+        WORKFLOW_ENV_SCHEMA,
+        WORKER_ENV_SCHEMA,
+      ),
     }),
     CqrsModule,
     HealthModule,

@@ -32,36 +32,58 @@ export interface AuthConfig {
   enablePassword?: boolean;
 }
 
-export const AUTH_CONFIG_SCHEMA = Joi.object({
-  github: Joi.object({
-    clientId: Joi.string().required(),
-    clientSecret: Joi.string().required(),
-  }).optional(),
-  google: Joi.object({
-    clientId: Joi.string().required(),
-    clientSecret: Joi.string().required(),
-  }).optional(),
-  microsoft: Joi.object({
-    clientId: Joi.string().required(),
-    clientSecret: Joi.string().required(),
-    tenant: Joi.string().optional(),
-  }).optional(),
-  oauth: Joi.object({
-    authorizationURL: Joi.string().uri().required(),
-    brandName: Joi.string().optional(),
-    brandColor: Joi.string().optional(),
-    clientId: Joi.string().required(),
-    clientSecret: Joi.string().required(),
-    tokenURL: Joi.string().uri().required(),
-    userInfoURL: Joi.string().uri().required(),
-  }).optional(),
-  initialUser: Joi.object({
-    email: Joi.string().required(),
-    password: Joi.string().required(),
-    apiKey: Joi.string().optional(),
-  }).optional(),
-  enablePassword: Joi.boolean().optional(),
-});
+export const AUTH_ENV_SCHEMA = Joi.object({
+  GITHUB_CLIENT_ID: Joi.string().optional(),
+  GITHUB_CLIENT_SECRET: Joi.when('GITHUB_CLIENT_ID', {
+    is: Joi.exist(),
+    then: Joi.string().required(),
+    otherwise: Joi.string().optional(),
+  }),
+  GOOGLE_CLIENT_ID: Joi.string().optional(),
+  GOOGLE_CLIENT_SECRET: Joi.when('GOOGLE_CLIENT_ID', {
+    is: Joi.exist(),
+    then: Joi.string().required(),
+    otherwise: Joi.string().optional(),
+  }),
+  MICROSOFT_CLIENT_ID: Joi.string().optional(),
+  MICROSOFT_CLIENT_SECRET: Joi.when('MICROSOFT_CLIENT_ID', {
+    is: Joi.exist(),
+    then: Joi.string().required(),
+    otherwise: Joi.string().optional(),
+  }),
+  MICROSOFT_TENANT: Joi.string().optional(),
+  OAUTH_CLIENT_ID: Joi.string().optional(),
+  OAUTH_CLIENT_SECRET: Joi.when('OAUTH_CLIENT_ID', {
+    is: Joi.exist(),
+    then: Joi.string().required(),
+    otherwise: Joi.string().optional(),
+  }),
+  OAUTH_AUTHORIZATION_URL: Joi.when('OAUTH_CLIENT_ID', {
+    is: Joi.exist(),
+    then: Joi.string().uri().required(),
+    otherwise: Joi.string().optional(),
+  }),
+  OAUTH_TOKEN_URL: Joi.when('OAUTH_CLIENT_ID', {
+    is: Joi.exist(),
+    then: Joi.string().uri().required(),
+    otherwise: Joi.string().optional(),
+  }),
+  OAUTH_USERINFO_URL: Joi.when('OAUTH_CLIENT_ID', {
+    is: Joi.exist(),
+    then: Joi.string().uri().required(),
+    otherwise: Joi.string().optional(),
+  }),
+  OAUTH_BRAND_NAME: Joi.string().optional(),
+  OAUTH_BRAND_COLOR: Joi.string().optional(),
+  INITIAL_USER_EMAIL: Joi.string().optional(),
+  INITIAL_USER_API_KEY: Joi.string().optional(),
+  INITIAL_USER_PASSWORD: Joi.when('INITIAL_USER_EMAIL', {
+    is: Joi.exist(),
+    then: Joi.string().required(),
+    otherwise: Joi.string().optional(),
+  }),
+  ENABLE_PASSWORD: Joi.string().valid('true', 'false').optional(),
+}).unknown(true);
 
 export const authConfig = registerAs<AuthConfig>('auth', () => {
   const githubClientId = process.env.GITHUB_CLIENT_ID;

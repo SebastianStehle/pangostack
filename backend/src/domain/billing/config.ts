@@ -12,20 +12,25 @@ export interface ChargebeeConfig {
   teamPrefix?: string;
 }
 
-export const BILLING_CONFIG_SCHEMA = Joi.object<BillingConfig>({
-  type: Joi.string().valid('chargebee', 'none').required(),
-  chargebee: Joi.when('type', {
+export const BILLING_ENV_SCHEMA = Joi.object({
+  BILLING_TYPE: Joi.string().valid('chargebee', 'none').default('none'),
+  BILLING_CHARGEBEE_SITE: Joi.when('BILLING_TYPE', {
     is: 'chargebee',
-    then: Joi.object({
-      site: Joi.string().required(),
-      apiKey: Joi.string().required(),
-      addons: Joi.object().pattern(Joi.string(), Joi.string()).required(),
-      planId: Joi.string().required(),
-      teamPrefix: Joi.string().optional(),
-    }).required(),
-    otherwise: Joi.forbidden(),
+    then: Joi.string().required(),
+    otherwise: Joi.string().optional(),
   }),
-});
+  BILLING_CHARGEBEE_APIKEY: Joi.when('BILLING_TYPE', {
+    is: 'chargebee',
+    then: Joi.string().required(),
+    otherwise: Joi.string().optional(),
+  }),
+  BILLING_CHARGEBEE_PLAN_ID: Joi.when('BILLING_TYPE', {
+    is: 'chargebee',
+    then: Joi.string().required(),
+    otherwise: Joi.string().optional(),
+  }),
+  BILLING_CHARGEBEE_TEAMPREFIX: Joi.string().optional(),
+}).unknown(true);
 
 export const billingConfig = registerAs('billing', () => {
   const type = process.env.BILLING_TYPE as 'chargebee' | 'none' | undefined;

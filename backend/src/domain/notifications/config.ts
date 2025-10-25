@@ -11,13 +11,19 @@ export interface NotifoConfig {
   appId: string;
 }
 
-export const NOTIFICATION_CONFIG_SCHEMA = Joi.object({
-  notifo: Joi.object({
-    apiKey: Joi.string().required(),
-    apiUrl: Joi.string().uri().required(),
-    appId: Joi.string().required(),
-  }).optional(),
-});
+export const NOTIFICATION_ENV_SCHEMA = Joi.object({
+  NOTIFO_API_KEY: Joi.string().optional(),
+  NOTIFO_API_URL: Joi.when('NOTIFO_API_KEY', {
+    is: Joi.exist(),
+    then: Joi.string().uri().required(),
+    otherwise: Joi.string().optional(),
+  }),
+  NOTIFO_APP_ID: Joi.when('NOTIFO_API_KEY', {
+    is: Joi.exist(),
+    then: Joi.string().required(),
+    otherwise: Joi.string().optional(),
+  }),
+}).unknown(true);
 
 export const notificationConfig = registerAs<NotificationConfig>('notification', () => {
   const apiKey = process.env.NOTIFICATION_NOTIFO_APIKEY;

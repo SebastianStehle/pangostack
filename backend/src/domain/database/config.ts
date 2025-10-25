@@ -6,10 +6,9 @@ export interface DbConfig {
   url: string;
 }
 
-export const DB_CONFIG_SCHEMA = Joi.object<DbConfig>({
-  type: Joi.string().valid('postgres').required(),
-  url: Joi.string().uri().required(),
-});
+export const DB_ENV_SCHEMA = Joi.object({
+  DB_URL: Joi.string().uri().required(),
+}).unknown(true);
 
 export const dbConfig = registerAs<DbConfig>('db', () => ({
   type: 'postgres',

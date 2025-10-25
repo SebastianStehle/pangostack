@@ -13,7 +13,7 @@ export class UrlService {
     this.baseUrl = config?.baseUrl || 'https://localhost:3000';
     this.baseUrl = this.baseUrl.replace(/[\s/]+$/, '');
 
-    this.uiUrl = config?.uiUrl || this.baseUrl;
+    this.uiUrl = config?.baseUI || this.baseUrl;
     this.uiUrl = this.uiUrl.replace(/[\s/]+$/, '');
   }
 
