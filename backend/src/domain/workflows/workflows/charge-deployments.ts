@@ -1,5 +1,5 @@
 import { ActivityFailure, log, proxyActivities } from '@temporalio/workflow';
-import { lastMonthEndUtcDate, lastMonthStartUtcDate } from 'src/lib/time';
+import { lastMonthEndUtcDate, lastMonthStartUtcDate } from 'src/lib/helpers/time';
 import type * as activities from '../activities';
 
 const { chargeDeployment, getDeployments } = proxyActivities<typeof activities>({
@@ -14,7 +14,7 @@ export async function chargeDeployments(): Promise<void> {
   const dateFrom = lastMonthStartUtcDate();
   const dateTo = lastMonthEndUtcDate();
 
-  for (const deploymentId of deployments) {
+  for (const { id: deploymentId } of deployments) {
     try {
       await chargeDeployment({ deploymentId, dateFrom, dateTo });
     } catch (ex: any) {

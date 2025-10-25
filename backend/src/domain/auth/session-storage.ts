@@ -6,13 +6,16 @@ import { SessionEntity, SessionRepository } from '../database';
 
 @Injectable()
 export class SessionStorage extends Store {
-  constructor(@InjectRepository(SessionEntity) private readonly sessionRepository: SessionRepository) {
+  constructor(
+    @InjectRepository(SessionEntity)
+    private readonly sessions: SessionRepository,
+  ) {
     super();
   }
 
   async get(sid: string, callback: (err: any, session?: SessionData) => void) {
     try {
-      const session = await this.sessionRepository.findOneBy({ id: sid });
+      const session = await this.sessions.findOneBy({ id: sid });
 
       callback(undefined, session?.value);
     } catch (ex) {
@@ -22,7 +25,7 @@ export class SessionStorage extends Store {
 
   async set(sid: string, session: SessionData, callback?: (err?: any) => void) {
     try {
-      await saveAndFind(this.sessionRepository, { id: sid, value: session as any });
+      await saveAndFind(this.sessions, { id: sid, value: session as any });
 
       callback?.();
     } catch (ex) {
@@ -32,7 +35,7 @@ export class SessionStorage extends Store {
 
   async destroy(sid: string, callback?: (err?: any) => void) {
     try {
-      await this.sessionRepository.delete({ id: sid });
+      await this.sessions.delete({ id: sid });
 
       callback?.();
     } catch (ex) {

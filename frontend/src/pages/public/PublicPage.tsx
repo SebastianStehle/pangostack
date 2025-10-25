@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { Route, Routes } from 'react-router-dom';
 import { useClients } from 'src/api';
-import { ProfileButton, TransientNavigate, TransientNavLink } from 'src/components';
-import { useTheme } from 'src/hooks';
+import { Notifo, ProfileButton, TransientNavigate, TransientNavLink } from 'src/components';
+import { useProfile, useTheme } from 'src/hooks';
 import { TeamsDropdown } from './TeamsDropdown';
 import { TeamPage } from './team/TeamPage';
 import { TeamCreatePage } from './team-create/TeamCreatePage';
@@ -10,6 +10,7 @@ import { TeamCreatePage } from './team-create/TeamCreatePage';
 export const PublicPage = () => {
   const { theme } = useTheme();
   const clients = useClients();
+  const profile = useProfile();
 
   const { data: teams, isFetched } = useQuery({
     queryKey: ['teams'],
@@ -41,11 +42,13 @@ export const PublicPage = () => {
                   key={i}
                   href={link.url}
                   target="_blank"
-                  className="btn bg-opacity-50 text-primary-content! rounded-full border-0 bg-transparent shadow-none transition-colors duration-500 ease-in-out hover:bg-black/20"
+                  className="btn text-primary-content! rounded-full border-0 bg-transparent shadow-none transition-colors duration-500 ease-in-out hover:bg-black/20"
                 >
                   {link.title}
                 </a>
               ))}
+
+              {profile.notifoApiKey && profile.notifoUrl && <Notifo token={profile.notifoApiKey} url={profile.notifoUrl} />}
 
               <TeamsDropdown teams={teams?.items || []} />
 

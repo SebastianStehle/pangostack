@@ -10,9 +10,9 @@ import {
   ServiceVersionEntity,
   WorkerEntity,
 } from 'src/domain/database';
+import { LibModule } from 'src/lib';
 import { BillingModule } from '../billing';
 import { WorkflowModule } from '../workflows';
-import { UrlService } from './services/url.service';
 import {
   CancelDeploymentHandler,
   ConfirmDeploymentHandler,
@@ -41,6 +41,7 @@ import {
   imports: [
     BillingModule,
     ConfigModule,
+    LibModule,
     TypeOrmModule.forFeature([
       DeploymentCheckEntity,
       DeploymentEntity,
@@ -75,9 +76,7 @@ import {
     UpdateDeploymentHandler,
     UpdateServiceHandler,
     UpdateServiceVersionHandler,
-    UrlService,
     VerifyDefinitionHandler,
   ],
-  exports: [UrlService],
 })
 export class ServicesModule {}

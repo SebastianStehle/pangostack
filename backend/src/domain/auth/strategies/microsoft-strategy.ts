@@ -2,13 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-microsoft';
 import { User } from 'src/domain/users';
+import { UrlService } from 'src/lib';
 import { AuthService } from '../auth.service';
 
 @Injectable()
 export class MicrosoftStrategy extends PassportStrategy(Strategy, 'microsoft') {
-  constructor(authService: AuthService) {
+  constructor(authService: AuthService, urlService: UrlService) {
     super({
-      callbackURL: `${authService.config.baseUrl}/api/auth/login/microsoft/callback`,
+      callbackURL: urlService.buildUrl('/api/auth/login/microsoft/callback'),
       clientID: authService.config.microsoft?.clientId || 'INVALID',
       clientSecret: authService.config.microsoft?.clientSecret || 'INVALID',
       scope: ['user.read'],

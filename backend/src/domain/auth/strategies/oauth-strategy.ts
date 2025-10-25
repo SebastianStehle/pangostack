@@ -2,17 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-oauth2';
 import { User } from 'src/domain/users';
-import { InternalError } from 'src/lib';
+import { InternalError, UrlService } from 'src/lib';
 import { AuthService } from '../auth.service';
 
 @Injectable()
 export class OAuthStrategy extends PassportStrategy(Strategy, 'oauth2') {
   private readonly userInfoURL;
 
-  constructor(authService: AuthService) {
+  constructor(authService: AuthService, urlService: UrlService) {
     super({
       authorizationURL: authService.config.oauth?.authorizationURL || 'INVALID',
-      callbackURL: `${authService.config.baseUrl}/api/auth/login/oauth/callback`,
+      callbackURL: urlService.buildUrl('/api/auth/login/oauth/callback'),
       clientID: authService.config.oauth?.clientId || 'INVALID',
       clientSecret: authService.config.oauth?.clientSecret || 'INVALID',
       scope: ['openid', 'profile', 'email'],

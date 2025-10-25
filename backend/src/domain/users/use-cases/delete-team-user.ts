@@ -2,6 +2,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TeamEntity, TeamRepository, TeamUserEntity, TeamUserRepository } from 'src/domain/database';
+import { NotificationsService } from 'src/domain/notifications';
 import { Team, User } from '../interfaces';
 import { buildTeam } from './utils';
 
@@ -22,6 +23,7 @@ export class DeleteTeamUserResult {
 @CommandHandler(DeleteTeamUser)
 export class DeleteTeamUserHandler implements ICommandHandler<DeleteTeamUser, DeleteTeamUserResult> {
   constructor(
+    private readonly notifications: NotificationsService,
     @InjectRepository(TeamEntity)
     private readonly teams: TeamRepository,
     @InjectRepository(TeamUserEntity)
@@ -46,6 +48,9 @@ export class DeleteTeamUserHandler implements ICommandHandler<DeleteTeamUser, De
     }
 
     const withUsers = await this.teams.findOneOrFail({ where: { id: teamId }, relations: ['users', 'users.user'] });
+
+    // This method will catch exceptions.
+    await this.notifications.unsubscribe(user.id, `teams/${team.id}`);
 
     return new DeleteTeamUserResult(buildTeam(withUsers));
   }

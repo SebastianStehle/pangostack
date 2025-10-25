@@ -15,11 +15,10 @@ import {
   GetDeploymentStatusQuery,
   GetDeploymentUsagesQuery,
   UpdateDeployment,
-  UrlService,
 } from 'src/domain/services';
 import { AllowAllDeploymentPolicy, AllowTeamDeploymentPolicy } from 'src/domain/services/policies';
 import { GetTeamsQuery, User } from 'src/domain/users';
-import { IntParam, IntQuery } from 'src/lib';
+import { IntParam, IntQuery, UrlService } from 'src/lib';
 import { TeamPermissionGuard } from '../TeamPermissionGuard';
 import {
   DeploymentCheckSummariesDto,

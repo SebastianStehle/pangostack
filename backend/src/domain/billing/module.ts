@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ModuleRef } from '@nestjs/core';
 import { ChargebeeBillingService } from './chargebee/chargebee-billing.service';
+import { BillingConfig } from './config';
 import { BillingService } from './interface';
 import { NoopBillingService } from './noop/noop-billing.service';
 
@@ -12,8 +13,8 @@ import { NoopBillingService } from './noop/noop-billing.service';
       provide: BillingService,
       inject: [ConfigService, ModuleRef],
       useFactory: async (configService: ConfigService, moduleRef: ModuleRef) => {
-        const type = configService.get<string>('billing.type');
-        if (type?.toLowerCase() === 'chargebee') {
+        const config = configService.getOrThrow<BillingConfig>('billing');
+        if (config.type === 'chargebee') {
           return moduleRef.create(ChargebeeBillingService);
         } else {
           return moduleRef.create(NoopBillingService);

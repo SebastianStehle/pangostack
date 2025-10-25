@@ -28,7 +28,7 @@ export class DeleteDeploymentHandler implements ICommandHandler<DeleteDeployment
     @InjectRepository(DeploymentUpdateEntity)
     private readonly deploymentUpdates: DeploymentUpdateRepository,
     @InjectRepository(WorkerEntity)
-    private readonly workerRepository: WorkerRepository,
+    private readonly workers: WorkerRepository,
     private readonly workflows: WorkflowService,
   ) {}
 
@@ -54,7 +54,7 @@ export class DeleteDeploymentHandler implements ICommandHandler<DeleteDeployment
     }
 
     if (deployment.status === 'Created') {
-      const worker = await this.workerRepository.findOne({ where: { endpoint: Not(IsNull()) } });
+      const worker = await this.workers.findOne({ where: { endpoint: Not(IsNull()) } });
       if (!worker) {
         throw new NotFoundException('No worker registered.');
       }

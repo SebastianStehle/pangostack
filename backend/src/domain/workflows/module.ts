@@ -9,7 +9,9 @@ import {
   DeploymentUsageEntity,
   WorkerEntity,
 } from 'src/domain/database';
+import { LibModule } from 'src/lib';
 import { BillingModule } from '../billing';
+import { NotificationModule } from '../notifications';
 import {
   ChargeDeploymentActivity,
   CleanupDeploymentsChecksActivity,
@@ -18,8 +20,10 @@ import {
   DeleteDeploymentActivity,
   DeleteResourceActivity,
   DeployResourceActivity,
+  GetDeploymentActivity,
   GetDeploymentsActivity,
   GetWorkerActivity,
+  NotifyActivity,
   TrackDeploymentHealthActivity,
   TrackDeploymentUsageActivity,
   UpdateDeploymentActivity,
@@ -31,6 +35,8 @@ import { TemporalService, WorkflowService } from './services';
   imports: [
     BillingModule,
     ConfigModule,
+    LibModule,
+    NotificationModule,
     TypeOrmModule.forFeature([
       BilledDeploymentEntity,
       DeploymentEntity,
@@ -49,8 +55,10 @@ import { TemporalService, WorkflowService } from './services';
     DeleteDeploymentActivity,
     DeleteResourceActivity,
     DeployResourceActivity,
+    GetDeploymentActivity,
     GetDeploymentsActivity,
     GetWorkerActivity,
+    NotifyActivity,
     TemporalService,
     TrackDeploymentHealthActivity,
     TrackDeploymentUsageActivity,

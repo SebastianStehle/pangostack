@@ -1,14 +1,14 @@
-import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 
 @Injectable()
-export class MigratorService implements OnApplicationBootstrap {
+export class MigratorService implements OnModuleInit {
   private readonly logger = new Logger(MigratorService.name);
 
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
-  async onApplicationBootstrap() {
+  async onModuleInit() {
     if (this.dataSource.options.type !== 'postgres') {
       this.logger.log('Not running with postgres, using normal migration process');
       await this.dataSource.runMigrations();

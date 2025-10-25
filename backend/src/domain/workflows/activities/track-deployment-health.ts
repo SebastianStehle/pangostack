@@ -12,6 +12,8 @@ import { Activity } from '../registration';
 
 export type TrackDeploymentHealthParam = { deploymentId: number };
 
+export type TrackDeploymentResult = 'Unchanged' | 'Undefined' | 'BecomeDegraded' | 'BecomeHealthy';
+
 @Activity(trackDeploymentHealth)
 export class TrackDeploymentHealthActivity implements Activity<TrackDeploymentHealthParam> {
   constructor(
@@ -21,7 +23,7 @@ export class TrackDeploymentHealthActivity implements Activity<TrackDeploymentHe
     private readonly deploymentChecks: DeploymentCheckRepository,
   ) {}
 
-  async execute({ deploymentId }: TrackDeploymentHealthParam) {
+  async execute({ deploymentId }: TrackDeploymentHealthParam): Promise<TrackDeploymentResult> {
     const updates = await this.deploymentUpdates.find({
       where: { deploymentId },
       order: { id: 'DESC' },
@@ -36,11 +38,10 @@ export class TrackDeploymentHealthActivity implements Activity<TrackDeploymentHe
     const update = updates.find((x) => x.status === 'Completed');
     if (!update) {
       // Deployment has not been completed yet. This is normal behavior.
-      return;
+      return 'Unchanged';
     }
 
     const { context, definition } = getEvaluationContext(update);
-
     const log: string[] = [];
 
     let numFailed = 0;
@@ -70,16 +71,32 @@ export class TrackDeploymentHealthActivity implements Activity<TrackDeploymentHe
     }
 
     if (numFailed === 0 && numSucceeded === 0) {
-      return;
+      return 'Undefined';
     }
+
+    const previousCheck = await this.deploymentUpdates.findOne({
+      where: { deploymentId },
+      order: { id: 'DESC' },
+    });
 
     const status = numFailed > 0 ? 'Failed' : 'Succeeded';
 
     const deploymentCheck = this.deploymentChecks.create({ deploymentId, status, log: log.join('\n') });
     await this.deploymentChecks.save(deploymentCheck);
+
+    let result: TrackDeploymentResult = 'Undefined';
+    if (previousCheck && previousCheck.status !== status) {
+      if (status === 'Failed') {
+        result = 'BecomeDegraded';
+      } else {
+        result = 'BecomeHealthy';
+      }
+    }
+
+    return result;
   }
 }
 
-export async function trackDeploymentHealth(param: TrackDeploymentHealthParam): Promise<any> {
-  return param;
+export async function trackDeploymentHealth(param: TrackDeploymentHealthParam): Promise<TrackDeploymentResult> {
+  return param as any;
 }

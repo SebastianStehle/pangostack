@@ -24,6 +24,7 @@ export * from './LogViewer';
 export * from './Markdown';
 export * from './Modal';
 export * from './NodeStatus';
+export * from './Notifo';
 export * from './Page';
 export * from './Pagination';
 export * from './ProfileButton';

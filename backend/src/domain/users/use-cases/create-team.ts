@@ -2,6 +2,7 @@ import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TeamEntity, TeamRepository, TeamUserEntity } from 'src/domain/database';
+import { NotificationsService } from 'src/domain/notifications';
 import { saveAndFind } from 'src/lib';
 import { Team, User } from '../interfaces';
 import { buildTeam } from './utils';
@@ -24,6 +25,7 @@ export class CreateTeamResult {
 @CommandHandler(CreateTeam)
 export class CreateTeamHandler implements ICommandHandler<CreateTeam, CreateTeamResult> {
   constructor(
+    private readonly notifications: NotificationsService,
     @InjectRepository(TeamEntity)
     private readonly teams: TeamRepository,
     @InjectRepository(TeamUserEntity)
@@ -45,6 +47,9 @@ export class CreateTeamHandler implements ICommandHandler<CreateTeam, CreateTeam
     });
 
     const withUsers = await this.teams.findOneOrFail({ where: { id: team.id }, relations: ['users', 'users.user'] });
+
+    // This method will catch exceptions.
+    await this.notifications.subscribe(user.id, `teams/${team.id}`);
 
     return new CreateTeamResult(buildTeam(withUsers));
   }

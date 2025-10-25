@@ -2,16 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Chargebee, { Invoice as ChargebeeInvoice, Customer, HostedPage, PortalSession } from 'chargebee';
 import { endOfDayTimestamp, startOfDayTimestamp } from 'src/lib';
+import { ChargebeeConfig } from '../config';
 import { BillingError, BillingService, Charges, CreateSubscriptionResult, Invoice, InvoiceStatus } from '../interface';
 import { findCustomer, findSubscription } from './utils';
-
-export interface ChargebeeConfig {
-  site: string;
-  apiKey: string;
-  addons: Record<string, string>;
-  planId: string;
-  teamPrefix?: string;
-}
 
 @Injectable()
 export class ChargebeeBillingService implements BillingService {
@@ -23,7 +16,7 @@ export class ChargebeeBillingService implements BillingService {
 
     this.chargebee = new Chargebee(this.config);
     if (!this.chargebee) {
-      throw new Error('Charbee has not been created.');
+      throw new Error('Chargebee has not been created.');
     }
   }
 
