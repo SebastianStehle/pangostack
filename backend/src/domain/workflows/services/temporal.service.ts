@@ -10,7 +10,7 @@ export class TemporalService {
   private readonly client: Promise<[NativeConnection, Client]>;
 
   constructor(configService: ConfigService) {
-    const config = configService.getOrThrow<WorkflowConfig>('workflow.temporal').temporal;
+    const config = configService.getOrThrow<WorkflowConfig>('workflow').temporal;
 
     this.client = this.createClient(config);
   }
