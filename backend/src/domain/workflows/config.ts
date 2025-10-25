@@ -2,7 +2,7 @@ import { registerAs } from '@nestjs/config';
 import * as Joi from 'joi';
 
 export interface WorkflowConfig {
-  temporal: {
+  temporal?: {
     address?: string;
     apiKey?: string;
   };
@@ -15,7 +15,7 @@ export const WORKFLOW_ENV_SCHEMA = Joi.object({
 
 export const workflowConfig = registerAs<WorkflowConfig>('workflow', () => ({
   temporal: {
-    address: process.env.WORKFLOW_TEMPORAL_ADDRESS!,
-    apiKey: process.env.TWORKFLOW_EMPORAL_APIKEY!,
+    address: process.env.WORKFLOW_TEMPORAL_ADDRESS,
+    apiKey: process.env.TWORKFLOW_EMPORAL_APIKEY,
   },
 }));
