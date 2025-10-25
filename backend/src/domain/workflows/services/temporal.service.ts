@@ -22,10 +22,15 @@ export class TemporalService {
     }
 
     this.connection = this.createConnection(config);
+    this.client = this.createClient();
   }
 
   public async getClient(): Promise<[NativeConnection, Client]> {
     return [await this.connection, await this.client];
+  }
+
+  private async createClient(): Promise<Client> {
+    return new Client({ connection: await this.connection });
   }
 
   private async createConnection(config: { address?: string; apiKey?: string }): Promise<NativeConnection> {
