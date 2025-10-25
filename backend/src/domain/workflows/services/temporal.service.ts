@@ -8,9 +8,7 @@ import { WorkflowConfig } from '../config';
 export class TemporalService {
   private readonly logger = new Logger(TemporalService.name);
   private readonly connection: Promise<NativeConnection>;
-  private readonly client: Promise<Client> = (async () => {
-    return new Client({ connection: await this.connection });
-  })();
+  private readonly client: Promise<Client>;
 
   constructor(configService: ConfigService) {
     const config = configService.getOrThrow<WorkflowConfig>('workflow.temporal').temporal || {};
