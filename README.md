@@ -8,6 +8,20 @@
 > - Integration with external **billing providers** (e.g., Stripe).
 > - A **customer-facing portal** to let users self-deploy their SaaS instance on demand.
 
+### Features
+
+* Various pricing models
+  * Fixed prices
+  * Pay per usage
+  * Pay per month, depending on selection
+* Billing providers
+  * Chargebee
+* Resources
+  * Vultr VM (provides SSH connection)
+  * Vultr S3 Storage
+  * Docker Compose (based on SSH connection)
+  * Helm
+
 Whether you're offering a monolithic app or a collection of microservices, Pangostack helps you deploy reproducible, scalable environments — all while keeping your cost-to-profit ratio in check.
 
 
