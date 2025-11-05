@@ -3,6 +3,7 @@ import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TeamEntity, TeamRepository, TeamUserEntity, TeamUserRepository } from 'src/domain/database';
 import { NotificationsService } from 'src/domain/notifications';
+import { Topics } from 'src/domain/notifications/topics';
 import { Team, User } from '../interfaces';
 import { buildTeam } from './utils';
 
@@ -50,7 +51,8 @@ export class DeleteTeamUserHandler implements ICommandHandler<DeleteTeamUser, De
     const withUsers = await this.teams.findOneOrFail({ where: { id: teamId }, relations: ['users', 'users.user'] });
 
     // This method will catch exceptions.
-    await this.notifications.unsubscribe(user.id, `teams/${team.id}`);
+    await this.notifications.unsubscribe(user.id, Topics.team(team.id));
+    await this.notifications.notify(Topics.team(team.id), 'TEAM_USER_REMOVED', { team: team.name });
 
     return new DeleteTeamUserResult(buildTeam(withUsers));
   }

@@ -26,9 +26,11 @@ export const BillingPage = () => {
       <div className="mb-8 flex h-10 items-center gap-4">
         <h2 className="grow text-2xl">{texts.billing.headline}</h2>
 
-        <button className="btn btn-success">
-          <Icon icon="external-link" size={18} /> {texts.billing.portal}
-        </button>
+        {loadedInvoices?.portalLink && (
+          <a href={loadedInvoices.portalLink} target="_blank" className="btn btn-success">
+            <Icon icon="external-link" size={18} /> {texts.billing.portal}
+          </a>
+        )}
       </div>
 
       {isLoading && !isFetched && <Spinner visible={true} />}

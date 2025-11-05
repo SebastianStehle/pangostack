@@ -3,6 +3,7 @@ import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TeamEntity, TeamRepository, TeamUserEntity, TeamUserRepository, UserEntity, UserRepository } from 'src/domain/database';
 import { NotificationsService } from 'src/domain/notifications';
+import { Topics } from 'src/domain/notifications/topics';
 import { Team, User } from '../interfaces';
 import { buildTeam } from './utils';
 
@@ -70,7 +71,8 @@ export class SetTeamUserHandler implements ICommandHandler<SetTeamUser, any> {
     }
 
     // This method will catch exceptions.
-    await this.notifications.subscribe(user.id, `teams/${team.id}`);
+    await this.notifications.subscribe(user.id, Topics.team(team.id));
+    await this.notifications.notify(Topics.team(team.id), 'TEAM_USER_ADDED', { team: team.name });
 
     return new SetTeamUserResponse(buildTeam(withUsers));
   }

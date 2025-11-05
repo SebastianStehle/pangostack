@@ -1,6 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useClients } from 'src/api';
@@ -21,7 +20,7 @@ import {
   RefreshButton,
   Spinner,
 } from 'src/components';
-import { useTypedParams } from 'src/hooks';
+import { useParam, useTypedParams } from 'src/hooks';
 import { formatDateTime } from 'src/lib';
 import { texts } from 'src/texts';
 
@@ -29,7 +28,7 @@ export const DeploymentPage = () => {
   const { deploymentId, teamId } = useTypedParams({ deploymentId: 'int', teamId: 'int' });
   const clients = useClients();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<'overview' | 'usage' | 'log'>('overview');
+  const [tab, setTab] = useParam<'overview' | 'usage' | 'log'>('tab', 'overview');
 
   const { data: loadedServices } = useQuery({
     queryKey: ['services-public'],

@@ -61,9 +61,17 @@ export class InvoicesDto {
   })
   items: InvoiceDto[];
 
-  static fromDomain(source: Invoice[]): InvoicesDto {
+  @ApiProperty({
+    description: 'The poral link.',
+    nullable: true,
+    type: String,
+  })
+  portalLink?: string | null;
+
+  static fromDomain(source: Invoice[], portalLink?: string | null): InvoicesDto {
     const result = new InvoicesDto();
     result.items = source.map(InvoiceDto.fromDomain);
+    result.portalLink = portalLink;
     return result;
   }
 }
@@ -78,8 +86,9 @@ export class BillingStatusDto {
   @ApiProperty({
     description: 'The checkout link.',
     nullable: true,
+    type: String,
   })
-  portalLink?: string;
+  portalLink?: string | null;
 
   static valid() {
     const result = new BillingStatusDto();

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TeamEntity, TeamRepository, TeamUserEntity } from 'src/domain/database';
 import { NotificationsService } from 'src/domain/notifications';
+import { Topics } from 'src/domain/notifications/topics';
 import { saveAndFind } from 'src/lib';
 import { Team, User } from '../interfaces';
 import { buildTeam } from './utils';
@@ -49,7 +50,7 @@ export class CreateTeamHandler implements ICommandHandler<CreateTeam, CreateTeam
     const withUsers = await this.teams.findOneOrFail({ where: { id: team.id }, relations: ['users', 'users.user'] });
 
     // This method will catch exceptions.
-    await this.notifications.subscribe(user.id, `teams/${team.id}`);
+    await this.notifications.subscribe(user.id, Topics.team(team.id));
 
     return new CreateTeamResult(buildTeam(withUsers));
   }

@@ -33,42 +33,42 @@ export interface AuthConfig {
 }
 
 export const AUTH_ENV_SCHEMA = Joi.object({
-  GITHUB_CLIENT_ID: Joi.string().optional(),
-  GITHUB_CLIENT_SECRET: Joi.when('GITHUB_CLIENT_ID', {
+  GITHUB_CLIENTID: Joi.string().optional(),
+  GITHUB_CLIENTSECRET: Joi.when('GITHUB_CLIENTID', {
     is: Joi.exist(),
     then: Joi.string().required(),
     otherwise: Joi.string().optional(),
   }),
-  GOOGLE_CLIENT_ID: Joi.string().optional(),
-  GOOGLE_CLIENT_SECRET: Joi.when('GOOGLE_CLIENT_ID', {
+  GOOGLE_CLIENTID: Joi.string().optional(),
+  GOOGLE_CLIENTSECRET: Joi.when('GOOGLE_CLIENTID', {
     is: Joi.exist(),
     then: Joi.string().required(),
     otherwise: Joi.string().optional(),
   }),
-  MICROSOFT_CLIENT_ID: Joi.string().optional(),
-  MICROSOFT_CLIENT_SECRET: Joi.when('MICROSOFT_CLIENT_ID', {
+  MICROSOFT_CLIENTID: Joi.string().optional(),
+  MICROSOFT_CLIENTSECRET: Joi.when('MICROSOFT_CLIENTID', {
     is: Joi.exist(),
     then: Joi.string().required(),
     otherwise: Joi.string().optional(),
   }),
   MICROSOFT_TENANT: Joi.string().optional(),
-  OAUTH_CLIENT_ID: Joi.string().optional(),
-  OAUTH_CLIENT_SECRET: Joi.when('OAUTH_CLIENT_ID', {
+  OAUTH_CLIENTID: Joi.string().optional(),
+  OAUTH_CLIENTSECRET: Joi.when('OAUTH_CLIENTID', {
     is: Joi.exist(),
     then: Joi.string().required(),
     otherwise: Joi.string().optional(),
   }),
-  OAUTH_AUTHORIZATION_URL: Joi.when('OAUTH_CLIENT_ID', {
+  OAUTH_AUTHORIZATION_URL: Joi.when('OAUTH_CLIENTID', {
     is: Joi.exist(),
     then: Joi.string().uri().required(),
     otherwise: Joi.string().optional(),
   }),
-  OAUTH_TOKEN_URL: Joi.when('OAUTH_CLIENT_ID', {
+  OAUTH_TOKEN_URL: Joi.when('OAUTH_CLIENTID', {
     is: Joi.exist(),
     then: Joi.string().uri().required(),
     otherwise: Joi.string().optional(),
   }),
-  OAUTH_USERINFO_URL: Joi.when('OAUTH_CLIENT_ID', {
+  OAUTH_USERINFO_URL: Joi.when('OAUTH_CLIENTID', {
     is: Joi.exist(),
     then: Joi.string().uri().required(),
     otherwise: Joi.string().optional(),
@@ -86,24 +86,24 @@ export const AUTH_ENV_SCHEMA = Joi.object({
 }).unknown(true);
 
 export const authConfig = registerAs<AuthConfig>('auth', () => {
-  const githubClientId = process.env.GITHUB_CLIENT_ID;
-  const githubClientSecret = process.env.GITHUB_CLIENT_SECRET;
-  const googleClientId = process.env.GOOGLE_CLIENT_ID;
-  const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  const microsoftClientId = process.env.MICROSOFT_CLIENT_ID;
-  const microsoftClientSecret = process.env.MICROSOFT_CLIENT_SECRET;
-  const microsoftTenant = process.env.MICROSOFT_TENANT;
-  const oauthClientId = process.env.OAUTH_CLIENT_ID;
-  const oauthClientSecret = process.env.OAUTH_CLIENT_SECRET;
-  const oauthAuthorizationUrl = process.env.OAUTH_AUTHORIZATION_URL;
-  const oauthTokenUrl = process.env.OAUTH_TOKEN_URL;
-  const oauthUserinfoUrl = process.env.OAUTH_USERINFO_URL;
-  const oauthBrandName = process.env.OAUTH_BRAND_NAME;
-  const oauthBrandColor = process.env.OAUTH_BRAND_COLOR;
-  const initialUserEmail = process.env.INITIAL_USER_EMAIL;
-  const initialUserPassword = process.env.INITIAL_USER_PASSWORD;
-  const initialUserApiKey = process.env.INITIAL_USER_API_KEY;
-  const enablePassword = process.env.ENABLE_PASSWORD;
+  const githubClientId = process.env.AUTH_GITHUB_CLIENTID;
+  const githubClientSecret = process.env.AUTH_GITHUB_CLIENTSECRET;
+  const googleClientId = process.env.AUTH_GOOGLE_CLIENTID;
+  const googleClientSecret = process.env.AUTH_GOOGLE_CLIENTSECRET;
+  const microsoftClientId = process.env.AUTH_MICROSOFT_CLIENTID;
+  const microsoftClientSecret = process.env.AUTH_MICROSOFT_CLIENTSECRET;
+  const microsoftTenant = process.env.AUTH_MICROSOFT_TENANT;
+  const oauthClientId = process.env.AUTH_OAUTH_CLIENTID;
+  const oauthClientSecret = process.env.AUTH_OAUTH_CLIENTSECRET;
+  const oauthAuthorizationUrl = process.env.AUTH_OAUTH_AUTHORIZATION_URL;
+  const oauthTokenUrl = process.env.AUTH_OAUTH_TOKEN_URL;
+  const oauthUserinfoUrl = process.env.AUTH_OAUTH_USERINFO_URL;
+  const oauthBrandName = process.env.AUTH_OAUTH_BRAND_NAME;
+  const oauthBrandColor = process.env.AUTH_OAUTH_BRAND_COLOR;
+  const initialUserEmail = process.env.AUTH_INITIAL_USER_EMAIL;
+  const initialUserPassword = process.env.AUTH_INITIAL_USER_PASSWORD;
+  const initialUserApiKey = process.env.AUTH_INITIAL_USER_API_KEY;
+  const enablePassword = process.env.AUTH_ENABLE_PASSWORD;
 
   return {
     github:

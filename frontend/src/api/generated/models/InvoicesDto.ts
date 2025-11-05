@@ -35,6 +35,12 @@ export interface InvoicesDto {
      * @memberof InvoicesDto
      */
     items: Array<InvoiceDto>;
+    /**
+     * The poral link.
+     * @type {string}
+     * @memberof InvoicesDto
+     */
+    portalLink: string | null;
 }
 
 /**
@@ -43,6 +49,7 @@ export interface InvoicesDto {
 export function instanceOfInvoicesDto(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "items" in value;
+    isInstance = isInstance && "portalLink" in value;
 
     return isInstance;
 }
@@ -58,6 +65,7 @@ export function InvoicesDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
     return {
         
         'items': ((json['items'] as Array<any>).map(InvoiceDtoFromJSON)),
+        'portalLink': json['portalLink'],
     };
 }
 
@@ -71,6 +79,7 @@ export function InvoicesDtoToJSON(value?: InvoicesDto | null): any {
     return {
         
         'items': ((value.items as Array<any>).map(InvoiceDtoToJSON)),
+        'portalLink': value.portalLink,
     };
 }
 

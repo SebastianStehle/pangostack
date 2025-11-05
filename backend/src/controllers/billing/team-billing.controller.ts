@@ -27,8 +27,9 @@ export class TeamBillingController {
   @UseGuards(RoleGuard, TeamPermissionGuard)
   async getInvoices(@IntParam('teamId') teamId: number) {
     const invoices = await this.billingService.getInvoices(teamId);
+    const portalLink = await this.billingService.getBillingPortalLink(teamId);
 
-    return InvoicesDto.fromDomain(invoices);
+    return InvoicesDto.fromDomain(invoices, portalLink);
   }
 
   @Get('deployments/:deploymentId/invoices')

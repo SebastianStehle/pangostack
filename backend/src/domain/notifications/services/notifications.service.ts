@@ -22,12 +22,16 @@ export class NotificationsService {
       return null;
     }
 
-    const user = await this.client.users.getUser(this.config.appId!, userId);
-    if (!user) {
+    try {
+      const user = await this.client.users.getUser(this.config.appId!, userId);
+      if (!user) {
+        return null;
+      }
+
+      return { apiKey: user.apiKey, url: this.config.apiUrl! };
+    } catch {
       return null;
     }
-
-    return { apiKey: user.apiKey, url: this.config.apiUrl! };
   }
 
   async notify(topic: string, templateCode: string, properties: Record<string, string> = {}, url?: string) {

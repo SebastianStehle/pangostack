@@ -151,7 +151,7 @@ export const texts = {
     addMemberTitle: 'Add Team Member',
     headline: 'Members',
     memberHints:
-      'Team members do not have direct access to the deployed services, but they can make new deployments or change billing information.',
+      'Team members do not have direct access to the deployed services, but they can update deployments or change billing information.',
     removeConfirmText: 'Do you really want to remove the Member?',
     removeConfirmTitle: 'Remove Member',
   },

@@ -3,7 +3,7 @@ import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LessThan } from 'typeorm';
 import { DeploymentEntity, DeploymentRepository, DeploymentUsageEntity, DeploymentUsageRepository } from 'src/domain/database';
-import { getDatesInRange } from 'src/lib';
+import { formatDate, getDatesInRange, isDate } from 'src/lib';
 import { UsageSummary } from '../interfaces';
 import { DeploymentPolicy } from '../policies';
 
@@ -50,7 +50,7 @@ export class GetDeploymentUsagesHandler implements IQueryHandler<GetDeploymentUs
       throw new ForbiddenException();
     }
 
-    const rawUsages = await this.deploymentUsages
+    const records = await this.deploymentUsages
       .createQueryBuilder('usage')
       .select('usage.trackDate', 'date')
       .addSelect('SUM(usage.totalCores)', 'totalCores')
@@ -65,6 +65,11 @@ export class GetDeploymentUsagesHandler implements IQueryHandler<GetDeploymentUs
       .groupBy('usage.deploymentId')
       .groupBy('usage.trackDate')
       .getRawMany<UsageSummary>();
+
+    const rawUsages = records.map((row) => ({
+      ...row,
+      date: isDate(row.date) ? formatDate(row.date) : row.date,
+    }));
 
     let previousStorageGB = -1;
 

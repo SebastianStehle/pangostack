@@ -27,18 +27,50 @@ export const DeploymentUsageChart = (props: DeploymentUsageChartProps) => {
   const data = loadedUsage?.summaries || [];
 
   return (
-    <ResponsiveContainer height={300}>
-      <BarChart width={500} height={300} data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="date" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        <Bar dataKey="totalCores" fill="#F28E2B" name={texts.deployments.totalCors} />
-        <Bar dataKey="totalMemoryGB" fill="#4E79A7" name={texts.deployments.totalMemoryGB} />
-        <Bar dataKey="totalVolumeGB" fill="#59A14F" name={texts.deployments.totalVolumeGB} />
-        <Bar dataKey="totalStorageGB" fill="#B07AA1" name={texts.deployments.totalStorageGB} />
-      </BarChart>
-    </ResponsiveContainer>
+    <div className="grid grid-cols-2 gap-4">
+      <ResponsiveContainer height={250}>
+        <BarChart width={500} height={300} data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey="totalCores" fill="#F28E2B" name={texts.deployments.totalCors} />
+        </BarChart>
+      </ResponsiveContainer>
+
+      <ResponsiveContainer height={250}>
+        <BarChart width={500} height={300} data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey="totalMemoryGB" fill="#4E79A7" name={texts.deployments.totalMemoryGB} />
+        </BarChart>
+      </ResponsiveContainer>
+
+      <ResponsiveContainer height={250}>
+        <BarChart width={500} height={300} data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey="totalVolumeGB" fill="#59A14F" name={texts.deployments.totalVolumeGB} />
+        </BarChart>
+      </ResponsiveContainer>
+
+      <ResponsiveContainer height={250}>
+        <BarChart width={500} height={300} data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey="totalStorageGB" fill="#B07AA1" name={texts.deployments.totalStorageGB} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   );
 };
