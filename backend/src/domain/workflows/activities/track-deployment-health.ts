@@ -74,7 +74,7 @@ export class TrackDeploymentHealthActivity implements Activity<TrackDeploymentHe
       return 'Undefined';
     }
 
-    const previousCheck = await this.deploymentUpdates.findOne({
+    const previousCheck = await this.deploymentChecks.findOne({
       where: { deploymentId },
       order: { id: 'DESC' },
     });

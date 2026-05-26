@@ -59,15 +59,27 @@ export async function composeUp(ssh: NodeSSH, dockerComposeUrl: string, env: any
 
 type Container = { name: string; isReady: boolean; details?: string; originalName: string };
 
+type DockerPsEntry = { Names: string; State: string; Status: string };
+
 export async function getContainers(ssh: NodeSSH): Promise<Container[]> {
   const result: Container[] = [];
   const { stdout } = await ssh.execCommand(`docker ps --format json`);
 
   const lines = stdout.split('\n');
   for (const line of lines) {
-    const json = JSON.parse(line);
+    const trimmed = line.trim();
+    if (!trimmed) {
+      continue;
+    }
 
-    let name = json.Names as string;
+    let json: DockerPsEntry;
+    try {
+      json = JSON.parse(trimmed) as DockerPsEntry;
+    } catch {
+      continue;
+    }
+
+    let name = json.Names;
     if (name.indexOf('user-') === 0) {
       name = name.substring(5);
     }
