@@ -179,7 +179,7 @@ export class VultrStorageResource implements Resource {
       continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined;
     } while (continuationToken);
 
-    return { totalStorageGB: totalSize / (1024 * 1024) };
+    return { totalStorageGB: totalSize / (1024 * 1024 * 1024) };
   }
 
   async status(id: string, request: ResourceRequest<Parameters>): Promise<ResourceStatusResult> {
@@ -201,7 +201,7 @@ export class VultrStorageResource implements Resource {
           name: 'Default',
           nodes: [
             {
-              name: 'Virtual Machine',
+              name: 'Object Storage',
               isReady: !failure,
               message: failure,
             },
@@ -245,7 +245,7 @@ async function findStorage(vultr: VultrClient, id: string) {
     }
 
     const newCursor = response.meta?.links?.next;
-    if (!cursor || newCursor === cursor) {
+    if (!newCursor || newCursor === cursor) {
       break;
     }
 

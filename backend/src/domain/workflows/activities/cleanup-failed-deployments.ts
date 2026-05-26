@@ -41,7 +41,7 @@ export class CleanupFailedDeployments implements Activity<CleanupFailedDeploymen
       )
       .getRawMany<{ id: number }>();
 
-    for (const id of deploymentsToDelete) {
+    for (const { id } of deploymentsToDelete) {
       this.logger.log(`Deleting deployment ${id}`);
       await this.deployments.delete(id);
     }

@@ -17,7 +17,7 @@ export class VultrVmResource implements Resource {
 
   descriptor = defineResource<Parameters, Context>({
     name: 'vultr-vm',
-    description: 'Creates a vultr virtual',
+    description: 'Creates a Vultr virtual machine.',
     parameters: {
       apiKey: {
         description: 'The API Key.',
@@ -215,8 +215,8 @@ async function waitForInstance(vultr: VultrClient, instance: any, timeout: numbe
     return !!instance && isActiveStatus(instance) && isValidIp(instance) && (hasPassword || !!instance.defaultPassword);
   });
 
-  const { instance: newInstane } = await vultr.instances.getInstance(instanceId);
-  return newInstane!;
+  const { instance: newInstance } = await vultr.instances.getInstance(instanceId);
+  return newInstance!;
 }
 
 function isActiveStatus(instance: InstanceGet) {
@@ -241,7 +241,7 @@ async function findInstance(vultr: VultrClient, label: string) {
     }
 
     const newCursor = response.meta?.links?.next;
-    if (!cursor || newCursor === cursor) {
+    if (!newCursor || newCursor === cursor) {
       break;
     }
 
