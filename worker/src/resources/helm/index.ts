@@ -29,7 +29,7 @@ type Parameters = {
 export class HelmResource implements Resource {
   descriptor = defineResource<Parameters, any>({
     name: 'helm',
-    description: 'Creates a vultr storage account.',
+    description: 'Deploys a Helm chart to a Kubernetes cluster.',
     parameters: {
       config: {
         description: 'The kubernetes config.',
@@ -42,7 +42,7 @@ export class HelmResource implements Resource {
         required: true,
       },
       repositoryName: {
-        description: 'The n ame of the custom repository.',
+        description: 'The name of the custom repository.',
         type: 'string',
         required: true,
       },
@@ -126,7 +126,7 @@ export class HelmResource implements Resource {
         };
       } finally {
         if (valuesFilePath) {
-          fs.rm(valuesFilePath);
+          await fs.rm(valuesFilePath);
         }
       }
     } finally {

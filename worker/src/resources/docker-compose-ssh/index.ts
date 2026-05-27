@@ -103,29 +103,36 @@ export class DockerComposeSshResource implements Resource {
     const { host, sshUser, sshPassword } = request.parameters;
 
     const ssh = new NodeSSH();
-    await ssh.connect({ host, username: sshUser, password: sshPassword });
-    const logs = await getLogs(ssh);
+    try {
+      await ssh.connect({ host, username: sshUser, password: sshPassword });
+      const logs = await getLogs(ssh);
 
-    return { instances: logs.map((x) => ({ instanceId: x.name, messages: x.log })) };
+      return { instances: logs.map((x) => ({ instanceId: x.name, messages: x.log })) };
+    } finally {
+      ssh.dispose();
+    }
   }
 
   async status(_id: string, request: ResourceRequest<Parameters>): Promise<ResourceStatusResult> {
     const { host, sshUser, sshPassword } = request.parameters;
 
     const ssh = new NodeSSH();
-    await ssh.connect({ host, username: sshUser, password: sshPassword });
+    try {
+      await ssh.connect({ host, username: sshUser, password: sshPassword });
+      const containers = await getContainers(ssh);
 
-    const containers = await getContainers(ssh);
+      const status: ResourceStatusResult = {
+        workloads: [
+          {
+            name: 'Docker Compose',
+            nodes: containers,
+          },
+        ],
+      };
 
-    const status: ResourceStatusResult = {
-      workloads: [
-        {
-          name: 'Docker Compose',
-          nodes: containers,
-        },
-      ],
-    };
-
-    return status;
+      return status;
+    } finally {
+      ssh.dispose();
+    }
   }
 }

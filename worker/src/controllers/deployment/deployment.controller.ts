@@ -79,14 +79,12 @@ export class DeploymentController {
       }
     }
 
-    // Now we know that the resource will always exist.
-    await Promise.all(
-      body.resources.map((identifier) => {
-        const resource = this.resources.get(identifier.resourceType)!;
+    // Delete in reverse order to respect resource dependencies.
+    for (const identifier of [...body.resources].reverse()) {
+      const resource = this.resources.get(identifier.resourceType)!;
 
-        return resource.delete(identifier.resourceUniqueId, identifier);
-      }),
-    );
+      await resource.delete(identifier.resourceUniqueId, identifier);
+    }
   }
 }
 

@@ -35,6 +35,7 @@ export async function deployResources({
   await updateDeployment({ updateId, status: 'Running' });
 
   const { workerApiKey, workerEndpoint } = await getWorker({});
+  let deployError: unknown = undefined;
   try {
     if (previousResourceIds) {
       for (const resourceId of [...previousResourceIds].reverse()) {
@@ -62,11 +63,15 @@ export async function deployResources({
     }
     await updateDeployment({ updateId, status: 'Completed' });
   } catch (ex) {
+    deployError = ex;
     await updateDeployment({ updateId, status: 'Failed', error: `${ex}` });
   }
 
   const deployment = await getDeployment({ id: deploymentId });
   if (!deployment) {
+    if (deployError) {
+      throw deployError;
+    }
     return;
   }
 
@@ -75,7 +80,10 @@ export async function deployResources({
   );
 
   const topic = Topics.team(deployment.teamId);
-  if (previousResourceIds) {
+  if (deployError) {
+    // Re-throw so Temporal marks this workflow run as failed.
+    throw deployError;
+  } else if (previousResourceIds) {
     await notify({
       topic,
       templateCode: 'DEPLOYMENT_UPDATED',
