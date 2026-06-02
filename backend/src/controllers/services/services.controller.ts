@@ -3,7 +3,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiParam, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
 import { BUILTIN_USER_GROUP_ADMIN, BUILTIN_USER_GROUP_DEFAULT } from 'src/domain/database';
-import { validateDefinition, yamlToDefinition } from 'src/domain/definitions';
+import { SERVICE_DEFINITION_JSON_SCHEMA, validateDefinition, yamlToDefinition } from 'src/domain/definitions';
 import {
   CreateService,
   CreateServiceVersion,
@@ -60,6 +60,15 @@ export class ServicesController {
     const { services } = await this.queryBus.execute(new GetServicesPublicQuery());
 
     return ServicesPublicDto.fromDomain(services);
+  }
+
+  @Get('definition/schema')
+  @ApiOperation({ operationId: 'getServiceDefinitionSchema', description: 'Gets the service definition JSON schema.' })
+  @ApiOkResponse({ schema: SERVICE_DEFINITION_JSON_SCHEMA })
+  @Role(BUILTIN_USER_GROUP_ADMIN)
+  @UseGuards(RoleGuard)
+  async getServiceDefinitionSchema() {
+    return SERVICE_DEFINITION_JSON_SCHEMA;
   }
 
   @Get('/public/:serviceId')

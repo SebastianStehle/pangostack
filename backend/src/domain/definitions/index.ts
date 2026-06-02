@@ -247,6 +247,134 @@ class ServiceDefinitionClass {
   usage?: UsageDefinitionClass | null;
 }
 
+export const SERVICE_DEFINITION_JSON_SCHEMA = {
+  $schema: 'https://json-schema.org/draft/2020-12/schema',
+  title: 'ServiceDefinition',
+  type: 'object',
+  required: ['pricingModel', 'parameters', 'resources'],
+  properties: {
+    afterInstallationInstructions: { type: ['string', 'null'] },
+    pricingModel: { enum: ['fixed', 'pay_per_use'] },
+    prices: {
+      type: 'array',
+      items: { $ref: '#/$defs/ServicePrice' },
+    },
+    parameters: {
+      type: 'array',
+      items: { $ref: '#/$defs/ParameterDefinition' },
+    },
+    resources: {
+      type: 'array',
+      items: { $ref: '#/$defs/ResourceDefinition' },
+    },
+    usage: {
+      anyOf: [{ $ref: '#/$defs/UsageDefinition' }, { type: 'null' }],
+    },
+  },
+  $defs: {
+    ParameterAllowedValue: {
+      type: 'object',
+      required: ['value', 'label'],
+      properties: {
+        value: { type: 'string' },
+        label: { type: 'string' },
+        hint: { type: ['string', 'null'] },
+        updateFrom: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+      },
+    },
+    ParameterDefinition: {
+      type: 'object',
+      required: ['name', 'type', 'required'],
+      properties: {
+        name: { type: 'string' },
+        type: { enum: ['string', 'number', 'boolean'] },
+        required: { type: 'boolean' },
+        display: { type: ['boolean', 'null'] },
+        immutable: { type: ['boolean', 'null'] },
+        label: { type: ['string', 'null'] },
+        placeholder: { type: ['string', 'null'] },
+        hint: { type: ['string', 'null'] },
+        defaultValue: {},
+        allowedValues: {
+          anyOf: [
+            {
+              type: 'array',
+              items: { $ref: '#/$defs/ParameterAllowedValue' },
+            },
+            { type: 'null' },
+          ],
+        },
+        minValue: { type: ['number', 'null'], minimum: 0 },
+        maxValue: { type: ['number', 'null'] },
+        step: { type: ['number', 'null'] },
+        minLength: { type: ['number', 'null'], minimum: 0 },
+        maxLength: { type: ['number', 'null'] },
+        editor: {
+          anyOf: [{ enum: ['default', 'textarea'] }, { type: 'null' }],
+        },
+        section: { type: ['string', 'null'] },
+      },
+    },
+    ResourceHealthCheck: {
+      type: 'object',
+      required: ['name', 'url', 'type'],
+      properties: {
+        name: { type: 'string' },
+        url: { type: 'string' },
+        type: { enum: ['http'] },
+      },
+    },
+    ResourceMapping: {
+      type: 'object',
+      required: ['value', 'map'],
+      properties: {
+        value: { type: 'string' },
+        map: { type: 'object' },
+      },
+    },
+    ResourceDefinition: {
+      type: 'object',
+      required: ['id', 'name', 'type', 'parameters'],
+      properties: {
+        id: { type: 'string' },
+        name: { type: 'string' },
+        type: { type: 'string' },
+        parameters: { type: 'object' },
+        healthChecks: {
+          type: 'array',
+          items: { $ref: '#/$defs/ResourceHealthCheck' },
+        },
+        mappings: {
+          type: 'object',
+          additionalProperties: { $ref: '#/$defs/ResourceMapping' },
+        },
+      },
+    },
+    ServicePrice: {
+      type: 'object',
+      required: ['label', 'billingIdentifier', 'target', 'test', 'pricePerHour'],
+      properties: {
+        label: { type: 'string' },
+        billingIdentifier: { type: 'string' },
+        target: { type: 'string' },
+        test: { type: 'string' },
+        pricePerHour: { type: 'number' },
+      },
+    },
+    UsageDefinition: {
+      type: 'object',
+      properties: {
+        totalCores: { type: ['string', 'null'] },
+        totalMemoryGB: { type: ['string', 'null'] },
+        totalVolumeGB: { type: ['string', 'null'] },
+      },
+    },
+  },
+} as const;
+
 export type ParameterAllowedvalue = InstanceType<typeof ParameterAllowedvalueClass>;
 export type ParameterDefinition = InstanceType<typeof ParameterDefinitionClass>;
 export type ResourceDefinition = InstanceType<typeof ResourceDefinitionClass>;
