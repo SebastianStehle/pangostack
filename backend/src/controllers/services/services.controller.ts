@@ -64,7 +64,7 @@ export class ServicesController {
 
   @Get('definition/schema')
   @ApiOperation({ operationId: 'getServiceDefinitionSchema', description: 'Gets the service definition JSON schema.' })
-  @ApiOkResponse({ schema: SERVICE_DEFINITION_JSON_SCHEMA as any })
+  @ApiOkResponse({ type: Object })
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
   async getServiceDefinitionSchema() {

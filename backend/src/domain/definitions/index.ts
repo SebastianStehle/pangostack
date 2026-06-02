@@ -376,6 +376,7 @@ export const SERVICE_DEFINITION_JSON_SCHEMA = {
 } as const;
 
 export type ParameterAllowedvalue = InstanceType<typeof ParameterAllowedvalueClass>;
+export type ParameterAllowedValue = ParameterAllowedvalue;
 export type ParameterDefinition = InstanceType<typeof ParameterDefinitionClass>;
 export type ResourceDefinition = InstanceType<typeof ResourceDefinitionClass>;
 export type ResourceHealtCheck = InstanceType<typeof ResourceHealtCheckClass>;
