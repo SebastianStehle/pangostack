@@ -250,6 +250,65 @@ class ServiceDefinitionClass {
 }
 
 const SERVICE_DEFINITION_SCHEMA_NAME = 'ServiceDefinitionClass';
+const DEFS_PREFIX = '#/$defs/';
+
+function collectDirectDefinitionRefs(schema: unknown) {
+  const refs = new Set<string>();
+
+  const visit = (value: unknown) => {
+    if (isArray(value)) {
+      for (const item of value) {
+        visit(item);
+      }
+      return;
+    }
+
+    if (!isObject(value)) {
+      return;
+    }
+
+    for (const [key, entry] of Object.entries(value)) {
+      if (key === '$ref' && isString(entry) && entry.startsWith(DEFS_PREFIX)) {
+        refs.add(entry.substring(DEFS_PREFIX.length));
+      } else {
+        visit(entry);
+      }
+    }
+  };
+
+  visit(schema);
+  return refs;
+}
+
+function collectReferencedDefinitionSchemas(rootSchema: unknown, schemas: Record<string, any>): Record<string, any> {
+  const refsToProcess = [...collectDirectDefinitionRefs(rootSchema)];
+  const processedRefs = new Set<string>();
+  const result: Record<string, any> = {};
+
+  while (refsToProcess.length > 0) {
+    const currentRef = refsToProcess.shift();
+    if (!currentRef || processedRefs.has(currentRef)) {
+      continue;
+    }
+
+    processedRefs.add(currentRef);
+
+    const currentSchema = schemas[currentRef];
+    if (!currentSchema) {
+      continue;
+    }
+
+    result[currentRef] = currentSchema;
+
+    for (const nestedRef of collectDirectDefinitionRefs(currentSchema)) {
+      if (!processedRefs.has(nestedRef)) {
+        refsToProcess.push(nestedRef);
+      }
+    }
+  }
+
+  return result;
+}
 
 /**
  * Generates a JSON Schema draft 2020-12 document for ServiceDefinition including referenced definitions.
@@ -265,8 +324,7 @@ export function getServiceDefinitionJsonSchema() {
     throw new Error(`Schema for ${SERVICE_DEFINITION_SCHEMA_NAME} not found.`);
   }
 
-  const otherSchemas = { ...schemas };
-  delete otherSchemas[SERVICE_DEFINITION_SCHEMA_NAME];
+  const otherSchemas = collectReferencedDefinitionSchemas(serviceDefinitionSchema, schemas);
   return {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
     title: 'ServiceDefinition',
