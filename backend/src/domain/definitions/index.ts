@@ -284,10 +284,11 @@ function collectReferencedDefinitionSchemas(rootSchema: unknown, schemas: Record
   const refsToProcess = [...collectDirectDefinitionRefs(rootSchema)];
   const processedRefs = new Set<string>();
   const result: Record<string, any> = {};
+  let nextRefIndex = 0;
 
-  while (refsToProcess.length > 0) {
-    const currentRef = refsToProcess.shift();
-    if (!currentRef || processedRefs.has(currentRef)) {
+  while (nextRefIndex < refsToProcess.length) {
+    const currentRef = refsToProcess[nextRefIndex++];
+    if (processedRefs.has(currentRef)) {
       continue;
     }
 
