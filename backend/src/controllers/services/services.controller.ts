@@ -3,7 +3,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiParam, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
 import { BUILTIN_USER_GROUP_ADMIN, BUILTIN_USER_GROUP_DEFAULT } from 'src/domain/database';
-import { SERVICE_DEFINITION_JSON_SCHEMA, validateDefinition, yamlToDefinition } from 'src/domain/definitions';
+import { getServiceDefinitionJsonSchema, validateDefinition, yamlToDefinition } from 'src/domain/definitions';
 import {
   CreateService,
   CreateServiceVersion,
@@ -68,7 +68,7 @@ export class ServicesController {
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
   async getServiceDefinitionSchema() {
-    return SERVICE_DEFINITION_JSON_SCHEMA;
+    return getServiceDefinitionJsonSchema();
   }
 
   @Get('/public/:serviceId')
