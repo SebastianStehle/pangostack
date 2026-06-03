@@ -1,6 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 import { Transform, Type } from 'class-transformer';
 import { plainToInstance } from 'class-transformer';
+import { defaultMetadataStorage as classTransformerMetadataStorage } from 'class-transformer/cjs/storage';
 import {
   IsArray,
   isBoolean,
@@ -248,11 +249,11 @@ class ServiceDefinitionClass {
   usage?: UsageDefinitionClass | null;
 }
 
-const classTransformerMetadataStorage = (require('class-transformer/cjs/storage') as { defaultMetadataStorage: any })
-  .defaultMetadataStorage;
+const SERVICE_DEFINITION_SCHEMA_NAME = 'ServiceDefinitionClass';
 
-const SERVICE_DEFINITION_SCHEMA_NAME = ServiceDefinitionClass.name;
-
+/**
+ * Generates a JSON Schema draft 2020-12 document for ServiceDefinition including referenced definitions.
+ */
 export function getServiceDefinitionJsonSchema() {
   const schemas = validationMetadatasToSchemas({
     classTransformerMetadataStorage,
@@ -275,7 +276,6 @@ export function getServiceDefinitionJsonSchema() {
 }
 
 export type ParameterAllowedvalue = InstanceType<typeof ParameterAllowedvalueClass>;
-export type ParameterAllowedValue = ParameterAllowedvalue;
 export type ParameterDefinition = InstanceType<typeof ParameterDefinitionClass>;
 export type ResourceDefinition = InstanceType<typeof ResourceDefinitionClass>;
 export type ResourceHealtCheck = InstanceType<typeof ResourceHealtCheckClass>;
