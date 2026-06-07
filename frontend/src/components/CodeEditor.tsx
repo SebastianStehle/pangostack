@@ -4,7 +4,7 @@ import type { IDisposable, editor as MonacoEditor } from 'monaco-editor';
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import { configureMonacoYaml } from 'monaco-yaml';
 import YamlWorker from 'monaco-yaml/yaml.worker?worker';
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useRef, useState } from 'react';
 import { useEventCallback } from 'src/hooks';
 import { isEquals, isObject, isString } from 'src/lib';
 
@@ -60,7 +60,7 @@ export interface CodeEditorProps {
   onBlur?: () => void;
 }
 
-export const CodeEditor = (props: CodeEditorProps) => {
+export const CodeEditor = forwardRef<HTMLDivElement, CodeEditorProps>((props, ref) => {
   const { autoScrollBottom, disabled, height, jsonSchemaPath, mode, noWrap, onBlur, onChange, value, valueMode } = props;
 
   const [internalValue, setInternalValue] = useState(() => stringifyValue(value));
@@ -138,6 +138,7 @@ export const CodeEditor = (props: CodeEditorProps) => {
 
   return (
     <div
+      ref={ref}
       className={classNames({
         'border-[1px] border-slate-300': !isFullHeight,
         'absolute top-0 right-0 bottom-0 left-0': isFullHeight,
@@ -170,7 +171,9 @@ export const CodeEditor = (props: CodeEditorProps) => {
       />
     </div>
   );
-};
+});
+
+CodeEditor.displayName = 'CodeEditor';
 
 const stringifyValue = (value: any): string => {
   if (value == null) return '';

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable @typescript-eslint/no-namespace */
 import { ChangeEventData } from '@yaireo/tagify';
@@ -327,7 +328,7 @@ const InputToggle = ({ className, label, name, vertical, ...other }: FormEditorP
       <Toggle
         className={classNames(className, { 'mt-3': !vertical })}
         {...other}
-        checked={field.value}
+        checked={!!field.value}
         onBlur={field.onBlur}
         onChange={field.onChange}
       />
@@ -404,8 +405,9 @@ const InputMarkdown = ({ name }: FormEditorProps) => {
 
 const InputCode = ({ name, ...other }: CodeFormEditorProps) => {
   const { field } = useController({ name });
+  const { ref, ...codeField } = field;
 
-  return <CodeEditor {...field} {...other} />;
+  return <CodeEditor {...codeField} {...other} />;
 };
 
 const SET_UNDEFINED = '__UNDEFINED';
