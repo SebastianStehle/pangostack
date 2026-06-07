@@ -1,10 +1,32 @@
 import Editor from '@monaco-editor/react';
 import classNames from 'classnames';
 import type { IDisposable, editor as MonacoEditor } from 'monaco-editor';
+import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import { configureMonacoYaml } from 'monaco-yaml';
+import YamlWorker from 'monaco-yaml/yaml.worker?worker';
 import { useEffect, useRef, useState } from 'react';
 import { useEventCallback } from 'src/hooks';
 import { isEquals, isObject, isString } from 'src/lib';
+
+const configureMonacoEnvironment = () => {
+  const globalScope = globalThis as any;
+  const previousGetWorker = globalScope.MonacoEnvironment?.getWorker;
+
+  globalScope.MonacoEnvironment = {
+    ...(globalScope.MonacoEnvironment || {}),
+    getWorker(moduleId: string, label: string) {
+      if (label === 'yaml') {
+        return new YamlWorker();
+      }
+
+      if (previousGetWorker) {
+        return previousGetWorker(moduleId, label);
+      }
+
+      return new EditorWorker();
+    },
+  };
+};
 
 export interface CodeEditorProps {
   // The value.
@@ -45,8 +67,8 @@ export const CodeEditor = (props: CodeEditorProps) => {
   const blurSubscriptionRef = useRef<IDisposable | null>(null);
   const editorRef = useRef<MonacoEditor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<typeof import('monaco-editor') | null>(null);
+  const monacoYamlRef = useRef<{ dispose: () => void } | null>(null);
   const outputValue = useRef<any>();
-  const yamlDisposableRef = useRef<{ dispose: () => void } | null>(null);
 
   useEffect(() => {
     if (isEquals(value, outputValue.current)) {
@@ -56,13 +78,14 @@ export const CodeEditor = (props: CodeEditorProps) => {
     setInternalValue(stringifyValue(value));
   }, [value]);
 
-  const doChange = useEventCallback((editorValue: string) => {
-    setInternalValue(editorValue);
+  const doChange = useEventCallback((editorValue: string | undefined) => {
+    const coercedValue = editorValue ?? '';
+    setInternalValue(coercedValue);
 
     let output: any = editorValue;
     if (valueMode === 'object') {
       try {
-        const parsed = JSON.parse(editorValue);
+        const parsed = JSON.parse(coercedValue);
         output = isObject(parsed) ? parsed : null;
       } catch {
         output = null;
@@ -87,33 +110,26 @@ export const CodeEditor = (props: CodeEditorProps) => {
   }, [autoScrollBottom, value]);
 
   useEffect(() => {
+    monacoYamlRef.current?.dispose();
     const monaco = monacoRef.current;
-    if (!monaco || mode !== 'yaml') {
+    if (!monaco || mode !== 'yaml' || !jsonSchemaPath) {
       return;
     }
 
-    yamlDisposableRef.current?.dispose();
-
-    yamlDisposableRef.current = configureMonacoYaml(monaco, {
-      completion: true,
-      enableSchemaRequest: true,
-      hover: true,
-      validate: true,
-      schemas: jsonSchemaPath
-        ? [
-            {
-              fileMatch: ['*'],
-              uri: jsonSchemaPath,
-            },
-          ]
-        : [],
+    monacoYamlRef.current = configureMonacoYaml(monaco, {
+      schemas: [
+        {
+          fileMatch: ['**/*.yaml', '**/*.yml'],
+          uri: jsonSchemaPath,
+        },
+      ],
     });
   }, [jsonSchemaPath, mode]);
 
   useEffect(() => {
     return () => {
       blurSubscriptionRef.current?.dispose();
-      yamlDisposableRef.current?.dispose();
+      monacoYamlRef.current?.dispose();
     };
   }, []);
 
@@ -129,11 +145,13 @@ export const CodeEditor = (props: CodeEditorProps) => {
     >
       <Editor
         beforeMount={(monaco) => {
+          configureMonacoEnvironment();
           monacoRef.current = monaco;
         }}
         height={editorHeight}
         language={mode === 'yaml' ? 'yaml' : 'javascript'}
-        onChange={(editorValue) => doChange(editorValue ?? '')}
+        path={mode === 'yaml' ? 'file:///editor.yaml' : undefined}
+        onChange={doChange}
         onMount={(editor) => {
           editorRef.current = editor;
           blurSubscriptionRef.current?.dispose();
