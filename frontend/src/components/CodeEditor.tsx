@@ -1,26 +1,10 @@
 import Editor from '@monaco-editor/react';
 import classNames from 'classnames';
 import type { IDisposable, editor as MonacoEditor } from 'monaco-editor';
-import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import { configureMonacoYaml } from 'monaco-yaml';
-import YamlWorker from 'monaco-yaml/yaml.worker?worker';
 import { forwardRef, useEffect, useRef, useState } from 'react';
 import { useEventCallback } from 'src/hooks';
 import { isEquals, isObject, isString } from 'src/lib';
-
-globalThis.MonacoEnvironment = {
-  getWorker(_moduleId, label) {
-    debugger;
-    switch (label) {
-      case 'editorWorkerService':
-        return new EditorWorker();
-      case 'yaml':
-        return new YamlWorker();
-      default:
-        throw new Error(`Unknown label ${label}`);
-    }
-  },
-};
 
 export interface CodeEditorProps {
   // The value.
@@ -112,7 +96,7 @@ export const CodeEditor = forwardRef<HTMLDivElement, CodeEditorProps>((props, re
     const yamlConfig = configureMonacoYaml(monaco, {
       schemas: [
         {
-          fileMatch: ['**/*.yaml', '**/*.yml'],
+          fileMatch: ['file:///editor.yaml'],
           uri: jsonSchemaPath,
         },
       ],
