@@ -52,6 +52,7 @@
       "chargebee": "^3.11.0",
       "class-transformer": "^0.5.1",
       "class-validator": "^0.14.2",
+      "class-validator-jsonschema": "^5.1.0",
       "cookie-parser": "^1.4.7",
       "cron-parser": "^5.3.0",
       "cron-schedule": "^5.0.4",

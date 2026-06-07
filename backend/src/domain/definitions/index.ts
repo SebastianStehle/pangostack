@@ -1,6 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 import { Transform, Type } from 'class-transformer';
 import { plainToInstance } from 'class-transformer';
+import { defaultMetadataStorage as classTransformerMetadataStorage } from 'class-transformer/cjs/storage';
 import {
   IsArray,
   isBoolean,
@@ -18,6 +19,7 @@ import {
   ValidateNested,
   ValidationError,
 } from 'class-validator';
+import { validationMetadatasToSchemas } from 'class-validator-jsonschema';
 import { Document, isMap, isSeq, Pair, parse, YAMLError } from 'yaml';
 import { evaluateExpression, flattenValidationErrors, is, isArray, isObject, isString } from 'src/lib';
 
@@ -245,6 +247,91 @@ class ServiceDefinitionClass {
   @ValidateNested()
   @Type(() => UsageDefinitionClass)
   usage?: UsageDefinitionClass | null;
+}
+
+const SERVICE_DEFINITION_SCHEMA_NAME = 'ServiceDefinitionClass';
+const DEFS_PREFIX = '#/$defs/';
+
+function collectDirectDefinitionRefs(schema: unknown) {
+  const refs = new Set<string>();
+
+  const visit = (value: unknown) => {
+    if (isArray(value)) {
+      for (const item of value) {
+        visit(item);
+      }
+      return;
+    }
+
+    if (!isObject(value)) {
+      return;
+    }
+
+    for (const [key, entry] of Object.entries(value)) {
+      if (key === '$ref' && isString(entry) && entry.startsWith(DEFS_PREFIX)) {
+        refs.add(entry.substring(DEFS_PREFIX.length));
+      } else {
+        visit(entry);
+      }
+    }
+  };
+
+  visit(schema);
+  return refs;
+}
+
+function collectReferencedDefinitionSchemas(rootSchema: unknown, schemas: Record<string, any>): Record<string, any> {
+  const refsToProcess = [...collectDirectDefinitionRefs(rootSchema)];
+  const processedRefs = new Set<string>();
+  const result: Record<string, any> = {};
+  let nextRefIndex = 0;
+
+  while (nextRefIndex < refsToProcess.length) {
+    const currentRef = refsToProcess[nextRefIndex++];
+    if (processedRefs.has(currentRef)) {
+      continue;
+    }
+
+    processedRefs.add(currentRef);
+
+    const currentSchema = schemas[currentRef];
+    if (!currentSchema) {
+      continue;
+    }
+
+    result[currentRef] = currentSchema;
+
+    for (const nestedRef of collectDirectDefinitionRefs(currentSchema)) {
+      if (!processedRefs.has(nestedRef)) {
+        refsToProcess.push(nestedRef);
+      }
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Generates a JSON Schema draft 2020-12 document for ServiceDefinition including referenced definitions.
+ */
+export function getServiceDefinitionJsonSchema() {
+  const schemas = validationMetadatasToSchemas({
+    classTransformerMetadataStorage,
+    refPointerPrefix: '#/$defs/',
+  });
+
+  const serviceDefinitionSchema = schemas[SERVICE_DEFINITION_SCHEMA_NAME];
+  if (!serviceDefinitionSchema) {
+    throw new Error(`Schema for ${SERVICE_DEFINITION_SCHEMA_NAME} not found.`);
+  }
+
+  const otherSchemas = collectReferencedDefinitionSchemas(serviceDefinitionSchema, schemas);
+  return {
+    $schema: 'https://json-schema.org/draft/2020-12/schema',
+    title: 'ServiceDefinition',
+    ...serviceDefinitionSchema,
+    $defs: otherSchemas,
+  };
 }
 
 export type ParameterAllowedvalue = InstanceType<typeof ParameterAllowedvalueClass>;

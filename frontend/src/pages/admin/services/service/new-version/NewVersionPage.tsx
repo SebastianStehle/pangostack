@@ -31,6 +31,7 @@ export const NewServicePage = (props: NewServicePageProps) => {
   const clients = useClients();
   const navigate = useNavigate();
   const { isSticky, sentinelRef } = useStickyObserver();
+  const serviceDefinitionSchemaPath = `${clients.url}/api/services/definition/schema`;
 
   const { data: loadedService } = useQuery({
     queryKey: ['service', serviceId],
@@ -80,6 +81,7 @@ export const NewServicePage = (props: NewServicePageProps) => {
               <Forms.Code
                 disabled={creating.isPending}
                 height="1000px"
+                jsonSchemaPath={serviceDefinitionSchemaPath}
                 label={texts.services.definition}
                 mode="yaml"
                 name="definition"
