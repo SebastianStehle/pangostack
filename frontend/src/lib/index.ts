@@ -1,3 +1,4 @@
+export * from './arrays';
 export * from './error';
 export * from './expression';
 export * from './formats';

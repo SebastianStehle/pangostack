@@ -14,6 +14,7 @@ export * from './get-deployment';
 export * from './get-deployment';
 export * from './get-deployments';
 export * from './get-service-versions';
+export * from './get-service-public';
 export * from './get-services-public';
 export * from './get-services';
 export * from './update-deployment';

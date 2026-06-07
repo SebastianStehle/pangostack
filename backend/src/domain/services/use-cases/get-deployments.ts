@@ -1,6 +1,6 @@
 import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, FindOptionsWhere, Not } from 'typeorm';
+import { FindManyOptions, FindOptionsWhere, MoreThan, Not } from 'typeorm';
 import {
   DeploymentCheckEntity,
   DeploymentCheckRepository,
@@ -8,6 +8,8 @@ import {
   DeploymentRepository,
   DeploymentUpdateEntity,
   DeploymentUpdateRepository,
+  ServiceVersionEntity,
+  ServiceVersionRepository,
 } from 'src/domain/database';
 import { Deployment } from '../interfaces';
 import { buildDeployment } from './utils';
@@ -39,6 +41,8 @@ export class GetDeploymentsHandler implements IQueryHandler<GetDeploymentsQuery,
     private readonly deploymentChecks: DeploymentCheckRepository,
     @InjectRepository(DeploymentUpdateEntity)
     private readonly deploymentUpdates: DeploymentUpdateRepository,
+    @InjectRepository(ServiceVersionEntity)
+    private readonly serviceVersions: ServiceVersionRepository,
   ) {}
 
   async execute(query: GetDeploymentsQuery): Promise<GetDeploymentsResult> {
@@ -80,7 +84,12 @@ export class GetDeploymentsHandler implements IQueryHandler<GetDeploymentsQuery,
         order: { id: 'DESC' },
       });
 
-      result.push(buildDeployment(entity, lastUpdate, lastCheck));
+      const versions = await this.serviceVersions.find({
+        where: { serviceId: entity.serviceId, name: MoreThan(lastUpdate.serviceVersion.name), isActive: true },
+        order: { name: 'ASC' },
+      });
+
+      result.push(buildDeployment(entity, versions, lastUpdate, lastCheck));
     }
 
     return new GetDeploymentsResult(result, total);

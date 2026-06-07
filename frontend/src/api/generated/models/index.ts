@@ -5,6 +5,7 @@
 /* eslint-disable */
 export * from './AuthProviderDto';
 export * from './AuthSettingsDto';
+export * from './AvailableUpdateDto';
 export * from './ConnectionInfoDto';
 export * from './CreateDeploymentDto';
 export * from './CreateServiceVersionDto';

@@ -14,6 +14,9 @@ export interface Deployment {
   // The installation instructions.
   afterInstallationInstructions?: string | null;
 
+  // The available updates.
+  availableUpdates: { name: string }[];
+
   // The current status of the last update.
   status: DeploymentUpdateStatus;
 

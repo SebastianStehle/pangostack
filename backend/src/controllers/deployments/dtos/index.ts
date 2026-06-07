@@ -138,6 +138,21 @@ export class DeploymentResourceDto {
   }
 }
 
+export class AvailableUpdateDto {
+  @ApiProperty({
+    description: 'The name of the version.',
+    required: true,
+  })
+  name: string;
+
+  static fromDomain(source: { name: string }): AvailableUpdateDto {
+    const result = new AvailableUpdateDto();
+    result.name = source.name;
+    return result;
+  }
+}
+
+@ApiExtraModels(AvailableUpdateDto)
 @ApiExtraModels(ConnectionInfoDto)
 export class DeploymentDto {
   @ApiProperty({
@@ -238,11 +253,19 @@ export class DeploymentDto {
   })
   resources: DeploymentResourceDto[];
 
+  @ApiProperty({
+    description: 'The available updates.',
+    required: true,
+    type: [AvailableUpdateDto],
+  })
+  availableUpdates: AvailableUpdateDto[];
+
   static fromDomain(source: Deployment) {
     const result = new DeploymentDto();
     result.id = source.id;
     result.name = source.name;
     result.afterInstallationInstructions = source.afterInstallationInstructions;
+    result.availableUpdates = source.availableUpdates.map(AvailableUpdateDto.fromDomain);
     result.connections = {};
     result.createdAt = source.createdAt;
     result.healthStatus = source.healthStatus;

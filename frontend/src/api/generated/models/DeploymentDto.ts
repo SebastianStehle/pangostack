@@ -16,6 +16,12 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { AvailableUpdateDto } from './AvailableUpdateDto';
+import {
+    AvailableUpdateDtoFromJSON,
+    AvailableUpdateDtoFromJSONTyped,
+    AvailableUpdateDtoToJSON,
+} from './AvailableUpdateDto';
 import type { ConnectionInfoDto } from './ConnectionInfoDto';
 import {
     ConnectionInfoDtoFromJSON,
@@ -119,6 +125,12 @@ export interface DeploymentDto {
      * @memberof DeploymentDto
      */
     resources: Array<DeploymentResourceDto>;
+    /**
+     * The available updates.
+     * @type {Array<AvailableUpdateDto>}
+     * @memberof DeploymentDto
+     */
+    availableUpdates: Array<AvailableUpdateDto>;
 }
 
 
@@ -162,6 +174,7 @@ export function instanceOfDeploymentDto(value: object): boolean {
     isInstance = isInstance && "healthStatus" in value;
     isInstance = isInstance && "parameters" in value;
     isInstance = isInstance && "resources" in value;
+    isInstance = isInstance && "availableUpdates" in value;
 
     return isInstance;
 }
@@ -190,6 +203,7 @@ export function DeploymentDtoFromJSONTyped(json: any, ignoreDiscriminator: boole
         'healthStatus': json['healthStatus'],
         'parameters': json['parameters'],
         'resources': ((json['resources'] as Array<any>).map(DeploymentResourceDtoFromJSON)),
+        'availableUpdates': ((json['availableUpdates'] as Array<any>).map(AvailableUpdateDtoFromJSON)),
     };
 }
 
@@ -216,6 +230,7 @@ export function DeploymentDtoToJSON(value?: DeploymentDto | null): any {
         'healthStatus': value.healthStatus,
         'parameters': value.parameters,
         'resources': ((value.resources as Array<any>).map(DeploymentResourceDtoToJSON)),
+        'availableUpdates': ((value.availableUpdates as Array<any>).map(AvailableUpdateDtoToJSON)),
     };
 }
 

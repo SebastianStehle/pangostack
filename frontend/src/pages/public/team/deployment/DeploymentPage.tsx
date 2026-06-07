@@ -16,7 +16,7 @@ import {
   TransientNavLink,
 } from 'src/components';
 import { useParam, useTypedParams } from 'src/hooks';
-import { formatDateTime } from 'src/lib';
+import { formatDateTime, last } from 'src/lib';
 import { texts } from 'src/texts';
 
 export const DeploymentPage = () => {
@@ -37,21 +37,19 @@ export const DeploymentPage = () => {
   const serviceId = deployment?.serviceId || 0;
 
   const { data: loadedService } = useQuery({
-    queryKey: ['service-public', serviceId],
-    queryFn: async () => (!serviceId ? null : await clients.services.getServicePublic(serviceId)),
+    queryKey: ['service-public-version', serviceId, deployment?.serviceVersion],
+    queryFn: () => clients.services.getServicePublicVersion(serviceId, deployment!.serviceVersion),
+    enabled: !!serviceId && !!deployment,
   });
 
-  if (!deployment) {
+  if (!deployment || !loadedService) {
     return <Spinner visible={true} />;
   }
 
-  const status = loadedStatus?.resources || [];
-
-  if (!loadedService) {
-    return <Spinner visible={true} />;
-  }
-
+  const isPending = deployment.status === 'Pending' || deployment.status === 'Running';
+  const displayStatus = loadedStatus?.resources || [];
   const displayParameters = loadedService.parameters.filter((x) => x.display);
+  const update = last(deployment.availableUpdates);
 
   return (
     <div className="flex flex-col gap-8">
@@ -68,10 +66,18 @@ export const DeploymentPage = () => {
 
         {deployment?.status === 'Completed' && (
           <TransientNavLink className="btn btn-success" to={'update'}>
+            {update && <Icon icon="alert" size={14} />}
             {texts.deployments.edit}
           </TransientNavLink>
         )}
       </div>
+
+      {!isPending && update && (
+        <div role="alert" className="alert alert-success">
+          <Icon icon="alert" />
+          <span>{texts.deployments.updateAvailable}</span>
+        </div>
+      )}
 
       <div className="-mx-8 border-b border-gray-200 px-4">
         <div role="tablist" className="tabs tabs-border">
@@ -89,6 +95,13 @@ export const DeploymentPage = () => {
 
       {tab === 'overview' && (
         <div className="flex flex-col gap-8">
+          {isPending && (
+            <div role="alert" className="alert alert-info">
+              <Icon icon="info" />
+              <span>{texts.deployments.deployingInfo}</span>
+            </div>
+          )}
+
           <div className="grid grid-cols-3 gap-6">
             <PropertyColumn label="Service Name" value={deployment.serviceName} />
 
@@ -123,13 +136,6 @@ export const DeploymentPage = () => {
             ))}
           </div>
 
-          {(deployment.status === 'Pending' || deployment.status === 'Running') && (
-            <div role="alert" className="alert alert-info">
-              <Icon icon="info" />
-              <span>{texts.deployments.deployingInfo}</span>
-            </div>
-          )}
-
           {loadedService.afterInstallationInstructions && (
             <div>
               <h2 className="mb-3 flex items-center gap-3 text-xl">
@@ -153,7 +159,7 @@ export const DeploymentPage = () => {
                 <DeploymentResource
                   key={resource.id}
                   resource={resource}
-                  status={status.find((x) => x.resourceId === resource.id)}
+                  status={displayStatus.find((x) => x.resourceId === resource.id)}
                   connection={deployment.connections[resource.id]}
                 />
               ))}

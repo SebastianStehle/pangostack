@@ -12,6 +12,7 @@ apis/index.ts
 index.ts
 models/AuthProviderDto.ts
 models/AuthSettingsDto.ts
+models/AvailableUpdateDto.ts
 models/ConnectionInfoDto.ts
 models/CreateDeploymentDto.ts
 models/CreateServiceVersionDto.ts

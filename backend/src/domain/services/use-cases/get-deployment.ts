@@ -1,6 +1,7 @@
 import { ForbiddenException } from '@nestjs/common';
 import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
+import { MoreThan } from 'typeorm';
 import {
   DeploymentCheckEntity,
   DeploymentCheckRepository,
@@ -8,6 +9,8 @@ import {
   DeploymentRepository,
   DeploymentUpdateEntity,
   DeploymentUpdateRepository,
+  ServiceVersionEntity,
+  ServiceVersionRepository,
 } from 'src/domain/database';
 import { Deployment } from '../interfaces';
 import { DeploymentPolicy } from '../policies';
@@ -35,6 +38,8 @@ export class GetDeploymentHandler implements IQueryHandler<GetDeploymentQuery, G
     private readonly deploymentChecks: DeploymentCheckRepository,
     @InjectRepository(DeploymentUpdateEntity)
     private readonly deploymentUpdates: DeploymentUpdateRepository,
+    @InjectRepository(ServiceVersionEntity)
+    private readonly serviceVersions: ServiceVersionRepository,
   ) {}
 
   async execute(query: GetDeploymentQuery): Promise<GetDeploymentResult> {
@@ -64,6 +69,11 @@ export class GetDeploymentHandler implements IQueryHandler<GetDeploymentQuery, G
       order: { id: 'DESC' },
     });
 
-    return new GetDeploymentResult(buildDeployment(deployment, lastUpdate, lastCheck));
+    const versions = await this.serviceVersions.find({
+      where: { serviceId: deployment.serviceId, name: MoreThan(lastUpdate.serviceVersion.name), isActive: true },
+      order: { name: 'ASC' },
+    });
+
+    return new GetDeploymentResult(buildDeployment(deployment, versions, lastUpdate, lastCheck));
   }
 }

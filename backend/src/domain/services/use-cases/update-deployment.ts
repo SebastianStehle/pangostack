@@ -1,8 +1,10 @@
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Not } from 'typeorm';
+import { IsNull, MoreThan, Not } from 'typeorm';
 import {
+  DeploymentCheckEntity,
+  DeploymentCheckRepository,
   DeploymentEntity,
   DeploymentRepository,
   DeploymentUpdateEntity,
@@ -42,6 +44,8 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
   constructor(
     @InjectRepository(DeploymentEntity)
     private readonly deployments: DeploymentRepository,
+    @InjectRepository(DeploymentCheckEntity)
+    private readonly deploymentChecks: DeploymentCheckRepository,
     @InjectRepository(DeploymentUpdateEntity)
     private readonly deploymentUpdates: DeploymentUpdateRepository,
     @InjectRepository(ServiceVersionEntity)
@@ -133,6 +137,16 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
 
     await this.workflows.createDeployment(deployment.id, update, lastUpdate);
 
-    return new UpdateDeploymentResult(buildDeployment(deployment, update));
+    const lastCheck = await this.deploymentChecks.findOne({
+      where: { deploymentId: deployment.id },
+      order: { id: 'DESC' },
+    });
+
+    const versions = await this.serviceVersions.find({
+      where: { serviceId: deployment.serviceId, name: MoreThan(version.name), isActive: true },
+      order: { name: 'ASC' },
+    });
+
+    return new UpdateDeploymentResult(buildDeployment(deployment, versions, update, lastCheck));
   }
 }

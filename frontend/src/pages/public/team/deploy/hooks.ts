@@ -1,8 +1,9 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useMemo, useState } from 'react';
 import * as Yup from 'yup';
 import { ObjectShape } from 'yup';
-import { ServicePublicDto } from 'src/api';
+import { ServicePublicDto, useClients } from 'src/api';
 import { isNumber } from 'src/lib';
 import { DeploymentUpdate } from './DeploymentForm';
 
@@ -66,4 +67,21 @@ export function useDeploymentResolver(service: ServicePublicDto) {
   }, [service]);
 
   return resolver;
+}
+
+export function useService(initialService: ServicePublicDto): [ServicePublicDto, (name: string) => void] {
+  const clients = useClients();
+  const [service, setService] = useState(initialService);
+  const [version, setVersion] = useState<string>(initialService.version);
+
+  const { data: loadedService } = useQuery({
+    queryKey: ['service-public-version', service.id, version],
+    queryFn: () => clients.services.getServicePublicVersion(service.id, version),
+  });
+
+  useEffect(() => {
+    setService((s) => loadedService || s);
+  }, [loadedService]);
+
+  return [service, setVersion];
 }

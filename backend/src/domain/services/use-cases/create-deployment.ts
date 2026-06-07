@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Not } from 'typeorm';
+import { IsNull, MoreThan, Not } from 'typeorm';
 import * as uuid from 'uuid';
 import { BillingService } from 'src/domain/billing';
 import {
@@ -136,6 +136,11 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     await this.deployments.save(deployment);
     await this.workflows.createDeployment(deployment.id, update, null);
 
-    return new CreateDeploymentResult(buildDeployment(deployment, update));
+    const versions = await this.serviceVersions.find({
+      where: { serviceId, name: MoreThan(version.name), isActive: true },
+      order: { name: 'ASC' },
+    });
+
+    return new CreateDeploymentResult(buildDeployment(deployment, versions, update));
   }
 }

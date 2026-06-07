@@ -57,7 +57,6 @@ export class UsersController {
   @UseGuards(RoleGuard)
   async getUser(@Param('userId') userId: string) {
     const { user } = await this.queryBus.execute(new GetUserQuery(userId));
-
     if (!user) {
       throw new NotFoundException(`User ${userId} not found.`);
     }

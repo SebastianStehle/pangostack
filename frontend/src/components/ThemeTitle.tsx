@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTheme } from 'src/hooks';
+import { last } from 'src/lib';
 
 class Stack<T> {
   private readonly items: T[] = [];
@@ -13,7 +14,7 @@ class Stack<T> {
   }
 
   peek() {
-    return this.items[this.items.length - 1];
+    return last(this.items);
   }
 }
 

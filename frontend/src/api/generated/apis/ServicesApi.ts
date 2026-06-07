@@ -78,6 +78,11 @@ export interface GetServicePublicRequest {
     serviceId: number;
 }
 
+export interface GetServicePublicVersionRequest {
+    serviceId: number;
+    versionName: string;
+}
+
 export interface GetServiceVersionRequest {
     serviceId: number;
     versionId: number;
@@ -304,6 +309,46 @@ export class ServicesApi extends runtime.BaseAPI {
      */
     async getServicePublic(serviceId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ServicePublicDto> {
         const response = await this.getServicePublicRaw({ serviceId: serviceId }, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Gets the service with the public properties for a specific version.
+     * 
+     */
+    async getServicePublicVersionRaw(requestParameters: GetServicePublicVersionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ServicePublicDto>> {
+        if (requestParameters.serviceId === null || requestParameters.serviceId === undefined) {
+            throw new runtime.RequiredError('serviceId','Required parameter requestParameters.serviceId was null or undefined when calling getServicePublicVersion.');
+        }
+
+        if (requestParameters.versionName === null || requestParameters.versionName === undefined) {
+            throw new runtime.RequiredError('versionName','Required parameter requestParameters.versionName was null or undefined when calling getServicePublicVersion.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/api/services/public/{serviceId}/versions/{versionName}`.replace(`{${"serviceId"}}`, encodeURIComponent(String(requestParameters.serviceId))).replace(`{${"versionName"}}`, encodeURIComponent(String(requestParameters.versionName))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ServicePublicDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Gets the service with the public properties for a specific version.
+     * 
+     */
+    async getServicePublicVersion(serviceId: number, versionName: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ServicePublicDto> {
+        const response = await this.getServicePublicVersionRaw({ serviceId: serviceId, versionName: versionName }, initOverrides);
         return await response.value();
     }
 

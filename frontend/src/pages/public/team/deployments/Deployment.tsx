@@ -1,6 +1,6 @@
 import { DeploymentDto } from 'src/api';
-import { DeploymentStatus, HealthStatus, TransientNavLink } from 'src/components';
-import { formatDateTime } from 'src/lib';
+import { DeploymentStatus, HealthStatus, Icon, TransientNavLink } from 'src/components';
+import { formatDateTime, last } from 'src/lib';
 import { texts } from 'src/texts';
 
 export interface DeploymentProps {
@@ -10,6 +10,7 @@ export interface DeploymentProps {
 
 export const Deployment = (props: DeploymentProps) => {
   const { deployment } = props;
+  const update = last(deployment.availableUpdates);
 
   return (
     <TransientNavLink
@@ -17,10 +18,19 @@ export const Deployment = (props: DeploymentProps) => {
       className="card card-border bg-base hover:border-primary cursor-pointer border-slate-300 transition-colors duration-500 ease-in-out"
     >
       <div className="card-body p-6">
-        <h2 className="card-title">
-          <div className="badge badge-primary badge-sm me-1 rounded-full font-normal">{deployment.serviceVersion}</div>
-          {deployment.serviceName}
-        </h2>
+        <div className="flex">
+          <h2 className="card-title grow">
+            <div className="badge badge-primary badge-sm me-1 rounded-full font-normal">{deployment.serviceVersion}</div>
+            {deployment.serviceName}
+          </h2>
+
+          {update && (
+            <div className="alert-sm text-md flex items-center gap-1 font-medium text-red-700 uppercase">
+              <Icon icon="alert" size={16} />
+              {texts.deployments.updateAvailable}
+            </div>
+          )}
+        </div>
         <div className="mt-1 grid grid-cols-3 items-center gap-4">
           <HealthStatus status={deployment.healthStatus} />
           <div className="flex items-center gap-1">

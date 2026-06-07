@@ -9,6 +9,7 @@ import {
   CreateServiceVersion,
   DeleteService,
   DeleteServiceVersion,
+  GetServicePublicQuery,
   GetServicesPublicQuery,
   GetServicesQuery,
   GetServiceVersionsQuery,
@@ -74,9 +75,36 @@ export class ServicesController {
   @Role(BUILTIN_USER_GROUP_ADMIN)
   @UseGuards(RoleGuard)
   async getServicePublic(@IntParam('serviceId') serviceId: number) {
-    const { services } = await this.queryBus.execute(new GetServicesPublicQuery());
-    const service = services.find((x) => x.id === serviceId);
+    const { service } = await this.queryBus.execute(new GetServicePublicQuery(serviceId));
+    if (!service) {
+      throw new NotFoundException();
+    }
 
+    return ServicePublicDto.fromDomain(service);
+  }
+
+  @Get('/public/:serviceId/versions/:versionName')
+  @ApiOperation({
+    operationId: 'getServicePublicVersion',
+    description: 'Gets the service with the public properties for a specific version.',
+  })
+  @ApiParam({
+    name: 'serviceId',
+    description: 'The ID of the service.',
+    required: true,
+    type: 'number',
+  })
+  @ApiParam({
+    name: 'versionName',
+    description: 'The name of the service version.',
+    required: true,
+    type: 'string',
+  })
+  @ApiOkResponse({ type: ServicePublicDto })
+  @Role(BUILTIN_USER_GROUP_ADMIN)
+  @UseGuards(RoleGuard)
+  async getServicePublicVersion(@IntParam('serviceId') serviceId: number, @Param('versionName') versionName: string) {
+    const { service } = await this.queryBus.execute(new GetServicePublicQuery(serviceId, versionName));
     if (!service) {
       throw new NotFoundException();
     }
@@ -110,7 +138,6 @@ export class ServicesController {
   async getService(@IntParam('serviceId') serviceId: number) {
     const { services } = await this.queryBus.execute(new GetServicesQuery());
     const service = services.find((x) => x.id === serviceId);
-
     if (!service) {
       throw new NotFoundException();
     }

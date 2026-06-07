@@ -1,4 +1,15 @@
 services:
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:6.17
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user@domain.com
+      PGADMIN_DEFAULT_PASSWORD: secret
+    networks:
+      - pango-network
+    ports:
+      - 8080:80
+    
   postgresql:
     container_name: postgresql
     image: postgres:12
@@ -9,7 +20,7 @@ services:
     networks:
       - pango-network
     ports:
-      - 5433:5432
+      - 5432:5432
     volumes:
       - /var/lib/postgresql/data
     restart: unless-stopped

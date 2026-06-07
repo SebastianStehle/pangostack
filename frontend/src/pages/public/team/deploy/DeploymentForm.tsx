@@ -65,6 +65,17 @@ export const DeploymentForm = (props: DeploymentFormProps) => {
     form.reset(value);
   }, [value, form]);
 
+  const availableUpdates = useMemo(() => {
+    if (!value) {
+      return [];
+    }
+
+    return [
+      { value: value.serviceVersion, label: value.serviceVersion },
+      ...value.availableUpdates.map((x) => ({ value: x.name, label: x.name })),
+    ];
+  }, [value]);
+
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit((v) => onSubmit(v))}>
@@ -75,6 +86,10 @@ export const DeploymentForm = (props: DeploymentFormProps) => {
                 <FormAlert common={texts.theme.updateFailed} error={error} />
 
                 <Forms.Text name="name" label={texts.common.name} maxLength={100} />
+
+                {availableUpdates.length > 0 && (
+                  <Forms.Select name="version" label={texts.common.version} options={availableUpdates} required />
+                )}
 
                 {groupedParameters.map(([label, parameters]) => (
                   <section className="mb-4" key={label}>

@@ -9,6 +9,7 @@ import { Deployment, Service, ServicePublic, ServiceVersion } from '../interface
 
 export function buildDeployment(
   source: DeploymentEntity,
+  versions: ServiceVersionEntity[],
   lastUpdate: DeploymentUpdateEntity,
   lastCheck?: DeploymentCheckEntity | null,
 ): Deployment {
@@ -17,6 +18,7 @@ export function buildDeployment(
   return {
     id,
     afterInstallationInstructions: lastUpdate.serviceVersion.definition.afterInstallationInstructions,
+    availableUpdates: versions.map((x) => ({ name: x.name })),
     connections: lastUpdate.resourceConnections,
     createdAt,
     healthStatus: lastCheck?.status,

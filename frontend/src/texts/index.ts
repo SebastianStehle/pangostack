@@ -136,6 +136,7 @@ export const texts = {
     totalSuccesses: 'Successes',
     totalVolumeGB: 'Volume (GB)',
     updateHeadline: 'Update Deployment',
+    updateAvailable: 'An Update is available',
     usageChartWarning: 'Days are based on UTC time. Usage will be measured once per hour.',
   },
   login: {

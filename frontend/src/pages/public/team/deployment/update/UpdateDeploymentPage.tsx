@@ -12,14 +12,17 @@ export const UpdateDeploymentPage = () => {
   const clients = useClients();
   const navigate = useNavigate();
 
-  const { data: loadedServices } = useQuery({
-    queryKey: ['services-public'],
-    queryFn: () => clients.services.getServicesPublic(),
-  });
-
   const { data: deployment } = useQuery({
     queryKey: ['deployment', deploymentId],
     queryFn: () => clients.deployments.getDeployment(deploymentId),
+  });
+
+  const serviceId = deployment?.serviceId || 0;
+
+  const { data: loadedService } = useQuery({
+    queryKey: ['service-public-version', serviceId, deployment?.serviceVersion],
+    queryFn: () => clients.services.getServicePublicVersion(serviceId, deployment!.serviceVersion),
+    enabled: !!serviceId && !!deployment,
   });
 
   const updating = useMutation({
@@ -32,13 +35,7 @@ export const UpdateDeploymentPage = () => {
     },
   });
 
-  if (!deployment) {
-    return <Spinner visible={true} />;
-  }
-
-  const service = (loadedServices?.items || []).find((x) => x.id === deployment.serviceId);
-
-  if (!service) {
+  if (!deployment || !loadedService) {
     return <Spinner visible={true} />;
   }
 
@@ -52,7 +49,7 @@ export const UpdateDeploymentPage = () => {
         <h2 className="grow text-2xl">{texts.deployments.updateHeadline}</h2>
       </div>
 
-      <DeploymentForm service={service} onSubmit={updating.mutate} isPending={updating.isPending} value={deployment} />
+      <DeploymentForm service={loadedService} onSubmit={updating.mutate} isPending={updating.isPending} value={deployment} />
     </div>
   );
 };
