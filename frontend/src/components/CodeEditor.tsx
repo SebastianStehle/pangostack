@@ -8,24 +8,18 @@ import { forwardRef, useEffect, useRef, useState } from 'react';
 import { useEventCallback } from 'src/hooks';
 import { isEquals, isObject, isString } from 'src/lib';
 
-const configureMonacoEnvironment = () => {
-  const globalScope = globalThis as any;
-  const previousGetWorker = globalScope.MonacoEnvironment?.getWorker;
-
-  globalScope.MonacoEnvironment = {
-    ...(globalScope.MonacoEnvironment || {}),
-    getWorker(moduleId: string, label: string) {
-      if (label === 'yaml') {
+globalThis.MonacoEnvironment = {
+  getWorker(_moduleId, label) {
+    debugger;
+    switch (label) {
+      case 'editorWorkerService':
+        return new EditorWorker();
+      case 'yaml':
         return new YamlWorker();
-      }
-
-      if (previousGetWorker) {
-        return previousGetWorker(moduleId, label);
-      }
-
-      return new EditorWorker();
-    },
-  };
+      default:
+        throw new Error(`Unknown label ${label}`);
+    }
+  },
 };
 
 export interface CodeEditorProps {
@@ -60,14 +54,15 @@ export interface CodeEditorProps {
   onBlur?: () => void;
 }
 
+type Monaco = typeof import('monaco-editor');
+
 export const CodeEditor = forwardRef<HTMLDivElement, CodeEditorProps>((props, ref) => {
   const { autoScrollBottom, disabled, height, jsonSchemaPath, mode, noWrap, onBlur, onChange, value, valueMode } = props;
 
   const [internalValue, setInternalValue] = useState(() => stringifyValue(value));
+  const [monaco, setMonaco] = useState<Monaco | null>(null);
   const blurSubscriptionRef = useRef<IDisposable | null>(null);
   const editorRef = useRef<MonacoEditor.IStandaloneCodeEditor | null>(null);
-  const monacoRef = useRef<typeof import('monaco-editor') | null>(null);
-  const monacoYamlRef = useRef<{ dispose: () => void } | null>(null);
   const outputValue = useRef<any>();
 
   useEffect(() => {
@@ -110,13 +105,11 @@ export const CodeEditor = forwardRef<HTMLDivElement, CodeEditorProps>((props, re
   }, [autoScrollBottom, value]);
 
   useEffect(() => {
-    monacoYamlRef.current?.dispose();
-    const monaco = monacoRef.current;
     if (!monaco || mode !== 'yaml' || !jsonSchemaPath) {
       return;
     }
 
-    monacoYamlRef.current = configureMonacoYaml(monaco, {
+    const yamlConfig = configureMonacoYaml(monaco, {
       schemas: [
         {
           fileMatch: ['**/*.yaml', '**/*.yml'],
@@ -124,17 +117,21 @@ export const CodeEditor = forwardRef<HTMLDivElement, CodeEditorProps>((props, re
         },
       ],
     });
-  }, [jsonSchemaPath, mode]);
+
+    return () => {
+      yamlConfig.dispose();
+    };
+  }, [jsonSchemaPath, mode, monaco]);
 
   useEffect(() => {
     return () => {
       blurSubscriptionRef.current?.dispose();
-      monacoYamlRef.current?.dispose();
     };
   }, []);
 
   const isFullHeight = height === 'full';
   const editorHeight = isFullHeight ? '100%' : height;
+  const editorPath = mode === 'yaml' ? 'file:///editor.yaml' : 'file:///editor.js';
 
   return (
     <div
@@ -145,13 +142,10 @@ export const CodeEditor = forwardRef<HTMLDivElement, CodeEditorProps>((props, re
       })}
     >
       <Editor
-        beforeMount={(monaco) => {
-          configureMonacoEnvironment();
-          monacoRef.current = monaco;
-        }}
+        beforeMount={setMonaco}
         height={editorHeight}
-        language={mode === 'yaml' ? 'yaml' : 'javascript'}
-        path={mode === 'yaml' ? 'file:///editor.yaml' : undefined}
+        language={mode}
+        path={editorPath}
         onChange={doChange}
         onMount={(editor) => {
           editorRef.current = editor;
