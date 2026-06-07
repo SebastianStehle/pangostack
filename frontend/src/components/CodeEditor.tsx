@@ -1,8 +1,13 @@
 import Editor from '@monaco-editor/react';
 import classNames from 'classnames';
+<<<<<<< HEAD
 import type { editor as MonacoEditor } from 'monaco-editor';
 import { configureMonacoYaml } from 'monaco-yaml';
 import { useEffect, useMemo, useRef, useState } from 'react';
+=======
+import { IDisposable, editor as MonacoEditor } from 'monaco-editor';
+import { useEffect, useRef, useState } from 'react';
+>>>>>>> origin/main
 import { useEventCallback } from 'src/hooks';
 import { isEquals, isObject, isString } from 'src/lib';
 
@@ -43,10 +48,14 @@ export const CodeEditor = (props: CodeEditorProps) => {
 
   const [internalValue, setInternalValue] = useState(() => stringifyValue(value));
   const editorRef = useRef<MonacoEditor.IStandaloneCodeEditor | null>(null);
+<<<<<<< HEAD
   const monacoRef = useRef<typeof import('monaco-editor') | null>(null);
   const yamlDisposableRef = useRef<{ dispose: () => void } | null>(null);
   const blurDisposableRef = useRef<{ dispose: () => void } | null>(null);
   const editorId = useRef(`code-editor-${Math.random().toString(36).slice(2)}`);
+=======
+  const blurSubscriptionRef = useRef<IDisposable | null>(null);
+>>>>>>> origin/main
   const outputValue = useRef<any>();
   const editorPath = useMemo(() => `file:///code-editor/${editorId.current}.${mode === 'yaml' ? 'yaml' : 'js'}`, [mode]);
 
@@ -76,16 +85,27 @@ export const CodeEditor = (props: CodeEditorProps) => {
   });
 
   useEffect(() => {
+<<<<<<< HEAD
     const editor = editorRef.current;
     if (editor && autoScrollBottom) {
       setTimeout(() => {
         const lineCount = editor.getModel()?.getLineCount() || 1;
+=======
+    if (editorRef.current && autoScrollBottom) {
+      const editor = editorRef.current;
+
+      const timeout = setTimeout(() => {
+        const lineCount = editor.getModel()?.getLineCount() ?? 1;
+>>>>>>> origin/main
         editor.revealLine(lineCount);
       }, 50);
+
+      return () => clearTimeout(timeout);
     }
   }, [autoScrollBottom, value]);
 
   useEffect(() => {
+<<<<<<< HEAD
     const monaco = monacoRef.current;
     if (!monaco || mode !== 'yaml') {
       return;
@@ -113,6 +133,10 @@ export const CodeEditor = (props: CodeEditorProps) => {
     return () => {
       blurDisposableRef.current?.dispose();
       yamlDisposableRef.current?.dispose();
+=======
+    return () => {
+      blurSubscriptionRef.current?.dispose();
+>>>>>>> origin/main
     };
   }, []);
 
@@ -127,6 +151,7 @@ export const CodeEditor = (props: CodeEditorProps) => {
       })}
     >
       <Editor
+<<<<<<< HEAD
         beforeMount={(monaco) => {
           monacoRef.current = monaco;
         }}
@@ -139,14 +164,29 @@ export const CodeEditor = (props: CodeEditorProps) => {
           blurDisposableRef.current = editor.onDidBlurEditorWidget(() => {
             onBlur?.();
           });
+=======
+        height={editorHeight}
+        language={mode}
+        onChange={(editorValue) => doChange(editorValue ?? '')}
+        onMount={(editor) => {
+          editorRef.current = editor;
+          blurSubscriptionRef.current?.dispose();
+          blurSubscriptionRef.current = onBlur ? editor.onDidBlurEditorText(onBlur) : null;
+>>>>>>> origin/main
         }}
         options={{
           automaticLayout: true,
           minimap: { enabled: false },
           readOnly: disabled,
+<<<<<<< HEAD
           wordWrap: noWrap ? 'off' : 'on',
         }}
         path={editorPath}
+=======
+          scrollBeyondLastLine: false,
+          wordWrap: noWrap ? 'off' : 'on',
+        }}
+>>>>>>> origin/main
         theme="vs"
         value={internalValue}
         width="100%"
