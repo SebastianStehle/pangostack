@@ -2,7 +2,7 @@ import Editor from '@monaco-editor/react';
 import classNames from 'classnames';
 import type { IDisposable, editor as MonacoEditor } from 'monaco-editor';
 import { configureMonacoYaml } from 'monaco-yaml';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useEventCallback } from 'src/hooks';
 import { isEquals, isObject, isString } from 'src/lib';
 
@@ -42,13 +42,11 @@ export const CodeEditor = (props: CodeEditorProps) => {
   const { autoScrollBottom, disabled, height, jsonSchemaPath, mode, noWrap, onBlur, onChange, value, valueMode } = props;
 
   const [internalValue, setInternalValue] = useState(() => stringifyValue(value));
+  const blurSubscriptionRef = useRef<IDisposable | null>(null);
   const editorRef = useRef<MonacoEditor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<typeof import('monaco-editor') | null>(null);
-  const yamlDisposableRef = useRef<{ dispose: () => void } | null>(null);
-  const blurSubscriptionRef = useRef<IDisposable | null>(null);
-  const editorId = useRef(`code-editor-${Math.random().toString(36).slice(2)}`);
   const outputValue = useRef<any>();
-  const editorPath = useMemo(() => `file:///code-editor/${editorId.current}.${mode === 'yaml' ? 'yaml' : 'js'}`, [mode]);
+  const yamlDisposableRef = useRef<{ dispose: () => void } | null>(null);
 
   useEffect(() => {
     if (isEquals(value, outputValue.current)) {
@@ -104,13 +102,13 @@ export const CodeEditor = (props: CodeEditorProps) => {
       schemas: jsonSchemaPath
         ? [
             {
-              fileMatch: [editorPath],
+              fileMatch: ['*'],
               uri: jsonSchemaPath,
             },
           ]
         : [],
     });
-  }, [editorPath, jsonSchemaPath, mode]);
+  }, [jsonSchemaPath, mode]);
 
   useEffect(() => {
     return () => {
@@ -148,7 +146,6 @@ export const CodeEditor = (props: CodeEditorProps) => {
           scrollBeyondLastLine: false,
           wordWrap: noWrap ? 'off' : 'on',
         }}
-        path={editorPath}
         theme="vs"
         value={internalValue}
         width="100%"
