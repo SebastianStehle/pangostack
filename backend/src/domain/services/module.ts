@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   DeploymentCheckEntity,
   DeploymentEntity,
+  DeploymentMetricEntity,
   DeploymentUpdateEntity,
   DeploymentUsageEntity,
   ServiceEntity,
@@ -25,6 +26,7 @@ import {
   GetDeploymentChecksHandler,
   GetDeploymentHandler,
   GetDeploymentLogsHandler,
+  GetDeploymentMetricsHandler,
   GetDeploymentsHandler,
   GetDeploymentStatusHandler,
   GetDeploymentUsagesHandler,
@@ -46,6 +48,7 @@ import {
     TypeOrmModule.forFeature([
       DeploymentCheckEntity,
       DeploymentEntity,
+      DeploymentMetricEntity,
       DeploymentUpdateEntity,
       DeploymentUsageEntity,
       ServiceEntity,
@@ -68,6 +71,7 @@ import {
     GetDeploymentHandler,
     GetDeploymentHandler,
     GetDeploymentLogsHandler,
+    GetDeploymentMetricsHandler,
     GetDeploymentsHandler,
     GetDeploymentStatusHandler,
     GetDeploymentUsagesHandler,

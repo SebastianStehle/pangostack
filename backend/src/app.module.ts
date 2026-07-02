@@ -35,6 +35,7 @@ import {
   DeploymentCheckEntity,
   DeploymentEntity,
   DeploymentLogEntity,
+  DeploymentMetricEntity,
   DeploymentUpdateEntity,
   DeploymentUsageEntity,
   ServiceEntity,
@@ -48,6 +49,7 @@ import {
   WorkerEntity,
 } from './domain/database';
 import { AddDefinitionSource1760346848861, Init1760346162798, MigratorService } from './domain/database/migrations';
+import { AddMigrations1782982415002 } from './domain/database/migrations/1782982415002-AddMigrations';
 import { NOTIFICATION_ENV_SCHEMA, notificationConfig } from './domain/notifications';
 import { NotificationModule } from './domain/notifications';
 import { ServicesModule } from './domain/services';
@@ -108,6 +110,7 @@ const combineSchemas = (...schemas: Joi.ObjectSchema[]) => schemas.reduce((acc, 
             DeploymentCheckEntity,
             DeploymentEntity,
             DeploymentLogEntity,
+            DeploymentMetricEntity,
             DeploymentUpdateEntity,
             DeploymentUsageEntity,
             ServiceEntity,
@@ -120,7 +123,7 @@ const combineSchemas = (...schemas: Joi.ObjectSchema[]) => schemas.reduce((acc, 
             UserGroupEntity,
             WorkerEntity,
           ],
-          migrations: [Init1760346162798, AddDefinitionSource1760346848861],
+          migrations: [Init1760346162798, AddDefinitionSource1760346848861, AddMigrations1782982415002],
         };
       },
       dataSourceFactory: async (options) => {

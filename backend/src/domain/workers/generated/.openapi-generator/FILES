@@ -9,8 +9,12 @@ models/ErrorResponseDto.ts
 models/InstanceLogDto.ts
 models/LogRequestDto.ts
 models/LogResultDto.ts
+models/MetricsRequestDto.ts
+models/MetricsResultDto.ts
 models/ResourceApplyResponseDto.ts
 models/ResourceLogDto.ts
+models/ResourceMetricDto.ts
+models/ResourceMetricsDto.ts
 models/ResourceNodeStatusDto.ts
 models/ResourceRequestDto.ts
 models/ResourceStatusDto.ts

@@ -5,6 +5,9 @@ import {
   CheckSummary,
   Deployment,
   DeploymentResource,
+  MetricDatapoint,
+  MetricSeries,
+  MetricSummary,
   ResourceInstanceLog,
   ResourceLog,
   ResourceNodeStatus,
@@ -591,6 +594,122 @@ export class DeploymentUsageSummariesDto {
     const result = new DeploymentUsageSummariesDto();
     result.summaries = source.map(DeploymentUsageSummaryDto.fromDomain);
     return result;
+  }
+}
+
+export class DeploymentMetricDatapointDto {
+  @ApiProperty({
+    description: 'The timestamp when the metric has been collected.',
+    required: true,
+  })
+  timestamp: string;
+
+  @ApiProperty({
+    description: 'The collected values, for example { used: 4, total: 8 }.',
+    required: true,
+    additionalProperties: {
+      type: 'number',
+    },
+  })
+  values: Record<string, number>;
+
+  static fromDomain(source: MetricDatapoint): DeploymentMetricDatapointDto {
+    return Object.assign(new DeploymentMetricDatapointDto(), source);
+  }
+}
+
+export class DeploymentMetricSummaryDto {
+  @ApiProperty({
+    description: 'The display label of the summary.',
+    required: true,
+  })
+  label: string;
+
+  @ApiProperty({
+    description: 'How the values are aggregated.',
+    required: true,
+    enum: ['avg', 'max'],
+  })
+  type: 'avg' | 'max';
+
+  @ApiProperty({
+    description: 'The mapping prefix that the summary is based on.',
+    required: true,
+  })
+  prefix: string;
+
+  @ApiProperty({
+    description: 'The optional value name to select a single value under the prefix.',
+    nullable: true,
+    type: String,
+  })
+  value?: string | null;
+
+  static fromDomain(source: MetricSummary): DeploymentMetricSummaryDto {
+    return Object.assign(new DeploymentMetricSummaryDto(), source);
+  }
+}
+
+export class DeploymentMetricSeriesDto {
+  @ApiProperty({
+    description: 'The key of the metric from the definition.',
+    required: true,
+  })
+  key: string;
+
+  @ApiProperty({
+    description: 'The display label of the metric.',
+    required: true,
+  })
+  label: string;
+
+  @ApiProperty({
+    description: 'The unit of the metric.',
+    nullable: true,
+    type: String,
+  })
+  unit?: string | null;
+
+  @ApiProperty({
+    description: 'How the metric should be displayed.',
+    required: true,
+    enum: ['label', 'bar'],
+  })
+  chart: 'label' | 'bar';
+
+  @ApiProperty({
+    description: 'The summaries that are shown as cards in the UI.',
+    required: true,
+    type: [DeploymentMetricSummaryDto],
+  })
+  summaries: DeploymentMetricSummaryDto[] = [];
+
+  @ApiProperty({
+    description: 'The collected datapoints, ordered by timestamp.',
+    required: true,
+    type: [DeploymentMetricDatapointDto],
+  })
+  datapoints: DeploymentMetricDatapointDto[] = [];
+
+  static fromDomain(source: MetricSeries): DeploymentMetricSeriesDto {
+    return Object.assign(new DeploymentMetricSeriesDto(), {
+      ...source,
+      datapoints: source.datapoints.map(DeploymentMetricDatapointDto.fromDomain),
+      summaries: source.summaries.map(DeploymentMetricSummaryDto.fromDomain),
+    });
+  }
+}
+
+export class DeploymentMetricsDto {
+  @ApiProperty({
+    description: 'The metrics with their datapoints.',
+    required: true,
+    type: [DeploymentMetricSeriesDto],
+  })
+  metrics: DeploymentMetricSeriesDto[] = [];
+
+  static fromDomain(source: MetricSeries[]): DeploymentMetricsDto {
+    return Object.assign(new DeploymentMetricsDto(), { metrics: source.map(DeploymentMetricSeriesDto.fromDomain) });
   }
 }
 

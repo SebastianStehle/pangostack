@@ -2,7 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 import { addDays, format } from 'date-fns';
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useClients } from 'src/api';
+import { getChartColor } from 'src/lib';
 import { texts } from 'src/texts';
+
+const UNIT_CORES = 'CORES';
+const UNIT_GB = 'GB';
 
 export interface DeploymentUsageChartProps {
   // The ID of the deployment.
@@ -26,16 +30,19 @@ export const DeploymentUsageChart = (props: DeploymentUsageChartProps) => {
 
   const data = loadedUsage?.summaries || [];
 
+  const coresAxis = { value: UNIT_CORES, angle: -90, position: 'insideLeft' } as const;
+  const gbAxis = { value: UNIT_GB, angle: -90, position: 'insideLeft' } as const;
+
   return (
     <div className="grid grid-cols-2 gap-4">
       <ResponsiveContainer height={250}>
         <BarChart width={500} height={300} data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" />
-          <YAxis />
-          <Tooltip />
+          <YAxis label={coresAxis} />
+          <Tooltip formatter={(value) => `${value} ${UNIT_CORES}`} />
           <Legend />
-          <Bar dataKey="totalCores" fill="#F28E2B" name={texts.deployments.totalCors} />
+          <Bar dataKey="totalCores" fill={getChartColor(0)} name={texts.deployments.totalCors} />
         </BarChart>
       </ResponsiveContainer>
 
@@ -43,10 +50,10 @@ export const DeploymentUsageChart = (props: DeploymentUsageChartProps) => {
         <BarChart width={500} height={300} data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" />
-          <YAxis />
-          <Tooltip />
+          <YAxis label={gbAxis} />
+          <Tooltip formatter={(value) => `${value} ${UNIT_GB}`} />
           <Legend />
-          <Bar dataKey="totalMemoryGB" fill="#4E79A7" name={texts.deployments.totalMemoryGB} />
+          <Bar dataKey="totalMemoryGB" fill={getChartColor(1)} name={texts.deployments.totalMemoryGB} />
         </BarChart>
       </ResponsiveContainer>
 
@@ -54,10 +61,10 @@ export const DeploymentUsageChart = (props: DeploymentUsageChartProps) => {
         <BarChart width={500} height={300} data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" />
-          <YAxis />
-          <Tooltip />
+          <YAxis label={gbAxis} />
+          <Tooltip formatter={(value) => `${value} ${UNIT_GB}`} />
           <Legend />
-          <Bar dataKey="totalVolumeGB" fill="#59A14F" name={texts.deployments.totalVolumeGB} />
+          <Bar dataKey="totalVolumeGB" fill={getChartColor(2)} name={texts.deployments.totalVolumeGB} />
         </BarChart>
       </ResponsiveContainer>
 
@@ -65,10 +72,10 @@ export const DeploymentUsageChart = (props: DeploymentUsageChartProps) => {
         <BarChart width={500} height={300} data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" />
-          <YAxis />
-          <Tooltip />
+          <YAxis label={gbAxis} />
+          <Tooltip formatter={(value) => `${value} ${UNIT_GB}`} />
           <Legend />
-          <Bar dataKey="totalStorageGB" fill="#B07AA1" name={texts.deployments.totalStorageGB} />
+          <Bar dataKey="totalStorageGB" fill={getChartColor(3)} name={texts.deployments.totalStorageGB} />
         </BarChart>
       </ResponsiveContainer>
     </div>

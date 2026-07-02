@@ -18,6 +18,11 @@ export interface ResourceValueDescriptor {
   maxLength?: number;
 }
 
+export interface ResourceMetricDescriptor {
+  // Description of the metric.
+  description: string;
+}
+
 export interface ResourceDescriptor {
   // Unique identifier for the resource.
   name: string;
@@ -30,6 +35,9 @@ export interface ResourceDescriptor {
 
   // The returned context.
   context: Record<string, ResourceValueDescriptor>;
+
+  // The metrics that the resource can provide.
+  metrics?: Record<string, ResourceMetricDescriptor>;
 }
 
 type PrimitiveToDescriptorType<T> = T extends string ? 'string' : T extends number ? 'number' : T extends boolean ? 'boolean' : never;
@@ -121,6 +129,14 @@ export interface ResourceUsage {
   totalStorageGB: number;
 }
 
+// Each metric provides an object with multiple named values, for example { used: 4, total: 8 }.
+export type ResourceMetricValues = Record<string, number>;
+
+export interface ResourceMetricsResult {
+  // The collected values per metric name.
+  metrics: Record<string, ResourceMetricValues>;
+}
+
 export interface Resource {
   descriptor: ResourceDescriptor;
 
@@ -135,6 +151,8 @@ export interface Resource {
   log?(id: string, request: ResourceRequest): Promise<ResourceLogResult>;
 
   usage?(id: string, request: ResourceRequest): Promise<ResourceUsage>;
+
+  metrics?(id: string, request: ResourceRequest): Promise<ResourceMetricsResult>;
 
   describe?(): Promise<any>;
 }

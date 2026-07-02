@@ -23,6 +23,7 @@ import type {
   DeploymentCreatedDto,
   DeploymentDto,
   DeploymentLogsDto,
+  DeploymentMetricsDto,
   DeploymentStatusDto,
   DeploymentUsageSummariesDto,
   DeploymentsDto,
@@ -39,6 +40,8 @@ import {
     DeploymentDtoToJSON,
     DeploymentLogsDtoFromJSON,
     DeploymentLogsDtoToJSON,
+    DeploymentMetricsDtoFromJSON,
+    DeploymentMetricsDtoToJSON,
     DeploymentStatusDtoFromJSON,
     DeploymentStatusDtoToJSON,
     DeploymentUsageSummariesDtoFromJSON,
@@ -78,6 +81,11 @@ export interface GetDeploymentChecksRequest {
 
 export interface GetDeploymentLogsRequest {
     deploymentId: number;
+}
+
+export interface GetDeploymentMetricsRequest {
+    deploymentId: number;
+    hours?: number;
 }
 
 export interface GetDeploymentStatusRequest {
@@ -368,6 +376,46 @@ export class DeploymentsApi extends runtime.BaseAPI {
      */
     async getDeploymentLogs(deploymentId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentLogsDto> {
         const response = await this.getDeploymentLogsRaw({ deploymentId: deploymentId }, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Gets the collected metrics.
+     * 
+     */
+    async getDeploymentMetricsRaw(requestParameters: GetDeploymentMetricsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeploymentMetricsDto>> {
+        if (requestParameters.deploymentId === null || requestParameters.deploymentId === undefined) {
+            throw new runtime.RequiredError('deploymentId','Required parameter requestParameters.deploymentId was null or undefined when calling getDeploymentMetrics.');
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters.hours !== undefined) {
+            queryParameters['hours'] = requestParameters.hours;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/api/deployments/{deploymentId}/metrics`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => DeploymentMetricsDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Gets the collected metrics.
+     * 
+     */
+    async getDeploymentMetrics(deploymentId: number, hours?: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentMetricsDto> {
+        const response = await this.getDeploymentMetricsRaw({ deploymentId: deploymentId, hours: hours }, initOverrides);
         return await response.value();
     }
 

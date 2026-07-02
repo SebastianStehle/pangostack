@@ -10,7 +10,9 @@ export const DB_ENV_SCHEMA = Joi.object({
   DB_URL: Joi.string().uri().required(),
 }).unknown(true);
 
-export const dbConfig = registerAs<DbConfig>('db', () => ({
+export const loadDbConfig = (): DbConfig => ({
   type: 'postgres',
   url: process.env.DB_URL!,
-}));
+});
+
+export const dbConfig = registerAs<DbConfig>('db', loadDbConfig);

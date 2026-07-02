@@ -251,6 +251,48 @@ export interface UsageSummary {
   totalStorageGB: number;
 }
 
+export interface MetricDatapoint {
+  // The timestamp when the metric has been collected.
+  timestamp: string;
+
+  // The collected values, for example { used: 4, total: 8 }.
+  values: Record<string, number>;
+}
+
+export interface MetricSummary {
+  // The display label of the summary.
+  label: string;
+
+  // How the values are aggregated.
+  type: 'avg' | 'max';
+
+  // The mapping prefix that the summary is based on.
+  prefix: string;
+
+  // The optional value name to select a single value under the prefix.
+  value?: string | null;
+}
+
+export interface MetricSeries {
+  // The key of the metric from the definition.
+  key: string;
+
+  // The display label of the metric.
+  label: string;
+
+  // The unit of the metric, for example 'gb'.
+  unit?: string | null;
+
+  // How the metric should be displayed.
+  chart: 'label' | 'bar';
+
+  // The summaries that are shown as cards in the UI.
+  summaries: MetricSummary[];
+
+  // The collected datapoints, ordered by timestamp.
+  datapoints: MetricDatapoint[];
+}
+
 export interface ResourceInstanceLog {
   // The identifier for instances or kubernetes deployments.
   instanceId: string;

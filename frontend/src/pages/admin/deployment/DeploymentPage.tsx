@@ -10,6 +10,7 @@ import {
   DeploymentHealthChart,
   DeploymentInstructions,
   DeploymentLog,
+  DeploymentMetricsChart,
   DeploymentResource,
   DeploymentStatus,
   DeploymentUsageChart,
@@ -198,6 +199,16 @@ export const DeploymentPage = () => {
 
           {tab === 'usage' && (
             <div className="flex flex-col gap-8">
+              <div>
+                <h2 className="mb-3 flex items-center gap-3 text-xl">
+                  <Icon icon="activity" size={16} className="inline-block" /> {texts.common.metrics}
+                </h2>
+
+                <DeploymentMetricsChart deploymentId={deploymentId} />
+
+                <div className="mt-4 text-right text-xs">{texts.deployments.metricsChartWarning}</div>
+              </div>
+
               <div>
                 <h2 className="mb-3 flex items-center gap-3 text-xl">
                   <Icon icon="bar-chart" size={16} className="inline-block" /> {texts.common.usage}

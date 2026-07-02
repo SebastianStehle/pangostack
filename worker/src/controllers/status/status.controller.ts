@@ -1,11 +1,14 @@
-import { BadRequestException, Body, Controller, Inject, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Inject, Logger, Post } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Resource, ResourceLogResult, RESOURCES_TOKEN, ResourceUsage } from 'src/resources/interface';
+import { Resource, ResourceLogResult, ResourceMetricsResult, RESOURCES_TOKEN, ResourceUsage } from 'src/resources/interface';
 import { ApiDefaultResponses } from '../shared';
 import {
   LogRequestDto,
   LogResultDto,
+  MetricsRequestDto,
+  MetricsResultDto,
   ResourceLogDto,
+  ResourceMetricsDto,
   ResourceStatusDto,
   ResourceUsageDto,
   StatusRequestDto,
@@ -18,6 +21,8 @@ import {
 @ApiTags('status')
 @ApiDefaultResponses()
 export class StatusController {
+  private readonly logger = new Logger(StatusController.name);
+
   constructor(
     @Inject(RESOURCES_TOKEN)
     private readonly resources: Map<string, Resource>,
@@ -75,6 +80,41 @@ export class StatusController {
     );
 
     const result = new UsageResultDto();
+    result.resources.push(...responses);
+    return result;
+  }
+
+  @Post('metrics')
+  @ApiOperation({ operationId: 'postMetrics', description: 'Gets the metrics for all specified deployment IDs.' })
+  @ApiOkResponse({ type: MetricsResultDto })
+  async postMetrics(@Body() body: MetricsRequestDto) {
+    // Validate the request first.
+    for (const resource of body.resources) {
+      if (!this.resources.has(resource.resourceType)) {
+        throw new BadRequestException(`Unknown resource type ${resource.resourceType}`);
+      }
+    }
+
+    // Execute all metrics calls in parallel
+    const responses = await Promise.all(
+      body.resources.map(async (resource) => {
+        let metrics: ResourceMetricsResult = { metrics: {} };
+
+        try {
+          const resourceService = this.resources.get(resource.resourceType)!;
+          if (resourceService.metrics) {
+            metrics = await resourceService.metrics(resource.resourceUniqueId, resource);
+          }
+        } catch (ex) {
+          // One failing resource should not prevent the metrics of the other resources from being collected.
+          this.logger.error(`Failed to collect metrics for resource ${resource.resourceUniqueId}.`, ex);
+        }
+
+        return ResourceMetricsDto.fromDomain(metrics, resource.resourceUniqueId, resource.resourceType);
+      }),
+    );
+
+    const result = new MetricsResultDto();
     result.resources.push(...responses);
     return result;
   }

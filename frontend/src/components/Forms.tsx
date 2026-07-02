@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable @typescript-eslint/no-namespace */
 import { ChangeEventData } from '@yaireo/tagify';
@@ -133,7 +134,7 @@ export namespace Forms {
       </div>
     ) : (
       <div className={classNames('form-row flex flex-row', className, { 'items-center': aligned })}>
-        <label className="my-3 w-42 shrink-0 pe-2 text-sm font-semibold" htmlFor={name}>
+        <label className="my-3 w-52 shrink-0 pe-2 text-sm font-semibold" htmlFor={name}>
           {labelText}
         </label>
 
@@ -148,81 +149,81 @@ export namespace Forms {
     );
   };
 
-  export const Text = ({ className, required, ...other }: FormEditorProps & HTMLProps<HTMLInputElement>) => {
+  export const Text = ({ className, required, vertical, ...other }: FormEditorProps & HTMLProps<HTMLInputElement>) => {
     return (
-      <Forms.Row className={className} required={required} {...other}>
+      <Forms.Row className={className} required={required} vertical={vertical} {...other}>
         <InputText type="text" {...other} />
       </Forms.Row>
     );
   };
 
-  export const Url = ({ className, required, ...other }: FormEditorProps & HTMLProps<HTMLInputElement>) => {
+  export const Url = ({ className, required, vertical, ...other }: FormEditorProps & HTMLProps<HTMLInputElement>) => {
     return (
-      <Forms.Row className={className} required={required} {...other}>
+      <Forms.Row className={className} required={required} vertical={vertical} {...other}>
         <InputText type="url" {...other} />
       </Forms.Row>
     );
   };
 
-  export const Color = ({ className, required, ...other }: FormEditorProps) => {
+  export const Color = ({ className, required, vertical, ...other }: FormEditorProps) => {
     return (
-      <Forms.Row className={className} required={required} {...other}>
+      <Forms.Row className={className} required={required} vertical={vertical} {...other}>
         <InputText type="color" {...other} className="!w-[3rem] px-1" />
       </Forms.Row>
     );
   };
 
-  export const Tags = ({ className, required, ...other }: FormEditorProps) => {
+  export const Tags = ({ className, required, vertical, ...other }: FormEditorProps) => {
     return (
-      <Forms.Row className={className} required={required} {...other}>
+      <Forms.Row className={className} required={required} vertical={vertical} {...other}>
         <InputTags {...other} />
       </Forms.Row>
     );
   };
 
-  export const Textarea = ({ className, required, ...other }: FormEditorProps) => {
+  export const Textarea = ({ className, required, vertical, ...other }: FormEditorProps) => {
     return (
-      <Forms.Row className={className} required={required} {...other}>
+      <Forms.Row className={className} required={required} vertical={vertical} {...other}>
         <InputTextarea {...other} />
       </Forms.Row>
     );
   };
 
-  export const Number = ({ className, required, ...other }: NumberFormEditorProps) => {
+  export const Number = ({ className, required, vertical, ...other }: NumberFormEditorProps) => {
     return (
-      <Forms.Row className={className} required={required} {...other}>
+      <Forms.Row className={className} required={required} vertical={vertical} {...other}>
         <InputNumber {...other} />
       </Forms.Row>
     );
   };
 
-  export const Range = ({ className, required, ...other }: NumberFormEditorProps) => {
+  export const Range = ({ className, required, vertical, ...other }: NumberFormEditorProps) => {
     return (
-      <Forms.Row className={className} required={required} aligned={true} {...other}>
+      <Forms.Row className={className} required={required} vertical={vertical} aligned={true} {...other}>
         <InputRange {...other} />
       </Forms.Row>
     );
   };
 
-  export const Markdown = ({ className, required, ...other }: FormEditorProps) => {
+  export const Markdown = ({ className, required, vertical, ...other }: FormEditorProps) => {
     return (
-      <Forms.Row className={className} required={required} {...other}>
+      <Forms.Row className={className} required={required} vertical={vertical} {...other}>
         <InputMarkdown {...other} />
       </Forms.Row>
     );
   };
 
-  export const Code = ({ className, required, ...other }: CodeFormEditorProps) => {
+  export const Code = ({ className, required, vertical, ...other }: CodeFormEditorProps) => {
     return (
-      <Forms.Row className={className} required={required} {...other}>
+      <Forms.Row className={className} required={required} vertical={vertical} {...other}>
         <InputCode {...other} />
       </Forms.Row>
     );
   };
 
-  export const Password = ({ className, required, ...other }: FormEditorProps) => {
+  export const Password = ({ className, required, vertical, ...other }: FormEditorProps) => {
     return (
-      <Forms.Row className={className} required={required} {...other}>
+      <Forms.Row className={className} required={required} vertical={vertical} {...other}>
         <InputText type="password" {...other} />
       </Forms.Row>
     );
@@ -327,7 +328,7 @@ const InputToggle = ({ className, label, name, vertical, ...other }: FormEditorP
       <Toggle
         className={classNames(className, { 'mt-3': !vertical })}
         {...other}
-        checked={field.value}
+        checked={!!field.value}
         onBlur={field.onBlur}
         onChange={field.onChange}
       />
@@ -404,8 +405,9 @@ const InputMarkdown = ({ name }: FormEditorProps) => {
 
 const InputCode = ({ name, ...other }: CodeFormEditorProps) => {
   const { field } = useController({ name });
+  const { ref, ...codeField } = field;
 
-  return <CodeEditor {...field} {...other} />;
+  return <CodeEditor {...codeField} {...other} />;
 };
 
 const SET_UNDEFINED = '__UNDEFINED';

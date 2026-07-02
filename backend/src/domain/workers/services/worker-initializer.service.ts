@@ -19,7 +19,7 @@ export class WorkerInitializerService implements OnApplicationBootstrap {
       return;
     }
 
-    const endpoint = this.configService.get<WorkerConfig>('worker')?.endpoint || 'http://localhost:3000';
+    const endpoint = this.configService.get<WorkerConfig>('worker')?.endpoint || 'http://localhost:3100';
 
     worker = this.workers.create({ endpoint });
     await this.workers.save(worker);
