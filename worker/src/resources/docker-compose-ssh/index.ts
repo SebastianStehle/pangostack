@@ -119,7 +119,7 @@ export class DockerComposeSshResource implements Resource {
       await ssh.connect({ host, username: sshUser, password: sshPassword });
       const logs = await getLogs(ssh);
 
-      return { instances: logs.map((x) => ({ instanceId: x.name, messages: x.log })) };
+      return { instances: logs.map(({ name, log }) => ({ instanceId: name, messages: log })) };
     } finally {
       ssh.dispose();
     }
@@ -153,7 +153,7 @@ export class DockerComposeSshResource implements Resource {
 
       return {
         metrics: {
-          containers: { running: containers.filter((x) => x.isReady).length, total: containers.length },
+          containers: { running: containers.filter(({ isReady }) => isReady).length, total: containers.length },
           cpu,
           memory,
         },

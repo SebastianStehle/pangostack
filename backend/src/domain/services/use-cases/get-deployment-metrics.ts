@@ -1,9 +1,9 @@
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Logger, NotFoundException } from '@nestjs/common';
 import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan } from 'typeorm';
 import { DeploymentEntity, DeploymentMetricEntity, DeploymentMetricRepository, DeploymentRepository } from 'src/domain/database';
-import { MetricSeries } from '../interfaces';
+import { MetricDatapoint, MetricSeries } from '../interfaces';
 import { DeploymentPolicy } from '../policies';
 
 const MAX_HOURS = 31 * 24;
@@ -24,6 +24,8 @@ export class GetDeploymentMetricsResult {
 
 @QueryHandler(GetDeploymentMetricsQuery)
 export class GetDeploymentMetricsHandler implements IQueryHandler<GetDeploymentMetricsQuery, GetDeploymentMetricsResult> {
+  private readonly logger = new Logger(GetDeploymentMetricsHandler.name);
+
   constructor(
     @InjectRepository(DeploymentEntity)
     private readonly deployments: DeploymentRepository,
@@ -49,7 +51,10 @@ export class GetDeploymentMetricsHandler implements IQueryHandler<GetDeploymentM
       throw new ForbiddenException();
     }
 
-    const update = [...(deployment.updates || [])].sort((a, b) => b.id - a.id).find((x) => x.status === 'Completed');
+    const updates = [...(deployment.updates || [])].sort((a, b) => b.id - a.id);
+
+    // Fall back to the latest update, so that the metrics are also shown before the deployment has been completed.
+    const update = updates.find(({ status }) => status === 'Completed') || updates[0];
 
     const metricDefinitions = update?.serviceVersion.definition.metrics || [];
     if (metricDefinitions.length === 0) {
@@ -58,10 +63,16 @@ export class GetDeploymentMetricsHandler implements IQueryHandler<GetDeploymentM
 
     const since = new Date(Date.now() - hours * 60 * 60 * 1000);
 
-    const records = await this.deploymentMetrics.find({
-      where: { deploymentId, createdAt: MoreThan(since) },
-      order: { createdAt: 'ASC' },
-    });
+    let records: DeploymentMetricEntity[] = [];
+    try {
+      records = await this.deploymentMetrics.find({
+        where: { deploymentId, createdAt: MoreThan(since) },
+        order: { createdAt: 'ASC' },
+      });
+    } catch (ex) {
+      // The metrics should always be shown, even if the values cannot be loaded.
+      this.logger.error(`Failed to load metric values for deployment ${deploymentId}.`, ex);
+    }
 
     const metrics: MetricSeries[] = metricDefinitions.map(({ key, label, unit, chart, summaries }) => ({
       key,
@@ -69,11 +80,15 @@ export class GetDeploymentMetricsHandler implements IQueryHandler<GetDeploymentM
       unit,
       chart,
       summaries: summaries || [],
-      datapoints: records
-        .filter((x) => x.metricKey === key)
-        .map((x) => ({ timestamp: x.createdAt.toISOString(), values: x.values })),
+      datapoints: buildDatapoints(records, key),
     }));
 
     return new GetDeploymentMetricsResult(metrics);
   }
+}
+
+function buildDatapoints(records: DeploymentMetricEntity[], key: string): MetricDatapoint[] {
+  return records
+    .filter(({ metricKey }) => metricKey === key)
+    .map(({ createdAt, values }) => ({ timestamp: createdAt.toISOString(), values }));
 }

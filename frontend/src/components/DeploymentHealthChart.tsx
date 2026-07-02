@@ -2,7 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import { addDays, format } from 'date-fns';
 import { Bar, BarChart, CartesianGrid, Cell, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useClients } from 'src/api';
+import { CHART_COLOR_FAILURE, CHART_COLOR_SUCCESS } from 'src/lib';
 import { texts } from 'src/texts';
+
+const UNIT_CHECKS = 'CHECKS';
 
 export interface DeploymentHealthChartProps {
   // The ID of the deployment.
@@ -31,15 +34,15 @@ export const DeploymentHealthChart = (props: DeploymentHealthChartProps) => {
       <BarChart width={500} height={300} data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="date" />
-        <YAxis />
-        <Tooltip />
+        <YAxis label={{ value: UNIT_CHECKS, angle: -90, position: 'insideLeft' }} />
+        <Tooltip formatter={(value) => `${value} ${UNIT_CHECKS}`} />
         <Legend />
-        <Bar dataKey="totalFailures" stackId="a" fill="red" name={texts.deployments.totalFailures}>
+        <Bar dataKey="totalFailures" stackId="a" fill={CHART_COLOR_FAILURE} name={texts.deployments.totalFailures}>
           {data.map((entry) => (
             <Cell key={`fail-${entry.date}`} />
           ))}
         </Bar>
-        <Bar dataKey="totalSuccesses" stackId="a" fill="green" name={texts.deployments.totalSuccesses}>
+        <Bar dataKey="totalSuccesses" stackId="a" fill={CHART_COLOR_SUCCESS} name={texts.deployments.totalSuccesses}>
           {data.map((entry) => (
             <Cell key={`success-${entry.date}`} />
           ))}

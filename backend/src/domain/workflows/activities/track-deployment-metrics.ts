@@ -44,7 +44,7 @@ export class TrackDeploymentMetricsActivity implements Activity<TrackDeploymentM
       throw new NotFoundException(`Update for deployment ${deploymentId} not found`);
     }
 
-    const update = updates.find((x) => x.status === 'Completed');
+    const update = updates.find(({ status }) => status === 'Completed');
     if (!update) {
       // Deployment has not been completed yet. This is normal behavior.
       return;
@@ -63,8 +63,8 @@ export class TrackDeploymentMetricsActivity implements Activity<TrackDeploymentM
     }
 
     // Only query the resource types that are actually needed for the due metrics.
-    const resourceTypes = new Set(dueMetrics.flatMap((metric) => metric.mapping.map((x) => x.resource)));
-    const resources = definition.resources.filter((x) => resourceTypes.has(x.type));
+    const resourceTypes = new Set(dueMetrics.flatMap(({ mapping }) => mapping.map(({ resource }) => resource)));
+    const resources = definition.resources.filter(({ type }) => resourceTypes.has(type));
     if (resources.length === 0) {
       return;
     }

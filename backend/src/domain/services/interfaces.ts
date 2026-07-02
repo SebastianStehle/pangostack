@@ -268,6 +268,9 @@ export interface MetricSummary {
 
   // The mapping prefix that the summary is based on.
   prefix: string;
+
+  // The optional value name to select a single value under the prefix.
+  value?: string | null;
 }
 
 export interface MetricSeries {

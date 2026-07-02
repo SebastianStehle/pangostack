@@ -2,7 +2,7 @@ import * as fs from 'fs/promises';
 import * as os from 'os';
 import * as path from 'path';
 import * as k8s from '@kubernetes/client-node';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { execa } from 'execa';
 import { v4 as uuidv4 } from 'uuid';
 import { stringify as toYAML } from 'yaml';
@@ -28,6 +28,8 @@ type Parameters = {
 
 @Injectable()
 export class HelmResource implements Resource {
+  private readonly logger = new Logger(HelmResource.name);
+
   descriptor = defineResource<Parameters, any>({
     name: 'helm',
     description: 'Deploys a Helm chart to a Kubernetes cluster.',
@@ -231,7 +233,7 @@ export class HelmResource implements Resource {
       const pods = await k8.v1Core.listNamespacedPod({ namespace });
 
       const total = pods.items.length;
-      const ready = pods.items.filter((pod) => isPodReady(pod.status)).length;
+      const ready = pods.items.filter(({ status }) => isPodReady(status)).length;
 
       const restarts: Record<string, number> = {};
       for (const pod of pods.items) {
@@ -242,7 +244,10 @@ export class HelmResource implements Resource {
 
         const containerStatuses = pod.status?.containerStatuses || [];
 
-        restarts[getPodName(podName, namespace, chartName)] = containerStatuses.reduce((a, c) => a + (c.restartCount || 0), 0);
+        restarts[getPodName(podName, namespace, chartName)] = containerStatuses.reduce(
+          (a, { restartCount }) => a + (restartCount || 0),
+          0,
+        );
       }
 
       const memory: Record<string, number> = {};
@@ -263,8 +268,9 @@ export class HelmResource implements Resource {
           memory[name] = roundValue(memoryBytes / 1024 ** 3);
           cpu[name] = roundValue(cpuCores);
         }
-      } catch {
+      } catch (ex) {
         // The metrics server is optional, therefore usage metrics might not be available.
+        this.logger.warn(`Failed to get usage metrics for namespace ${namespace}. The metrics server is probably not installed.`, ex);
       }
 
       return {

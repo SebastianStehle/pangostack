@@ -40,6 +40,12 @@ export interface DeploymentMetricSummaryDto {
      * @memberof DeploymentMetricSummaryDto
      */
     prefix: string;
+    /**
+     * The optional value name to select a single value under the prefix.
+     * @type {string}
+     * @memberof DeploymentMetricSummaryDto
+     */
+    value: string | null;
 }
 
 
@@ -61,6 +67,7 @@ export function instanceOfDeploymentMetricSummaryDto(value: object): boolean {
     isInstance = isInstance && "label" in value;
     isInstance = isInstance && "type" in value;
     isInstance = isInstance && "prefix" in value;
+    isInstance = isInstance && "value" in value;
 
     return isInstance;
 }
@@ -78,6 +85,7 @@ export function DeploymentMetricSummaryDtoFromJSONTyped(json: any, ignoreDiscrim
         'label': json['label'],
         'type': json['type'],
         'prefix': json['prefix'],
+        'value': json['value'],
     };
 }
 
@@ -93,6 +101,7 @@ export function DeploymentMetricSummaryDtoToJSON(value?: DeploymentMetricSummary
         'label': value.label,
         'type': value.type,
         'prefix': value.prefix,
+        'value': value.value,
     };
 }
 

@@ -74,6 +74,7 @@ The corresponding server must be running before regenerating a client. After cha
 * Always use named constants for magic numbers.
 * Do not make any assumptions about the use database.
 * Do not use reduce on array, write it manually.
+* Do not fail silently in case of errors. Try to log something if it makes sense.
 * Use spread operators and simplifications for mappings.
 
 ### Generated code

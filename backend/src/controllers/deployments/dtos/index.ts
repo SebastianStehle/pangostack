@@ -638,6 +638,13 @@ export class DeploymentMetricSummaryDto {
   })
   prefix: string;
 
+  @ApiProperty({
+    description: 'The optional value name to select a single value under the prefix.',
+    nullable: true,
+    type: String,
+  })
+  value?: string | null;
+
   static fromDomain(source: MetricSummary): DeploymentMetricSummaryDto {
     return Object.assign(new DeploymentMetricSummaryDto(), source);
   }

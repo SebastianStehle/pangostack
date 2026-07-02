@@ -1,6 +1,6 @@
 import { config } from 'dotenv';
 import { DataSource } from 'typeorm';
-import { dbConfig } from './config';
+import { loadDbConfig } from './config';
 import { BilledDeploymentEntity } from './entities/billed-deployment';
 import { BlobEntity } from './entities/blob';
 import { CacheEntity } from './entities/cache';
@@ -21,11 +21,12 @@ import { UserGroupEntity } from './entities/user-group';
 import { WorkerEntity } from './entities/worker';
 import { Init1760346162798 } from './migrations/1760346162798-Init';
 import { AddDefinitionSource1760346848861 } from './migrations/1760346848861-AddDefinitionSource';
+import { AddMigrations1782982415002 } from './migrations/1782982415002-AddMigrations';
 
 config();
 
 export default new DataSource({
-  ...dbConfig(),
+  ...loadDbConfig(),
   entities: [
     BilledDeploymentEntity,
     BlobEntity,
@@ -46,5 +47,5 @@ export default new DataSource({
     UserGroupEntity,
     WorkerEntity,
   ],
-  migrations: [Init1760346162798, AddDefinitionSource1760346848861],
+  migrations: [Init1760346162798, AddDefinitionSource1760346848861, AddMigrations1782982415002],
 });

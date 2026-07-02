@@ -26,6 +26,14 @@
 @tailwind components;
 @tailwind utilities;
 
+.recharts-legend-item {
+  white-space: nowrap;
+}
+
+.recharts-legend-item-text {
+  white-space: nowrap;
+}
+
 .markdown p {
   @apply mb-4;
 }

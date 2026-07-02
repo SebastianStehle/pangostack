@@ -115,6 +115,7 @@ metrics:
       - label: Max Memory
         type: max
         prefix: vm
+        value: used
 
   - key: cpu
     label: CPU
@@ -145,6 +146,7 @@ metrics:
       - label: Max Disk
         type: max
         prefix: vm
+        value: used
 
 resources:
   - name: Virtual Machine

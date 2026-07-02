@@ -207,6 +207,10 @@ class MetricSummaryClass {
   @IsDefined()
   @IsString()
   prefix: string;
+
+  @IsOptional()
+  @IsString()
+  value?: string | null;
 }
 
 const DURATION_PATTERN = /^\d+\s*(s|m|h|d)$/;

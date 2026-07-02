@@ -2,12 +2,15 @@ import { useQuery } from '@tanstack/react-query';
 import { format, parseISO } from 'date-fns';
 import { useMemo } from 'react';
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { DeploymentMetricSeriesDto, DeploymentMetricSummaryDto, useClients } from 'src/api';
+import { DeploymentMetricDatapointDto, DeploymentMetricSummaryDto, useClients } from 'src/api';
+import { getChartColor } from 'src/lib';
 import { texts } from 'src/texts';
 
-const COLORS = ['#4E79A7', '#F28E2B', '#59A14F', '#B07AA1', '#E15759', '#76B7B2'];
-
 const DEFAULT_HOURS = 24;
+
+const CHART_HEIGHT = 250;
+
+const LEGEND_WIDTH = 220;
 
 export interface DeploymentMetricsChartProps {
   // The ID of the deployment.
@@ -26,26 +29,27 @@ export const DeploymentMetricsChart = (props: DeploymentMetricsChartProps) => {
   const metrics = useMemo(() => loadedMetrics?.metrics || [], [loadedMetrics]);
 
   const summaryCards = useMemo(() => {
-    return metrics.flatMap((metric) =>
-      metric.summaries.map((summary) => ({
-        id: `${metric.key}_${summary.prefix}_${summary.label}`,
+    return metrics.flatMap(({ key, unit, datapoints, summaries }) =>
+      summaries.map((summary) => ({
+        id: `${key}_${summary.prefix}_${summary.label}`,
         label: summary.label,
-        unit: metric.unit,
-        value: buildSummaryValue(metric, summary),
+        unit,
+        value: buildSummaryValue(datapoints, summary),
       })),
     );
   }, [metrics]);
 
   const charts = useMemo(() => {
     return metrics
-      .filter((metric) => metric.chart === 'bar')
-      .map((metric) => ({
-        key: metric.key,
-        label: formatMetricLabel(metric),
-        valueKeys: getValueKeys(metric),
-        data: metric.datapoints.map((datapoint) => ({
-          time: format(parseISO(datapoint.timestamp), 'HH:mm'),
-          ...datapoint.values,
+      .filter(({ chart }) => chart === 'bar')
+      .map(({ key, label, unit, datapoints }) => ({
+        key,
+        label,
+        unit: unit ? unit.toUpperCase() : null,
+        valueKeys: getValueKeys(datapoints),
+        data: datapoints.map(({ timestamp, values }) => ({
+          time: format(parseISO(timestamp), 'HH:mm'),
+          ...values,
         })),
       }));
   }, [metrics]);
@@ -71,20 +75,27 @@ export const DeploymentMetricsChart = (props: DeploymentMetricsChartProps) => {
       )}
 
       {charts.length > 0 && (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-8">
           {charts.map((chart) => (
             <div key={chart.key}>
               <h3 className="mb-2 text-sm font-semibold">{chart.label}</h3>
 
-              <ResponsiveContainer height={250}>
-                <BarChart width={500} height={300} data={chart.data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <ResponsiveContainer height={CHART_HEIGHT}>
+                <BarChart data={chart.data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="time" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
+                  <YAxis label={chart.unit ? { value: chart.unit, angle: -90, position: 'insideLeft' } : undefined} />
+                  <Tooltip formatter={(value) => (chart.unit ? `${value} ${chart.unit}` : value)} />
+                  {/* The legend is shown at the right side, so that all charts have the same height. */}
+                  <Legend
+                    align="right"
+                    layout="vertical"
+                    verticalAlign="middle"
+                    width={LEGEND_WIDTH}
+                    wrapperStyle={{ maxHeight: CHART_HEIGHT, overflowY: 'auto', paddingLeft: 16 }}
+                  />
                   {chart.valueKeys.map((key, index) => (
-                    <Bar key={key} dataKey={key} fill={COLORS[index % COLORS.length]} name={key} />
+                    <Bar key={key} dataKey={key} fill={getChartColor(index)} name={key} />
                   ))}
                 </BarChart>
               </ResponsiveContainer>
@@ -96,14 +107,10 @@ export const DeploymentMetricsChart = (props: DeploymentMetricsChartProps) => {
   );
 };
 
-function formatMetricLabel(metric: DeploymentMetricSeriesDto) {
-  return metric.unit ? `${metric.label} (${metric.unit.toUpperCase()})` : metric.label;
-}
-
-function getValueKeys(metric: DeploymentMetricSeriesDto) {
+function getValueKeys(datapoints: DeploymentMetricDatapointDto[]) {
   const keys = new Set<string>();
 
-  for (const datapoint of metric.datapoints) {
+  for (const datapoint of datapoints) {
     for (const key of Object.keys(datapoint.values)) {
       keys.add(key);
     }
@@ -112,33 +119,25 @@ function getValueKeys(metric: DeploymentMetricSeriesDto) {
   return [...keys].sort();
 }
 
-function buildSummaryValue(metric: DeploymentMetricSeriesDto, summary: DeploymentMetricSummaryDto) {
+function buildSummaryValue(datapoints: DeploymentMetricDatapointDto[], summary: DeploymentMetricSummaryDto) {
+  // The summary either selects a single value or aggregates all values under the prefix into a single number.
+  const selectedKey = summary.value ? `${summary.prefix}.${summary.value}` : null;
   const prefix = `${summary.prefix}.`;
-  const valuesByKey: Record<string, number[]> = {};
 
-  for (const datapoint of metric.datapoints) {
+  const values: number[] = [];
+  for (const datapoint of datapoints) {
     for (const [key, value] of Object.entries(datapoint.values)) {
-      if (key.startsWith(prefix)) {
-        valuesByKey[key] ||= [];
-        valuesByKey[key].push(Number(value));
+      if (selectedKey ? key === selectedKey : key.startsWith(prefix)) {
+        values.push(Number(value));
       }
     }
   }
 
-  const parts = Object.entries(valuesByKey).map(([key, values]) => ({
-    key: key.substring(prefix.length),
-    value: roundValue(aggregate(values, summary.type)),
-  }));
-
-  if (parts.length === 0) {
+  if (values.length === 0) {
     return '-';
   }
 
-  if (parts.length === 1) {
-    return `${parts[0].value}`;
-  }
-
-  return parts.map((x) => `${x.key}: ${x.value}`).join(', ');
+  return `${roundValue(aggregate(values, summary.type))}`;
 }
 
 function aggregate(values: number[], type: DeploymentMetricSummaryDto['type']) {

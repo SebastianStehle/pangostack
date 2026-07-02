@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Inject, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Inject, Logger, Post } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Resource, ResourceLogResult, ResourceMetricsResult, RESOURCES_TOKEN, ResourceUsage } from 'src/resources/interface';
 import { ApiDefaultResponses } from '../shared';
@@ -21,6 +21,8 @@ import {
 @ApiTags('status')
 @ApiDefaultResponses()
 export class StatusController {
+  private readonly logger = new Logger(StatusController.name);
+
   constructor(
     @Inject(RESOURCES_TOKEN)
     private readonly resources: Map<string, Resource>,
@@ -98,9 +100,14 @@ export class StatusController {
       body.resources.map(async (resource) => {
         let metrics: ResourceMetricsResult = { metrics: {} };
 
-        const resourceService = this.resources.get(resource.resourceType)!;
-        if (resourceService.metrics) {
-          metrics = await resourceService.metrics(resource.resourceUniqueId, resource);
+        try {
+          const resourceService = this.resources.get(resource.resourceType)!;
+          if (resourceService.metrics) {
+            metrics = await resourceService.metrics(resource.resourceUniqueId, resource);
+          }
+        } catch (ex) {
+          // One failing resource should not prevent the metrics of the other resources from being collected.
+          this.logger.error(`Failed to collect metrics for resource ${resource.resourceUniqueId}.`, ex);
         }
 
         return ResourceMetricsDto.fromDomain(metrics, resource.resourceUniqueId, resource.resourceType);

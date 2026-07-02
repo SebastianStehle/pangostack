@@ -39,7 +39,7 @@ export class CleanupDeploymentMetricsActivity implements Activity<CleanupDeploym
     });
 
     for (const deployment of deployments) {
-      const update = [...(deployment.updates || [])].sort((a, b) => b.id - a.id).find((x) => x.status === 'Completed');
+      const update = [...(deployment.updates || [])].sort((a, b) => b.id - a.id).find(({ status }) => status === 'Completed');
       if (!update) {
         continue;
       }
