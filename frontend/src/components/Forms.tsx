@@ -134,7 +134,7 @@ export namespace Forms {
       </div>
     ) : (
       <div className={classNames('form-row flex flex-row', className, { 'items-center': aligned })}>
-        <label className="my-3 w-42 shrink-0 pe-2 text-sm font-semibold" htmlFor={name}>
+        <label className="my-3 w-52 shrink-0 pe-2 text-sm font-semibold" htmlFor={name}>
           {labelText}
         </label>
 
