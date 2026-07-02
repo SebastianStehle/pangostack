@@ -1,5 +1,5 @@
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
-import { ResourceDescriptor, ResourceValueDescriptor } from 'src/resources/interface';
+import { ResourceDescriptor, ResourceMetricDescriptor, ResourceValueDescriptor } from 'src/resources/interface';
 
 export class ResourceValueDto {
   @ApiProperty({
@@ -56,7 +56,19 @@ export class ResourceValueDto {
   }
 }
 
-@ApiExtraModels(ResourceValueDto)
+export class ResourceMetricDto {
+  @ApiProperty({
+    description: 'The description of the metric.',
+    required: true,
+  })
+  description: string;
+
+  static fromDomain(source: ResourceMetricDescriptor) {
+    return Object.assign(new ResourceMetricDto(), source);
+  }
+}
+
+@ApiExtraModels(ResourceValueDto, ResourceMetricDto)
 export class ResourceTypeDto {
   @ApiProperty({
     description: 'The name of the resource.',
@@ -88,10 +100,20 @@ export class ResourceTypeDto {
   })
   context: Record<string, ResourceValueDto>;
 
+  @ApiProperty({
+    description: 'The metrics that the resource can provide.',
+    required: true,
+    additionalProperties: {
+      $ref: getSchemaPath(ResourceMetricDto),
+    },
+  })
+  metrics: Record<string, ResourceMetricDto>;
+
   static fromDomain(source: ResourceDescriptor) {
     const result = new ResourceTypeDto();
     result.context = {};
     result.description = source.description;
+    result.metrics = {};
     result.name = source.name;
     result.parameters = {};
 
@@ -101,6 +123,10 @@ export class ResourceTypeDto {
 
     for (const [key, value] of Object.entries(source.parameters)) {
       result.parameters[key] = ResourceValueDto.fromDomain(value);
+    }
+
+    for (const [key, value] of Object.entries(source.metrics || {})) {
+      result.metrics[key] = ResourceMetricDto.fromDomain(value);
     }
 
     return result;

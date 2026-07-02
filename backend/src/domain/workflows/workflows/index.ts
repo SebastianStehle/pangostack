@@ -1,5 +1,6 @@
 export * from './charge-deployments';
 export * from './cleanup-deployments-checks';
+export * from './cleanup-deployments-metrics';
 export * from './cleanup-deployments-usages';
 export * from './cleanup-failed-deployments';
 export * from './delete-deployment';
@@ -7,4 +8,5 @@ export * from './delete-resources';
 export * from './deploy-resources';
 export * from './deployment-coordinator';
 export * from './track-deployments-healths';
+export * from './track-deployments-metrics';
 export * from './track-deployments-usage';

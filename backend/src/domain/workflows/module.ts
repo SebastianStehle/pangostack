@@ -5,6 +5,7 @@ import {
   BilledDeploymentEntity,
   DeploymentCheckEntity,
   DeploymentEntity,
+  DeploymentMetricEntity,
   DeploymentUpdateEntity,
   DeploymentUsageEntity,
   WorkerEntity,
@@ -14,6 +15,7 @@ import { BillingModule } from '../billing';
 import { NotificationModule } from '../notifications';
 import {
   ChargeDeploymentActivity,
+  CleanupDeploymentMetricsActivity,
   CleanupDeploymentsChecksActivity,
   CleanupDeploymentUsagesActivity,
   CleanupFailedDeployments,
@@ -25,6 +27,7 @@ import {
   GetWorkerActivity,
   NotifyActivity,
   TrackDeploymentHealthActivity,
+  TrackDeploymentMetricsActivity,
   TrackDeploymentUsageActivity,
   UpdateDeploymentActivity,
 } from './activities';
@@ -41,6 +44,7 @@ import { TemporalService, WorkflowService } from './services';
       BilledDeploymentEntity,
       DeploymentEntity,
       DeploymentCheckEntity,
+      DeploymentMetricEntity,
       DeploymentUpdateEntity,
       DeploymentUsageEntity,
       WorkerEntity,
@@ -49,6 +53,7 @@ import { TemporalService, WorkflowService } from './services';
   providers: [
     ActivityExplorerService,
     ChargeDeploymentActivity,
+    CleanupDeploymentMetricsActivity,
     CleanupDeploymentsChecksActivity,
     CleanupDeploymentUsagesActivity,
     CleanupFailedDeployments,
@@ -61,6 +66,7 @@ import { TemporalService, WorkflowService } from './services';
     NotifyActivity,
     TemporalService,
     TrackDeploymentHealthActivity,
+    TrackDeploymentMetricsActivity,
     TrackDeploymentUsageActivity,
     UpdateDeploymentActivity,
     WorkflowService,

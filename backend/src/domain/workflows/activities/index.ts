@@ -1,5 +1,6 @@
 export * from './charge-deployment';
 export * from './cleanup-deployments-checks';
+export * from './cleanup-deployments-metrics';
 export * from './cleanup-deployments-usages';
 export * from './cleanup-failed-deployments';
 export * from './delete-deployment';
@@ -10,5 +11,6 @@ export * from './get-deployments';
 export * from './get-worker';
 export * from './notify';
 export * from './track-deployment-health';
+export * from './track-deployment-metrics';
 export * from './track-deployment-usage';
 export * from './update-deployment';

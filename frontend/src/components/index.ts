@@ -8,6 +8,7 @@ export * from './DeploymentDisplayParameter';
 export * from './DeploymentHealthChart';
 export * from './DeploymentInstructions';
 export * from './DeploymentLog';
+export * from './DeploymentMetricsChart';
 export * from './DeploymentResource';
 export * from './DeploymentStatus';
 export * from './DeploymentUsageChart';

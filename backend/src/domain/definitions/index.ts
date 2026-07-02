@@ -14,6 +14,7 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  Matches,
   Min,
   validate,
   ValidateNested,
@@ -179,6 +180,78 @@ class ResourceDefinitionClass {
   mappings: Record<string, ResourceMappingClass>;
 }
 
+class MetricMappingClass {
+  @IsDefined()
+  @IsString()
+  resource: string;
+
+  @IsDefined()
+  @IsString()
+  from: string;
+
+  @IsDefined()
+  @IsString()
+  prefix: string;
+}
+
+class MetricSummaryClass {
+  @IsDefined()
+  @IsString()
+  label: string;
+
+  @IsDefined()
+  @IsString()
+  @IsEnum(['avg', 'max'])
+  type: 'avg' | 'max';
+
+  @IsDefined()
+  @IsString()
+  prefix: string;
+}
+
+const DURATION_PATTERN = /^\d+\s*(s|m|h|d)$/;
+
+class MetricDefinitionClass {
+  @IsDefined()
+  @IsString()
+  key: string;
+
+  @IsDefined()
+  @IsString()
+  label: string;
+
+  @IsOptional()
+  @IsString()
+  unit?: string | null;
+
+  @IsDefined()
+  @IsString()
+  @Matches(DURATION_PATTERN, { message: '$property must be a duration like 30s, 15m, 1h or 15d' })
+  interval: string;
+
+  @IsDefined()
+  @IsString()
+  @Matches(DURATION_PATTERN, { message: '$property must be a duration like 30s, 15m, 1h or 15d' })
+  keep: string;
+
+  @IsDefined()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => MetricMappingClass)
+  mapping: MetricMappingClass[];
+
+  @IsDefined()
+  @IsString()
+  @IsEnum(['label', 'bar'])
+  chart: 'label' | 'bar';
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => MetricSummaryClass)
+  summaries?: MetricSummaryClass[] | null;
+}
+
 class UsageDefinitionClass {
   @IsOptional()
   @IsString()
@@ -247,6 +320,12 @@ class ServiceDefinitionClass {
   @ValidateNested()
   @Type(() => UsageDefinitionClass)
   usage?: UsageDefinitionClass | null;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => MetricDefinitionClass)
+  metrics?: MetricDefinitionClass[] | null;
 }
 
 const SERVICE_DEFINITION_SCHEMA_NAME = 'ServiceDefinitionClass';
@@ -334,6 +413,9 @@ export function getServiceDefinitionJsonSchema() {
   };
 }
 
+export type MetricDefinition = InstanceType<typeof MetricDefinitionClass>;
+export type MetricMapping = InstanceType<typeof MetricMappingClass>;
+export type MetricSummary = InstanceType<typeof MetricSummaryClass>;
 export type ParameterAllowedvalue = InstanceType<typeof ParameterAllowedvalueClass>;
 export type ParameterDefinition = InstanceType<typeof ParameterDefinitionClass>;
 export type ResourceDefinition = InstanceType<typeof ResourceDefinitionClass>;

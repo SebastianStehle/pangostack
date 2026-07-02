@@ -63,6 +63,32 @@ The corresponding server must be running before regenerating a client. After cha
 * Use the following syntax for tests: `it('should do y when y')`
 * Use TestContainers for database tests.
 * Use strict types for typescript code.
+* Do not update generated code files manually like package-lock.json. Use the right tools for that, e.g. `npm i`
+* Do not generate migrations manually, use the right command for that (see commands).
 * Reuse TestContainers when possible, do not spin them up for every single test.
 * Only write comments to explain the why, not what the code does.
 * Rely on prettier for formatting.
+* Do not write queries manually when using repositories to stay independent from the actual database.
+* Always use IsEnum, not IsIn to make it consistent.
+* Always run linting after code generation to fix formatting issues.
+* Always use named constants for magic numbers.
+* Do not make any assumptions about the use database.
+* Do not use reduce on array, write it manually.
+* Use spread operators and simplifications for mappings.
+
+### Generated code
+
+#### Worker Client
+
+* Run the worker with `start:dev` in the `worker` directory
+* Update the generated code with `generate-worker` in the `backend` directory
+
+### Backend Client
+
+* Run the worker with `start:dev` in the `backend` directory
+* Run the temporal dev server with `temporal-dev` in the `backend` directory
+* Update the generated code with `generate-worker` in the `frontend` directory
+
+### Backend Migration
+
+* Run the following command: `npm run typeorm:generate-migrations <NAME_OF_MIGRATION>` in the `backend` directory.

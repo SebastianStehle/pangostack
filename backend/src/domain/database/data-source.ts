@@ -1,13 +1,13 @@
-import { ConfigService } from '@nestjs/config';
 import { config } from 'dotenv';
 import { DataSource } from 'typeorm';
-import { DbConfig } from './config';
+import { dbConfig } from './config';
 import { BilledDeploymentEntity } from './entities/billed-deployment';
 import { BlobEntity } from './entities/blob';
 import { CacheEntity } from './entities/cache';
 import { DeploymentEntity } from './entities/deployment';
 import { DeploymentCheckEntity } from './entities/deployment-check';
 import { DeploymentLogEntity } from './entities/deployment-log';
+import { DeploymentMetricEntity } from './entities/deployment-metric';
 import { DeploymentUpdateEntity } from './entities/deployment-update';
 import { DeploymentUsageEntity } from './entities/deployment-usage';
 import { ServiceEntity } from './entities/service';
@@ -24,10 +24,8 @@ import { AddDefinitionSource1760346848861 } from './migrations/1760346848861-Add
 
 config();
 
-const dbConfig = new ConfigService().getOrThrow<DbConfig>('db');
-
 export default new DataSource({
-  ...dbConfig,
+  ...dbConfig(),
   entities: [
     BilledDeploymentEntity,
     BlobEntity,
@@ -35,6 +33,7 @@ export default new DataSource({
     DeploymentCheckEntity,
     DeploymentEntity,
     DeploymentLogEntity,
+    DeploymentMetricEntity,
     DeploymentUpdateEntity,
     DeploymentUsageEntity,
     ServiceEntity,

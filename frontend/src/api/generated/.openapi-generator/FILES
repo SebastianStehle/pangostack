@@ -22,6 +22,10 @@ models/DeploymentCreatedDto.ts
 models/DeploymentCreatedDtoDeployment.ts
 models/DeploymentDto.ts
 models/DeploymentLogsDto.ts
+models/DeploymentMetricDatapointDto.ts
+models/DeploymentMetricSeriesDto.ts
+models/DeploymentMetricSummaryDto.ts
+models/DeploymentMetricsDto.ts
 models/DeploymentResourceDto.ts
 models/DeploymentStatusDto.ts
 models/DeploymentUsageSummariesDto.ts

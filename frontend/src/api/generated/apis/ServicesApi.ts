@@ -233,6 +233,38 @@ export class ServicesApi extends runtime.BaseAPI {
     }
 
     /**
+     * Gets the service definition JSON schema.
+     * 
+     */
+    async getServiceDefinitionSchemaRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/api/services/definition/schema`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse<any>(response);
+    }
+
+    /**
+     * Gets the service definition JSON schema.
+     * 
+     */
+    async getServiceDefinitionSchema(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object> {
+        const response = await this.getServiceDefinitionSchemaRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Gets all deployments.
      * 
      */

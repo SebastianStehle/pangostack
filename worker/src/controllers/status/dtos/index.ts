@@ -5,6 +5,8 @@ import { ResourceRequestDto } from 'src/controllers/shared';
 import {
   InstanceLog,
   ResourceLogResult,
+  ResourceMetricsResult,
+  ResourceMetricValues,
   ResourceNodeStatus,
   ResourceStatusResult,
   ResourceUsage,
@@ -240,4 +242,62 @@ export class LogRequestDto {
   @ValidateNested({ each: true })
   @Type(() => ResourceRequestDto)
   resources: ResourceRequestDto[];
+}
+
+export class MetricsRequestDto {
+  @ApiProperty({
+    description: 'The resource identifiers.',
+    required: true,
+    type: [ResourceRequestDto],
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResourceRequestDto)
+  resources: ResourceRequestDto[];
+}
+
+export class ResourceMetricsDto {
+  @ApiProperty({
+    description: 'The resource ID.',
+    required: true,
+    type: String,
+  })
+  resourceUniqueId: string;
+
+  @ApiProperty({
+    description: 'The type of the resource.',
+    required: true,
+    type: String,
+  })
+  resourceType: string;
+
+  @ApiProperty({
+    description: 'The collected values per metric name. Each metric provides multiple named values.',
+    required: true,
+    additionalProperties: {
+      type: 'object',
+      additionalProperties: {
+        type: 'number',
+      },
+    },
+  })
+  metrics: Record<string, ResourceMetricValues>;
+
+  static fromDomain(source: ResourceMetricsResult, id: string, type: string) {
+    const result = new ResourceMetricsDto();
+    result.resourceUniqueId = id;
+    result.resourceType = type;
+    result.metrics = source.metrics;
+    return result;
+  }
+}
+
+@ApiExtraModels(ResourceMetricsDto)
+export class MetricsResultDto {
+  @ApiProperty({
+    description: 'The metrics per resource.',
+    required: true,
+    type: [ResourceMetricsDto],
+  })
+  resources: ResourceMetricsDto[] = [];
 }

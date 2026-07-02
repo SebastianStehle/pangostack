@@ -20,6 +20,8 @@ import type {
   ErrorResponseDto,
   LogRequestDto,
   LogResultDto,
+  MetricsRequestDto,
+  MetricsResultDto,
   StatusRequestDto,
   StatusResultDto,
   UsageRequestDto,
@@ -32,6 +34,10 @@ import {
     LogRequestDtoToJSON,
     LogResultDtoFromJSON,
     LogResultDtoToJSON,
+    MetricsRequestDtoFromJSON,
+    MetricsRequestDtoToJSON,
+    MetricsResultDtoFromJSON,
+    MetricsResultDtoToJSON,
     StatusRequestDtoFromJSON,
     StatusRequestDtoToJSON,
     StatusResultDtoFromJSON,
@@ -44,6 +50,10 @@ import {
 
 export interface PostLogRequest {
     logRequestDto: LogRequestDto;
+}
+
+export interface PostMetricsRequest {
+    metricsRequestDto: MetricsRequestDto;
 }
 
 export interface PostStatusRequest {
@@ -94,6 +104,44 @@ export class StatusApi extends runtime.BaseAPI {
      */
     async postLog(logRequestDto: LogRequestDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<LogResultDto> {
         const response = await this.postLogRaw({ logRequestDto: logRequestDto }, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Gets the metrics for all specified deployment IDs.
+     * 
+     */
+    async postMetricsRaw(requestParameters: PostMetricsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MetricsResultDto>> {
+        if (requestParameters['metricsRequestDto'] == null) {
+            throw new runtime.RequiredError(
+                'metricsRequestDto',
+                'Required parameter "metricsRequestDto" was null or undefined when calling postMetrics().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/status/metrics`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: MetricsRequestDtoToJSON(requestParameters['metricsRequestDto']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => MetricsResultDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Gets the metrics for all specified deployment IDs.
+     * 
+     */
+    async postMetrics(metricsRequestDto: MetricsRequestDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MetricsResultDto> {
+        const response = await this.postMetricsRaw({ metricsRequestDto: metricsRequestDto }, initOverrides);
         return await response.value();
     }
 

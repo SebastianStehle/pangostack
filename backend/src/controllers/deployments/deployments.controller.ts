@@ -10,6 +10,7 @@ import {
   DeleteDeployment,
   GetDeploymentChecksQuery,
   GetDeploymentLogsQuery,
+  GetDeploymentMetricsQuery,
   GetDeploymentQuery,
   GetDeploymentsQuery,
   GetDeploymentStatusQuery,
@@ -24,6 +25,7 @@ import {
   DeploymentCheckSummariesDto,
   DeploymentDto,
   DeploymentLogsDto,
+  DeploymentMetricsDto,
   DeploymentsDto,
   DeploymentStatusDto,
   DeploymentUsageSummariesDto,
@@ -186,6 +188,30 @@ export class DeploymentsController {
     const { usages } = await this.queryBus.execute(new GetDeploymentUsagesQuery(deploymentId, policy, fromDate, toDate));
 
     return DeploymentUsageSummariesDto.fromDomain(usages);
+  }
+
+  @Get(':deploymentId/metrics')
+  @ApiOperation({ operationId: 'getDeploymentMetrics', description: 'Gets the collected metrics.' })
+  @ApiParam({
+    name: 'deploymentId',
+    description: 'The ID of the deployment.',
+    required: true,
+    type: 'number',
+  })
+  @ApiQuery({
+    name: 'hours',
+    description: 'The number of hours to look back.',
+    required: false,
+    type: Number,
+  })
+  @ApiOkResponse({ type: DeploymentMetricsDto })
+  @Role(BUILTIN_USER_GROUP_DEFAULT)
+  @UseGuards(RoleGuard)
+  async getMetrics(@Req() req: Request, @IntParam('deploymentId') deploymentId: number, @IntQuery('hours', 24) hours: number) {
+    const policy = await this.getPolicy(req.user);
+    const { metrics } = await this.queryBus.execute(new GetDeploymentMetricsQuery(deploymentId, policy, hours));
+
+    return DeploymentMetricsDto.fromDomain(metrics);
   }
 
   @Delete(':deploymentId')

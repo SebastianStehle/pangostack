@@ -97,6 +97,55 @@ afterInstallationInstructions: |-
 
 pricingModel: fixed
 
+metrics:
+  - key: memory
+    label: Memory
+    unit: gb
+    interval: 15m
+    keep: 15d
+    mapping:
+      - resource: vultr-vm
+        from: memory
+        prefix: vm
+      - resource: docker-compose-ssh
+        from: memory
+        prefix: docker
+    chart: bar
+    summaries:
+      - label: Max Memory
+        type: max
+        prefix: vm
+
+  - key: cpu
+    label: CPU
+    unit: percent
+    interval: 15m
+    keep: 15d
+    mapping:
+      - resource: vultr-vm
+        from: cpu
+        prefix: vm
+    chart: bar
+    summaries:
+      - label: Average CPU
+        type: avg
+        prefix: vm
+
+  - key: disk
+    label: Disk
+    unit: gb
+    interval: 1h
+    keep: 15d
+    mapping:
+      - resource: vultr-vm
+        from: disk
+        prefix: vm
+    chart: label
+    summaries:
+      - label: Max Disk
+        type: max
+        prefix: vm
+
 resources:
   - name: Virtual Machine
     id: vm

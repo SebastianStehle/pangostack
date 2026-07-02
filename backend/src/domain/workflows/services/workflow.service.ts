@@ -107,6 +107,47 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
         },
       }),
     );
+
+    // The base interval for metrics. Each metric defines its own interval and is skipped until it is due.
+    await this.tryRegister(() =>
+      client.schedule.create({
+        scheduleId: 'track-deployments-metrics',
+        spec: {
+          intervals: [
+            {
+              every: '5m',
+            },
+          ],
+        },
+        action: {
+          args: [],
+          type: 'startWorkflow',
+          workflowId: 'track-deployments-metrics',
+          workflowType: workflows.trackDeploymentsMetrics,
+          taskQueue: 'checks',
+        },
+      }),
+    );
+
+    await this.tryRegister(() =>
+      client.schedule.create({
+        scheduleId: 'cleanup-deployments-metrics',
+        spec: {
+          intervals: [
+            {
+              every: '1h',
+            },
+          ],
+        },
+        action: {
+          args: [],
+          type: 'startWorkflow',
+          workflowId: 'cleanup-deployments-metrics',
+          workflowType: workflows.cleanupDeploymentsMetrics,
+          taskQueue: 'checks',
+        },
+      }),
+    );
   }
 
   private async configureBilling(connection: NativeConnection, client: Client, activities: Record<string, any>) {

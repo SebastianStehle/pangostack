@@ -12,6 +12,7 @@ import {
   Resource,
   ResourceApplyResult,
   ResourceLogResult,
+  ResourceMetricsResult,
   ResourceRequest,
   ResourceStatusResult,
   ResourceWorkloadStatus,
@@ -58,6 +59,20 @@ export class HelmResource implements Resource {
       },
     },
     context: {},
+    metrics: {
+      pods: {
+        description: 'The number of ready pods in the namespace.',
+      },
+      restarts: {
+        description: 'The number of container restarts per pod.',
+      },
+      memory: {
+        description: 'The memory usage per pod in GB. Requires the metrics server.',
+      },
+      cpu: {
+        description: 'The CPU usage per pod in cores. Requires the metrics server.',
+      },
+    },
   });
 
   async apply(id: string, request: ResourceRequest<Parameters>): Promise<ResourceApplyResult> {
@@ -205,6 +220,66 @@ export class HelmResource implements Resource {
     return result;
   }
 
+  async metrics(id: string, request: ResourceRequest<Parameters>): Promise<ResourceMetricsResult> {
+    const { config, chartName } = request.parameters;
+    const k8 = await this.getK8Service(config);
+
+    try {
+      // The namespace also identifies the resource.
+      const namespace = getNamespace(id);
+
+      const pods = await k8.v1Core.listNamespacedPod({ namespace });
+
+      const total = pods.items.length;
+      const ready = pods.items.filter((pod) => isPodReady(pod.status)).length;
+
+      const restarts: Record<string, number> = {};
+      for (const pod of pods.items) {
+        const podName = pod.metadata?.name;
+        if (!podName) {
+          continue;
+        }
+
+        const containerStatuses = pod.status?.containerStatuses || [];
+
+        restarts[getPodName(podName, namespace, chartName)] = containerStatuses.reduce((a, c) => a + (c.restartCount || 0), 0);
+      }
+
+      const memory: Record<string, number> = {};
+      const cpu: Record<string, number> = {};
+      try {
+        const podMetrics = await k8.metrics.getPodMetrics(namespace);
+
+        for (const item of podMetrics.items) {
+          const name = getPodName(item.metadata.name, namespace, chartName);
+
+          let memoryBytes = 0;
+          let cpuCores = 0;
+          for (const container of item.containers) {
+            memoryBytes += parseK8sQuantity(container.usage.memory);
+            cpuCores += parseK8sQuantity(container.usage.cpu);
+          }
+
+          memory[name] = roundValue(memoryBytes / 1024 ** 3);
+          cpu[name] = roundValue(cpuCores);
+        }
+      } catch {
+        // The metrics server is optional, therefore usage metrics might not be available.
+      }
+
+      return {
+        metrics: {
+          pods: { ready, total },
+          restarts,
+          memory,
+          cpu,
+        },
+      };
+    } finally {
+      await k8.cleanup();
+    }
+  }
+
   async log(id: string, request: ResourceRequest<Parameters>): Promise<ResourceLogResult> {
     const { chartName, config } = request.parameters;
     const k8 = await this.getK8Service(config);
@@ -260,8 +335,39 @@ export class HelmResource implements Resource {
     const v1Apps = kc.makeApiClient(k8s.AppsV1Api);
     const v1Core = kc.makeApiClient(k8s.CoreV1Api);
 
-    return { v1Core, v1Apps, cleanup };
+    const metrics = new k8s.Metrics(kc);
+
+    return { v1Core, v1Apps, metrics, cleanup };
   }
+}
+
+const QUANTITY_FACTORS: Record<string, number> = {
+  n: 1e-9,
+  u: 1e-6,
+  m: 1e-3,
+  k: 1e3,
+  M: 1e6,
+  G: 1e9,
+  T: 1e12,
+  Ki: 1024,
+  Mi: 1024 ** 2,
+  Gi: 1024 ** 3,
+  Ti: 1024 ** 4,
+};
+
+function parseK8sQuantity(source: string | undefined): number {
+  const match = /^([\d.]+)([a-zA-Z]*)$/.exec(source?.trim() || '');
+  if (!match) {
+    return 0;
+  }
+
+  const factor = match[2] ? (QUANTITY_FACTORS[match[2]] ?? 0) : 1;
+
+  return parseFloat(match[1]) * factor;
+}
+
+function roundValue(value: number): number {
+  return Math.round(value * 100) / 100;
 }
 
 function getNamespace(id: string) {

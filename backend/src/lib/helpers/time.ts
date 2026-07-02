@@ -42,6 +42,26 @@ export function formatDate(source: Date) {
   return format(source, 'yyyy-MM-dd', { in: utc });
 }
 
+const DURATION_UNITS_MS: Record<string, number> = {
+  s: 1000,
+  m: 60 * 1000,
+  h: 60 * 60 * 1000,
+  d: 24 * 60 * 60 * 1000,
+};
+
+export function parseDurationMs(source: string | null | undefined): number | null {
+  if (!source) {
+    return null;
+  }
+
+  const match = /^(\d+)\s*(s|m|h|d)$/.exec(source.trim());
+  if (!match) {
+    return null;
+  }
+
+  return parseInt(match[1], 10) * DURATION_UNITS_MS[match[2]];
+}
+
 export function getDatesInRange(dateFrom: string, dateTo: string, maxDays: number): string[] {
   const utcDateFrom = new Date(`${dateFrom}T00:00:00Z`);
   const utcDateTo = new Date(`${dateTo}T00:00:00Z`);

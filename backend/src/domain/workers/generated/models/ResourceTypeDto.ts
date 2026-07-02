@@ -15,6 +15,12 @@
  */
 
 import { mapValues } from '../runtime';
+import type { ResourceMetricDto } from './ResourceMetricDto';
+import {
+    ResourceMetricDtoFromJSON,
+    ResourceMetricDtoFromJSONTyped,
+    ResourceMetricDtoToJSON,
+} from './ResourceMetricDto';
 import type { ResourceValueDto } from './ResourceValueDto';
 import {
     ResourceValueDtoFromJSON,
@@ -52,6 +58,12 @@ export interface ResourceTypeDto {
      * @memberof ResourceTypeDto
      */
     context: { [key: string]: ResourceValueDto; };
+    /**
+     * The metrics that the resource can provide.
+     * @type {{ [key: string]: ResourceMetricDto; }}
+     * @memberof ResourceTypeDto
+     */
+    metrics: { [key: string]: ResourceMetricDto; };
 }
 
 /**
@@ -62,6 +74,7 @@ export function instanceOfResourceTypeDto(value: object): boolean {
     if (!('description' in value)) return false;
     if (!('parameters' in value)) return false;
     if (!('context' in value)) return false;
+    if (!('metrics' in value)) return false;
     return true;
 }
 
@@ -79,6 +92,7 @@ export function ResourceTypeDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
         'description': json['description'],
         'parameters': (mapValues(json['parameters'], ResourceValueDtoFromJSON)),
         'context': (mapValues(json['context'], ResourceValueDtoFromJSON)),
+        'metrics': (mapValues(json['metrics'], ResourceMetricDtoFromJSON)),
     };
 }
 
@@ -92,6 +106,7 @@ export function ResourceTypeDtoToJSON(value?: ResourceTypeDto | null): any {
         'description': value['description'],
         'parameters': (mapValues(value['parameters'], ResourceValueDtoToJSON)),
         'context': (mapValues(value['context'], ResourceValueDtoToJSON)),
+        'metrics': (mapValues(value['metrics'], ResourceMetricDtoToJSON)),
     };
 }
 
