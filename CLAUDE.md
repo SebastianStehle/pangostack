@@ -60,22 +60,50 @@ The corresponding server must be running before regenerating a client. After cha
 
 ## Coding Guidelines
 
-* Use the following syntax for tests: `it('should do y when y')`
-* Use TestContainers for database tests.
-* Use strict types for typescript code.
-* Do not update generated code files manually like package-lock.json. Use the right tools for that, e.g. `npm i`
+* Always run linting after code generation to fix formatting issues.
+* Always use IsEnum, not IsIn to make it consistent.
+* Always use named constants for magic numbers.
+* Do keep the number of tests small.
+* Do not fail silently in case of errors. Try to log something if it makes sense.
 * Do not generate migrations manually, use the right command for that (see commands).
-* Reuse TestContainers when possible, do not spin them up for every single test.
+* Do not make any assumptions about the use database.
+* Do not update generated code files manually like package-lock.json. Use the right tools for that, e.g. `npm i`
+* Do not use reduce on array, write it manually.
+* Do not write queries manually when using repositories to stay independent from the actual database.
 * Only write comments to explain the why, not what the code does.
 * Rely on prettier for formatting.
-* Do not write queries manually when using repositories to stay independent from the actual database.
-* Always use IsEnum, not IsIn to make it consistent.
-* Always run linting after code generation to fix formatting issues.
-* Always use named constants for magic numbers.
-* Do not make any assumptions about the use database.
-* Do not use reduce on array, write it manually.
-* Do not fail silently in case of errors. Try to log something if it makes sense.
+* Reuse TestContainers when possible, do not spin them up for every single test.
 * Use spread operators and simplifications for mappings.
+* Use strict types for typescript code.
+* Use TestContainers for database tests.
+* Use the following syntax for tests: `it('should do y when y')`
+* Use vitest for all tests.
+
+* When mapping code, use the following syntax
+
+```
+// DONT
+.map((metric) => ({
+        key: metric.key,
+        label: metric.label,
+        unit: metric.unit ? metric.unit.toUpperCase() : null,
+        valueKeys: getValueKeys(metric),
+        data: metric.datapoints.map((datapoint) => ({
+          time: format(parseISO(datapoint.timestamp), 'HH:mm'),
+          ...datapoint.values,
+        })),
+
+// DO
+.map(({ key, label, unit, datapoints, values, timestamp, values }) => ({
+        key,
+        label,
+        unit: metc.unit ? unit.toUpperCase() : null,
+        valueKeys: getValueKeys(values),
+        data: datapoints.map((datapoint) => ({
+          time: format(parseISO(datapoint.timestamp), 'HH:mm'),
+          ...datapoint.values,
+        })),
+```
 
 ### Generated code
 
