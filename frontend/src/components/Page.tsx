@@ -24,7 +24,7 @@ export const Page = (props: PageProps) => {
         })}
       >
         <div
-          className={classNames('min-w-[500px] px-12 py-8', {
+          className={classNames('min-w-[700px] px-12 py-8', {
             'max-w-[900px]': !!menu,
             'max-w-[1100px]': !menu,
           })}

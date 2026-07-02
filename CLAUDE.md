@@ -70,6 +70,7 @@ The corresponding server must be running before regenerating a client. After cha
 * Do not update generated code files manually like package-lock.json. Use the right tools for that, e.g. `npm i`
 * Do not use reduce on array, write it manually.
 * Do not write queries manually when using repositories to stay independent from the actual database.
+* Do not use lightgray for normal text as it is difficult to read.
 * Only write comments to explain the why, not what the code does.
 * Rely on prettier for formatting.
 * Reuse TestContainers when possible, do not spin them up for every single test.
@@ -78,6 +79,7 @@ The corresponding server must be running before regenerating a client. After cha
 * Use TestContainers for database tests.
 * Use the following syntax for tests: `it('should do y when y')`
 * Use vitest for all tests.
+* Use daisy-UI components as much as possible.
 
 * When mapping code, use the following syntax
 

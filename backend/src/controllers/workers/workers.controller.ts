@@ -3,8 +3,8 @@ import { QueryBus } from '@nestjs/cqrs';
 import { ApiOkResponse, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
 import { BUILTIN_USER_GROUP_ADMIN } from 'src/domain/database';
-import { GetWorkersQuery } from 'src/domain/workers';
-import { WorkersDto } from './dtos';
+import { GetResourceTypesQuery, GetWorkersQuery } from 'src/domain/workers';
+import { ResourceTypesDto, WorkersDto } from './dtos';
 
 @Controller('api/workers')
 @ApiTags('workers')
@@ -22,5 +22,16 @@ export class WorkersController {
     const { workers } = await this.queryBus.execute(new GetWorkersQuery());
 
     return WorkersDto.fromDomain(workers);
+  }
+
+  @Get('resource-types')
+  @ApiOperation({ operationId: 'getResourceTypes', description: 'Gets the available resource types.' })
+  @ApiOkResponse({ type: ResourceTypesDto })
+  @Role(BUILTIN_USER_GROUP_ADMIN)
+  @UseGuards(RoleGuard)
+  async getResourceTypes() {
+    const { resourceTypes } = await this.queryBus.execute(new GetResourceTypesQuery());
+
+    return ResourceTypesDto.fromDomain(resourceTypes);
   }
 }
