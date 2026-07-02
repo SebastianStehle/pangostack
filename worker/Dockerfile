@@ -17,6 +17,9 @@ COPY . .
 # Run the build command which creates the production bundle
 RUN npm run build
 
+# Fail the image build when tests fail.
+RUN npm test
+
 # Only keep production dependencies.
 RUN NODE_ENV=production & npm ci --only=production && npm cache clean --force
 
