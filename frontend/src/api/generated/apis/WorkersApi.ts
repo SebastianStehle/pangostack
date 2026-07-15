@@ -35,7 +35,7 @@ export class WorkersApi extends runtime.BaseAPI {
 
     /**
      * Gets the available resource types.
-     *
+     * 
      */
     async getResourceTypesRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResourceTypesDto>> {
         const queryParameters: any = {};
@@ -58,7 +58,7 @@ export class WorkersApi extends runtime.BaseAPI {
 
     /**
      * Gets the available resource types.
-     *
+     * 
      */
     async getResourceTypes(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResourceTypesDto> {
         const response = await this.getResourceTypesRaw(initOverrides);

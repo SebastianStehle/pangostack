@@ -84,10 +84,11 @@ export class HelmResource implements Resource {
     const { config, repositoryUrl, repositoryName, chartName, chartVersion, ...others } = request.parameters;
 
     const k8 = await this.getK8Service(config);
+    const env = helmEnv(k8.kubeconfigPath);
     try {
       progress.beginStep('Updating chart repository');
-      await execa('helm', ['repo', 'add', repositoryName, repositoryUrl]);
-      await execa('helm', ['repo', 'update']);
+      await execa('helm', ['repo', 'add', repositoryName, repositoryUrl], { env });
+      await execa('helm', ['repo', 'update'], { env });
 
       // The namespace also identifies the resource.
       const namespace = getNamespace(id);
@@ -128,7 +129,7 @@ export class HelmResource implements Resource {
 
       try {
         progress.beginStep(`Installing chart ${chartName}`);
-        const { stdout, stderr } = await execa('helm', args);
+        const { stdout, stderr } = await execa('helm', args, { env });
 
         // A successful helm install only means the release exists. Later resources rely on
         // this one being usable, therefore wait until the workloads are actually ready.
@@ -169,7 +170,9 @@ export class HelmResource implements Resource {
       // The namespace also identifies the resource.
       const namespace = getNamespace(id);
 
-      await execa('helm', ['uninstall', namespace, '--namespace', namespace, '--ignore-not-found']);
+      await execa('helm', ['uninstall', namespace, '--namespace', namespace, '--ignore-not-found'], {
+        env: helmEnv(k8.kubeconfigPath),
+      });
     } finally {
       await k8.cleanup();
     }
@@ -367,31 +370,42 @@ export class HelmResource implements Resource {
       return Promise.resolve();
     };
 
+    // The path is scoped to this call and passed explicitly to the k8s client and to the helm
+    // subprocess. Mutating the global process.env.KUBECONFIG would race across concurrent
+    // deployments and could run an operation against the wrong tenant's cluster.
+    let kubeconfigPath: string | undefined;
+
+    const kc = new k8s.KubeConfig();
     if (config) {
       const tempDir = os.tmpdir();
       const tempPath = path.join(tempDir, `kubeconfig-${uuidv4()}.yaml`);
 
       // Write the kubeconfig string to the file
       await fs.writeFile(tempPath, config, { encoding: 'utf8' });
+      kubeconfigPath = tempPath;
 
-      // Set the KUBECONFIG environment variable
-      process.env.KUBECONFIG = tempPath;
+      kc.loadFromFile(tempPath);
 
       cleanup = async () => {
         await fs.rm(tempPath);
       };
+    } else {
+      kc.loadFromDefault();
     }
-
-    const kc = new k8s.KubeConfig();
-    kc.loadFromDefault();
 
     const v1Apps = kc.makeApiClient(k8s.AppsV1Api);
     const v1Core = kc.makeApiClient(k8s.CoreV1Api);
 
     const metrics = new k8s.Metrics(kc);
 
-    return { v1Core, v1Apps, metrics, cleanup };
+    return { v1Core, v1Apps, metrics, cleanup, kubeconfigPath };
   }
+}
+
+// Builds the environment for helm CLI invocations, pointing it at the per-call kubeconfig instead
+// of relying on a globally mutated process.env.
+function helmEnv(kubeconfigPath?: string) {
+  return kubeconfigPath ? { ...process.env, KUBECONFIG: kubeconfigPath } : process.env;
 }
 
 const QUANTITY_FACTORS: Record<string, number> = {

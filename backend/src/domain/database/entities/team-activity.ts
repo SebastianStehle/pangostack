@@ -5,6 +5,7 @@ export type TeamActivityRepository = Repository<TeamActivityEntity>;
 
 @Entity({ name: 'team-activities' })
 @Index('IDX_team_activities_lookup', ['teamId', 'createdAt'])
+@Index('IDX_team_activities_deployment', ['teamId', 'deploymentId'])
 export class TeamActivityEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -21,6 +22,9 @@ export class TeamActivityEntity {
 
   @Column('simple-json')
   parameters: Record<string, unknown> = {};
+
+  @Column({ type: 'int', nullable: true })
+  deploymentId?: number | null;
 
   @CreateDateColumn()
   createdAt: Date;

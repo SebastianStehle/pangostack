@@ -59,7 +59,16 @@ export class ActivityListener {
 
   private async persist(key: string, event: TeamEvent) {
     try {
-      const entity = this.activities.create({ teamId: event.teamId, key, parameters: { ...event }, createdBy: event.userId });
+      // Only deployment related events carry a deployment ID, keep it null otherwise.
+      const deploymentId = 'deploymentId' in event ? (event.deploymentId as number) : null;
+
+      const entity = this.activities.create({
+        teamId: event.teamId,
+        key,
+        parameters: { ...event },
+        deploymentId,
+        createdBy: event.userId,
+      });
 
       await this.activities.save(entity);
     } catch (err) {

@@ -27,6 +27,12 @@ export class TeamActivitiesController {
   @ApiOperation({ operationId: 'getTeamActivities', description: 'Gets the team activity log.' })
   @ApiQuery({ name: 'page', description: 'The page number, starting at zero.', required: false, type: 'number' })
   @ApiQuery({ name: 'pageSize', description: 'The number of items per page.', required: false, type: 'number' })
+  @ApiQuery({
+    name: 'deploymentId',
+    description: 'Only include activities for this deployment.',
+    required: false,
+    type: 'number',
+  })
   @ApiOkResponse({ type: ActivitiesDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
   @UseGuards(RoleGuard, TeamPermissionGuard)
@@ -34,8 +40,9 @@ export class TeamActivitiesController {
     @IntParam('teamId') teamId: number,
     @IntQuery('page', 0) page: number,
     @IntQuery('pageSize', DEFAULT_PAGE_SIZE) pageSize: number,
+    @IntQuery('deploymentId') deploymentId?: number,
   ) {
-    const { activities, total } = await this.queryBus.execute(new GetTeamActivitiesQuery(teamId, page, pageSize));
+    const { activities, total } = await this.queryBus.execute(new GetTeamActivitiesQuery(teamId, page, pageSize, deploymentId));
 
     return ActivitiesDto.fromDomain(activities, total);
   }

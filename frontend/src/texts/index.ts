@@ -1,4 +1,11 @@
 export const texts = {
+  activities: {
+    empty: 'No activity yet',
+    emptyText: 'Activities are logged when you or your team members make changes.',
+    headline: 'Activity',
+    system: 'System',
+    viewDeployment: 'View Deployment',
+  },
   common: {
     added: 'Added',
     administration: 'Administration',

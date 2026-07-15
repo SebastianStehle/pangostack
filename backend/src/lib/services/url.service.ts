@@ -18,7 +18,16 @@ export class UrlService {
   }
 
   isValidRedirectUrl(url: string) {
-    return url.startsWith(this.baseUrl);
+    // Only allow redirects that stay on the configured base URL. Comparing the parsed origin
+    // prevents bypasses like "https://localhost:3000.evil.com" that a plain prefix check allows.
+    try {
+      const target = new URL(url, this.baseUrl);
+      const base = new URL(this.baseUrl);
+
+      return target.origin === base.origin;
+    } catch {
+      return false;
+    }
   }
 
   confirmUrl(deploymentId: number, token: string, redirectUrl?: string | null) {

@@ -2,6 +2,7 @@ import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, FindOptionsWhere, Raw } from 'typeorm';
 import { UserEntity, UserRepository } from 'src/domain/database';
+import { getPagination } from 'src/lib';
 import { User } from '../interfaces';
 import { buildUser } from './utils';
 
@@ -35,14 +36,15 @@ export class GetUsersHandler implements IQueryHandler<GetUsersQuery, GetUsersRes
     const where: FindOptionsWhere<UserEntity> = {};
 
     if (searchQuery && searchQuery != '') {
-      where.name = Raw((alias) => `LOWER(${alias}) Like '%${searchQuery.toLowerCase()}%'`);
+      where.name = Raw((alias) => `LOWER(${alias}) LIKE :search`, { search: `%${searchQuery.toLowerCase()}%` });
     }
 
     const options: FindManyOptions<UserEntity> = { where };
     const total = await this.users.count(options);
 
-    options.skip = pageSize * page;
-    options.take = pageSize;
+    const { skip, take } = getPagination(page, pageSize);
+    options.skip = skip;
+    options.take = take;
 
     const entities = await this.users.find(options);
     const result = entities.map(buildUser);

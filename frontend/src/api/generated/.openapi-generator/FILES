@@ -1,4 +1,5 @@
 .openapi-generator-ignore
+apis/ActivitiesApi.ts
 apis/AuthApi.ts
 apis/BillingApi.ts
 apis/DeploymentsApi.ts
@@ -10,6 +11,10 @@ apis/UsersApi.ts
 apis/WorkersApi.ts
 apis/index.ts
 index.ts
+models/ActivitiesDto.ts
+models/ActivityDto.ts
+models/ActivityDtoCreatedBy.ts
+models/ActivityUserDto.ts
 models/AuthProviderDto.ts
 models/AuthSettingsDto.ts
 models/AvailableUpdateDto.ts
@@ -28,6 +33,9 @@ models/DeploymentMetricSummaryDto.ts
 models/DeploymentMetricsDto.ts
 models/DeploymentResourceDto.ts
 models/DeploymentStatusDto.ts
+models/DeploymentStepDto.ts
+models/DeploymentStepsDto.ts
+models/DeploymentSubStepDto.ts
 models/DeploymentUsageSummariesDto.ts
 models/DeploymentUsageSummaryDto.ts
 models/DeploymentsDto.ts
@@ -45,6 +53,10 @@ models/ResourceInstanceLogDto.ts
 models/ResourceLogsDto.ts
 models/ResourceNodeStatusDto.ts
 models/ResourceStatusDto.ts
+models/ResourceTypeDto.ts
+models/ResourceTypeMetricDto.ts
+models/ResourceTypeValueDto.ts
+models/ResourceTypesDto.ts
 models/ResourceWorkloadStatusDto.ts
 models/ServiceDto.ts
 models/ServicePriceDto.ts

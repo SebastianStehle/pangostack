@@ -11,6 +11,7 @@ import {
   ServiceVersionEntity,
   ServiceVersionRepository,
 } from 'src/domain/database';
+import { getPagination } from 'src/lib';
 import { Deployment } from '../interfaces';
 import { buildDeployment } from './utils';
 
@@ -62,8 +63,9 @@ export class GetDeploymentsHandler implements IQueryHandler<GetDeploymentsQuery,
     const options: FindManyOptions<DeploymentEntity> = { order: { id: 'DESC' }, where };
     const total = await this.deployments.count(options);
 
-    options.skip = pageSize * page;
-    options.take = pageSize;
+    const { skip, take } = getPagination(page, pageSize);
+    options.skip = skip;
+    options.take = take;
 
     const entities = await this.deployments.find(options);
     const result: Deployment[] = [];

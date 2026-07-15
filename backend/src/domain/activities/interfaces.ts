@@ -1,3 +1,14 @@
+export interface TeamActivityUser {
+  // The user ID from the auth provider.
+  id: string;
+
+  // The display name.
+  name: string;
+
+  // The email address.
+  email: string;
+}
+
 export interface TeamActivity {
   // The ID of the activity.
   id: number;
@@ -11,9 +22,12 @@ export interface TeamActivity {
   // The already translated, human readable text of the activity.
   text: string;
 
+  // The ID of the deployment the activity relates to, or null for team wide activities.
+  deploymentId?: number | null;
+
   // The date the activity has been logged.
   createdAt: Date;
 
   // Null for activities that were not triggered by a concrete user, e.g. a scheduled charge.
-  createdBy?: string | null;
+  createdBy?: TeamActivityUser | null;
 }

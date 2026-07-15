@@ -3,6 +3,7 @@
 //@ts-nocheck
 /* tslint:disable */
 /* eslint-disable */
+export * from './ActivitiesApi';
 export * from './AuthApi';
 export * from './BillingApi';
 export * from './DeploymentsApi';

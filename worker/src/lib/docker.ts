@@ -120,9 +120,24 @@ export async function getLogs(ssh: NodeSSH): Promise<ContainerLog[]> {
 }
 
 function serializeEnvObject(env: Record<string, string>) {
-  return Object.entries(env)
-    .map(([key, value]) => `${key}=${String(value)}`)
-    .join('\n');
+  const lines: string[] = [];
+
+  for (const [key, value] of Object.entries(env)) {
+    // A key or value containing a newline would inject additional, attacker controlled entries
+    // into the .env file, so reject anything that is not a well formed single line variable.
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(key)) {
+      throw new Error(`Invalid environment variable name: '${key}'.`);
+    }
+
+    const stringValue = String(value);
+    if (/[\r\n]/.test(stringValue)) {
+      throw new Error(`Environment variable '${key}' must not contain line breaks.`);
+    }
+
+    lines.push(`${key}=${stringValue}`);
+  }
+
+  return lines.join('\n');
 }
 
 async function downloadDocker(url: string) {
