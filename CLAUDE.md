@@ -64,20 +64,24 @@ The corresponding server must be running before regenerating a client. After cha
 * Always use IsEnum, not IsIn to make it consistent.
 * Always use named constants for magic numbers.
 * Do keep the number of tests small.
+* Do not add unnecessary types, e.g. `void` for methods or return types that can easily be derived.
 * Do not fail silently in case of errors. Try to log something if it makes sense.
 * Do not generate migrations manually, use the right command for that (see commands).
 * Do not make any assumptions about the use database.
 * Do not update generated code files manually like package-lock.json. Use the right tools for that, e.g. `npm i`
+* Do not use lightgray for normal text as it is difficult to read.
 * Do not use reduce on array, write it manually.
 * Do not write queries manually when using repositories to stay independent from the actual database.
 * Only write comments to explain the why, not what the code does.
 * Rely on prettier for formatting.
 * Reuse TestContainers when possible, do not spin them up for every single test.
+* Use daisy-UI components as much as possible.
 * Use spread operators and simplifications for mappings.
 * Use strict types for typescript code.
 * Use TestContainers for database tests.
 * Use the following syntax for tests: `it('should do y when y')`
 * Use vitest for all tests.
+* Write documentation in a very easy and practical style, so that it easy to follow. It should focus on how to use pangostack and the concepts and be very hands-on.
 
 * When mapping code, use the following syntax
 

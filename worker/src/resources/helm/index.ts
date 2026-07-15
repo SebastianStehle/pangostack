@@ -6,9 +6,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { execa } from 'execa';
 import { v4 as uuidv4 } from 'uuid';
 import { stringify as toYAML } from 'yaml';
-import { dotToNested } from 'src/lib';
+import { dotToNested, formatReadiness, pollUntil } from 'src/lib';
 import {
   defineResource,
+  ProgressReporter,
   Resource,
   ResourceApplyResult,
   ResourceLogResult,
@@ -17,6 +18,8 @@ import {
   ResourceStatusResult,
   ResourceWorkloadStatus,
 } from '../interface';
+
+const WORKLOAD_POLL_INTERVAL_MS = 5_000;
 
 type Parameters = {
   config: string;
@@ -77,11 +80,12 @@ export class HelmResource implements Resource {
     },
   });
 
-  async apply(id: string, request: ResourceRequest<Parameters>): Promise<ResourceApplyResult> {
+  async apply(id: string, request: ResourceRequest<Parameters>, progress: ProgressReporter): Promise<ResourceApplyResult> {
     const { config, repositoryUrl, repositoryName, chartName, chartVersion, ...others } = request.parameters;
 
     const k8 = await this.getK8Service(config);
     try {
+      progress.beginStep('Updating chart repository');
       await execa('helm', ['repo', 'add', repositoryName, repositoryUrl]);
       await execa('helm', ['repo', 'update']);
 
@@ -123,7 +127,13 @@ export class HelmResource implements Resource {
       }
 
       try {
+        progress.beginStep(`Installing chart ${chartName}`);
         const { stdout, stderr } = await execa('helm', args);
+
+        // A successful helm install only means the release exists. Later resources rely on
+        // this one being usable, therefore wait until the workloads are actually ready.
+        progress.beginStep('Waiting for workloads to become ready');
+        await this.waitForWorkloadsReady(k8, namespace, request.timeoutMs, progress);
 
         return {
           log: stdout + '\n' + stderr,
@@ -244,10 +254,7 @@ export class HelmResource implements Resource {
 
         const containerStatuses = pod.status?.containerStatuses || [];
 
-        restarts[getPodName(podName, namespace, chartName)] = containerStatuses.reduce(
-          (a, { restartCount }) => a + (restartCount || 0),
-          0,
-        );
+        restarts[getPodName(podName, namespace, chartName)] = containerStatuses.reduce((a, { restartCount }) => a + (restartCount || 0), 0);
       }
 
       const memory: Record<string, number> = {};
@@ -313,6 +320,46 @@ export class HelmResource implements Resource {
     } finally {
       await k8.cleanup();
     }
+  }
+
+  private async waitForWorkloadsReady(
+    k8: { v1Apps: k8s.AppsV1Api; v1Core: k8s.CoreV1Api },
+    namespace: string,
+    timeoutMs: number,
+    progress: ProgressReporter,
+  ) {
+    await pollUntil(
+      timeoutMs,
+      async () => {
+        const [deployments, statefulSets] = await Promise.all([
+          k8.v1Apps.listNamespacedDeployment({ namespace }),
+          k8.v1Apps.listNamespacedStatefulSet({ namespace }),
+        ]);
+
+        const workloads: (k8s.V1Deployment | k8s.V1StatefulSet)[] = [...deployments.items, ...statefulSets.items];
+
+        let replicasReady = 0;
+        let replicasTotal = 0;
+        const waitingFor: string[] = [];
+
+        for (const workload of workloads) {
+          const desired = workload.spec?.replicas ?? 1;
+          const workloadReady = Math.min(workload.status?.readyReplicas ?? 0, desired);
+
+          replicasTotal += desired;
+          replicasReady += workloadReady;
+
+          if (workloadReady < desired) {
+            waitingFor.push(workload.metadata?.name || 'unknown');
+          }
+        }
+
+        progress.update(formatReadiness(replicasReady, replicasTotal, 'replicas', waitingFor));
+
+        return workloads.length > 0 && waitingFor.length === 0;
+      },
+      WORKLOAD_POLL_INTERVAL_MS,
+    );
   }
 
   private async getK8Service(config?: string) {

@@ -6,6 +6,7 @@ import { InstanceGet } from 'src/lib/vultr/generated';
 import {
   defineResource,
   LogContext,
+  ProgressReporter,
   Resource,
   ResourceApplyResult,
   ResourceMetricsResult,
@@ -97,21 +98,23 @@ export class VultrVmResource implements Resource {
   async apply(
     id: string,
     request: ResourceRequest<Parameters, ResourceContext>,
-    logContext: LogContext,
+    progress: ProgressReporter,
+    logContext: LogContext = {},
   ): Promise<ResourceApplyResult<Context>> {
     const { apiKey } = request.parameters;
 
     const vultr = new VultrClient(apiKey);
 
-    let vm = await this.createInstance(vultr, id, request, logContext);
+    let vm = await this.createInstance(vultr, id, request, progress, logContext);
     if (!request.resourceContext.password) {
       this.logger.error({
         message: 'Instance has no password. Previous attempt has failed. Deleting VM and trying again.',
         context: logContext,
       });
+      progress.update('Previous attempt left an unusable instance, recreating it');
       await vultr.instances.deleteInstance(vm.id!);
 
-      vm = await this.createInstance(vultr, id, request, logContext);
+      vm = await this.createInstance(vultr, id, request, progress, logContext);
     }
 
     if (isValidIp(vm)) {
@@ -123,6 +126,7 @@ export class VultrVmResource implements Resource {
       message: 'VM details are available, but the VM might not be running yet. Waiting for SSH connection',
       context: logContext,
     });
+    progress.beginStep('Waiting for SSH connection');
 
     await pollUntil(request.timeoutMs, async () => {
       await ssh.connect({ host: vm.mainIp, username: 'root', password: request.resourceContext.password });
@@ -146,10 +150,18 @@ export class VultrVmResource implements Resource {
     };
   }
 
-  private async createInstance(vultr: VultrClient, label: string, request: ResourceRequest<Parameters, ResourceContext>, logContext: any) {
+  private async createInstance(
+    vultr: VultrClient,
+    label: string,
+    request: ResourceRequest<Parameters, ResourceContext>,
+    progress: ProgressReporter,
+    logContext: LogContext,
+  ) {
     const { backup, region, plan, app } = request.parameters;
 
     const backups = backup ? 'enabled' : 'disabled';
+
+    progress.beginStep('Creating instance');
 
     let vm = await findInstance(vultr, label);
     if (vm) {
@@ -158,6 +170,7 @@ export class VultrVmResource implements Resource {
       }
 
       this.logger.log({ message: 'Using existing instance, waiting for VM details to be ready', context: logContext });
+      progress.beginStep('Waiting for instance to become ready');
       vm = await waitForInstance(vultr, vm, request.timeoutMs, true);
     } else {
       const response = await vultr.instances.createInstance({
@@ -171,6 +184,7 @@ export class VultrVmResource implements Resource {
       vm = response.instance!;
 
       this.logger.log({ message: 'Using new instance, waiting for VM details to be ready', context: logContext });
+      progress.beginStep('Waiting for instance to become ready');
       vm = await waitForInstance(vultr, vm, request.timeoutMs, false);
 
       request.resourceContext.password = vm.defaultPassword!;

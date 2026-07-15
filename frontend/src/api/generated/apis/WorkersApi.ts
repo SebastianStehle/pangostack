@@ -18,9 +18,12 @@
 
 import * as runtime from '../runtime';
 import type {
+  ResourceTypesDto,
   WorkersDto,
 } from '../models/index';
 import {
+    ResourceTypesDtoFromJSON,
+    ResourceTypesDtoToJSON,
     WorkersDtoFromJSON,
     WorkersDtoToJSON,
 } from '../models/index';
@@ -29,6 +32,38 @@ import {
  * 
  */
 export class WorkersApi extends runtime.BaseAPI {
+
+    /**
+     * Gets the available resource types.
+     *
+     */
+    async getResourceTypesRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResourceTypesDto>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/api/workers/resource-types`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ResourceTypesDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Gets the available resource types.
+     *
+     */
+    async getResourceTypes(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResourceTypesDto> {
+        const response = await this.getResourceTypesRaw(initOverrides);
+        return await response.value();
+    }
 
     /**
      * Gets the workers.

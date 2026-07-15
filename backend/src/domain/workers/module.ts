@@ -4,10 +4,10 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { WorkerEntity } from 'src/domain/database';
 import { WorkerInitializerService } from './services';
-import { GetWorkersHandler } from './use-cases';
+import { GetResourceTypesHandler, GetWorkersHandler } from './use-cases';
 
 @Module({
   imports: [ConfigModule, CqrsModule, TypeOrmModule.forFeature([WorkerEntity])],
-  providers: [GetWorkersHandler, WorkerInitializerService],
+  providers: [GetResourceTypesHandler, GetWorkersHandler, WorkerInitializerService],
 })
 export class WorkersModule {}

@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { UpdateServiceVersionDto, useClients } from 'src/api';
@@ -8,6 +8,7 @@ import { AdminHeader, FormAlert, Forms, Icon } from 'src/components';
 import { useStickyObserver, useTypedParams } from 'src/hooks';
 import { texts } from 'src/texts';
 import { VerifyServiceVersionButton } from '../VerifyServiceVersionButton';
+import { ResourceTypesPanel } from './ResourceTypesPanel';
 
 export interface VersionPageProps {
   // When the version has been created.
@@ -19,6 +20,7 @@ export const VersionPage = (props: VersionPageProps) => {
   const { serviceId, versionId } = useTypedParams({ serviceId: 'int', versionId: 'int' });
   const clients = useClients();
   const { isSticky, sentinelRef } = useStickyObserver();
+  const [isResourceTypesOpen, setIsResourceTypesOpen] = useState(false);
 
   const { data: loadedService } = useQuery({
     queryKey: ['service', serviceId],
@@ -78,17 +80,28 @@ export const VersionPage = (props: VersionPageProps) => {
 
               <Forms.Boolean name="isActive" label={texts.services.isActive} vertical />
 
-              <Forms.Code
-                disabled={creating.isPending}
-                height="1000px"
-                label={texts.services.definition}
-                mode="yaml"
-                name="definition"
-                noWrap
-                required
-                valueMode="string"
-                vertical
-              />
+              <div className="relative pt-4">
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm absolute top-0 right-0 z-10"
+                  onClick={() => setIsResourceTypesOpen(true)}
+                >
+                  <Icon icon="arrow-left" size={12} />
+                  {texts.services.resourceTypes}
+                </button>
+
+                <Forms.Code
+                  disabled={creating.isPending}
+                  height="1000px"
+                  label={texts.services.definition}
+                  mode="yaml"
+                  name="definition"
+                  noWrap
+                  required
+                  valueMode="string"
+                  vertical
+                />
+              </div>
 
               <Forms.Code
                 disabled={creating.isPending}
@@ -116,6 +129,8 @@ export const VersionPage = (props: VersionPageProps) => {
             </div>
           </fieldset>
         </form>
+
+        <ResourceTypesPanel isOpen={isResourceTypesOpen} onClose={() => setIsResourceTypesOpen(false)} />
       </FormProvider>
     </div>
   );

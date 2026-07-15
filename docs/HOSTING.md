@@ -1,215 +1,166 @@
-# Pangostack Hosting Guide
+# Deploying Pangostack
 
-This guide provides instructions for hosting Pangostack in production using Docker Compose.
+This guide gets Pangostack running on a server with Docker Compose. At the end you have a portal on your own domain with HTTPS, ready to create your first service.
 
-## Overview
+For writing deployment definitions, see [DEFINITIONS.md](DEFINITIONS.md). For local development, see the main [README.md](../README.md).
 
-Pangostack runs as a single container that includes:
+## What you are deploying
 
-- **Backend API**: NestJS-based API server
-- **Frontend**: React-based customer portal
+One compose file ([`docker/pango/docker-compose.yml`](../docker/pango/docker-compose.yml)) starts everything:
 
-## Dependencies
+- **pangostack** — the API and the customer portal, in one container.
+- **pangostack_worker** — provisions the actual infrastructure (Vultr VMs, S3, Docker Compose over SSH, Helm).
+- **postgresql** — the database.
+- **temporal** — the workflow engine that drives deployments (plus its admin tools and UI).
+- **pangostack_proxy** — a Caddy reverse proxy that gets HTTPS certificates automatically.
 
-The complete setup requires these additional services:
+## Step 1: Prepare the server
 
-- **Worker**: Background job processor with Kubernetes/Helm support (separate container)
-- **PostgreSQL**: Database for data persistence
-- **Temporal**: Workflow orchestration engine
-- **Caddy Proxy**: Reverse proxy with automatic HTTPS
-
-## Docker Compose Deployment
-
-### 1. Prerequisites
+You need a Linux server with Docker and a domain.
 
 ```bash
-# Install Docker and Docker Compose
 curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
 sudo usermod -aG docker $USER
-
-# Install Docker Compose
-sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
 ```
 
-### 2. Download Production Configuration
-
-```bash
-# Create deployment directory
-mkdir -p /opt/pangostack
-cd /opt/pangostack
-
-# Download the production docker-compose file
-wget https://raw.githubusercontent.com/your-repo/pangostack/main/docker/pango/docker-compose.yml
-```
-
-### 3. Environment Configuration
-
-Create a `.env` file with your configuration:
-
-```bash
-# Domain Configuration
-PANGO_DOMAIN=your-domain.com
-
-# Authentication Providers (Optional)
-PANGO_GITHUB_CLIENT=your_github_client_id
-PANGO_GITHUB_SECRET=your_github_client_secret
-PANGO_GOOGLE_CLIENT=your_google_client_id
-PANGO_GOOGLE_SECRET=your_google_client_secret
-PANGO_MICROSOFT_CLIENT=your_microsoft_client_id
-PANGO_MICROSOFT_SECRET=your_microsoft_client_secret
-
-# Billing Configuration (Chargebee)
-PANGO_CHARGEBEE_SITE=your_chargebee_site
-PANGO_CHARGEBEE_APIKEY=your_chargebee_api_key
-```
-
-### 4. Deploy
-
-```bash
-# Start all services
-docker-compose up -d
-
-# Check status
-docker-compose ps
-
-# View logs
-docker-compose logs -f
-```
-
-## Configuration
-
-### Environment Variables
-
-#### Database Configuration
-
-```bash
-DB_URL=postgres://postgres:secret@postgresql:5432/pango?sslmode=disable
-```
-
-#### Authentication Configuration
-
-```bash
-AUTH_BASEURL=https://your-domain.com
-SESSION_SECRET=your-super-secret-session-key
-
-# OAuth Providers (all optional)
-AUTH_GITHUB_CLIENTID=your_github_client_id
-AUTH_GITHUB_CLIENTSECRET=your_github_client_secret
-AUTH_GOOGLE_CLIENTID=your_google_client_id
-AUTH_GOOGLE_CLIENTSECRET=your_google_client_secret
-AUTH_MICROSOFT_CLIENTID=your_microsoft_client_id
-AUTH_MICROSOFT_CLIENTSECRET=your_microsoft_client_secret
-
-# Password Authentication
-AUTH_ENABLE_PASSWORD=true
-AUTH_INITIALUSER_EMAIL=admin@your-domain.com
-AUTH_INITIALUSER_PASSWORD=secure-admin-password
-```
-
-#### Billing Configuration (Chargebee)
-
-```bash
-BILLING_TYPE=CHARGEBEE
-BILLING_CHARGEBEE_SITE=your-site
-BILLING_CHARGEBEE_APIKEY=your-api-key
-BILLING_CHARGEBEE_PLAN_ID=pay_per_use
-BILLING_CHARGEBEE_ADDON_ID_CORES=cores
-BILLING_CHARGEBEE_ADDON_ID_MEMORY=memory
-BILLING_CHARGEBEE_ADDON_ID_STORAGE=storage
-BILLING_CHARGEBEE_ADDON_ID_VOLUME=volume
-```
-
-### Network Configuration
-
-The default setup exposes these ports:
-
-- **80**: HTTP (redirects to HTTPS)
-- **443**: HTTPS (main application)
-- **3000**: Worker API (internal)
-- **4000**: Backend API (internal)
-- **5433**: PostgreSQL (internal)
-- **7233**: Temporal (internal)
-
-### SSL/TLS Configuration
-
-The included Caddy proxy automatically handles SSL certificates via Let's Encrypt. Ensure:
-
-1. Your domain points to the server's IP address
-2. Ports 80 and 443 are accessible from the internet
-3. The `PANGO_DOMAIN` environment variable is set correctly
-
-## Post-Deployment Setup
-
-### 1. DNS Configuration
-
-Create an A record pointing your domain to your server's IP address:
+Point an A record of your domain to the server's IP now — Caddy needs it to get a certificate:
 
 ```
 your-domain.com → YOUR_SERVER_IP
 ```
 
-### 2. Authentication Providers Setup
+Ports 80 and 443 must be open to the internet. Keep everything else firewalled.
 
-#### GitHub OAuth
-
-1. Go to GitHub Settings → Developer settings → OAuth Apps
-2. Create a new OAuth App with:
-   - Homepage URL: `https://your-domain.com`
-   - Authorization callback URL: `https://your-domain.com/auth/github/callback`
-3. Add the Client ID and Secret to your environment variables
-
-#### Google OAuth
-
-1. Go to Google Cloud Console → APIs & Services → Credentials
-2. Create OAuth 2.0 Client ID with:
-   - Authorized redirect URIs: `https://your-domain.com/auth/google/callback`
-3. Add the Client ID and Secret to your environment variables
-
-#### Microsoft OAuth
-
-1. Go to Azure Portal → App registrations
-2. Create a new registration with:
-   - Redirect URI: `https://your-domain.com/auth/microsoft/callback`
-3. Add the Client ID and Secret to your environment variables
-
-## Monitoring and Maintenance
-
-### Health Checks
-
-Pangostack includes built-in health checks:
-
-- Main application: `https://your-domain.com/health`
-- API documentation: `https://your-domain.com/api`
-
-### Logs
-
-View application logs:
+## Step 2: Get the compose file
 
 ```bash
-# All services
-docker-compose logs -f
-
-# Specific service
-docker-compose logs -f pangostack
-docker-compose logs -f pangostack_worker
-docker-compose logs -f postgresql
+mkdir -p /opt/pangostack
+cd /opt/pangostack
 ```
 
-### Updates
+Copy `docker/pango/docker-compose.yml` and its `dynamicconfig/` folder from this repository into that directory.
 
-To update Pangostack:
+## Step 3: Configure
+
+Create a `.env` file next to the compose file:
 
 ```bash
-# Pull latest images
-docker-compose pull
+# Your domain (used by the proxy and for login redirects)
+PANGO_DOMAIN=your-domain.com
 
-# Restart services
-docker-compose down
-docker-compose up -d
+# Login providers (all optional — see below for password login)
+PANGO_GITHUB_CLIENT=...
+PANGO_GITHUB_SECRET=...
+PANGO_GOOGLE_CLIENT=...
+PANGO_GOOGLE_SECRET=...
+PANGO_MICROSOFT_CLIENT=...
+PANGO_MICROSOFT_SECRET=...
+
+# Billing via Chargebee (optional)
+PANGO_CHARGEBEE_SITE=...
+PANGO_CHARGEBEE_APIKEY=...
 ```
 
----
+Then open the compose file and change two defaults before going live: `SESSION_SECRET` and the Postgres password.
 
-This hosting guide should get you up and running with Pangostack in production. For development setup, see the main [README.md](../README.md).
+**No OAuth provider yet?** Enable password login and create an admin user by adding these to the `pangostack` environment in the compose file:
+
+```yaml
+AUTH_ENABLE_PASSWORD: 'true'
+AUTH_INITIAL_USER_EMAIL: admin@your-domain.com
+AUTH_INITIAL_USER_PASSWORD: choose-a-strong-password
+```
+
+## Step 4: Start it
+
+```bash
+docker compose up -d
+docker compose ps          # everything should be "running"
+docker compose logs -f     # watch the startup
+```
+
+Open `https://your-domain.com` and log in. Done — now create your first service in the admin UI and give it a [deployment definition](DEFINITIONS.md).
+
+## Setting up login providers
+
+Each provider needs a callback URL in this format:
+
+```
+https://your-domain.com/api/auth/login/<provider>/callback
+```
+
+- **GitHub**: Settings → Developer settings → OAuth Apps → New OAuth App. Use the callback URL with `github`.
+- **Google**: Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client ID. Use the callback URL with `google`.
+- **Microsoft**: Azure Portal → App registrations → New registration. Use the callback URL with `microsoft`.
+
+Put the client ID and secret into your `.env` file and restart: `docker compose up -d`.
+
+## Everyday operations
+
+```bash
+docker compose logs -f pangostack          # API + portal logs
+docker compose logs -f pangostack_worker   # provisioning logs
+
+# Update to the latest version
+docker compose pull
+docker compose down && docker compose up -d
+```
+
+If a deployment hangs or fails, the Temporal UI (port 8233, keep it internal) shows every running and failed workflow — that is the first place to look.
+
+## Environment variable reference
+
+The backend checks its configuration on startup and refuses to start if a required variable is missing or invalid — the error message names the variable. The `PANGO_*` variables above are just shorthands that the compose file maps to these:
+
+### Core
+
+| Variable | Description |
+| --- | --- |
+| `DB_URL` | Postgres URL, e.g. `postgres://postgres:secret@postgresql:5432/pango?sslmode=disable`. Required. |
+| `SESSION_SECRET` | Signs the session cookies. Required in production. |
+| `URLS_BASEURL` | Public base URL of the API, used for OAuth callbacks and confirmation links. |
+| `URLS_BASEUIURL` | Public base URL of the portal, if different from the API. |
+| `WORKER_ENDPOINT` | URL of the worker, registered on startup (default `http://localhost:3100`). |
+
+### Login
+
+| Variable | Description |
+| --- | --- |
+| `AUTH_GITHUB_CLIENTID` / `AUTH_GITHUB_CLIENTSECRET` | GitHub OAuth app. |
+| `AUTH_GOOGLE_CLIENTID` / `AUTH_GOOGLE_CLIENTSECRET` | Google OAuth client. |
+| `AUTH_MICROSOFT_CLIENTID` / `AUTH_MICROSOFT_CLIENTSECRET` | Microsoft app registration. |
+| `AUTH_MICROSOFT_TENANT` | Optional Microsoft tenant. |
+| `AUTH_OAUTH_CLIENTID` / `AUTH_OAUTH_CLIENTSECRET` | Any other OAuth2 provider. |
+| `AUTH_OAUTH_AUTHORIZATION_URL` / `AUTH_OAUTH_TOKEN_URL` / `AUTH_OAUTH_USERINFO_URL` | Endpoints for that provider. |
+| `AUTH_OAUTH_BRAND_NAME` / `AUTH_OAUTH_BRAND_COLOR` | Label and color of its login button. |
+| `AUTH_ENABLE_PASSWORD` | `true` enables email/password login. |
+| `AUTH_INITIAL_USER_EMAIL` / `AUTH_INITIAL_USER_PASSWORD` | Admin user created on first start. |
+| `AUTH_INITIAL_USER_API_KEY` | Optional API key for that user. |
+
+### Billing (Chargebee)
+
+| Variable | Description |
+| --- | --- |
+| `BILLING_TYPE` | `chargebee` or `none` (default `none`). |
+| `BILLING_CHARGEBEE_SITE` | Your Chargebee site name. |
+| `BILLING_CHARGEBEE_APIKEY` | Your Chargebee API key. |
+| `BILLING_CHARGEBEE_PLAN_ID` | Plan ID used for subscriptions. |
+| `BILLING_CHARGEBEE_ADDON_<NAME>` | Maps a usage addon, e.g. `BILLING_CHARGEBEE_ADDON_CORES=cores`. |
+| `BILLING_CHARGEBEE_TEAMPREFIX` | Optional prefix for customer names. |
+
+### Workflows (Temporal)
+
+| Variable | Description |
+| --- | --- |
+| `WORKFLOW_TEMPORAL_ADDRESS` | Temporal address, e.g. `temporal:7233`. |
+| `WORKFLOW_TEMPORAL_APIKEY` | API key for Temporal Cloud. |
+| `WORKFLOW_METRICS_MAX_AGE` | How long metrics are kept, e.g. `90d` (default). |
+| `WORKFLOW_METRICS_MAX_COUNT` | Maximum stored metric values (default 10000). |
+
+### Notifications (Notifo, optional)
+
+| Variable | Description |
+| --- | --- |
+| `NOTIFO_API_KEY` | Notifo API key. |
+| `NOTIFO_API_URL` | Notifo API URL (required when the key is set). |

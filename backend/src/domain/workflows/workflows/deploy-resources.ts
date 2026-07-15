@@ -1,6 +1,8 @@
 import { proxyActivities } from '@temporalio/workflow';
+import type { DeploymentStepKey } from 'src/domain/database';
 import { Topics } from 'src/domain/notifications/topics';
 import type * as activities from '../activities';
+import { DEPLOYMENT_STEP_MAX_ATTEMPTS } from '../constants';
 
 export interface DeployResourcesParam {
   deploymentId: number;
@@ -11,14 +13,16 @@ export interface DeployResourcesParam {
 }
 
 const { deleteResource, deployResource } = proxyActivities<typeof activities>({
-  startToCloseTimeout: '5m',
+  startToCloseTimeout: '15m',
   retry: {
-    maximumAttempts: 5,
+    maximumAttempts: DEPLOYMENT_STEP_MAX_ATTEMPTS,
     initialInterval: '1m',
   },
 });
 
-const { updateDeployment, getDeployment, getWorker, notify } = proxyActivities<typeof activities>({
+const { createDeploymentSteps, failDeploymentStep, updateDeployment, getDeployment, getWorker, notify } = proxyActivities<
+  typeof activities
+>({
   startToCloseTimeout: '30s',
   retry: {
     maximumAttempts: 3,
@@ -35,27 +39,54 @@ export async function deployResources({
   await updateDeployment({ updateId, status: 'Running' });
 
   const { workerApiKey, workerEndpoint } = await getWorker({});
-  let deployError: unknown = undefined;
-  try {
-    if (previousResourceIds) {
-      for (const resourceId of [...previousResourceIds].reverse()) {
-        const inCurrent = resourceIds.indexOf(resourceId) >= 0;
-        if (!inCurrent && previousUpdateId) {
-          await deleteResource({
-            deploymentId,
-            resourceId,
-            updateId: previousUpdateId,
-            workerApiKey,
-            workerEndpoint,
-          });
-        }
+
+  // Resources that are no longer part of the current definition are deleted first,
+  // in reverse order to respect dependencies.
+  const deletions: string[] = [];
+  if (previousResourceIds && previousUpdateId) {
+    for (const resourceId of [...previousResourceIds].reverse()) {
+      if (resourceIds.indexOf(resourceId) < 0) {
+        deletions.push(resourceId);
       }
+    }
+  }
+
+  const plannedSteps: DeploymentStepKey[] = [
+    ...deletions.map((resourceId) => ({ resourceId, action: 'Delete' }) as DeploymentStepKey),
+    ...resourceIds.map((resourceId) => ({ resourceId, action: 'Deploy' }) as DeploymentStepKey),
+  ];
+
+  // Persist the full plan upfront, so the UI can show all steps before they run. The
+  // created IDs are passed to the activities, so that they do not need any lookup logic.
+  const { steps } = await createDeploymentSteps({ updateId, previousUpdateId, steps: plannedSteps });
+
+  const stepIdOf = ({ action, resourceId }: DeploymentStepKey) => {
+    return steps.find((x) => x.resourceId === resourceId && x.action === action)?.stepId;
+  };
+
+  let deployError: unknown = undefined;
+  let currentStepId: number | undefined = undefined;
+  try {
+    for (const resourceId of deletions) {
+      currentStepId = stepIdOf({ resourceId, action: 'Delete' });
+
+      await deleteResource({
+        deploymentId,
+        resourceId,
+        stepId: currentStepId,
+        updateId: previousUpdateId!,
+        workerApiKey,
+        workerEndpoint,
+      });
     }
 
     for (const resourceId of resourceIds) {
+      currentStepId = stepIdOf({ resourceId, action: 'Deploy' });
+
       await deployResource({
         deploymentId,
         resourceId,
+        stepId: currentStepId,
         updateId,
         workerApiKey,
         workerEndpoint,
@@ -64,6 +95,11 @@ export async function deployResources({
     await updateDeployment({ updateId, status: 'Completed' });
   } catch (ex) {
     deployError = ex;
+
+    if (currentStepId) {
+      await failDeploymentStep({ stepId: currentStepId, error: `${ex}` });
+    }
+
     await updateDeployment({ updateId, status: 'Failed', error: `${ex}` });
   }
 

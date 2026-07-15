@@ -5,6 +5,7 @@ export * from './deployment-check';
 export * from './deployment-log';
 export * from './deployment-metric';
 export * from './deployment-update';
+export * from './deployment-update-step';
 export * from './deployment-usage';
 export * from './deployment';
 export * from './service-version';

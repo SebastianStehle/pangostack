@@ -1,5 +1,41 @@
-import { ConnectionInfo, DeploymentCheckStatus, DeploymentUpdateStatus } from '../database';
+import {
+  ConnectionInfo,
+  DeploymentCheckStatus,
+  DeploymentStepAction,
+  DeploymentStepStatus,
+  DeploymentSubStep,
+  DeploymentUpdateStatus,
+} from '../database';
 import { ParameterDefinition, ServiceDefinition, ServicePricingModel, UsageDefinition } from '../definitions';
+
+export interface DeploymentUpdateStep {
+  // The ID of the resource within the service definition.
+  resourceId: string;
+
+  // The display name of the resource.
+  resourceName: string;
+
+  // Whether the resource is deployed or deleted in this step.
+  action: DeploymentStepAction;
+
+  // The current status of the step.
+  status: DeploymentStepStatus;
+
+  // The current attempt, when greater than one the step has been retried.
+  attempt: number;
+
+  // The error of the last failed attempt.
+  error?: string | null;
+
+  // The sub-steps as reported by the worker.
+  subSteps: DeploymentSubStep[];
+
+  // When the step was started.
+  startedAt?: Date | null;
+
+  // When the step was completed or failed.
+  completedAt?: Date | null;
+}
 
 export interface Deployment {
   // The ID of the deployment.
