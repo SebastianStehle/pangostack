@@ -1,4 +1,5 @@
 import { Logger, NotFoundException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between } from 'typeorm';
 import { BillingService, Charges } from 'src/domain/billing';
@@ -12,6 +13,7 @@ import {
   DeploymentUsageEntity,
   DeploymentUsageRepository,
 } from 'src/domain/database';
+import { PaymentChargedEvent } from 'src/domain/events';
 import { saveAndFind } from 'src/lib';
 import { Activity } from '../registration';
 
@@ -44,6 +46,7 @@ export class ChargeDeploymentActivity implements Activity<ChargeDeploymentParam>
     private readonly deploymentUpdates: DeploymentUpdateRepository,
     @InjectRepository(DeploymentUsageEntity)
     private readonly deploymentUsages: DeploymentUsageRepository,
+    private readonly events: EventEmitter2,
   ) {}
 
   async execute({ deploymentId, dateFrom, dateTo }: ChargeDeploymentParam) {
@@ -142,6 +145,9 @@ export class ChargeDeploymentActivity implements Activity<ChargeDeploymentParam>
     if (charges.items.length > 0 || (charges.fixedPrice && charges.fixedPriceDescription)) {
       this.logger.log(`Deployment ${deploymentId} charged.`, { charges });
       await this.billingService.chargeDeployment(deployment.teamId, deploymentId, charges);
+
+      // System activity: there is no acting user for a scheduled charge.
+      this.events.emit(PaymentChargedEvent.TYPE, new PaymentChargedEvent(deployment.teamId, deploymentId, dateFrom, dateTo));
     }
 
     // Ensure that we bill every month only once per user.

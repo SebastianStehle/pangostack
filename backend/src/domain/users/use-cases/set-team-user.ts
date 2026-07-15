@@ -1,9 +1,9 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TeamEntity, TeamRepository, TeamUserEntity, TeamUserRepository, UserEntity, UserRepository } from 'src/domain/database';
-import { NotificationsService } from 'src/domain/notifications';
-import { Topics } from 'src/domain/notifications/topics';
+import { MemberAddedEvent } from 'src/domain/events';
 import { Team, User } from '../interfaces';
 import { buildTeam } from './utils';
 
@@ -25,7 +25,7 @@ export class SetTeamUserResponse {
 @CommandHandler(SetTeamUser)
 export class SetTeamUserHandler implements ICommandHandler<SetTeamUser, any> {
   constructor(
-    private readonly notifications: NotificationsService,
+    private readonly events: EventEmitter2,
     @InjectRepository(UserEntity)
     private readonly users: UserRepository,
     @InjectRepository(TeamEntity)
@@ -70,9 +70,8 @@ export class SetTeamUserHandler implements ICommandHandler<SetTeamUser, any> {
       throw new NotFoundException(`Team ${teamId} was deleted in the meantime.`);
     }
 
-    // This method will catch exceptions.
-    await this.notifications.subscribe(user.id, Topics.team(team.id));
-    await this.notifications.notify(Topics.team(team.id), 'TEAM_USER_ADDED', { team: team.name });
+    // The event logs the activity, subscribes the user and notifies the team members via the listeners.
+    this.events.emit(MemberAddedEvent.TYPE, new MemberAddedEvent(team.id, setUser.email, team.name, user.id));
 
     return new SetTeamUserResponse(buildTeam(withUsers));
   }

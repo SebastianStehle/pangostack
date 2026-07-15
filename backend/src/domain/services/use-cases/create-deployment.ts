@@ -1,5 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, MoreThan, Not } from 'typeorm';
 import * as uuid from 'uuid';
@@ -17,6 +18,7 @@ import {
   WorkerRepository,
 } from 'src/domain/database';
 import { validateParameters } from 'src/domain/definitions';
+import { DeploymentCreatedEvent, SubscriptionCreatedEvent } from 'src/domain/events';
 import { User } from 'src/domain/users';
 import { WorkflowService } from 'src/domain/workflows';
 import { saveAndFind, UrlService } from 'src/lib';
@@ -57,6 +59,7 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     private readonly workers: WorkerRepository,
     private readonly workflows: WorkflowService,
     private readonly urlService: UrlService,
+    private readonly events: EventEmitter2,
   ) {}
 
   async execute(command: CreateDeployment): Promise<CreateDeploymentResult> {
@@ -128,9 +131,14 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
       { relations: ['serviceVersion', 'serviceVersion.service'] },
     );
 
+    this.events.emit(DeploymentCreatedEvent.TYPE, new DeploymentCreatedEvent(teamId, deployment.id, name, user?.id));
+
     if (subscriptionResult !== true) {
       return new CreateDeploymentResult(subscriptionResult.redirectTo);
     }
+
+    // The subscription is active immediately, so there is no separate confirmation step that could log it.
+    this.events.emit(SubscriptionCreatedEvent.TYPE, new SubscriptionCreatedEvent(teamId, deployment.id, name, user?.id));
 
     deployment.status = 'Created';
     await this.deployments.save(deployment);

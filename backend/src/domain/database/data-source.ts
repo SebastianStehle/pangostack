@@ -16,6 +16,7 @@ import { ServiceVersionEntity } from './entities/service-version';
 import { SessionEntity } from './entities/session';
 import { SettingEntity } from './entities/setting';
 import { TeamEntity } from './entities/team';
+import { TeamActivityEntity } from './entities/team-activity';
 import { TeamUserEntity } from './entities/team-user';
 import { UserEntity } from './entities/user';
 import { UserGroupEntity } from './entities/user-group';
@@ -41,6 +42,7 @@ export default new DataSource({
     ServiceVersionEntity,
     SessionEntity,
     SettingEntity,
+    TeamActivityEntity,
     TeamEntity,
     TeamUserEntity,
     UserEntity,

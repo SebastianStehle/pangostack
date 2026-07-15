@@ -247,7 +247,7 @@ export class DeploymentsController {
   @UseGuards(RoleGuard)
   async deleteDeployment(@Req() req: Request, @IntParam('deploymentId') deploymentId: number) {
     const policy = await this.getPolicy(req.user);
-    const command = new DeleteDeployment(deploymentId, policy);
+    const command = new DeleteDeployment(deploymentId, policy, req.user);
 
     await this.commandBus.execute(command);
   }

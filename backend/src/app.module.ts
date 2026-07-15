@@ -3,11 +3,13 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { TerminusModule } from '@nestjs/terminus';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as Joi from 'joi';
 import { DataSource } from 'typeorm';
+import { TeamActivitiesController } from './controllers/activities/team-activities.controller';
 import { AuthController } from './controllers/auth/auth.controller';
 import { TeamBillingController } from './controllers/billing/team-billing.controller';
 import { BlobsController } from './controllers/blobs/blobs.controller';
@@ -22,6 +24,7 @@ import { TeamsController } from './controllers/users/teams.controller';
 import { UserGroupsController } from './controllers/users/user-groups.controller';
 import { UsersController } from './controllers/users/users.controller';
 import { WorkersController } from './controllers/workers/workers.controller';
+import { ActivitiesModule } from './domain/activities';
 import { AUTH_ENV_SCHEMA, authConfig } from './domain/auth';
 import { AuthModule } from './domain/auth/module';
 import { BILLING_ENV_SCHEMA, billingConfig, BillingModule } from './domain/billing';
@@ -43,6 +46,7 @@ import {
   ServiceVersionEntity,
   SessionEntity,
   SettingEntity,
+  TeamActivityEntity,
   TeamEntity,
   TeamUserEntity,
   UserEntity,
@@ -65,6 +69,7 @@ const combineSchemas = (...schemas: Joi.ObjectSchema[]) => schemas.reduce((acc, 
 
 @Module({
   imports: [
+    ActivitiesModule,
     AuthModule,
     BillingModule,
     CacheModule.register({ isGlobal: true, shouldCloneBeforeSet: false }),
@@ -82,6 +87,7 @@ const combineSchemas = (...schemas: Joi.ObjectSchema[]) => schemas.reduce((acc, 
       ),
     }),
     CqrsModule,
+    EventEmitterModule.forRoot(),
     HealthModule,
     LibModule,
     NotificationModule,
@@ -118,6 +124,7 @@ const combineSchemas = (...schemas: Joi.ObjectSchema[]) => schemas.reduce((acc, 
             ServiceVersionEntity,
             SessionEntity,
             SettingEntity,
+            TeamActivityEntity,
             TeamEntity,
             TeamUserEntity,
             UserEntity,
@@ -136,6 +143,7 @@ const combineSchemas = (...schemas: Joi.ObjectSchema[]) => schemas.reduce((acc, 
   controllers: [
     AuthController,
     BlobsController,
+    TeamActivitiesController,
     DeploymentsController,
     FaviconController,
     HealthController,
