@@ -17,7 +17,14 @@ export async function composeDown(ssh: NodeSSH) {
   return stdout;
 }
 
-export async function composeUp(ssh: NodeSSH, dockerComposeUrl: string, env: any, pollTimeout: number, log?: (message: string) => void) {
+export async function composeUp(
+  ssh: NodeSSH,
+  dockerComposeUrl: string,
+  env: any,
+  pollTimeout: number,
+  log?: (message: string) => void,
+  onReadiness?: (ready: number, total: number, waitingFor: string[]) => void,
+) {
   const remotePath = '/user';
 
   const tempDir = path.join(os.tmpdir(), randomUUID());
@@ -45,9 +52,16 @@ export async function composeUp(ssh: NodeSSH, dockerComposeUrl: string, env: any
 
     log?.('Docker compose applied, waiting for status');
     await pollUntil(pollTimeout, async () => {
-      const status = await getContainers(ssh);
+      const containers = await getContainers(ssh);
+      const waitingFor = containers.filter((x) => !x.isReady);
 
-      return !status.find((x) => !x.isReady);
+      onReadiness?.(
+        containers.length - waitingFor.length,
+        containers.length,
+        waitingFor.map((x) => x.name),
+      );
+
+      return containers.length > 0 && waitingFor.length === 0;
     });
     log?.('Docker compose ready');
 

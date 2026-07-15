@@ -14,6 +14,7 @@ import {
   GetDeploymentQuery,
   GetDeploymentsQuery,
   GetDeploymentStatusQuery,
+  GetDeploymentStepsQuery,
   GetDeploymentUsagesQuery,
   UpdateDeployment,
 } from 'src/domain/services';
@@ -28,6 +29,7 @@ import {
   DeploymentMetricsDto,
   DeploymentsDto,
   DeploymentStatusDto,
+  DeploymentStepsDto,
   DeploymentUsageSummariesDto,
   UpdateDeploymentDto,
 } from './dtos';
@@ -124,6 +126,24 @@ export class DeploymentsController {
     const { resources } = await this.queryBus.execute(new GetDeploymentStatusQuery(deploymentId, policy));
 
     return DeploymentStatusDto.fromDomain(resources);
+  }
+
+  @Get(':deploymentId/steps')
+  @ApiOperation({ operationId: 'getDeploymentSteps', description: 'Gets the steps of the most recent deployment update.' })
+  @ApiParam({
+    name: 'deploymentId',
+    description: 'The ID of the deployment.',
+    required: true,
+    type: 'number',
+  })
+  @ApiOkResponse({ type: DeploymentStepsDto })
+  @Role(BUILTIN_USER_GROUP_DEFAULT)
+  @UseGuards(RoleGuard)
+  async getSteps(@Req() req: Request, @IntParam('deploymentId') deploymentId: number) {
+    const policy = await this.getPolicy(req.user);
+    const { steps } = await this.queryBus.execute(new GetDeploymentStepsQuery(deploymentId, policy));
+
+    return DeploymentStepsDto.fromDomain(steps);
   }
 
   @Get(':deploymentId/logs')

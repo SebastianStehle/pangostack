@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { NodeSSH } from 'node-ssh';
-import { composeDown, composeUp, getContainers, getLogs, parseEnvironment, pollUntil } from 'src/lib';
+import { composeDown, composeUp, formatReadiness, getContainers, getLogs, parseEnvironment, pollUntil } from 'src/lib';
 import {
   defineResource,
   LogContext,
+  ProgressReporter,
   Resource,
   ResourceApplyResult,
   ResourceLogResult,
@@ -65,12 +66,18 @@ export class DockerComposeSshResource implements Resource {
     return {};
   }
 
-  async apply(_: string, request: ResourceRequest<Parameters>, logContext: LogContext): Promise<ResourceApplyResult> {
+  async apply(
+    _: string,
+    request: ResourceRequest<Parameters>,
+    progress: ProgressReporter,
+    logContext: LogContext = {},
+  ): Promise<ResourceApplyResult> {
     const { dockerComposeUrl, host, environment, sshUser, sshPassword, ...others } = request.parameters;
 
     const ssh = new NodeSSH();
     try {
       this.logger.log({ message: 'Waiting for SSH connection', context: logContext });
+      progress.beginStep('Waiting for SSH connection');
 
       await pollUntil(request.timeoutMs, async () => {
         await ssh.connect({ host, username: sshUser, password: sshPassword });
@@ -86,9 +93,19 @@ export class DockerComposeSshResource implements Resource {
       }
 
       this.logger.log({ message: 'Instance accepted SSH connection, deploying docker', context: logContext });
-      await composeUp(ssh, dockerComposeUrl, env, request.timeoutMs, (message) => {
-        this.logger.log({ message, context: logContext });
-      });
+      progress.beginStep('Starting containers');
+
+      await composeUp(
+        ssh,
+        dockerComposeUrl,
+        env,
+        request.timeoutMs,
+        (message) => {
+          this.logger.log({ message, context: logContext });
+          progress.update(message);
+        },
+        (ready, total, waitingFor) => progress.update(formatReadiness(ready, total, 'containers', waitingFor)),
+      );
     } finally {
       ssh.dispose();
     }

@@ -1,6 +1,7 @@
 import { config } from 'dotenv';
 import { DataSource } from 'typeorm';
 import { loadDbConfig } from './config';
+import { DeploymentUpdateStepEntity } from './entities';
 import { BilledDeploymentEntity } from './entities/billed-deployment';
 import { BlobEntity } from './entities/blob';
 import { CacheEntity } from './entities/cache';
@@ -19,9 +20,7 @@ import { TeamUserEntity } from './entities/team-user';
 import { UserEntity } from './entities/user';
 import { UserGroupEntity } from './entities/user-group';
 import { WorkerEntity } from './entities/worker';
-import { Init1760346162798 } from './migrations/1760346162798-Init';
-import { AddDefinitionSource1760346848861 } from './migrations/1760346848861-AddDefinitionSource';
-import { AddMigrations1782982415002 } from './migrations/1782982415002-AddMigrations';
+import { ALL_MIGRATIONS } from './migrations';
 
 config();
 
@@ -36,6 +35,7 @@ export default new DataSource({
     DeploymentLogEntity,
     DeploymentMetricEntity,
     DeploymentUpdateEntity,
+    DeploymentUpdateStepEntity,
     DeploymentUsageEntity,
     ServiceEntity,
     ServiceVersionEntity,
@@ -47,5 +47,5 @@ export default new DataSource({
     UserGroupEntity,
     WorkerEntity,
   ],
-  migrations: [Init1760346162798, AddDefinitionSource1760346848861, AddMigrations1782982415002],
+  migrations: [...ALL_MIGRATIONS],
 });

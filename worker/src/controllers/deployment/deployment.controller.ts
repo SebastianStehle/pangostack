@@ -1,9 +1,16 @@
-import { BadRequestException, Body, Controller, Delete, Inject, Logger, Post, ValidationError } from '@nestjs/common';
-import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { BadRequestException, Body, Controller, Delete, Inject, Logger, Post, Res, ValidationError } from '@nestjs/common';
+import { ApiExcludeEndpoint, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { isBoolean, isNumber, isString } from 'class-validator';
-import { Resource, ResourceDescriptor, RESOURCES_TOKEN } from 'src/resources/interface';
+import { Response } from 'express';
+import { ProgressTracker } from 'src/lib';
+import { Resource, ResourceDescriptor, RESOURCES_TOKEN, SubStep } from 'src/resources/interface';
 import { ApiDefaultResponses, ResourceRequestDto } from '../shared';
 import { ResourceApplyResponseDto, ResourcesDeleteRequestDto } from './dto';
+
+export type ResourceApplyStreamEvent =
+  | { type: 'subSteps'; subSteps: SubStep[] }
+  | { type: 'result'; result: ResourceApplyResponseDto }
+  | { type: 'error'; error: string };
 
 @Controller('deployment')
 @ApiTags('deployment')
@@ -31,7 +38,7 @@ export class DeploymentController {
     try {
       validate(resource.descriptor, body.parameters);
 
-      const result = await resource.apply(body.resourceUniqueId, body, logContext);
+      const result = await resource.apply(body.resourceUniqueId, body, new ProgressTracker(() => {}), logContext);
       const response = ResourceApplyResponseDto.fromDomain(result);
 
       this.logger.log({
@@ -51,6 +58,59 @@ export class DeploymentController {
       }
 
       throw error;
+    }
+  }
+
+  // Streams NDJSON progress events while the resource is applied. Excluded from the
+  // OpenAPI spec because generated clients cannot consume streaming responses; the
+  // backend uses a hand-written client for this endpoint.
+  @Post('apply')
+  @ApiExcludeEndpoint()
+  async applyResourceStreamed(@Body() body: ResourceRequestDto, @Res() res: Response) {
+    const resource = this.resources.get(body.resourceType);
+    if (!resource) {
+      throw new BadRequestException(`Unknown resource type ${body.resourceType}`);
+    }
+
+    validate(resource.descriptor, body.parameters);
+
+    const logContext: any = { id: body.resourceUniqueId, type: body.resourceType };
+
+    res.setHeader('Content-Type', 'application/x-ndjson');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('X-Accel-Buffering', 'no');
+    res.flushHeaders();
+
+    const writeEvent = (event: ResourceApplyStreamEvent) => {
+      res.write(`${JSON.stringify(event)}\n`);
+    };
+
+    const tracker = new ProgressTracker((subSteps) => writeEvent({ type: 'subSteps', subSteps }));
+
+    this.logger.log({ message: `Resource ${body.resourceType}: Apply (streamed)`, context: logContext });
+    try {
+      const result = await resource.apply(body.resourceUniqueId, body, tracker, logContext);
+      tracker.complete();
+
+      writeEvent({ type: 'result', result: ResourceApplyResponseDto.fromDomain(result) });
+
+      this.logger.log({ message: `Resource ${body.resourceType}: Applied with success`, context: logContext });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : JSON.stringify(error);
+      tracker.fail(message);
+
+      writeEvent({ type: 'error', error: message });
+
+      if (error instanceof Error) {
+        this.logger.error({ message: `Resource ${body.resourceType}: Applied with error`, context: { ...logContext, stack: error.stack } });
+      } else {
+        this.logger.error({
+          message: `Resource ${body.resourceType}: Applied with unexpected error`,
+          context: { ...logContext, error: JSON.stringify(error) },
+        });
+      }
+    } finally {
+      res.end();
     }
   }
 

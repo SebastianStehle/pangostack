@@ -1,10 +1,19 @@
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
-import { ConnectionInfo, DeploymentCheckStatus, DeploymentUpdateStatus } from 'src/domain/database';
+import {
+  ConnectionInfo,
+  DeploymentCheckStatus,
+  DeploymentStepAction,
+  DeploymentStepStatus,
+  DeploymentSubStep,
+  DeploymentSubStepStatus,
+  DeploymentUpdateStatus,
+} from 'src/domain/database';
 import {
   CheckSummary,
   Deployment,
   DeploymentResource,
+  DeploymentUpdateStep,
   MetricDatapoint,
   MetricSeries,
   MetricSummary,
@@ -15,6 +24,7 @@ import {
   ResourceWorkloadStatus,
   UsageSummary,
 } from 'src/domain/services';
+import { DEPLOYMENT_STEP_MAX_ATTEMPTS } from 'src/domain/workflows/constants';
 
 export class CreateDeploymentDto {
   @ApiProperty({
@@ -418,6 +428,149 @@ export class DeploymentStatusDto {
   static fromDomain(source: ResourceStatus[]) {
     const result = new DeploymentStatusDto();
     result.resources = source.map(ResourceStatusDto.fromDomain);
+    return result;
+  }
+}
+
+export class DeploymentSubStepDto {
+  @ApiProperty({
+    description: 'The name of the sub-step.',
+    required: true,
+  })
+  name: string;
+
+  @ApiProperty({
+    description: 'The status of the sub-step.',
+    required: true,
+    enum: ['Running', 'Completed', 'Failed'],
+  })
+  status: DeploymentSubStepStatus;
+
+  @ApiProperty({
+    description: 'The live message of the sub-step, for example the readiness progress.',
+    nullable: true,
+    type: String,
+  })
+  message?: string | null;
+
+  @ApiProperty({
+    description: 'When the sub-step was started.',
+    required: true,
+  })
+  startedAt: string;
+
+  @ApiProperty({
+    description: 'When the sub-step was completed or failed.',
+    nullable: true,
+    type: String,
+  })
+  completedAt?: string | null;
+
+  static fromDomain(source: DeploymentSubStep) {
+    const result = new DeploymentSubStepDto();
+    result.name = source.name;
+    result.status = source.status;
+    result.message = source.message;
+    result.startedAt = source.startedAt;
+    result.completedAt = source.completedAt;
+    return result;
+  }
+}
+
+export class DeploymentStepDto {
+  @ApiProperty({
+    description: 'The ID of the resource within the service definition.',
+    required: true,
+  })
+  resourceId: string;
+
+  @ApiProperty({
+    description: 'The display name of the resource.',
+    required: true,
+  })
+  resourceName: string;
+
+  @ApiProperty({
+    description: 'Whether the resource is deployed or deleted in this step.',
+    required: true,
+    enum: ['Deploy', 'Delete'],
+  })
+  action: DeploymentStepAction;
+
+  @ApiProperty({
+    description: 'The status of the step.',
+    required: true,
+    enum: ['Pending', 'Running', 'Completed', 'Failed'],
+  })
+  status: DeploymentStepStatus;
+
+  @ApiProperty({
+    description: 'The current attempt, greater than one when the step has been retried.',
+    required: true,
+  })
+  attempt: number;
+
+  @ApiProperty({
+    description: 'The maximum number of attempts.',
+    required: true,
+  })
+  maxAttempts: number;
+
+  @ApiProperty({
+    description: 'The error of the last failed attempt.',
+    nullable: true,
+    type: String,
+  })
+  error?: string | null;
+
+  @ApiProperty({
+    description: 'The sub-steps as reported by the worker.',
+    required: true,
+    type: [DeploymentSubStepDto],
+  })
+  subSteps: DeploymentSubStepDto[] = [];
+
+  @ApiProperty({
+    description: 'When the step was started.',
+    nullable: true,
+    type: Date,
+  })
+  startedAt?: Date | null;
+
+  @ApiProperty({
+    description: 'When the step was completed or failed.',
+    nullable: true,
+    type: Date,
+  })
+  completedAt?: Date | null;
+
+  static fromDomain(source: DeploymentUpdateStep) {
+    const result = new DeploymentStepDto();
+    result.resourceId = source.resourceId;
+    result.resourceName = source.resourceName;
+    result.action = source.action;
+    result.status = source.status;
+    result.attempt = source.attempt;
+    result.maxAttempts = DEPLOYMENT_STEP_MAX_ATTEMPTS;
+    result.error = source.error;
+    result.subSteps = source.subSteps.map(DeploymentSubStepDto.fromDomain);
+    result.startedAt = source.startedAt;
+    result.completedAt = source.completedAt;
+    return result;
+  }
+}
+
+export class DeploymentStepsDto {
+  @ApiProperty({
+    description: 'The steps of the most recent deployment update.',
+    required: true,
+    type: [DeploymentStepDto],
+  })
+  steps: DeploymentStepDto[] = [];
+
+  static fromDomain(source: DeploymentUpdateStep[]) {
+    const result = new DeploymentStepsDto();
+    result.steps = source.map(DeploymentStepDto.fromDomain);
     return result;
   }
 }

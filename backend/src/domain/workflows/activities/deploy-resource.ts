@@ -1,15 +1,25 @@
 import { NotFoundException } from '@nestjs/common';
 import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeploymentUpdateEntity, DeploymentUpdateRepository } from 'src/domain/database';
+import { activityInfo, heartbeat } from '@temporalio/activity';
+import { concatMap, filter, lastValueFrom, map } from 'rxjs';
+import {
+  DeploymentUpdateEntity,
+  DeploymentUpdateRepository,
+  DeploymentUpdateStepEntity,
+  DeploymentUpdateStepRepository,
+} from 'src/domain/database';
 import { evaluateParameters } from 'src/domain/definitions';
 import { getEvaluationContext, getResourceUniqueId, updateContext } from 'src/domain/services';
-import { ResourceRequestDto, WorkerClient } from 'src/domain/workers';
+import { ResourceApplyResponseDto, ResourceApplyStreamEvent, ResourceApplyStreamRequest, WorkerClient } from 'src/domain/workers';
 import { Activity } from '../registration';
+
+const RESOURCE_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
 
 export type DeployResourceParam = {
   deploymentId: number;
   resourceId: string;
+  stepId?: number | null;
   workerApiKey?: string;
   workerEndpoint: string;
   updateId: number;
@@ -22,9 +32,11 @@ export class DeployResourceActivity implements Activity<DeployResourceParam> {
   constructor(
     @InjectRepository(DeploymentUpdateEntity)
     private readonly deploymentUpdates: DeploymentUpdateRepository,
+    @InjectRepository(DeploymentUpdateStepEntity)
+    private readonly deploymentSteps: DeploymentUpdateStepRepository,
   ) {}
 
-  async execute({ deploymentId, resourceId, updateId, workerApiKey, workerEndpoint }: DeployResourceParam) {
+  async execute({ deploymentId, resourceId, stepId, updateId, workerApiKey, workerEndpoint }: DeployResourceParam) {
     const update = await this.deploymentUpdates.findOne({ where: { id: updateId }, relations: ['serviceVersion'] });
     if (!update) {
       throw new NotFoundException(`Deployment Update ${updateId} not found.`);
@@ -35,8 +47,7 @@ export class DeployResourceActivity implements Activity<DeployResourceParam> {
       throw new NotFoundException(`Deployment Update ${updateId} does not contain resource ${resourceId}.`);
     }
 
-    update.status = 'Pending';
-    await this.deploymentUpdates.save(update);
+    const step = await this.startStep(stepId);
 
     const { context } = getEvaluationContext(update);
     const client = new WorkerClient(workerEndpoint, workerApiKey);
@@ -53,12 +64,12 @@ export class DeployResourceActivity implements Activity<DeployResourceParam> {
       resourceUniqueId,
     });
 
-    const request: ResourceRequestDto = {
+    const request: ResourceApplyStreamRequest = {
       resourceContext: update.resourceContexts[resource.id] || {},
       resourceUniqueId,
       resourceType: resource.type,
       parameters: resourceParams,
-      timeoutMs: 10 * 60 * 1000, // 10 minutes
+      timeoutMs: RESOURCE_TIMEOUT_MS,
     };
 
     this.logger.log({
@@ -67,7 +78,33 @@ export class DeployResourceActivity implements Activity<DeployResourceParam> {
       context: 'WorkerService',
     });
 
-    const response = await client.deployment.applyResource(request);
+    let response: ResourceApplyResponseDto;
+    try {
+      response = await lastValueFrom(
+        client.applyResourceStreamed(request).pipe(
+          concatMap(async (event) => {
+            heartbeat();
+
+            if (event.type === 'subSteps' && step) {
+              step.subSteps = event.subSteps;
+              await this.deploymentSteps.save(step);
+            }
+
+            return event;
+          }),
+          filter((event): event is Extract<ResourceApplyStreamEvent, { type: 'result' }> => event.type === 'result'),
+          map((event) => event.result),
+        ),
+      );
+    } catch (ex) {
+      // Keep the step running so that retries stay visible, but surface the error already.
+      if (step) {
+        step.error = ex instanceof Error ? ex.message : `${ex}`;
+        await this.deploymentSteps.save(step);
+      }
+
+      throw ex;
+    }
 
     update.resourceConnections[resource.id] = response.connection;
     update.resourceContexts[resource.id] = response.resourceContext || {};
@@ -79,6 +116,32 @@ export class DeployResourceActivity implements Activity<DeployResourceParam> {
     }
 
     await this.deploymentUpdates.save(update);
+
+    if (step) {
+      step.status = 'Completed';
+      step.error = null;
+      step.completedAt = new Date();
+      await this.deploymentSteps.save(step);
+    }
+  }
+
+  private async startStep(stepId: number | null | undefined) {
+    if (!stepId) {
+      return null;
+    }
+
+    const step = await this.deploymentSteps.findOne({ where: { id: stepId } });
+    if (!step) {
+      return null;
+    }
+
+    step.status = 'Running';
+    step.attempt = activityInfo().attempt;
+    step.startedAt = step.startedAt ?? new Date();
+    step.subSteps = [];
+
+    await this.deploymentSteps.save(step);
+    return step;
   }
 }
 

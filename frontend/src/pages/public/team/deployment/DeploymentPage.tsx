@@ -9,6 +9,7 @@ import {
   DeploymentMetricsChart,
   DeploymentResource,
   DeploymentStatus,
+  DeploymentSteps,
   DeploymentUsageChart,
   HealthStatus,
   Icon,
@@ -19,6 +20,8 @@ import {
 import { useParam, useTypedParams } from 'src/hooks';
 import { formatDateTime, last } from 'src/lib';
 import { texts } from 'src/texts';
+
+const DEPLOYING_REFETCH_INTERVAL_MS = 3000;
 
 export const DeploymentPage = () => {
   const { deploymentId, teamId } = useTypedParams({ deploymentId: 'int', teamId: 'int' });
@@ -33,6 +36,11 @@ export const DeploymentPage = () => {
   const { data: deployment } = useQuery({
     queryKey: ['deployment', deploymentId],
     queryFn: () => clients.deployments.getDeployment(deploymentId),
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+
+      return status === 'Pending' || status === 'Running' ? DEPLOYING_REFETCH_INTERVAL_MS : false;
+    },
   });
 
   const serviceId = deployment?.serviceId || 0;
@@ -100,6 +108,16 @@ export const DeploymentPage = () => {
             <div role="alert" className="alert alert-info">
               <Icon icon="info" />
               <span>{texts.deployments.deployingInfo}</span>
+            </div>
+          )}
+
+          {(isPending || deployment.status === 'Failed') && (
+            <div>
+              <h2 className="mb-3 flex items-center gap-3 text-xl">
+                <Icon icon="activity" size={16} className="inline-block" /> {texts.deployments.stepsHeadline}
+              </h2>
+
+              <DeploymentSteps deploymentId={deploymentId} isActive={isPending} />
             </div>
           )}
 

@@ -6,6 +6,7 @@ import { ObjectStorage } from 'src/lib/vultr/generated';
 import {
   defineResource,
   LogContext,
+  ProgressReporter,
   Resource,
   ResourceApplyResult,
   ResourceRequest,
@@ -65,25 +66,35 @@ export class VultrStorageResource implements Resource {
     },
   });
 
-  async apply(id: string, request: ResourceRequest<Parameters>, logContext: LogContext): Promise<ResourceApplyResult<Context>> {
+  async apply(
+    id: string,
+    request: ResourceRequest<Parameters>,
+    progress: ProgressReporter,
+    logContext: LogContext = {},
+  ): Promise<ResourceApplyResult<Context>> {
     const { apiKey, bucket, cluster, tier } = request.parameters;
 
     const vultr = new VultrClient(apiKey);
 
+    progress.beginStep('Creating object storage');
+
     let storage = await findStorage(vultr, id);
     if (storage) {
       this.logger.log({ message: 'Using existing storage, waiting for storage details to be ready', context: logContext });
+      progress.beginStep('Waiting for storage to become ready');
       storage = await waitForStorage(vultr, storage, request.timeoutMs);
     } else {
       const response = await vultr.objectStorages.createObjectStorage({ clusterId: cluster, tierId: tier, label: id });
       storage = response.objectStorage!;
 
       this.logger.log({ message: 'Using new storage, waiting for storage details to be ready', context: logContext });
+      progress.beginStep('Waiting for storage to become ready');
       storage = await waitForStorage(vultr, storage, request.timeoutMs);
     }
 
     if (bucket) {
       logContext.bucket = bucket;
+      progress.beginStep(`Creating bucket ${bucket}`);
 
       const s3Client = new S3Client({
         region: 'us-east-1',

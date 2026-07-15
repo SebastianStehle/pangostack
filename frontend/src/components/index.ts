@@ -11,6 +11,7 @@ export * from './DeploymentLog';
 export * from './DeploymentMetricsChart';
 export * from './DeploymentResource';
 export * from './DeploymentStatus';
+export * from './DeploymentSteps';
 export * from './DeploymentUsageChart';
 export * from './Empty';
 export * from './FileUpload';

@@ -1,5 +1,36 @@
 import * as https from 'https';
-import { Configuration, DeploymentApi, FetchError, RequiredError, ResourcesApi, ResponseError, StatusApi } from './generated';
+import { Observable, Subscriber } from 'rxjs';
+import {
+  Configuration,
+  DeploymentApi,
+  FetchError,
+  RequiredError,
+  ResourceApplyResponseDto,
+  ResourcesApi,
+  ResponseError,
+  StatusApi,
+} from './generated';
+
+export type WorkerSubStep = {
+  name: string;
+  status: 'Running' | 'Completed' | 'Failed';
+  message?: string | null;
+  startedAt: string;
+  completedAt?: string | null;
+};
+
+export type ResourceApplyStreamEvent =
+  | { type: 'subSteps'; subSteps: WorkerSubStep[] }
+  | { type: 'result'; result: ResourceApplyResponseDto }
+  | { type: 'error'; error: string };
+
+export type ResourceApplyStreamRequest = {
+  resourceUniqueId: string;
+  resourceType: string;
+  parameters: Record<string, any>;
+  resourceContext: Record<string, any>;
+  timeoutMs: number;
+};
 
 export class WorkerClient {
   public readonly deployment: DeploymentApi;
@@ -39,6 +70,96 @@ export class WorkerClient {
     this.deployment = new DeploymentApi(configuration);
     this.resources = new ResourcesApi(configuration);
     this.status = new StatusApi(configuration);
+  }
+
+  // The streamed apply endpoint returns NDJSON and can therefore not be consumed with
+  // the generated OpenAPI client.
+  applyResourceStreamed(request: ResourceApplyStreamRequest) {
+    return new Observable<ResourceApplyStreamEvent>((subscriber) => {
+      const abort = new AbortController();
+
+      void this.consumeApplyStream(request, abort, subscriber);
+
+      return () => abort.abort();
+    });
+  }
+
+  private async consumeApplyStream(
+    request: ResourceApplyStreamRequest,
+    abort: AbortController,
+    subscriber: Subscriber<ResourceApplyStreamEvent>,
+  ) {
+    try {
+      const response = await fetch(`${this.basePath}/deployment/apply`, {
+        method: 'POST',
+        headers: {
+          ['Content-Type']: 'application/json',
+          ['X-ApiKey']: this.apiKey || '',
+        },
+        body: JSON.stringify(request),
+        signal: abort.signal,
+      });
+
+      if (!response.ok || !response.body) {
+        let body: unknown;
+        try {
+          body = await response.json();
+        } catch {
+          body = { message: 'No error details provided.', statusCode: response.status };
+        }
+
+        throw new WorkerError(response.status, body, undefined, 'Streamed apply request failed');
+      }
+
+      let hasResult = false;
+
+      const handleLine = (line: string) => {
+        if (!line.trim()) {
+          return;
+        }
+
+        const event = JSON.parse(line) as ResourceApplyStreamEvent;
+        if (event.type === 'error') {
+          throw new WorkerError(undefined, undefined, undefined, event.error);
+        }
+
+        if (event.type === 'result') {
+          hasResult = true;
+        }
+
+        subscriber.next(event);
+      };
+
+      const decoder = new TextDecoder();
+      let buffered = '';
+
+      for await (const chunk of response.body as unknown as AsyncIterable<Uint8Array>) {
+        buffered += decoder.decode(chunk, { stream: true });
+
+        // The last element is either an incomplete line or empty and is kept in the buffer.
+        const lines = buffered.split('\n');
+        buffered = lines.pop() ?? '';
+
+        for (const line of lines) {
+          handleLine(line);
+        }
+      }
+
+      handleLine(buffered);
+
+      if (!hasResult) {
+        throw new WorkerError(
+          undefined,
+          undefined,
+          undefined,
+          'Stream ended without a result. The worker probably crashed or the connection was interrupted.',
+        );
+      }
+
+      subscriber.complete();
+    } catch (error) {
+      subscriber.error(error);
+    }
   }
 }
 

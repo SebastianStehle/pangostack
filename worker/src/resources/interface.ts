@@ -137,10 +137,35 @@ export interface ResourceMetricsResult {
   metrics: Record<string, ResourceMetricValues>;
 }
 
+export interface SubStep {
+  // Name of the sub-step, for example 'Waiting for workloads'.
+  name: string;
+
+  // Status of the sub-step.
+  status: 'Running' | 'Completed' | 'Failed';
+
+  // Optional live message, for example '3/5 replicas ready'.
+  message?: string | null;
+
+  // When the sub-step was started.
+  startedAt: string;
+
+  // When the sub-step was completed or failed.
+  completedAt?: string | null;
+}
+
+export interface ProgressReporter {
+  // Starts a new sub-step and completes the previous one.
+  beginStep(name: string): void;
+
+  // Updates the message of the current sub-step.
+  update(message: string): void;
+}
+
 export interface Resource {
   descriptor: ResourceDescriptor;
 
-  apply(id: string, request: ResourceRequest, logCOntext: Record<string, any>): Promise<ResourceApplyResult>;
+  apply(id: string, request: ResourceRequest, progress: ProgressReporter, logContext?: LogContext): Promise<ResourceApplyResult>;
 
   verify?(id: string, request: ResourceRequest): Promise<boolean>;
 
