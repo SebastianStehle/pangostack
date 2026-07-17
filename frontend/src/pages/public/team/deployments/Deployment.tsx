@@ -15,7 +15,7 @@ export const Deployment = (props: DeploymentProps) => {
   return (
     <TransientNavLink
       to={deployment.id.toString()}
-      className="card card-border bg-base hover:border-primary cursor-pointer border-slate-300 transition-colors duration-500 ease-in-out"
+      className="card card-border bg-base hover:border-primary cursor-pointer border-gray-300 transition-colors duration-500 ease-in-out"
     >
       <div className="card-body p-6">
         <div className="flex">
@@ -25,7 +25,7 @@ export const Deployment = (props: DeploymentProps) => {
           </h2>
 
           {update && (
-            <div className="alert-sm text-md flex items-center gap-1 font-medium text-red-700 uppercase">
+            <div className="alert-sm text-md text-error flex items-center gap-1 font-medium uppercase">
               <Icon icon="alert" size={16} />
               {texts.deployments.updateAvailable}
             </div>

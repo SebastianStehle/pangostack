@@ -17,7 +17,7 @@ export const DeploymentResource = (props: DeploymentResourceProps) => {
   const actualConnections = connection || [];
 
   return (
-    <div className="card card-border bg-base border-slate-300">
+    <div className="card card-border bg-base border-gray-300">
       <div className="card-body">
         <h3 className="card-title">{resource.name}</h3>
 

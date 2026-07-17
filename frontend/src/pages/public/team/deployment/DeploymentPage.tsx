@@ -88,7 +88,7 @@ export const DeploymentPage = () => {
         </div>
       )}
 
-      <div className="-mx-8 border-b border-gray-200 px-4">
+      <div className="-mx-8 border-b border-gray-300 px-4">
         <div role="tablist" className="tabs tabs-border">
           <a role="tab" className={classNames('tab', { 'tab-active': tab === 'overview' })} onClick={() => setTab('overview')}>
             {texts.common.overview}
@@ -160,7 +160,7 @@ export const DeploymentPage = () => {
               <h2 className="mb-3 flex items-center gap-3 text-xl">
                 <Icon icon="info" size={16} className="inline-block" /> {texts.common.instructions}
               </h2>
-              <div className="card card-border bg-base border-slate-300">
+              <div className="card card-border bg-base border-gray-300">
                 <div className="card-body">
                   <DeploymentInstructions deployment={deployment} text={loadedService.afterInstallationInstructions} />
                 </div>

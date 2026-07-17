@@ -34,6 +34,14 @@
   white-space: nowrap;
 }
 
+.recharts-wrapper {
+  @apply stats border-gray-300 border-[1px] pe-2;
+}
+
+.stats {
+  @apply border-gray-300 border-[1px];
+}
+
 .markdown p {
   @apply mb-4;
 }
@@ -152,7 +160,7 @@
   }
 
   .dropdown-menu {
-    @apply menu rounded-box border-gray-200 border-[1px] bg-base-100 p-2 shadow;
+    @apply menu rounded-box border-gray-300 border-[1px] bg-base-100 p-2 shadow;
   }
 
   .legend {

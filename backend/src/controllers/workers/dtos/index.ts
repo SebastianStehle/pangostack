@@ -1,9 +1,9 @@
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import {
+  Worker,
   ResourceMetricDto as WorkerResourceMetricDto,
   ResourceTypeDto as WorkerResourceTypeDto,
   ResourceValueDto as WorkerResourceValueDto,
-  Worker,
 } from 'src/domain/workers';
 
 export class ResourceTypeValueDto {

@@ -4,13 +4,13 @@ export const NodeStatus = ({ isReady, message }: { isReady: boolean; message?: s
   if (!isReady) {
     return (
       <div className="flex items-center gap-1">
-        <span className="inline-flex h-3 w-3 rounded-full bg-red-600"></span> {message || texts.common.notFound}
+        <span className="bg-error inline-flex h-3 w-3 rounded-full"></span> {message || texts.common.notFound}
       </div>
     );
   } else {
     return (
       <div className="flex items-center gap-1">
-        <span className="inline-flex h-3 w-3 rounded-full bg-green-600"></span>
+        <span className="bg-success inline-flex h-3 w-3 rounded-full"></span>
       </div>
     );
   }

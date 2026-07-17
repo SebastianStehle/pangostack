@@ -38,16 +38,33 @@ export const ActivityPage = () => {
         <RefreshButton isLoading={isFetching} onClick={refetch} />
       </div>
 
-      <div className="flex flex-col gap-2">
-        {activities.map((activity) => (
-          <Activity key={activity.id} activity={activity} />
-        ))}
-      </div>
-
       {isLoading && !isFetched && <Spinner visible={true} />}
 
-      {isFetched && activities.length === 0 && (
-        <Empty icon="activity" label={texts.activities.empty} text={texts.activities.emptyText} />
+      {isFetched && (
+        <table className="table">
+          <thead>
+            <tr>
+              <th>{texts.activities.user}</th>
+              <th>{texts.activities.event}</th>
+              <th>{texts.activities.date}</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {activities.map((activity) => (
+              <Activity key={activity.id} activity={activity} />
+            ))}
+
+            {activities.length === 0 && (
+              <tr>
+                <td colSpan={4}>
+                  <Empty icon="no-document" label={texts.activities.empty} text={texts.activities.emptyText} />
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       )}
 
       <Pagingation page={page} pageSize={PAGE_SIZE} total={loadedActivities?.total || 0} onPage={doChangePage} />

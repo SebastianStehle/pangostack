@@ -18,7 +18,7 @@ const ResourceValueRow = ({ name, value }: { name: string; value: ResourceTypeVa
   return (
     <div className="border-base-300 border-b py-2 last:border-b-0">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="font-mono text-sm font-semibold grow-1">{name}</span>
+        <span className="grow-1 font-mono text-sm font-semibold">{name}</span>
 
         <span className="badge badge-ghost badge-sm">{type}</span>
 
@@ -65,7 +65,7 @@ const ResourceType = ({ resourceType }: { resourceType: ResourceTypeDto }) => {
 
       <div className="collapse-title font-mono text-sm font-semibold">{name}</div>
 
-      <div className="collapse-content text-sm flex flex-col gap-4">
+      <div className="collapse-content flex flex-col gap-4 text-sm">
         <p>{description}</p>
 
         <ResourceValueSection label={texts.services.resourceTypesParameters} values={parameters} />

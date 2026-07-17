@@ -5,19 +5,19 @@ export const HealthStatus = ({ status }: { status?: DeploymentDtoHealthStatusEnu
   if (status === 'Succeeded') {
     return (
       <div className="flex items-center gap-1">
-        <span className="inline-flex h-3 w-3 rounded-full bg-green-600"></span> {texts.common.healthy}
+        <span className="bg-success inline-flex h-3 w-3 rounded-full"></span> {texts.common.healthy}
       </div>
     );
   } else if (status === 'Failed') {
     return (
       <div className="flex items-center gap-1">
-        <span className="inline-flex h-3 w-3 rounded-full bg-red-600"></span> {texts.common.unhealthy}
+        <span className="bg-error inline-flex h-3 w-3 rounded-full"></span> {texts.common.unhealthy}
       </div>
     );
   } else {
     return (
       <div className="flex items-center gap-1">
-        <span className="inline-flex h-3 w-3 rounded-full bg-gray-600"></span> {texts.common.uncheckedHealth}
+        <span className="bg-neutral inline-flex h-3 w-3 rounded-full"></span> {texts.common.uncheckedHealth}
       </div>
     );
   }

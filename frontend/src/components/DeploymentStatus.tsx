@@ -5,25 +5,25 @@ export const DeploymentStatus = ({ status }: { status: DeploymentDtoStatusEnum }
   if (status === 'Pending') {
     return (
       <div className="flex items-center gap-1">
-        <span className="inline-flex h-3 w-3 rounded-full bg-gray-600"></span> {texts.common.pending}
+        <span className="bg-neutral inline-flex h-3 w-3 rounded-full"></span> {texts.common.pending}
       </div>
     );
   } else if (status === 'Running') {
     return (
       <div className="flex items-center gap-1">
-        <span className="inline-flex h-3 w-3 rounded-full bg-red-600"></span> {texts.common.installing}
+        <span className="bg-error inline-flex h-3 w-3 rounded-full"></span> {texts.common.installing}
       </div>
     );
   } else if (status === 'Completed') {
     return (
       <div className="flex items-center gap-1">
-        <span className="inline-flex h-3 w-3 rounded-full bg-green-600"></span> {texts.common.succeeded}
+        <span className="bg-success inline-flex h-3 w-3 rounded-full"></span> {texts.common.succeeded}
       </div>
     );
   } else {
     return (
       <div className="flex items-center gap-1">
-        <span className="inline-flex h-3 w-3 rounded-full bg-red-600"></span> {texts.common.failed}
+        <span className="bg-error inline-flex h-3 w-3 rounded-full"></span> {texts.common.failed}
       </div>
     );
   }

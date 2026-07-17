@@ -86,7 +86,7 @@ export const CodeEditor = (props: CodeEditorProps) => {
   return (
     <div
       className={classNames({
-        'border-[1px] border-slate-300': !isFullHeight,
+        'border-[1px] border-gray-300': !isFullHeight,
         'absolute top-0 right-0 bottom-0 left-0': isFullHeight,
       })}
     >

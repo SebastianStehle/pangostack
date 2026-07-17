@@ -84,7 +84,7 @@ export const UpsertUserGroupDialog = (props: UpsertUserGroupDialogProps) => {
 
             {target && (
               <>
-                <hr className="my-6 border-slate-300" />
+                <hr className="my-6 border-gray-300" />
 
                 <Forms.Row name="danger" label={texts.common.dangerZone}>
                   <ConfirmDialog

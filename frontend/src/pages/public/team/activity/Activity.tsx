@@ -12,37 +12,34 @@ export const Activity = (props: ActivityProps) => {
   const { activity } = props;
 
   return (
-    <div className="card card-border bg-base border-slate-300">
-      <div className="card-body p-6">
-        <div className="flex items-center gap-4">
+    <tr>
+      <td>
+        <div className="flex items-center gap-2">
           {activity.createdBy ? (
-            <Avatar size="md" user={{ name: activity.createdBy.name }} />
+            <Avatar size="sm" user={{ name: activity.createdBy.name }} />
           ) : (
             <div className="avatar avatar-placeholder flex">
-              <div className="bg-neutral text-neutral-content w-10 rounded-full">
-                <Icon size={18} icon="activity" />
+              <div className="bg-neutral text-neutral-content w-8 rounded-full">
+                <Icon size={16} icon="activity" />
               </div>
             </div>
           )}
 
-          <div className="grow">
-            <div className="text-mdx font-semibold">{activity.text}</div>
-
-            <div className="text-sm leading-6 text-slate-500">
-              {activity.createdBy?.name || texts.activities.system} • {formatDateTime(activity.createdAt)}
-            </div>
-          </div>
-
-          {activity.deploymentId && (
-            <TransientNavLink
-              className="text-primary inline-flex items-center gap-1 text-sm font-semibold hover:underline"
-              to={`../deployments/${activity.deploymentId}`}
-            >
-              {texts.activities.viewDeployment}
-            </TransientNavLink>
-          )}
+          <span className="truncate">{activity.createdBy?.name || texts.activities.system}</span>
         </div>
-      </div>
-    </div>
+      </td>
+      <td>{activity.text}</td>
+      <td className="whitespace-nowrap text-slate-500">{formatDateTime(activity.createdAt)}</td>
+      <td className="text-right">
+        {activity.deploymentId && (
+          <TransientNavLink
+            className="text-primary text-xs font-semibold hover:underline"
+            to={`../deployments/${activity.deploymentId}`}
+          >
+            {texts.activities.viewDeployment}
+          </TransientNavLink>
+        )}
+      </td>
+    </tr>
   );
 };
