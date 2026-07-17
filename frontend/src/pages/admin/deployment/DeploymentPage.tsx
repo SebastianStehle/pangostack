@@ -11,7 +11,7 @@ import {
   DeploymentInstructions,
   DeploymentLog,
   DeploymentMetricsChart,
-  DeploymentResource,
+  DeploymentResources,
   DeploymentStatus,
   DeploymentUsageChart,
   HealthStatus,
@@ -183,16 +183,11 @@ export const DeploymentPage = () => {
                   <Icon icon="server" size={16} className="inline-block" /> {texts.deployments.resources}
                 </h2>
 
-                <div className="flex flex-col gap-2">
-                  {deployment.resources.map((resource) => (
-                    <DeploymentResource
-                      key={resource.id}
-                      resource={resource}
-                      status={status.find((x) => x.resourceId === resource.id)}
-                      connection={deployment.connections[resource.id]}
-                    />
-                  ))}
-                </div>
+                <DeploymentResources
+                  deployment={deployment}
+                  status={status}
+                  isActive={deployment.status === 'Pending' || deployment.status === 'Running'}
+                />
               </div>
             </div>
           )}

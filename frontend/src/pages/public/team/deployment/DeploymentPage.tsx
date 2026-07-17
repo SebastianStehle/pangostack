@@ -7,9 +7,8 @@ import {
   DeploymentInstructions,
   DeploymentLog,
   DeploymentMetricsChart,
-  DeploymentResource,
+  DeploymentResources,
   DeploymentStatus,
-  DeploymentSteps,
   DeploymentUsageChart,
   HealthStatus,
   Icon,
@@ -111,16 +110,6 @@ export const DeploymentPage = () => {
             </div>
           )}
 
-          {(isPending || deployment.status === 'Failed') && (
-            <div>
-              <h2 className="mb-3 flex items-center gap-3 text-xl">
-                <Icon icon="activity" size={16} className="inline-block" /> {texts.deployments.stepsHeadline}
-              </h2>
-
-              <DeploymentSteps deploymentId={deploymentId} isActive={isPending} />
-            </div>
-          )}
-
           <div className="grid grid-cols-3 gap-6">
             <PropertyColumn label="Service Name" value={deployment.serviceName} />
 
@@ -173,16 +162,7 @@ export const DeploymentPage = () => {
               <Icon icon="server" size={16} className="inline-block" /> {texts.deployments.resources}
             </h2>
 
-            <div className="flex flex-col gap-2">
-              {deployment.resources.map((resource) => (
-                <DeploymentResource
-                  key={resource.id}
-                  resource={resource}
-                  status={displayStatus.find((x) => x.resourceId === resource.id)}
-                  connection={deployment.connections[resource.id]}
-                />
-              ))}
-            </div>
+            <DeploymentResources deployment={deployment} status={displayStatus} isActive={isPending} />
           </div>
         </div>
       )}

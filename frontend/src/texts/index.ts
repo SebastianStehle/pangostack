@@ -145,7 +145,6 @@ export const texts = {
     stepAttempt: 'Attempt',
     stepsDeleteAction: 'Remove',
     stepsDeployAction: 'Deploy',
-    stepsHeadline: 'Deployment Progress',
     stepsProgress: (done: number, total: number) => `${done} of ${total} steps completed`,
     totalCors: 'Cores',
     totalFailures: 'Failures',
