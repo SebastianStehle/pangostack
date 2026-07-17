@@ -3,6 +3,9 @@
    "private": true,
    "version": "0.0.0",
    "license": "MIT",
+   "lint-staged": {
+      "*.ts": "eslint --max-warnings 0 --fix"
+   },
    "scripts": {
       "dev": "nest start --watch",
       "mkcert:install": "mkcert --install",
@@ -107,6 +110,7 @@
       "eslint-plugin-import": "^2.29.1",
       "eslint-plugin-prettier": "^5.1.3",
       "jest": "^30.0.5",
+      "lint-staged": "^16.4.0",
       "prettier": "^3.6.2",
       "rimraf": "^6.0.1",
       "source-map-support": "^0.5.21",

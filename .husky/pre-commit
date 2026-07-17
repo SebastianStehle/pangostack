@@ -1,0 +1,9 @@
+set -e
+
+# Each package owns its own lint-staged config (in its package.json), so this
+# just runs lint-staged inside each one. lint-staged only touches files staged
+# within its own directory, so packages with nothing staged are a no-op.
+for pkg in backend frontend worker; do
+  [ -d "$pkg/node_modules" ] || continue
+  (cd "$pkg" && npx --no-install lint-staged)
+done

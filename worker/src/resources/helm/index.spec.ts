@@ -42,6 +42,7 @@ describe('HelmResource', () => {
     (k8s.KubeConfig as unknown as Mock).mockImplementation(function (this: void) {
       return {
         loadFromDefault: vi.fn(),
+        loadFromString: vi.fn(),
         makeApiClient: (api: unknown) => (api === k8s.AppsV1Api ? v1Apps : v1Core),
       };
     });
@@ -57,7 +58,11 @@ describe('HelmResource', () => {
     await resource.delete('My Deployment!', createRequest());
 
     const namespace = 'resource-my-deployment';
-    expect(execa).toHaveBeenCalledWith('helm', ['uninstall', namespace, '--namespace', namespace, '--ignore-not-found']);
+    expect(execa).toHaveBeenCalledWith(
+      'helm',
+      ['uninstall', namespace, '--namespace', namespace, '--ignore-not-found'],
+      expect.objectContaining({ env: expect.anything() }),
+    );
   });
 
   it('should report pods of matching workloads when queried for status', async () => {

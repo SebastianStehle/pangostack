@@ -1,0 +1,13 @@
+{
+  "name": "pangostack",
+  "private": true,
+  "version": "0.0.0",
+  "license": "MIT",
+  "description": "Tooling-only root: git hooks (husky) that run lint --fix on staged files. Each package (backend, frontend, worker) still manages its own dependencies separately.",
+  "scripts": {
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}

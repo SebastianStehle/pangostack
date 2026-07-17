@@ -244,7 +244,6 @@ export class HelmResource implements Resource {
       const namespace = getNamespace(id);
 
       const pods = await k8.v1Core.listNamespacedPod({ namespace });
-
       const total = pods.items.length;
       const ready = pods.items.filter(({ status }) => isPodReady(status)).length;
 
@@ -346,13 +345,13 @@ export class HelmResource implements Resource {
         const waitingFor: string[] = [];
 
         for (const workload of workloads) {
-          const desired = workload.spec?.replicas ?? 1;
-          const workloadReady = Math.min(workload.status?.readyReplicas ?? 0, desired);
+          const workloadDesired = workload.spec?.replicas ?? 1;
+          const workloadReady = Math.min(workload.status?.readyReplicas ?? 0, workloadDesired);
 
-          replicasTotal += desired;
+          replicasTotal += workloadDesired;
           replicasReady += workloadReady;
 
-          if (workloadReady < desired) {
+          if (workloadReady < workloadDesired) {
             waitingFor.push(workload.metadata?.name || 'unknown');
           }
         }
@@ -380,11 +379,12 @@ export class HelmResource implements Resource {
       const tempDir = os.tmpdir();
       const tempPath = path.join(tempDir, `kubeconfig-${uuidv4()}.yaml`);
 
-      // Write the kubeconfig string to the file
+      // The helm CLI subprocess still needs a file on disk (pointed to via KUBECONFIG), but the
+      // k8s client can load the config directly from the string.
       await fs.writeFile(tempPath, config, { encoding: 'utf8' });
       kubeconfigPath = tempPath;
 
-      kc.loadFromFile(tempPath);
+      kc.loadFromString(config);
 
       cleanup = async () => {
         await fs.rm(tempPath);
