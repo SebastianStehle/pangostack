@@ -165,8 +165,7 @@ export const texts = {
   members: {
     addMemberButton: 'Add Member',
     addMemberFailed: 'User not found',
-    addMemberHint:
-      'Add a team member by email. Only existing users can be added.',
+    addMemberHint: 'Add a team member by email. Only existing users can be added.',
     addMemberTitle: 'Add Team Member',
     headline: 'Members',
     memberHints:
