@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "license": "MIT",
+  "lint-staged": {
+    "*.ts": "eslint --max-warnings 0 --fix"
+  },
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\"",
@@ -51,6 +54,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-prettier": "^5.1.3",
+    "lint-staged": "^16.4.0",
     "prettier": "^3.6.2",
     "rimraf": "^6.0.1",
     "source-map-support": "^0.5.21",

@@ -125,7 +125,7 @@ export const DeploymentForm = (props: DeploymentFormProps) => {
             </fieldset>
           </div>
           <div className="w-100">
-            <div className="card card-border bg-base sticky top-4 border-slate-300">
+            <div className="card card-border bg-base sticky top-4 border-gray-300">
               <div className="card-body">
                 <h2 className="card-title text-xl">{texts.deployments.estimatedPrice}</h2>
                 <DeploymentSummary service={service} />

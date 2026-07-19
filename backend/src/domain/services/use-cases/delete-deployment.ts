@@ -1,5 +1,6 @@
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not } from 'typeorm';
 import {
@@ -10,6 +11,8 @@ import {
   WorkerEntity,
   WorkerRepository,
 } from 'src/domain/database';
+import { DeploymentDeletedEvent } from 'src/domain/events';
+import { User } from 'src/domain/users';
 import { WorkflowService } from 'src/domain/workflows';
 import { DeploymentPolicy } from '../policies';
 
@@ -17,6 +20,7 @@ export class DeleteDeployment {
   constructor(
     public readonly deploymentId: number,
     public readonly policy: DeploymentPolicy,
+    public readonly user?: User,
   ) {}
 }
 
@@ -30,10 +34,11 @@ export class DeleteDeploymentHandler implements ICommandHandler<DeleteDeployment
     @InjectRepository(WorkerEntity)
     private readonly workers: WorkerRepository,
     private readonly workflows: WorkflowService,
+    private readonly events: EventEmitter2,
   ) {}
 
   async execute(command: DeleteDeployment): Promise<any> {
-    const { deploymentId, policy } = command;
+    const { deploymentId, policy, user } = command;
 
     const deployment = await this.deployments.findOne({ where: { id: deploymentId }, order: { id: 'DESC' } });
     if (!deployment) {
@@ -61,6 +66,9 @@ export class DeleteDeploymentHandler implements ICommandHandler<DeleteDeployment
 
       await this.workflows.deleteDeployment(deployment.id, lastUpdate);
     }
+
+    const event = new DeploymentDeletedEvent(deployment.teamId, deployment.id, deployment.name, user?.id);
+    this.events.emit(DeploymentDeletedEvent.TYPE, event);
 
     return { deployment };
   }

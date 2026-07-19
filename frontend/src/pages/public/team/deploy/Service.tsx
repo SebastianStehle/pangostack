@@ -29,7 +29,7 @@ export const Service = memo((props: ServiceProps) => {
   return (
     <TransientNavLink
       to={service.id.toString()}
-      className={classNames('card card-border bg-base border-slate-300', {
+      className={classNames('card card-border bg-base border-gray-300', {
         'hover:border-primary group cursor-pointer transition-colors duration-500 ease-in-out': !service.isPreRelease,
       })}
     >
@@ -65,7 +65,7 @@ export const Service = memo((props: ServiceProps) => {
           <div className="w-6">
             {!service.isPreRelease && (
               <Icon
-                className="group-hover:stroke-primary stroke-slate-300 transition-colors duration-500 ease-in-out"
+                className="group-hover:stroke-primary stroke-gray-300 transition-colors duration-500 ease-in-out"
                 icon="chevron-right"
               />
             )}

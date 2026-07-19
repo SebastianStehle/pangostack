@@ -63,7 +63,7 @@ export const DeploymentMetricsChart = (props: DeploymentMetricsChartProps) => {
       {summaryCards.length > 0 && (
         <div className="grid grid-cols-3 gap-4">
           {summaryCards.map((card) => (
-            <div key={card.id} className="stats border-slate-300 shadow-sm">
+            <div key={card.id} className="stats border-gray-300">
               <div className="stat">
                 <div className="stat-title">{card.label}</div>
                 <div className="stat-value text-2xl">{card.value}</div>

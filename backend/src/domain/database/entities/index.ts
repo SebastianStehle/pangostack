@@ -12,6 +12,7 @@ export * from './service-version';
 export * from './service';
 export * from './session';
 export * from './setting';
+export * from './team-activity';
 export * from './team-user';
 export * from './team';
 export * from './user-group';

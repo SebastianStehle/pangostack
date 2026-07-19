@@ -25,6 +25,7 @@ import type {
   DeploymentLogsDto,
   DeploymentMetricsDto,
   DeploymentStatusDto,
+  DeploymentStepsDto,
   DeploymentUsageSummariesDto,
   DeploymentsDto,
   UpdateDeploymentDto,
@@ -44,6 +45,8 @@ import {
     DeploymentMetricsDtoToJSON,
     DeploymentStatusDtoFromJSON,
     DeploymentStatusDtoToJSON,
+    DeploymentStepsDtoFromJSON,
+    DeploymentStepsDtoToJSON,
     DeploymentUsageSummariesDtoFromJSON,
     DeploymentUsageSummariesDtoToJSON,
     DeploymentsDtoFromJSON,
@@ -89,6 +92,10 @@ export interface GetDeploymentMetricsRequest {
 }
 
 export interface GetDeploymentStatusRequest {
+    deploymentId: number;
+}
+
+export interface GetDeploymentStepsRequest {
     deploymentId: number;
 }
 
@@ -452,6 +459,42 @@ export class DeploymentsApi extends runtime.BaseAPI {
      */
     async getDeploymentStatus(deploymentId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentStatusDto> {
         const response = await this.getDeploymentStatusRaw({ deploymentId: deploymentId }, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Gets the steps of the most recent deployment update.
+     * 
+     */
+    async getDeploymentStepsRaw(requestParameters: GetDeploymentStepsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeploymentStepsDto>> {
+        if (requestParameters.deploymentId === null || requestParameters.deploymentId === undefined) {
+            throw new runtime.RequiredError('deploymentId','Required parameter requestParameters.deploymentId was null or undefined when calling getDeploymentSteps.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/api/deployments/{deploymentId}/steps`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => DeploymentStepsDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Gets the steps of the most recent deployment update.
+     * 
+     */
+    async getDeploymentSteps(deploymentId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentStepsDto> {
+        const response = await this.getDeploymentStepsRaw({ deploymentId: deploymentId }, initOverrides);
         return await response.value();
     }
 

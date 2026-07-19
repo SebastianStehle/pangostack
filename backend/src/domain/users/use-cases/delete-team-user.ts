@@ -1,9 +1,9 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TeamEntity, TeamRepository, TeamUserEntity, TeamUserRepository } from 'src/domain/database';
-import { NotificationsService } from 'src/domain/notifications';
-import { Topics } from 'src/domain/notifications/topics';
+import { MemberRemovedEvent } from 'src/domain/events';
 import { Team, User } from '../interfaces';
 import { buildTeam } from './utils';
 
@@ -24,7 +24,7 @@ export class DeleteTeamUserResult {
 @CommandHandler(DeleteTeamUser)
 export class DeleteTeamUserHandler implements ICommandHandler<DeleteTeamUser, DeleteTeamUserResult> {
   constructor(
-    private readonly notifications: NotificationsService,
+    private readonly events: EventEmitter2,
     @InjectRepository(TeamEntity)
     private readonly teams: TeamRepository,
     @InjectRepository(TeamUserEntity)
@@ -50,9 +50,8 @@ export class DeleteTeamUserHandler implements ICommandHandler<DeleteTeamUser, De
 
     const withUsers = await this.teams.findOneOrFail({ where: { id: teamId }, relations: ['users', 'users.user'] });
 
-    // This method will catch exceptions.
-    await this.notifications.unsubscribe(user.id, Topics.team(team.id));
-    await this.notifications.notify(Topics.team(team.id), 'TEAM_USER_REMOVED', { team: team.name });
+    // The event logs the activity, unsubscribes the user and notifies the team members via the listeners.
+    this.events.emit(MemberRemovedEvent.TYPE, new MemberRemovedEvent(team.id, userId, team.name, user.id));
 
     return new DeleteTeamUserResult(buildTeam(withUsers));
   }

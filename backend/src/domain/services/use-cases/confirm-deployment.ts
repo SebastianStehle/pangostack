@@ -1,5 +1,6 @@
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not } from 'typeorm';
 import { BillingService } from 'src/domain/billing';
@@ -11,6 +12,7 @@ import {
   WorkerEntity,
   WorkerRepository,
 } from 'src/domain/database';
+import { DeploymentConfirmedEvent, SubscriptionCreatedEvent } from 'src/domain/events';
 import { WorkflowService } from 'src/domain/workflows';
 
 export class ConfirmDeployment {
@@ -32,6 +34,7 @@ export class ConfirmDeploymentHandler implements ICommandHandler<ConfirmDeployme
     @InjectRepository(WorkerEntity)
     private readonly workers: WorkerRepository,
     private readonly workflows: WorkflowService,
+    private readonly events: EventEmitter2,
   ) {}
 
   async execute(command: ConfirmDeployment): Promise<any> {
@@ -68,5 +71,9 @@ export class ConfirmDeploymentHandler implements ICommandHandler<ConfirmDeployme
     }
 
     await this.workflows.createDeployment(deployment.id, lastUpdate, null);
+
+    // The confirmation happens through a payment provider redirect, so there is no acting user.
+    this.events.emit(SubscriptionCreatedEvent.TYPE, new SubscriptionCreatedEvent(teamId, deployment.id, deployment.name));
+    this.events.emit(DeploymentConfirmedEvent.TYPE, new DeploymentConfirmedEvent(teamId, deployment.id, deployment.name));
   }
 }

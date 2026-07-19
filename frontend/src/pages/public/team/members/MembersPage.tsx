@@ -44,15 +44,26 @@ export const MembersPage = () => {
         <div className="h-10"></div>
       </div>
 
-      <div role="alert" className="alert alert-info mb-4">
+      <table className="table">
+        <thead>
+          <tr>
+            <th>{texts.common.email}</th>
+            <th>{texts.common.added}</th>
+            <th>{texts.members.role}</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {members.map((member) => (
+            <Member key={member.user.id} member={member} profile={profile} onRemove={deleting.mutate} />
+          ))}
+        </tbody>
+      </table>
+
+      <div role="alert" className="alert mt-2">
         <Icon icon="info" />
         <span>{texts.members.memberHints}</span>
-      </div>
-
-      <div className="flex flex-col gap-2">
-        {members.map((member) => (
-          <Member key={member.user.id} member={member} profile={profile} onRemove={deleting.mutate} />
-        ))}
       </div>
 
       <h3 className="mt-6 mb-2 text-xl">{texts.members.addMemberTitle}</h3>

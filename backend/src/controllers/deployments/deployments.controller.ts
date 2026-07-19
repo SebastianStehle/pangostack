@@ -247,7 +247,7 @@ export class DeploymentsController {
   @UseGuards(RoleGuard)
   async deleteDeployment(@Req() req: Request, @IntParam('deploymentId') deploymentId: number) {
     const policy = await this.getPolicy(req.user);
-    const command = new DeleteDeployment(deploymentId, policy);
+    const command = new DeleteDeployment(deploymentId, policy, req.user);
 
     await this.commandBus.execute(command);
   }
@@ -262,7 +262,7 @@ export class DeploymentsController {
   ) {
     await this.commandBus.execute(new ConfirmDeployment(teamId, deploymentId, token));
 
-    if (redirectUrl && !this.urlService.isValidRedirectUrl(redirectUrl)) {
+    if (redirectUrl && this.urlService.isValidRedirectUrl(redirectUrl)) {
       return Redirect(redirectUrl);
     } else {
       return Redirect('/');
@@ -278,7 +278,7 @@ export class DeploymentsController {
   ) {
     await this.commandBus.execute(new CancelDeployment(deploymentId, token));
 
-    if (redirectUrl && !this.urlService.isValidRedirectUrl(redirectUrl)) {
+    if (redirectUrl && this.urlService.isValidRedirectUrl(redirectUrl)) {
       return Redirect(redirectUrl);
     } else {
       return Redirect('/');
@@ -286,7 +286,7 @@ export class DeploymentsController {
   }
 
   async getPolicy(user: User) {
-    if (user.roles?.indexOf(BUILTIN_USER_GROUP_ADMIN)) {
+    if (user.userGroupId === BUILTIN_USER_GROUP_ADMIN) {
       return new AllowAllDeploymentPolicy();
     }
 

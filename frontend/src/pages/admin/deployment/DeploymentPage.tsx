@@ -11,7 +11,7 @@ import {
   DeploymentInstructions,
   DeploymentLog,
   DeploymentMetricsChart,
-  DeploymentResource,
+  DeploymentResources,
   DeploymentStatus,
   DeploymentUsageChart,
   HealthStatus,
@@ -96,7 +96,7 @@ export const DeploymentPage = () => {
 
       <div className="card bg-base-100 shadow">
         <div className="card-body">
-          <div className="-mx-6 mb-8 border-b border-gray-200 px-4">
+          <div className="-mx-6 mb-8 border-b border-gray-300 px-4">
             <div role="tablist" className="tabs tabs-lg text-mdx tabs-border">
               <a
                 role="tab"
@@ -170,7 +170,7 @@ export const DeploymentPage = () => {
                   <h2 className="mb-3 flex items-center gap-3 text-xl">
                     <Icon icon="info" size={16} className="inline-block" /> {texts.common.instructions}
                   </h2>
-                  <div className="card card-border bg-base border-slate-300">
+                  <div className="card card-border bg-base border-gray-300">
                     <div className="card-body">
                       <DeploymentInstructions deployment={deployment} text={service.afterInstallationInstructions} />
                     </div>
@@ -183,16 +183,11 @@ export const DeploymentPage = () => {
                   <Icon icon="server" size={16} className="inline-block" /> {texts.deployments.resources}
                 </h2>
 
-                <div className="flex flex-col gap-2">
-                  {deployment.resources.map((resource) => (
-                    <DeploymentResource
-                      key={resource.id}
-                      resource={resource}
-                      status={status.find((x) => x.resourceId === resource.id)}
-                      connection={deployment.connections[resource.id]}
-                    />
-                  ))}
-                </div>
+                <DeploymentResources
+                  deployment={deployment}
+                  status={status}
+                  isActive={deployment.status === 'Pending' || deployment.status === 'Running'}
+                />
               </div>
             </div>
           )}

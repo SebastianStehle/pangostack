@@ -5,6 +5,7 @@ import { useClients } from 'src/api';
 import { TransientNavLink } from 'src/components';
 import { useTypedParams } from 'src/hooks';
 import { texts } from 'src/texts';
+import { ActivityPage } from './activity/ActivityPage';
 import { BillingPage } from './billing/BillingPage';
 import { DeployPage } from './deploy/DeployPage';
 import { DeployServicesPage } from './deploy/DeployServicesPage';
@@ -55,6 +56,14 @@ export const TeamPage = () => {
             {texts.members.headline}
           </TransientNavLink>
         </li>
+        <li>
+          <TransientNavLink
+            className={({ isActive }) => classNames('text-primary-content text-lg opacity-70', { 'opacity-100': isActive })}
+            to="activity"
+          >
+            {texts.activities.headline}
+          </TransientNavLink>
+        </li>
         <li className="hidden">
           <TransientNavLink
             className={({ isActive }) => classNames('text-primary-content text-lg opacity-70', { 'opacity-100': isActive })}
@@ -68,6 +77,7 @@ export const TeamPage = () => {
       <div className="card mb-8 rounded-[20px] border-10 border-black/20 shadow-xl">
         <div className="card-body rounded-[12px] bg-white p-8">
           <Routes>
+            <Route path="activity" element={<ActivityPage />} />
             <Route path="billing" element={<BillingPage />} />
             <Route path="deployments" element={<DeploymentsPage />} />
             <Route path="deployments/:deploymentId" element={<DeploymentPage />} />

@@ -1,4 +1,14 @@
 export const texts = {
+  activities: {
+    date: 'Date',
+    empty: 'No activity yet',
+    emptyText: 'Activities are logged when you or your team members make changes.',
+    event: 'Event',
+    headline: 'Activity',
+    system: 'System',
+    user: 'User',
+    viewDeployment: 'View Deployment',
+  },
   common: {
     added: 'Added',
     administration: 'Administration',
@@ -135,7 +145,6 @@ export const texts = {
     stepAttempt: 'Attempt',
     stepsDeleteAction: 'Remove',
     stepsDeployAction: 'Deploy',
-    stepsHeadline: 'Deployment Progress',
     stepsProgress: (done: number, total: number) => `${done} of ${total} steps completed`,
     totalCors: 'Cores',
     totalFailures: 'Failures',
@@ -155,14 +164,14 @@ export const texts = {
   members: {
     addMemberButton: 'Add Member',
     addMemberFailed: 'User not found',
-    addMemberHint:
-      'Add a new team member with their respective email address. Only existing users will be added to your team. Notifications email are not sent at the moment.',
+    addMemberHint: 'Add a team member by email. Only existing users can be added.',
     addMemberTitle: 'Add Team Member',
     headline: 'Members',
     memberHints:
       'Team members do not have direct access to the deployed services, but they can update deployments or change billing information.',
     removeConfirmText: 'Do you really want to remove the Member?',
     removeConfirmTitle: 'Remove Member',
+    role: 'Role',
   },
   services: {
     create: 'New Service',
