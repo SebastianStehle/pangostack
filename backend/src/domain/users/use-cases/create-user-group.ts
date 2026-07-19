@@ -5,7 +5,7 @@ import { saveAndFind } from 'src/lib';
 import { UserGroup } from '../interfaces';
 import { buildUserGroup } from './utils';
 
-type Values = Pick<UserGroup, 'name'>;
+type Values = Pick<UserGroup, 'name'> & { id?: string };
 
 export class CreateUserGroup extends Command<CreateUserGroupResult> {
   constructor(public readonly values: Values) {
@@ -26,9 +26,9 @@ export class CreateUserGroupHandler implements ICommandHandler<CreateUserGroup, 
 
   async execute(request: CreateUserGroup): Promise<CreateUserGroupResult> {
     const { values } = request;
-    const { name } = values;
+    const { id, name } = values;
 
-    const userGroup = await saveAndFind(this.userGroups, { name });
+    const userGroup = await saveAndFind(this.userGroups, { id, name });
 
     return new CreateUserGroupResult(buildUserGroup(userGroup));
   }

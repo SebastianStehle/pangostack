@@ -15,7 +15,7 @@ export class DeploymentCheckEntity {
   @JoinColumn({ name: 'deploymentId' })
   deployment: DeploymentEntity;
 
-  @Column({ length: 10 })
+  @Column({ type: 'varchar', length: 10 })
   status: DeploymentCheckStatus = 'Failed';
 
   @Column({ length: 512, nullable: true })

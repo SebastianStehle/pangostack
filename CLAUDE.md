@@ -72,6 +72,8 @@ The corresponding server must be running before regenerating a client. After cha
 * Do not use lightgray for normal text as it is difficult to read.
 * Do not use reduce on array, write it manually.
 * Do not write queries manually when using repositories to stay independent from the actual database.
+* Do not omit brackets, e.g. `afterAll(() => context.close());`
+* Move shared code in tests to `beforeEach` or `beforeAll`
 * Only write comments to explain the why, not what the code does.
 * Rely on prettier for formatting.
 * Reuse TestContainers when possible, do not spin them up for every single test.

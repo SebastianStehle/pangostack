@@ -38,10 +38,10 @@ export class DeploymentUpdateStepEntity {
   @Column({ length: 100 })
   resourceName: string;
 
-  @Column({ length: 20, default: 'Deploy' })
+  @Column({ type: 'varchar', length: 20, default: 'Deploy' })
   action: DeploymentStepAction = 'Deploy';
 
-  @Column({ length: 20, default: 'Pending' })
+  @Column({ type: 'varchar', length: 20, default: 'Pending' })
   status: DeploymentStepStatus = 'Pending';
 
   @Column({ default: 0 })
