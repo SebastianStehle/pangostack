@@ -3,11 +3,20 @@
   "private": true,
   "version": "0.0.0",
   "license": "MIT",
-  "description": "Tooling-only root: git hooks (husky) that run lint --fix on staged files. Each package (backend, frontend, worker) still manages its own dependencies separately.",
+  "description": "Tooling-only root: git hooks (husky) that run lint --fix on staged files, plus dev scripts that start the docker compose infrastructure and all three dev servers. Each package (backend, frontend, worker) still manages its own dependencies separately.",
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "dev": "npm run dev:infra && concurrently -n temporal,backend,worker,frontend -c yellow,blue,magenta,green --kill-others-on-fail \"npm:dev:temporal\" \"npm:dev:backend\" \"npm:dev:worker\" \"npm:dev:frontend\"",
+    "dev:infra": "docker compose -f dev/pango/docker-compose.yml up -d --wait postgresql pgadmin",
+    "dev:infra:down": "docker compose -f dev/pango/docker-compose.yml down",
+    "dev:temporal": "npm --prefix backend run temporal-dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:worker": "npm --prefix worker run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "install:all": "npm install && npm --prefix backend install && npm --prefix worker install && npm --prefix frontend install"
   },
   "devDependencies": {
+    "concurrently": "^10.0.3",
     "husky": "^9.1.7"
   }
 }

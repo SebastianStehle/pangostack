@@ -1,5 +1,6 @@
 .openapi-generator-ignore
 apis/DeploymentApi.ts
+apis/PingApi.ts
 apis/ResourcesApi.ts
 apis/StatusApi.ts
 apis/index.ts
@@ -11,6 +12,7 @@ models/LogRequestDto.ts
 models/LogResultDto.ts
 models/MetricsRequestDto.ts
 models/MetricsResultDto.ts
+models/PingResultDto.ts
 models/ResourceApplyResponseDto.ts
 models/ResourceLogDto.ts
 models/ResourceMetricDto.ts

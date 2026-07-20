@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DeploymentController } from './controllers/deployment/deployment.controller';
+import { PingController } from './controllers/ping/ping.controller';
 import { ResourcesController } from './controllers/resources/resources.controller';
 import { StatusController } from './controllers/status/status.controller';
 import { DockerComposeSshResource } from './resources/docker-compose-ssh';
@@ -10,7 +11,7 @@ import { VultrVmResource } from './resources/vultr-vm';
 
 @Module({
   imports: [],
-  controllers: [DeploymentController, ResourcesController, StatusController],
+  controllers: [DeploymentController, PingController, ResourcesController, StatusController],
   providers: [
     DockerComposeSshResource,
     HelmResource,

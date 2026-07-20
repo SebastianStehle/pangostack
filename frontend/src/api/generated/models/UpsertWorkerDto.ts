@@ -19,58 +19,49 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface WorkerDto
+ * @interface UpsertWorkerDto
  */
-export interface WorkerDto {
-    /**
-     * The ID of the worker.
-     * @type {number}
-     * @memberof WorkerDto
-     */
-    id: number;
+export interface UpsertWorkerDto {
     /**
      * The endpoint of the worker.
      * @type {string}
-     * @memberof WorkerDto
+     * @memberof UpsertWorkerDto
      */
     endpoint: string;
     /**
-     * Indicates if an API key has been configured. The key itself is never exposed.
-     * @type {boolean}
-     * @memberof WorkerDto
+     * The API key to authenticate against the worker. Keeps the current key when not defined.
+     * @type {string}
+     * @memberof UpsertWorkerDto
      */
-    hasApiKey: boolean;
+    apiKey?: string;
 }
 
 /**
- * Check if a given object implements the WorkerDto interface.
+ * Check if a given object implements the UpsertWorkerDto interface.
  */
-export function instanceOfWorkerDto(value: object): boolean {
+export function instanceOfUpsertWorkerDto(value: object): boolean {
     let isInstance = true;
-    isInstance = isInstance && "id" in value;
     isInstance = isInstance && "endpoint" in value;
-    isInstance = isInstance && "hasApiKey" in value;
 
     return isInstance;
 }
 
-export function WorkerDtoFromJSON(json: any): WorkerDto {
-    return WorkerDtoFromJSONTyped(json, false);
+export function UpsertWorkerDtoFromJSON(json: any): UpsertWorkerDto {
+    return UpsertWorkerDtoFromJSONTyped(json, false);
 }
 
-export function WorkerDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): WorkerDto {
+export function UpsertWorkerDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): UpsertWorkerDto {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
-        'id': json['id'],
         'endpoint': json['endpoint'],
-        'hasApiKey': json['hasApiKey'],
+        'apiKey': !exists(json, 'apiKey') ? undefined : json['apiKey'],
     };
 }
 
-export function WorkerDtoToJSON(value?: WorkerDto | null): any {
+export function UpsertWorkerDtoToJSON(value?: UpsertWorkerDto | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -79,9 +70,8 @@ export function WorkerDtoToJSON(value?: WorkerDto | null): any {
     }
     return {
         
-        'id': value.id,
         'endpoint': value.endpoint,
-        'hasApiKey': value.hasApiKey,
+        'apiKey': value.apiKey,
     };
 }
 

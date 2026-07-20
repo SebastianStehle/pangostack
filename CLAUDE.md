@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Pangostack is a deployment platform for SaaS providers: customers self-deploy SaaS instances from declarative deployment definitions (JSON/YAML), with billing integration (Chargebee). It consists of three independent npm packages (no root package.json / workspaces — run `npm install` and scripts in each folder separately):
+Pangostack is a deployment platform for SaaS providers: customers self-deploy SaaS instances from declarative deployment definitions (JSON/YAML), with billing integration (Chargebee). It consists of three independent npm packages — each manages its own dependencies, so run `npm install` in each folder separately. The root package.json is tooling-only (husky, plus the `dev` convenience scripts below); it is not an npm workspace:
 
 - **backend/** — NestJS API (port 3000, HTTPS in dev). Manages services, deployments, teams/users, billing, and orchestrates deployments via Temporal workflows.
 - **worker/** — NestJS microservice (port 3100, HTTP). Provisions actual infrastructure resources (Vultr VMs, Vultr S3, Docker Compose over SSH, Helm). Called by the backend over REST.
@@ -13,6 +13,10 @@ Pangostack is a deployment platform for SaaS providers: customers self-deploy Sa
 The administrator creates a service definition using yaml syntax to define the resource and dependencies. Examples are in the `config` folder.
 
 ## Commands
+
+From the repo root, `npm run install:all` installs the dependencies of the root and all three packages. `npm run dev` then starts the whole stack: it brings up Postgres and pgadmin via docker compose and waits until Postgres is healthy, then runs Temporal (`temporal server start-dev`), the backend, the worker and the frontend concurrently with prefixed output. Related root scripts: `dev:infra` (infrastructure only), `dev:infra:down` (stop it), and `dev:temporal` / `dev:backend` / `dev:worker` / `dev:frontend` (a single process).
+
+Temporal comes from the CLI, not from compose — `dev:infra` deliberately starts only `postgresql` and `pgadmin`, because the compose `temporal` and `temporal-ui` services would occupy ports 7233/8233 and conflict with `start-dev`. Note that `start-dev` keeps its state in memory, so workflow history is lost on restart; add `--db-filename` to the backend's `temporal-dev` script if you need it to persist.
 
 Each package: `npm run dev` (watch mode), `npm run build`, `npm run lint` / `npm run lint:fix` (eslint, `--max-warnings 0`), `npm run format` (prettier).
 

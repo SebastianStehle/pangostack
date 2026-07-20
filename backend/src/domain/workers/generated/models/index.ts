@@ -9,6 +9,7 @@ export * from './LogRequestDto';
 export * from './LogResultDto';
 export * from './MetricsRequestDto';
 export * from './MetricsResultDto';
+export * from './PingResultDto';
 export * from './ResourceApplyResponseDto';
 export * from './ResourceLogDto';
 export * from './ResourceMetricDto';

@@ -16,49 +16,63 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { WorkerStatusDto } from './WorkerStatusDto';
+import {
+    WorkerStatusDtoFromJSON,
+    WorkerStatusDtoFromJSONTyped,
+    WorkerStatusDtoToJSON,
+} from './WorkerStatusDto';
+
 /**
  * 
  * @export
- * @interface WorkerDto
+ * @interface WorkerWithStatusDto
  */
-export interface WorkerDto {
+export interface WorkerWithStatusDto {
     /**
      * The ID of the worker.
      * @type {number}
-     * @memberof WorkerDto
+     * @memberof WorkerWithStatusDto
      */
     id: number;
     /**
      * The endpoint of the worker.
      * @type {string}
-     * @memberof WorkerDto
+     * @memberof WorkerWithStatusDto
      */
     endpoint: string;
     /**
      * Indicates if an API key has been configured. The key itself is never exposed.
      * @type {boolean}
-     * @memberof WorkerDto
+     * @memberof WorkerWithStatusDto
      */
     hasApiKey: boolean;
+    /**
+     * 
+     * @type {WorkerStatusDto}
+     * @memberof WorkerWithStatusDto
+     */
+    status: WorkerStatusDto;
 }
 
 /**
- * Check if a given object implements the WorkerDto interface.
+ * Check if a given object implements the WorkerWithStatusDto interface.
  */
-export function instanceOfWorkerDto(value: object): boolean {
+export function instanceOfWorkerWithStatusDto(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "id" in value;
     isInstance = isInstance && "endpoint" in value;
     isInstance = isInstance && "hasApiKey" in value;
+    isInstance = isInstance && "status" in value;
 
     return isInstance;
 }
 
-export function WorkerDtoFromJSON(json: any): WorkerDto {
-    return WorkerDtoFromJSONTyped(json, false);
+export function WorkerWithStatusDtoFromJSON(json: any): WorkerWithStatusDto {
+    return WorkerWithStatusDtoFromJSONTyped(json, false);
 }
 
-export function WorkerDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): WorkerDto {
+export function WorkerWithStatusDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): WorkerWithStatusDto {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -67,10 +81,11 @@ export function WorkerDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean):
         'id': json['id'],
         'endpoint': json['endpoint'],
         'hasApiKey': json['hasApiKey'],
+        'status': WorkerStatusDtoFromJSON(json['status']),
     };
 }
 
-export function WorkerDtoToJSON(value?: WorkerDto | null): any {
+export function WorkerWithStatusDtoToJSON(value?: WorkerWithStatusDto | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -82,6 +97,7 @@ export function WorkerDtoToJSON(value?: WorkerDto | null): any {
         'id': value.id,
         'endpoint': value.endpoint,
         'hasApiKey': value.hasApiKey,
+        'status': WorkerStatusDtoToJSON(value.status),
     };
 }
 

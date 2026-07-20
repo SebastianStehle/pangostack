@@ -4,6 +4,7 @@ import {
   Configuration,
   DeploymentApi,
   FetchError,
+  PingApi,
   RequiredError,
   ResourceApplyResponseDto,
   ResourcesApi,
@@ -34,6 +35,7 @@ export type ResourceApplyStreamRequest = {
 
 export class WorkerClient {
   public readonly deployment: DeploymentApi;
+  public readonly ping: PingApi;
   public readonly resources: ResourcesApi;
   public readonly status: StatusApi;
 
@@ -68,6 +70,7 @@ export class WorkerClient {
     });
 
     this.deployment = new DeploymentApi(configuration);
+    this.ping = new PingApi(configuration);
     this.resources = new ResourcesApi(configuration);
     this.status = new StatusApi(configuration);
   }

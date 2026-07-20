@@ -23,13 +23,19 @@ services:
       - 5432:5432
     volumes:
       - /var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d pango']
+      interval: 5s
+      timeout: 5s
+      retries: 10
     restart: unless-stopped
 
   temporal:
     container_name: temporal
     image: temporalio/auto-setup:1.28.1
     depends_on:
-      - postgresql
+      postgresql:
+        condition: service_healthy
     environment:
       DB_PORT: 5432
       DB: postgres12

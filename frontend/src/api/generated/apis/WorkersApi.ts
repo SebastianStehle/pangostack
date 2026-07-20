@@ -19,19 +19,73 @@
 import * as runtime from '../runtime';
 import type {
   ResourceTypesDto,
+  UpsertWorkerDto,
+  WorkerDto,
   WorkersDto,
 } from '../models/index';
 import {
     ResourceTypesDtoFromJSON,
     ResourceTypesDtoToJSON,
+    UpsertWorkerDtoFromJSON,
+    UpsertWorkerDtoToJSON,
+    WorkerDtoFromJSON,
+    WorkerDtoToJSON,
     WorkersDtoFromJSON,
     WorkersDtoToJSON,
 } from '../models/index';
+
+export interface DeleteWorkerRequest {
+    id: number;
+}
+
+export interface PostWorkerRequest {
+    upsertWorkerDto: UpsertWorkerDto;
+}
+
+export interface PutWorkerRequest {
+    id: number;
+    upsertWorkerDto: UpsertWorkerDto;
+}
 
 /**
  * 
  */
 export class WorkersApi extends runtime.BaseAPI {
+
+    /**
+     * Deletes a worker.
+     * 
+     */
+    async deleteWorkerRaw(requestParameters: DeleteWorkerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling deleteWorker.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/api/workers/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Deletes a worker.
+     * 
+     */
+    async deleteWorker(id: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.deleteWorkerRaw({ id: id }, initOverrides);
+    }
 
     /**
      * Gets the available resource types.
@@ -94,6 +148,88 @@ export class WorkersApi extends runtime.BaseAPI {
      */
     async getWorkers(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<WorkersDto> {
         const response = await this.getWorkersRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates a worker.
+     * 
+     */
+    async postWorkerRaw(requestParameters: PostWorkerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<WorkerDto>> {
+        if (requestParameters.upsertWorkerDto === null || requestParameters.upsertWorkerDto === undefined) {
+            throw new runtime.RequiredError('upsertWorkerDto','Required parameter requestParameters.upsertWorkerDto was null or undefined when calling postWorker.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/api/workers`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: UpsertWorkerDtoToJSON(requestParameters.upsertWorkerDto),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => WorkerDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Creates a worker.
+     * 
+     */
+    async postWorker(upsertWorkerDto: UpsertWorkerDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<WorkerDto> {
+        const response = await this.postWorkerRaw({ upsertWorkerDto: upsertWorkerDto }, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Updates a worker.
+     * 
+     */
+    async putWorkerRaw(requestParameters: PutWorkerRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<WorkerDto>> {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling putWorker.');
+        }
+
+        if (requestParameters.upsertWorkerDto === null || requestParameters.upsertWorkerDto === undefined) {
+            throw new runtime.RequiredError('upsertWorkerDto','Required parameter requestParameters.upsertWorkerDto was null or undefined when calling putWorker.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/api/workers/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: UpsertWorkerDtoToJSON(requestParameters.upsertWorkerDto),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => WorkerDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Updates a worker.
+     * 
+     */
+    async putWorker(id: number, upsertWorkerDto: UpsertWorkerDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<WorkerDto> {
+        const response = await this.putWorkerRaw({ id: id, upsertWorkerDto: upsertWorkerDto }, initOverrides);
         return await response.value();
     }
 
