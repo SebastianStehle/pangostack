@@ -1,9 +1,9 @@
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TeamEntity, TeamRepository, TeamUserEntity } from 'src/domain/database';
-import { NotificationsService } from 'src/domain/notifications';
-import { Topics } from 'src/domain/notifications/topics';
+import { MemberAddedEvent } from 'src/domain/events';
 import { saveAndFind } from 'src/lib';
 import { Team, User } from '../interfaces';
 import { buildTeam } from './utils';
@@ -26,7 +26,7 @@ export class CreateTeamResult {
 @CommandHandler(CreateTeam)
 export class CreateTeamHandler implements ICommandHandler<CreateTeam, CreateTeamResult> {
   constructor(
-    private readonly notifications: NotificationsService,
+    private readonly events: EventEmitter2,
     @InjectRepository(TeamEntity)
     private readonly teams: TeamRepository,
     @InjectRepository(TeamUserEntity)
@@ -49,8 +49,8 @@ export class CreateTeamHandler implements ICommandHandler<CreateTeam, CreateTeam
 
     const withUsers = await this.teams.findOneOrFail({ where: { id: team.id }, relations: ['users', 'users.user'] });
 
-    // This method will catch exceptions.
-    await this.notifications.subscribe(user.id, Topics.team(team.id));
+    // The event subscribes the creator and notifies the team members via the listeners.
+    this.events.emit(MemberAddedEvent.TYPE, new MemberAddedEvent(team.id, user.email, team.name, user.id));
 
     return new CreateTeamResult(buildTeam(withUsers));
   }

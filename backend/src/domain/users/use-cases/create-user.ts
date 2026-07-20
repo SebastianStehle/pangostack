@@ -6,7 +6,7 @@ import { NotificationsService } from 'src/domain/notifications';
 import { User } from '../interfaces';
 import { buildUser } from './utils';
 
-type Values = Pick<User, 'apiKey' | 'email' | 'name' | 'roles' | 'userGroupId'> & { password?: string };
+type Values = Pick<User, 'apiKey' | 'email' | 'name' | 'roles' | 'userGroupId'> & { id?: string; password?: string };
 
 export class CreateUser extends Command<CreateUserResult> {
   constructor(public readonly values: Values) {
@@ -28,9 +28,10 @@ export class CreateUserHandler implements ICommandHandler<CreateUser, CreateUser
 
   async execute(request: CreateUser): Promise<CreateUserResult> {
     const { values } = request;
-    const { apiKey, email, name, password, roles, userGroupId } = values;
+    const { id, apiKey, email, name, password, roles, userGroupId } = values;
 
     const user = this.users.create({
+      id,
       apiKey,
       email,
       name,

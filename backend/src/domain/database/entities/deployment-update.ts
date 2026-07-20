@@ -41,7 +41,7 @@ export class DeploymentUpdateEntity {
   @Column('simple-json')
   log: Record<string, string> = {};
 
-  @Column({ length: 20, default: 'Pending' })
+  @Column({ type: 'varchar', length: 20, default: 'Pending' })
   status: DeploymentUpdateStatus = 'Pending';
 
   @Column('text', { nullable: true })
