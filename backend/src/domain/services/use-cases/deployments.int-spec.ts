@@ -25,6 +25,7 @@ import {
   ServiceVersionEntity,
   WorkerEntity,
 } from 'src/domain/database';
+import { WorkerResolver } from 'src/domain/workers';
 import { WorkflowService } from 'src/domain/workflows';
 import { UrlService } from 'src/lib';
 import { AllowAllDeploymentPolicy, AllowTeamDeploymentPolicy } from '../policies';
@@ -119,6 +120,7 @@ describe('deployments handlers', () => {
         CancelDeploymentHandler,
         UpdateDeploymentHandler,
         DeleteDeploymentHandler,
+        WorkerResolver,
         { provide: WorkflowService, useValue: workflows },
         { provide: BillingService, useValue: billing },
         { provide: UrlService, useValue: urlService },

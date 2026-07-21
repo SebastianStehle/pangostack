@@ -8,15 +8,13 @@ import {
 } from 'src/domain/database';
 import { evaluateParameters, evaluatePrices, evaluateUsage } from 'src/domain/definitions';
 import { getEvaluationContext, getResourceUniqueId } from 'src/domain/services';
-import { WorkerClient } from 'src/domain/workers';
+import { UsageResultDto, WorkerResolver } from 'src/domain/workers';
 import { Activity } from '../registration';
 
 export type TrackDeploymentUsageParam = {
   deploymentId: number;
   trackDate: string;
   trackHour: number;
-  workerApiKey?: string;
-  workerEndpoint: string;
 };
 
 @Activity(trackDeploymentUsage)
@@ -26,9 +24,10 @@ export class TrackDeploymentUsageActivity implements Activity<TrackDeploymentUsa
     private readonly deploymentUpdates: DeploymentUpdateRepository,
     @InjectRepository(DeploymentUsageEntity)
     private readonly deploymentUsages: DeploymentUsageRepository,
+    private readonly workerResolver: WorkerResolver,
   ) {}
 
-  async execute({ deploymentId, trackDate, trackHour, workerApiKey, workerEndpoint }: TrackDeploymentUsageParam) {
+  async execute({ deploymentId, trackDate, trackHour }: TrackDeploymentUsageParam) {
     const updates = await this.deploymentUpdates.find({
       where: { deploymentId },
       order: { id: 'DESC' },
@@ -47,20 +46,37 @@ export class TrackDeploymentUsageActivity implements Activity<TrackDeploymentUsa
     }
 
     const { context, definition } = getEvaluationContext(update);
-    const client = new WorkerClient(workerEndpoint, workerApiKey);
+    const workers = await this.workerResolver.getWorkers();
 
-    const usageFromWorker = await client.status.postUsage({
-      resources: definition.resources.map((resource) => ({
-        parameters: evaluateParameters(resource, context),
-        resourceContext: update.resourceContexts[resource.id] || {},
-        resourceUniqueId: getResourceUniqueId(deploymentId, resource),
-        resourceType: resource.type,
-        timeoutMs: 1 * 60 * 1000, // 1 minute
-      })),
-    });
+    const responses: UsageResultDto[] = [];
+    for (const resource of definition.resources) {
+      const worker = workers.get(resource.type);
+      if (!worker) {
+        // Do not log missing workers. It would flood the log with entries.
+        continue;
+      }
+      responses.push(
+        await worker.client.status.postUsage({
+          resources: [
+            {
+              parameters: evaluateParameters(resource, context),
+              resourceContext: update.resourceContexts[resource.id] || {},
+              resourceUniqueId: getResourceUniqueId(deploymentId, resource),
+              resourceType: resource.type,
+              timeoutMs: 1 * 60 * 1000, // 1 minute
+            },
+          ],
+        }),
+      );
+    }
 
     // The storage needs to be measured directly from the provider.
-    const totalStorageGB = usageFromWorker.resources.reduce((a, c) => a + c.totalStorageGB, 0);
+    let totalStorageGB = 0;
+    for (const { resources } of responses) {
+      for (const resource of resources) {
+        totalStorageGB += resource.totalStorageGB;
+      }
+    }
 
     // Sums up all prices in the definition.
     const totalPrices = evaluatePrices(update.serviceVersion.definition, context);

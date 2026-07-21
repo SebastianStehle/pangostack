@@ -2,7 +2,7 @@ import { log, proxyActivities } from '@temporalio/workflow';
 import { todayUtcDate } from 'src/lib/helpers/time';
 import type * as activities from '../activities';
 
-const { getWorker, getDeployments, trackDeploymentUsage } = proxyActivities<typeof activities>({
+const { getDeployments, trackDeploymentUsage } = proxyActivities<typeof activities>({
   startToCloseTimeout: '30s',
   retry: {
     maximumAttempts: 1,
@@ -10,7 +10,6 @@ const { getWorker, getDeployments, trackDeploymentUsage } = proxyActivities<type
 });
 
 export async function trackDeploymentsUsage(): Promise<void> {
-  const { workerApiKey, workerEndpoint } = await getWorker({});
   const deployments = await getDeployments({});
 
   const trackDate = todayUtcDate();
@@ -22,8 +21,6 @@ export async function trackDeploymentsUsage(): Promise<void> {
         deploymentId,
         trackDate,
         trackHour,
-        workerApiKey,
-        workerEndpoint,
       });
     } catch (ex) {
       log.error(`Failed to track deployment ${deploymentId}:`, { cause: ex });

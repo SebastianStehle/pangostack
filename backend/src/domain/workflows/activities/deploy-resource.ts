@@ -11,7 +11,12 @@ import {
 } from 'src/domain/database';
 import { evaluateParameters } from 'src/domain/definitions';
 import { getEvaluationContext, getResourceUniqueId, updateContext } from 'src/domain/services';
-import { ResourceApplyResponseDto, ResourceApplyStreamEvent, ResourceApplyStreamRequest, WorkerClient } from 'src/domain/workers';
+import {
+  ResourceApplyResponseDto,
+  ResourceApplyStreamEvent,
+  ResourceApplyStreamRequest,
+  WorkerResolver,
+} from 'src/domain/workers';
 import { Activity } from '../registration';
 
 const RESOURCE_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
@@ -20,9 +25,8 @@ export type DeployResourceParam = {
   deploymentId: number;
   resourceId: string;
   stepId?: number | null;
-  workerApiKey?: string;
-  workerEndpoint: string;
   updateId: number;
+  workerEndpoint?: string;
 };
 
 @Activity(deployResource)
@@ -34,9 +38,10 @@ export class DeployResourceActivity implements Activity<DeployResourceParam> {
     private readonly deploymentUpdates: DeploymentUpdateRepository,
     @InjectRepository(DeploymentUpdateStepEntity)
     private readonly deploymentSteps: DeploymentUpdateStepRepository,
+    private readonly workerResolver: WorkerResolver,
   ) {}
 
-  async execute({ deploymentId, resourceId, stepId, updateId, workerApiKey, workerEndpoint }: DeployResourceParam) {
+  async execute({ deploymentId, resourceId, stepId, updateId, workerEndpoint }: DeployResourceParam) {
     const update = await this.deploymentUpdates.findOne({ where: { id: updateId }, relations: ['serviceVersion'] });
     if (!update) {
       throw new NotFoundException(`Deployment Update ${updateId} not found.`);
@@ -47,10 +52,14 @@ export class DeployResourceActivity implements Activity<DeployResourceParam> {
       throw new NotFoundException(`Deployment Update ${updateId} does not contain resource ${resourceId}.`);
     }
 
+    if (!workerEndpoint) {
+      throw new NotFoundException(`No worker registered for resource '${resource.type}'.`);
+    }
+
     const step = await this.startStep(stepId);
 
     const { context } = getEvaluationContext(update);
-    const client = new WorkerClient(workerEndpoint, workerApiKey);
+    const client = await this.workerResolver.clientForEndpoint(workerEndpoint);
 
     const resourceUniqueId = getResourceUniqueId(deploymentId, resource);
     const resourceParams = evaluateParameters(resource, context);

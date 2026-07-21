@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { WorkerEntity } from 'src/domain/database';
-import { WorkerInitializerService } from './services';
+import { WorkerInitializerService, WorkerResolver } from './services';
 import {
   CreateWorkerHandler,
   DeleteWorkerHandler,
@@ -21,6 +21,8 @@ import {
     GetWorkersHandler,
     UpdateWorkerHandler,
     WorkerInitializerService,
+    WorkerResolver,
   ],
+  exports: [WorkerResolver],
 })
 export class WorkersModule {}

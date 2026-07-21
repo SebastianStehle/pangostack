@@ -1,10 +1,9 @@
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Logger, NotFoundException } from '@nestjs/common';
 import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Not } from 'typeorm';
-import { DeploymentEntity, DeploymentRepository, WorkerEntity, WorkerRepository } from 'src/domain/database';
+import { DeploymentEntity, DeploymentRepository } from 'src/domain/database';
 import { evaluateParameters } from 'src/domain/definitions';
-import { WorkerClient } from 'src/domain/workers';
+import { WorkerResolver } from 'src/domain/workers';
 import { ResourceLog } from '../interfaces';
 import { getEvaluationContext, getResourceUniqueId } from '../libs';
 import { DeploymentPolicy } from '../policies';
@@ -24,11 +23,12 @@ export class GetDeploymentLogsResult {
 
 @QueryHandler(GetDeploymentLogsQuery)
 export class GetDeploymentLogsHandler implements IQueryHandler<GetDeploymentLogsQuery, GetDeploymentLogsResult> {
+  private readonly logger = new Logger(GetDeploymentLogsHandler.name);
+
   constructor(
     @InjectRepository(DeploymentEntity)
     private readonly deployments: DeploymentRepository,
-    @InjectRepository(WorkerEntity)
-    private readonly workers: WorkerRepository,
+    private readonly workerResolver: WorkerResolver,
   ) {}
 
   async execute(query: GetDeploymentLogsQuery): Promise<GetDeploymentLogsResult> {
@@ -47,8 +47,8 @@ export class GetDeploymentLogsHandler implements IQueryHandler<GetDeploymentLogs
       throw new ForbiddenException();
     }
 
-    const worker = await this.workers.findOne({ where: { endpoint: Not(IsNull()) } });
-    if (!worker) {
+    const workers = await this.workerResolver.getWorkers();
+    if (workers.size === 0) {
       throw new NotFoundException('No worker registered.');
     }
 
@@ -58,24 +58,37 @@ export class GetDeploymentLogsHandler implements IQueryHandler<GetDeploymentLogs
     }
 
     const { context, definition } = getEvaluationContext(update);
-    const client = new WorkerClient(worker.endpoint, worker.apiKey);
 
-    const statuses = await client.status.postLog({
-      resources: definition.resources.map((resource) => ({
-        parameters: evaluateParameters(resource, context),
-        resourceContext: update.resourceContexts[resource.id] || {},
-        resourceUniqueId: getResourceUniqueId(deploymentId, resource),
-        resourceType: resource.type,
-        timeoutMs: 1 * 60 * 1000, // 1 minute
-      })),
-    });
+    const mapped: ResourceLog[] = [];
+    for (const resource of definition.resources) {
+      const worker = workers.get(resource.type);
+      if (!worker) {
+        this.logger.warn(`No worker registered for resource '${resource.type}'.`);
+        continue;
+      }
 
-    const mapped: ResourceLog[] = statuses.resources.map((source, i) => ({
-      resourceId: definition.resources[i].id,
-      resourceType: definition.resources[i].type,
-      resourceName: definition.resources[i].name,
-      instances: source.instances,
-    }));
+      const statuses = await worker.client.status.postLog({
+        resources: [
+          {
+            parameters: evaluateParameters(resource, context),
+            resourceContext: update.resourceContexts[resource.id] || {},
+            resourceUniqueId: getResourceUniqueId(deploymentId, resource),
+            resourceType: resource.type,
+            timeoutMs: 1 * 60 * 1000, // 1 minute
+          },
+        ],
+      });
+
+      // The worker answers with one entry only.
+      mapped.push(
+        ...statuses.resources.map(({ instances }) => ({
+          resourceId: resource.id,
+          resourceType: resource.type,
+          resourceName: resource.name,
+          instances,
+        })),
+      );
+    }
 
     return new GetDeploymentLogsResult(mapped);
   }

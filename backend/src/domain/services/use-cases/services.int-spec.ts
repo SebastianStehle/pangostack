@@ -9,6 +9,7 @@ import {
 } from 'test/integration/setup';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { ServiceEntity, ServiceVersionEntity, WorkerEntity } from 'src/domain/database';
+import { WorkerResolver } from 'src/domain/workers';
 import {
   CreateService,
   CreateServiceHandler,
@@ -78,6 +79,7 @@ describe('services handlers', () => {
         DeleteServiceVersionHandler,
         GetServiceVersionsHandler,
         VerifyDefinitionHandler,
+        WorkerResolver,
       ],
     });
   });
