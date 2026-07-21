@@ -47,14 +47,14 @@ export class GetDeploymentLogsHandler implements IQueryHandler<GetDeploymentLogs
       throw new ForbiddenException();
     }
 
-    const workers = await this.workerResolver.getWorkers();
-    if (workers.size === 0) {
-      throw new NotFoundException('No worker registered.');
-    }
-
     const update = deployment.updates.find((x) => x.status === 'Completed');
     if (!update) {
       return new GetDeploymentLogsResult([]);
+    }
+
+    const workers = await this.workerResolver.getWorkers();
+    if (workers.size === 0) {
+      throw new NotFoundException('No worker available.');
     }
 
     const { context, definition } = getEvaluationContext(update);

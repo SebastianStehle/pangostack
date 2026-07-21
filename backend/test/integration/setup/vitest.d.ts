@@ -6,6 +6,8 @@ declare module 'vitest' {
     dbAdminUrl: string;
     // Name of the migrated template database that per-file databases are cloned from.
     dbTemplate: string;
+    // Base URL of the shared fake worker that reachable seeded workers point at.
+    workerUrl: string;
   }
 }
 

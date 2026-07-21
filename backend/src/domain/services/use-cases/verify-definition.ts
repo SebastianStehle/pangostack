@@ -37,7 +37,7 @@ export class VerifyDefinitionHandler implements IQueryHandler<VerifyDefinitionQu
 
     const workers = await this.workerResolver.getWorkers();
     if (workers.size === 0) {
-      throw new NotFoundException('No worker registered.');
+      throw new NotFoundException('No worker available.');
     }
 
     const parameters: Record<string, any> = {};

@@ -306,12 +306,12 @@ describe('services handlers', () => {
   });
 
   describe('VerifyDefinitionQuery', () => {
-    it('should fail when no worker is registered', async () => {
+    it('should fail when no worker is available', async () => {
       const service = await seedService(context.dataSource);
 
       await expect(
         context.queryBus.execute<VerifyDefinitionQuery, void>(new VerifyDefinitionQuery(service.id, EMPTY_DEFINITION, {})),
-      ).rejects.toThrow('No worker registered.');
+      ).rejects.toThrow('No worker available.');
     });
 
     it('should fail when the service does not exist', async () => {

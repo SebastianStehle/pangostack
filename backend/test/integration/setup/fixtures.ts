@@ -1,4 +1,5 @@
 import { DataSource } from 'typeorm';
+import { inject } from 'vitest';
 import {
   DeploymentEntity,
   DeploymentUpdateEntity,
@@ -51,20 +52,23 @@ export async function seedService(dataSource: DataSource, overrides: Partial<Ser
     .save({ name: uniqueId('svc'), description: 'A test service.', ...overrides });
 }
 
-export async function seedServiceVersion(
-  dataSource: DataSource,
-  serviceId: number,
-  overrides: Partial<ServiceVersionEntity> = {},
-) {
+export async function seedServiceVersion(dataSource: DataSource, id: number, overrides: Partial<ServiceVersionEntity> = {}) {
   return dataSource //
     .getRepository(ServiceVersionEntity)
-    .save({ name: uniqueId('v'), definition: EMPTY_DEFINITION, environment: {}, serviceId, ...overrides });
+    .save({ name: uniqueId('v'), definition: EMPTY_DEFINITION, environment: {}, serviceId: id, ...overrides });
 }
 
 export async function seedWorker(dataSource: DataSource, overrides: Partial<WorkerEntity> = {}) {
-  return dataSource.getRepository(WorkerEntity).save({ endpoint: 'http://localhost:9999', ...overrides });
+  return dataSource //
+    .getRepository(WorkerEntity)
+    .save({ endpoint: 'http://localhost:9999', ...overrides });
 }
 
+export async function seedReachableWorker(dataSource: DataSource, overrides: Partial<WorkerEntity> = {}) {
+  return dataSource //
+    .getRepository(WorkerEntity)
+    .save({ endpoint: inject('workerUrl'), ...overrides });
+}
 // Seeds a full deployment graph (team, service, version, deployment and one update) that the
 // deployment handlers read through. Pass overrides to control the deployment/update rows.
 export async function seedDeployment(
@@ -100,7 +104,6 @@ export async function seedDeployment(
   return { team, service, version, deployment, update };
 }
 
-// Builds the acting-user shape that commands expect from a seeded entity.
 export function asUser(entity: UserEntity): User {
   return {
     id: entity.id,
