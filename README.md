@@ -212,9 +212,12 @@ cd backend && npm run test:int  # integration tests (TestContainers-backed Postg
 cd worker  && npm test        # unit tests
 ```
 
-CI (`.github/workflows/deploy.yml`) builds the Docker images on every pull request and push to `main`.
-Each image build lints, builds and unit-tests its package, so any failure blocks the image; the push to
-Docker Hub only happens on `main`.
+CI (`.github/workflows/deploy.yml`) runs on every pull request and push to `main`:
+
+- **Integration tests** run in a dedicated job on the runner, because they use TestContainers (a real
+  Postgres in Docker) and cannot run inside an image build. They gate the image builds.
+- **Lint, build and unit tests** run inside the Dockerfiles, so a failure blocks the image.
+- The images are pushed to Docker Hub only on `main`.
 
 ## Observability
 
