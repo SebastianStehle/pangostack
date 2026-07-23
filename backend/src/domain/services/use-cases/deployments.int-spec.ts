@@ -62,6 +62,9 @@ import {
   GetDeploymentUsagesHandler,
   GetDeploymentUsagesQuery,
   GetDeploymentUsagesResult,
+  RetryDeployment,
+  RetryDeploymentHandler,
+  RetryDeploymentResult,
   UpdateDeployment,
   UpdateDeploymentHandler,
   UpdateDeploymentResult,
@@ -119,6 +122,7 @@ describe('deployments handlers', () => {
         CreateDeploymentHandler,
         ConfirmDeploymentHandler,
         CancelDeploymentHandler,
+        RetryDeploymentHandler,
         UpdateDeploymentHandler,
         DeleteDeploymentHandler,
         WorkerResolver,
@@ -400,6 +404,30 @@ describe('deployments handlers', () => {
           new UpdateDeployment(deployment.id, policy, uniqueId('dep'), null, null, user),
         ),
       ).rejects.toThrow('never really created');
+    });
+  });
+
+  describe('RetryDeployment', () => {
+    it('should re-trigger the deployment workflow for a failed deployment', async () => {
+      workflows.createDeployment.mockClear();
+      await seedReachableWorker(context.dataSource);
+      const { deployment, update } = await seedDeployment(context.dataSource, {}, { status: 'Failed' });
+      const user = asUser(await seedUser(context.dataSource));
+
+      await context.commandBus.execute<RetryDeployment, RetryDeploymentResult>(new RetryDeployment(deployment.id, policy, user));
+
+      expect(workflows.createDeployment).toHaveBeenCalled();
+      const saved = await context.dataSource.getRepository(DeploymentUpdateEntity).findOneByOrFail({ id: update.id });
+      expect(saved.status).toBe('Pending');
+    });
+
+    it('should throw when the deployment is not in a failed state', async () => {
+      const { deployment } = await seedDeployment(context.dataSource);
+      const user = asUser(await seedUser(context.dataSource));
+
+      await expect(
+        context.commandBus.execute<RetryDeployment, RetryDeploymentResult>(new RetryDeployment(deployment.id, policy, user)),
+      ).rejects.toThrow('not in a failed state');
     });
   });
 

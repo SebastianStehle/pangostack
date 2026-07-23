@@ -40,12 +40,13 @@ export const DeploymentPage = () => {
     data: loadedStatus,
     refetch,
     isFetching: isFetchingServices,
+    isLoading: isLoadingStatus,
   } = useQuery({
     queryKey: ['deployment-status', teamId, deploymentId],
     queryFn: () => clients.deployments.getDeploymentStatus(deploymentId),
   });
 
-  const { data: deployment } = useQuery({
+  const { data: deployment, refetch: refetchDeployment } = useQuery({
     queryKey: ['deployment', deploymentId],
     queryFn: () => clients.deployments.getDeployment(deploymentId),
   });
@@ -57,6 +58,17 @@ export const DeploymentPage = () => {
     onSuccess: () => {
       toast.info(texts.deployments.deleteConfirmed);
       navigate('../');
+    },
+  });
+
+  const retrying = useMutation({
+    mutationFn: () => {
+      return clients.deployments.retryDeployment(deploymentId);
+    },
+    onSuccess: () => {
+      toast.info(texts.deployments.retryConfirmed);
+      refetchDeployment();
+      refetch();
     },
   });
 
@@ -79,7 +91,24 @@ export const DeploymentPage = () => {
         backLink="/admin/deployments"
         title={`${texts.deployments.deploymentHeadline} ${deployment.name || deployment?.serviceName}`}
       >
-        <RefreshButton sm isLoading={isFetchingServices} onClick={refetch} />
+        <RefreshButton isLoading={isFetchingServices} onClick={refetch} />
+
+        <ConfirmDialog
+          title={texts.deployments.retryConfirmTitle}
+          text={texts.deployments.retryConfirmText}
+          onPerform={retrying.mutate}
+        >
+          {({ onClick }) => (
+            <button
+              type="button"
+              className="btn"
+              onClick={onClick}
+              disabled={retrying.isPending || deployment.status !== 'Failed'}
+            >
+              <Icon size={18} icon="refresh" /> {texts.deployments.retryButton}
+            </button>
+          )}
+        </ConfirmDialog>
 
         <ConfirmDialog
           title={texts.deployments.deleteConfirmTitle}
@@ -186,6 +215,7 @@ export const DeploymentPage = () => {
                 <DeploymentResources
                   deployment={deployment}
                   status={status}
+                  statusLoading={isLoadingStatus}
                   isActive={deployment.status === 'Pending' || deployment.status === 'Running'}
                 />
               </div>
@@ -204,15 +234,18 @@ export const DeploymentPage = () => {
                 <div className="mt-4 text-right text-xs">{texts.deployments.metricsChartWarning}</div>
               </div>
 
-              <div>
-                <h2 className="mb-3 flex items-center gap-3 text-xl">
-                  <Icon icon="bar-chart" size={16} className="inline-block" /> {texts.common.usage}
-                </h2>
+              {/* Usage only drives billing for pay-per-use services, so it is hidden for fixed pricing. */}
+              {service.pricingModel !== 'fixed' && (
+                <div>
+                  <h2 className="mb-3 flex items-center gap-3 text-xl">
+                    <Icon icon="bar-chart" size={16} className="inline-block" /> {texts.common.usage}
+                  </h2>
 
-                <DeploymentUsageChart deploymentId={deploymentId} />
+                  <DeploymentUsageChart deploymentId={deploymentId} />
 
-                <div className="mt-4 text-right text-xs">{texts.deployments.usageChartWarning}</div>
-              </div>
+                  <div className="mt-4 text-right text-xs">{texts.deployments.usageChartWarning}</div>
+                </div>
+              )}
 
               <div id="health">
                 <h2 className="mb-3 flex items-center gap-3 text-xl">

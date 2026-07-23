@@ -46,7 +46,7 @@ export const WorkersPage = () => {
   return (
     <Page>
       <AdminHeader title={texts.workers.headline}>
-        <RefreshButton sm isLoading={isFetching} onClick={refetch} />
+        <RefreshButton isLoading={isFetching} onClick={refetch} />
 
         <button className="btn btn-success text-sm text-white" onClick={() => setToCreate(true)}>
           <Icon icon="plus" size={16} /> {texts.workers.create}

@@ -27,7 +27,7 @@ export const DeploymentPage = () => {
   const clients = useClients();
   const [tab, setTab] = useParam<'overview' | 'usage' | 'log'>('tab', 'overview');
 
-  const { data: loadedStatus } = useQuery({
+  const { data: loadedStatus, isLoading: isLoadingStatus } = useQuery({
     queryKey: ['deployment-status', teamId, deploymentId],
     queryFn: () => clients.deployments.getDeploymentStatus(deploymentId),
   });
@@ -162,7 +162,12 @@ export const DeploymentPage = () => {
               <Icon icon="server" size={16} className="inline-block" /> {texts.deployments.resources}
             </h2>
 
-            <DeploymentResources deployment={deployment} status={displayStatus} isActive={isPending} />
+            <DeploymentResources
+              deployment={deployment}
+              status={displayStatus}
+              statusLoading={isLoadingStatus}
+              isActive={isPending}
+            />
           </div>
         </div>
       )}
@@ -179,15 +184,18 @@ export const DeploymentPage = () => {
             <div className="mt-4 text-right text-xs">{texts.deployments.metricsChartWarning}</div>
           </div>
 
-          <div>
-            <h2 className="mb-3 flex items-center gap-3 text-xl">
-              <Icon icon="bar-chart" size={16} className="inline-block" /> {texts.common.usage}
-            </h2>
+          {/* Usage only drives billing for pay-per-use services, so it is hidden for fixed pricing. */}
+          {loadedService.pricingModel !== 'fixed' && (
+            <div>
+              <h2 className="mb-3 flex items-center gap-3 text-xl">
+                <Icon icon="bar-chart" size={16} className="inline-block" /> {texts.common.usage}
+              </h2>
 
-            <DeploymentUsageChart deploymentId={deploymentId} />
+              <DeploymentUsageChart deploymentId={deploymentId} />
 
-            <div className="mt-4 text-right text-xs">{texts.deployments.usageChartWarning}</div>
-          </div>
+              <div className="mt-4 text-right text-xs">{texts.deployments.usageChartWarning}</div>
+            </div>
+          )}
 
           <div id="health">
             <h2 className="mb-3 flex items-center gap-3 text-xl">

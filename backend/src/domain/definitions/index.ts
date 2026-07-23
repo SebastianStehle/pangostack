@@ -246,8 +246,8 @@ class MetricDefinitionClass {
 
   @IsDefined()
   @IsString()
-  @IsEnum(['label', 'bar'])
-  chart: 'label' | 'bar';
+  @IsEnum(['line', 'bar'])
+  chart: 'line' | 'bar';
 
   @IsOptional()
   @IsArray()

@@ -1,0 +1,212 @@
+# PostgreSQL on a single Vultr VM, started with Docker Compose over SSH.
+# Companion compose file: configs/postgres/docker-compose.yml (referenced by dockerComposeUrl below).
+parameters:
+  - name: region
+    label: Region
+    type: string
+    required: true
+    defaultValue: fra
+    display: true
+    allowedValues:
+      - value: fra
+        label: Frankfurt
+      - value: ams
+        label: Amsterdam
+      - value: ewr
+        label: New Jersey
+    immutable: true
+
+  - name: plan
+    label: Plan
+    type: string
+    required: true
+    defaultValue: cores_1
+    display: true
+    allowedValues:
+      - value: cores_1
+        label: 1 Core, 2 GB RAM, 55 GB SSD
+        updateFrom: []
+      - value: cores_2
+        label: 2 Cores, 4 GB RAM, 80 GB SSD
+        updateFrom: [cores_1]
+      - value: cores_4
+        label: 4 Cores, 8 GB RAM, 160 GB SSD
+        updateFrom: [cores_1, cores_2]
+
+  - name: version
+    label: PostgreSQL Version
+    type: string
+    required: true
+    defaultValue: "16"
+    display: true
+    # A major version cannot be changed in place, so it is fixed after creation.
+    immutable: true
+    allowedValues:
+      - value: "16"
+        label: PostgreSQL 16
+      - value: "15"
+        label: PostgreSQL 15
+
+  - name: database
+    label: Database Name
+    type: string
+    required: true
+    defaultValue: app
+    display: true
+    hint: The name of the database that is created on first start.
+
+  - name: username
+    label: Username
+    type: string
+    required: true
+    defaultValue: postgres
+    display: true
+
+  - name: password
+    label: Password
+    type: string
+    required: true
+    section: Database
+    hint: The password for the database user. Store it somewhere safe.
+
+  - name: backup
+    label: Automatic VM Backup
+    type: boolean
+    required: true
+    defaultValue: false
+
+  - name: environment
+    label: Environment
+    type: string
+    editor: textarea
+    required: false
+    section: More
+    hint: Additional environment variables in the format key=value.
+
+afterInstallationInstructions: |-
+  Your PostgreSQL server is ready. Connect from your application with:
+
+  ```
+  postgres://${parameters.username}:<password>@${context.vm.host}:5432/${parameters.database}
+  ```
+
+  The host is **${context.vm.host}**. Keep port 5432 firewalled to trusted networks only.
+
+pricingModel: fixed
+
+metrics:
+  - key: memory
+    label: Memory
+    unit: gb
+    interval: 15m
+    keep: 15d
+    mapping:
+      - resource: vultr-vm
+        from: memory
+        prefix: vm
+    chart: bar
+    summaries:
+      - label: Max Memory
+        type: max
+        prefix: vm
+        value: used
+
+  - key: cpu
+    label: CPU
+    unit: percent
+    interval: 15m
+    keep: 15d
+    mapping:
+      - resource: vultr-vm
+        from: cpu
+        prefix: vm
+    chart: bar
+    summaries:
+      - label: Average CPU
+        type: avg
+        prefix: vm
+
+  - key: disk
+    label: Disk
+    unit: gb
+    interval: 1h
+    keep: 15d
+    mapping:
+      - resource: vultr-vm
+        from: disk
+        prefix: vm
+    chart: line
+    summaries:
+      - label: Max Disk
+        type: max
+        prefix: vm
+        value: used
+
+resources:
+  - name: Virtual Machine
+    id: vm
+    type: vultr-vm
+    parameters:
+      apiKey: ${env.apiKey}
+      app: docker
+      region: ${parameters.region}
+      backup: ${parameters.backup}
+    mappings:
+      plan:
+        value: ${parameters.plan}
+        map:
+          cores_1: vc2-1c-2gb
+          cores_2: vc2-2c-4gb
+          cores_4: vc2-4c-8gb
+
+  # Health checks only support the "http" type, so a plain database has none defined.
+  - name: PostgreSQL
+    id: postgres
+    type: docker-compose-ssh
+    parameters:
+      dockerComposeUrl: https://raw.githubusercontent.com/SebastianStehle/pangostack/main/configs/postgres/docker-compose.yml
+      host: ${context.vm.host}
+      sshUser: ${context.vm.sshUser}
+      sshPassword: ${context.vm.sshPassword}
+      environment: ${parameters.environment}
+      POSTGRES_VERSION: ${parameters.version}
+      POSTGRES_DB: ${parameters.database}
+      POSTGRES_USER: ${parameters.username}
+      POSTGRES_PASSWORD: ${parameters.password}
+
+prices:
+  - billingIdentifier: machine
+    label: Machine
+    target: ${parameters.plan}
+    test: cores_1
+    pricePerHour: 0.03
+
+  - billingIdentifier: backup
+    label: Backup
+    target: ${parameters.plan}_${parameters.backup}
+    test: cores_1_true
+    pricePerHour: 0.015
+
+  - billingIdentifier: machine
+    label: Machine
+    target: ${parameters.plan}
+    test: cores_2
+    pricePerHour: 0.06
+
+  - billingIdentifier: backup
+    label: Backup
+    target: ${parameters.plan}_${parameters.backup}
+    test: cores_2_true
+    pricePerHour: 0.03
+
+  - billingIdentifier: machine
+    label: Machine
+    target: ${parameters.plan}
+    test: cores_4
+    pricePerHour: 0.12
+
+  - billingIdentifier: backup
+    label: Backup
+    target: ${parameters.plan}_${parameters.backup}
+    test: cores_4_true
+    pricePerHour: 0.06

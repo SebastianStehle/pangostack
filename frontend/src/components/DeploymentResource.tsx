@@ -1,5 +1,5 @@
 import { ConnectionInfoDto, DeploymentStepDto, ResourceStatusDto } from 'src/api';
-import { NodeStatus } from 'src/components';
+import { NodeStatus, Spinner } from 'src/components';
 import { formatDuration } from 'src/lib';
 import { texts } from 'src/texts';
 import { DeploymentStepStatus } from './DeploymentStepStatus';
@@ -17,10 +17,13 @@ export interface DeploymentResourceProps {
 
   // The live status.
   status?: ResourceStatusDto;
+
+  // Indicates that the live status is still being loaded.
+  statusLoading?: boolean;
 }
 
 export const DeploymentResource = (props: DeploymentResourceProps) => {
-  const { connection, name, status, step } = props;
+  const { connection, name, status, statusLoading, step } = props;
   const actualConnections = connection || {};
 
   // Running or failed steps are always expanded so the relevant details are visible immediately.
@@ -69,6 +72,13 @@ export const DeploymentResource = (props: DeploymentResourceProps) => {
               <DeploymentSubSteps subSteps={step.subSteps} />
             </details>
           ))}
+
+        {!status && statusLoading && (
+          <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
+            <Spinner visible={true} />
+            {texts.deployments.loadingDetails}
+          </div>
+        )}
 
         {status && (
           <div className="mt-2">

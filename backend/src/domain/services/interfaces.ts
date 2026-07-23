@@ -324,7 +324,7 @@ export interface MetricSeries {
   unit?: string | null;
 
   // How the metric should be displayed.
-  chart: 'label' | 'bar';
+  chart: 'line' | 'bar';
 
   // The summaries that are shown as cards in the UI.
   summaries: MetricSummary[];

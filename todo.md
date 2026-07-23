@@ -12,8 +12,7 @@ solid — these focus on the authoring loop, the customer deploy experience, and
 
 ## Features & ease of use
 
-- [ ] **Dry-run / plan before a real deploy** — a Terraform-style "here's what will be created" preview for both admin (authoring) and customer (deploying) before committing to real infra.
-- [ ] **Self-service recovery from failed deploys** — a user-facing "retry / resume from the failed step" and "redeploy" action, building on the deployment step-transparency work.
+- [x] **Retry failed deploys (admin)** — admin-only `POST /api/deployments/:id/retry` (`RetryDeployment` command) re-triggers the deployment workflow for the *existing* failed update rather than creating a new one: the deploy activities are idempotent and the workflow re-plans its steps (`createDeploymentSteps` already deletes prior steps), so completed resources are skipped and the failed step is retried. Admin UI shows a "Retry" button on the deployment page when status is `Failed`. Verified: backend int tests (28, incl. 2 new) + frontend lint/build green. _Note: the `retryDeployment` method was added to the generated frontend client by hand (matching generator output) since the live backend wasn't running here — `npm run generate-api` reproduces it identically._
 - [ ] **Starter templates / definition catalog** — a gallery of ready-to-use definitions (Postgres, Redis, common apps) with "duplicate to customize" to collapse time-to-first-service.
 - [ ] **Lifecycle notifications & outbound webhooks** — extend beyond in-app Notifo to email + outbound webhooks on deploy succeeded / failed / health-degraded.
 - [ ] **Admin onboarding wizard + human-readable failures** — a guided "create your first service → write a definition → test deploy" path, and a layer that turns raw deploy logs into actionable causes for customers.

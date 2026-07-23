@@ -872,9 +872,9 @@ export class DeploymentMetricSeriesDto {
   @ApiProperty({
     description: 'How the metric should be displayed.',
     required: true,
-    enum: ['label', 'bar'],
+    enum: ['line', 'bar'],
   })
-  chart: 'label' | 'bar';
+  chart: 'line' | 'bar';
 
   @ApiProperty({
     description: 'The summaries that are shown as cards in the UI.',

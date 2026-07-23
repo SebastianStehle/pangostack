@@ -78,7 +78,7 @@ export interface DeploymentMetricSeriesDto {
  * @export
  */
 export const DeploymentMetricSeriesDtoChartEnum = {
-    Label: 'label',
+    Line: 'line',
     Bar: 'bar'
 } as const;
 export type DeploymentMetricSeriesDtoChartEnum = typeof DeploymentMetricSeriesDtoChartEnum[keyof typeof DeploymentMetricSeriesDtoChartEnum];

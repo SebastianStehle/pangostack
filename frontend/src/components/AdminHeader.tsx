@@ -30,7 +30,7 @@ export const AdminHeader = (props: AdminHeaderProps & PropsWithChildren) => {
 
       <h3 className={classNames('grow text-3xl', { 'text-xl': small })}>{title}</h3>
 
-      <div className="flex items-center gap-4">{children}</div>
+      <div className="flex items-center gap-2">{children}</div>
     </div>
   );
 };

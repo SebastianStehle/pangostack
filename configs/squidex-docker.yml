@@ -141,7 +141,7 @@ metrics:
       - resource: vultr-vm
         from: disk
         prefix: vm
-    chart: label
+    chart: line
     summaries:
       - label: Max Disk
         type: max
@@ -185,11 +185,8 @@ resources:
       SQUIDEX_ADMINEMAIL: changeme@squidex.io
       SQUIDEX_ADMINPASSWORD: changeme
     healthChecks:
-      - name: External
+      - name: Default
         url: https://${parameters.domain}/healthz
-        type: http
-      - name: Internal
-        url: https://${context.vm.host}/healthz
         type: http
 
 prices:

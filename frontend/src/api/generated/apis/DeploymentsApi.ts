@@ -124,6 +124,10 @@ export interface PutDeploymentRequest {
     updateDeploymentDto: UpdateDeploymentDto;
 }
 
+export interface RetryDeploymentRequest {
+    deploymentId: number;
+}
+
 /**
  * 
  */
@@ -709,6 +713,42 @@ export class DeploymentsApi extends runtime.BaseAPI {
      */
     async putDeployment(deploymentId: number, updateDeploymentDto: UpdateDeploymentDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentDto> {
         const response = await this.putDeploymentRaw({ deploymentId: deploymentId, updateDeploymentDto: updateDeploymentDto }, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Retries a failed deployment.
+     *
+     */
+    async retryDeploymentRaw(requestParameters: RetryDeploymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeploymentDto>> {
+        if (requestParameters.deploymentId === null || requestParameters.deploymentId === undefined) {
+            throw new runtime.RequiredError('deploymentId','Required parameter requestParameters.deploymentId was null or undefined when calling retryDeployment.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = await this.configuration.apiKey("x-api-key"); // x-api-key authentication
+        }
+
+        const response = await this.request({
+            path: `/api/deployments/{deploymentId}/retry`.replace(`{${"deploymentId"}}`, encodeURIComponent(String(requestParameters.deploymentId))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => DeploymentDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Retries a failed deployment.
+     *
+     */
+    async retryDeployment(deploymentId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentDto> {
+        const response = await this.retryDeploymentRaw({ deploymentId: deploymentId }, initOverrides);
         return await response.value();
     }
 
