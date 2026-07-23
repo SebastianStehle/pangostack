@@ -1,18 +1,9 @@
 import { BucketAlreadyExists, CreateBucketCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { pollUntil } from 'src/lib';
 import { VultrClient } from 'src/lib/vultr';
 import { ObjectStorage } from 'src/lib/vultr/generated';
-import {
-  defineResource,
-  LogContext,
-  ProgressReporter,
-  Resource,
-  ResourceApplyResult,
-  ResourceRequest,
-  ResourceStatusResult,
-  ResourceUsage,
-} from '../interface';
+import { defineResource, Resource, ResourceReporter, ResourceRequest, ResourceStatusResult, ResourceUsage } from '../interface';
 
 type Parameters = { apiKey: string; cluster: number; tier: number; bucket?: string };
 
@@ -20,8 +11,6 @@ type Context = { s3HostName: string; s3AccessKey: string; s3SecretKey: string };
 
 @Injectable()
 export class VultrStorageResource implements Resource {
-  private readonly logger = new Logger(VultrStorageResource.name);
-
   descriptor = defineResource<Parameters, Context>({
     name: 'vultr-storage',
     description: 'Creates a vultr storage account.',
@@ -66,35 +55,52 @@ export class VultrStorageResource implements Resource {
     },
   });
 
-  async apply(
-    id: string,
-    request: ResourceRequest<Parameters>,
-    progress: ProgressReporter,
-    logContext: LogContext = {},
-  ): Promise<ResourceApplyResult<Context>> {
+  async apply(id: string, request: ResourceRequest<Parameters>, reporter: ResourceReporter): Promise<void> {
     const { apiKey, bucket, cluster, tier } = request.parameters;
 
     const vultr = new VultrClient(apiKey);
 
-    progress.beginStep('Creating object storage');
+    reporter.beginStep('Creating object storage');
 
     let storage = await findStorage(vultr, id);
     if (storage) {
-      this.logger.log({ message: 'Using existing storage, waiting for storage details to be ready', context: logContext });
-      progress.beginStep('Waiting for storage to become ready');
+      reporter.beginStep('Waiting for storage to become ready');
       storage = await waitForStorage(vultr, storage, request.timeoutMs);
     } else {
       const response = await vultr.objectStorages.createObjectStorage({ clusterId: cluster, tierId: tier, label: id });
       storage = response.objectStorage!;
 
-      this.logger.log({ message: 'Using new storage, waiting for storage details to be ready', context: logContext });
-      progress.beginStep('Waiting for storage to become ready');
+      reporter.beginStep('Waiting for storage to become ready');
       storage = await waitForStorage(vultr, storage, request.timeoutMs);
     }
 
+    // Storage details are ready and later resources depend on them, so publish the context and connection now.
+    reporter.appendContext({
+      s3HostName: storage.s3Hostname!,
+      s3AccessKey: storage.s3AccessKey!,
+      s3SecretKey: storage.s3SecretKey!,
+    });
+
+    reporter.appendConnection({
+      hostName: {
+        value: storage.s3Hostname!,
+        label: 'Host Name',
+        isPublic: true,
+      },
+      accessKey: {
+        value: storage.s3AccessKey!,
+        label: 'Access Key',
+        isPublic: false,
+      },
+      secretKey: {
+        value: storage.s3SecretKey!,
+        label: 'Secret Key',
+        isPublic: false,
+      },
+    });
+
     if (bucket) {
-      logContext.bucket = bucket;
-      progress.beginStep(`Creating bucket ${bucket}`);
+      reporter.beginStep(`Creating bucket ${bucket}`);
 
       const s3Client = new S3Client({
         region: 'us-east-1',
@@ -105,40 +111,15 @@ export class VultrStorageResource implements Resource {
       try {
         const command = new CreateBucketCommand({ Bucket: bucket });
         await s3Client.send(command);
-        this.logger.log({ message: 'Bucket created successfully', context: logContext });
+        reporter.report('Bucket created successfully', { log: true });
       } catch (ex: unknown) {
         if (!(ex instanceof BucketAlreadyExists)) {
           throw ex;
         } else {
-          this.logger.log({ message: 'Bucket already exists', context: logContext });
+          reporter.report('Bucket already exists', { log: true });
         }
       }
     }
-
-    return {
-      context: {
-        s3HostName: storage.s3Hostname!,
-        s3AccessKey: storage.s3AccessKey!,
-        s3SecretKey: storage.s3SecretKey!,
-      },
-      connection: {
-        hostName: {
-          value: storage.s3Hostname!,
-          label: 'Host Name',
-          isPublic: true,
-        },
-        accessKey: {
-          value: storage.s3AccessKey!,
-          label: 'Access Key',
-          isPublic: false,
-        },
-        secretKey: {
-          value: storage.s3SecretKey!,
-          label: 'Secret Key',
-          isPublic: false,
-        },
-      },
-    };
   }
 
   async delete(id: string, request: ResourceRequest<Parameters>) {

@@ -16,12 +16,25 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { DeploymentStepLogDto } from './DeploymentStepLogDto';
+import {
+    DeploymentStepLogDtoFromJSON,
+    DeploymentStepLogDtoFromJSONTyped,
+    DeploymentStepLogDtoToJSON,
+} from './DeploymentStepLogDto';
+
 /**
  * 
  * @export
  * @interface DeploymentSubStepDto
  */
 export interface DeploymentSubStepDto {
+    /**
+     * The id of the sub-step.
+     * @type {number}
+     * @memberof DeploymentSubStepDto
+     */
+    id: number;
     /**
      * The name of the sub-step.
      * @type {string}
@@ -35,23 +48,29 @@ export interface DeploymentSubStepDto {
      */
     status: DeploymentSubStepDtoStatusEnum;
     /**
-     * The live message of the sub-step, for example the readiness progress.
+     * The error, when the sub-step failed.
      * @type {string}
      * @memberof DeploymentSubStepDto
      */
-    message: string | null;
+    error: string | null;
+    /**
+     * The timestamped log lines reported for this sub-step.
+     * @type {Array<DeploymentStepLogDto>}
+     * @memberof DeploymentSubStepDto
+     */
+    logs: Array<DeploymentStepLogDto>;
     /**
      * When the sub-step was started.
-     * @type {string}
+     * @type {Date}
      * @memberof DeploymentSubStepDto
      */
-    startedAt: string;
+    startedAt: Date | null;
     /**
      * When the sub-step was completed or failed.
-     * @type {string}
+     * @type {Date}
      * @memberof DeploymentSubStepDto
      */
-    completedAt: string | null;
+    completedAt: Date | null;
 }
 
 
@@ -59,6 +78,7 @@ export interface DeploymentSubStepDto {
  * @export
  */
 export const DeploymentSubStepDtoStatusEnum = {
+    Pending: 'Pending',
     Running: 'Running',
     Completed: 'Completed',
     Failed: 'Failed'
@@ -71,9 +91,11 @@ export type DeploymentSubStepDtoStatusEnum = typeof DeploymentSubStepDtoStatusEn
  */
 export function instanceOfDeploymentSubStepDto(value: object): boolean {
     let isInstance = true;
+    isInstance = isInstance && "id" in value;
     isInstance = isInstance && "name" in value;
     isInstance = isInstance && "status" in value;
-    isInstance = isInstance && "message" in value;
+    isInstance = isInstance && "error" in value;
+    isInstance = isInstance && "logs" in value;
     isInstance = isInstance && "startedAt" in value;
     isInstance = isInstance && "completedAt" in value;
 
@@ -90,11 +112,13 @@ export function DeploymentSubStepDtoFromJSONTyped(json: any, ignoreDiscriminator
     }
     return {
         
+        'id': json['id'],
         'name': json['name'],
         'status': json['status'],
-        'message': json['message'],
-        'startedAt': json['startedAt'],
-        'completedAt': json['completedAt'],
+        'error': json['error'],
+        'logs': ((json['logs'] as Array<any>).map(DeploymentStepLogDtoFromJSON)),
+        'startedAt': (json['startedAt'] === null ? null : new Date(json['startedAt'])),
+        'completedAt': (json['completedAt'] === null ? null : new Date(json['completedAt'])),
     };
 }
 
@@ -107,11 +131,13 @@ export function DeploymentSubStepDtoToJSON(value?: DeploymentSubStepDto | null):
     }
     return {
         
+        'id': value.id,
         'name': value.name,
         'status': value.status,
-        'message': value.message,
-        'startedAt': value.startedAt,
-        'completedAt': value.completedAt,
+        'error': value.error,
+        'logs': ((value.logs as Array<any>).map(DeploymentStepLogDtoToJSON)),
+        'startedAt': (value.startedAt === null ? null : value.startedAt.toISOString()),
+        'completedAt': (value.completedAt === null ? null : value.completedAt.toISOString()),
     };
 }
 

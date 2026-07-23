@@ -26,6 +26,7 @@ export * from './DeploymentMetricsDto';
 export * from './DeploymentResourceDto';
 export * from './DeploymentStatusDto';
 export * from './DeploymentStepDto';
+export * from './DeploymentStepLogDto';
 export * from './DeploymentStepsDto';
 export * from './DeploymentSubStepDto';
 export * from './DeploymentUsageSummariesDto';

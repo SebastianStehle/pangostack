@@ -1,18 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { NodeSSH } from 'node-ssh';
 import { pollUntil } from 'src/lib';
 import { VultrClient } from 'src/lib/vultr';
 import { InstanceGet } from 'src/lib/vultr/generated';
-import {
-  defineResource,
-  LogContext,
-  ProgressReporter,
-  Resource,
-  ResourceApplyResult,
-  ResourceMetricsResult,
-  ResourceRequest,
-  ResourceStatusResult,
-} from '../interface';
+import { defineResource, Resource, ResourceMetricsResult, ResourceReporter, ResourceRequest, ResourceStatusResult } from '../interface';
 
 type Parameters = { apiKey: string; region: string; plan: string; app: string; backup: boolean };
 
@@ -22,8 +13,6 @@ type ResourceContext = { password: string };
 
 @Injectable()
 export class VultrVmResource implements Resource {
-  private readonly logger = new Logger(VultrVmResource.name);
-
   descriptor = defineResource<Parameters, Context>({
     name: 'vultr-vm',
     description: 'Creates a Vultr virtual machine.',
@@ -95,73 +84,57 @@ export class VultrVmResource implements Resource {
     return { plans, regions };
   }
 
-  async apply(
-    id: string,
-    request: ResourceRequest<Parameters, ResourceContext>,
-    progress: ProgressReporter,
-    logContext: LogContext = {},
-  ): Promise<ResourceApplyResult<Context>> {
+  async apply(id: string, request: ResourceRequest<Parameters, ResourceContext>, reporter: ResourceReporter): Promise<void> {
     const { apiKey } = request.parameters;
 
     const vultr = new VultrClient(apiKey);
 
-    let vm = await this.createInstance(vultr, id, request, progress, logContext);
+    let vm = await this.createInstance(vultr, id, request, reporter);
     if (!request.resourceContext.password) {
-      this.logger.error({
-        message: 'Instance has no password. Previous attempt has failed. Deleting VM and trying again.',
-        context: logContext,
-      });
-      progress.update('Previous attempt left an unusable instance, recreating it');
+      reporter.report('Previous attempt left an unusable instance, recreating it', { log: true });
       await vultr.instances.deleteInstance(vm.id!);
 
-      vm = await this.createInstance(vultr, id, request, progress, logContext);
+      vm = await this.createInstance(vultr, id, request, reporter);
     }
 
-    if (isValidIp(vm)) {
-      logContext.ip = vm.mainIp;
-    }
+    // Persist the resource context (which now holds the generated password) before waiting for SSH.
+    // If the SSH wait fails, the retry can reuse this instance instead of orphaning it.
+    reporter.appendResourceContext(request.resourceContext);
 
     const ssh = new NodeSSH();
-    this.logger.log({
-      message: 'VM details are available, but the VM might not be running yet. Waiting for SSH connection',
-      context: logContext,
-    });
-    progress.beginStep('Waiting for SSH connection');
+    reporter.beginStep('Waiting for SSH connection');
 
     await pollUntil(request.timeoutMs, async () => {
       await ssh.connect({ host: vm.mainIp, username: 'root', password: request.resourceContext.password });
       return true;
     });
 
-    return {
-      resourceContext: request.resourceContext,
-      context: {
-        host: vm.mainIp!,
-        sshUser: 'root',
-        sshPassword: request.resourceContext.password,
+    reporter.appendContext({
+      host: vm.mainIp!,
+      sshUser: 'root',
+      sshPassword: request.resourceContext.password,
+    });
+
+    reporter.appendConnection({
+      ip: {
+        value: vm.mainIp!,
+        label: 'IP Address',
+        isPublic: true,
       },
-      connection: {
-        ip: {
-          value: vm.mainIp!,
-          label: 'IP Address',
-          isPublic: true,
-        },
-      },
-    };
+    });
   }
 
   private async createInstance(
     vultr: VultrClient,
     label: string,
     request: ResourceRequest<Parameters, ResourceContext>,
-    progress: ProgressReporter,
-    logContext: LogContext,
+    reporter: ResourceReporter,
   ) {
     const { backup, region, plan, app } = request.parameters;
 
     const backups = backup ? 'enabled' : 'disabled';
 
-    progress.beginStep('Creating instance');
+    reporter.beginStep('Creating instance');
 
     let vm = await findInstance(vultr, label);
     if (vm) {
@@ -169,8 +142,7 @@ export class VultrVmResource implements Resource {
         await vultr.instances.updateInstance(vm.id!, { plan });
       }
 
-      this.logger.log({ message: 'Using existing instance, waiting for VM details to be ready', context: logContext });
-      progress.beginStep('Waiting for instance to become ready');
+      reporter.beginStep('Waiting for instance to become ready');
       vm = await waitForInstance(vultr, vm, request.timeoutMs, true);
     } else {
       const response = await vultr.instances.createInstance({
@@ -183,8 +155,7 @@ export class VultrVmResource implements Resource {
 
       vm = response.instance!;
 
-      this.logger.log({ message: 'Using new instance, waiting for VM details to be ready', context: logContext });
-      progress.beginStep('Waiting for instance to become ready');
+      reporter.beginStep('Waiting for instance to become ready');
       vm = await waitForInstance(vultr, vm, request.timeoutMs, false);
 
       request.resourceContext.password = vm.defaultPassword!;

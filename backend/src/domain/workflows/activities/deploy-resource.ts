@@ -2,21 +2,18 @@ import { NotFoundException } from '@nestjs/common';
 import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { activityInfo, heartbeat } from '@temporalio/activity';
-import { concatMap, filter, lastValueFrom, map } from 'rxjs';
+import { concatMap, lastValueFrom } from 'rxjs';
 import {
   DeploymentUpdateEntity,
   DeploymentUpdateRepository,
   DeploymentUpdateStepEntity,
   DeploymentUpdateStepRepository,
+  DeploymentUpdateSubStepEntity,
+  DeploymentUpdateSubStepRepository,
 } from 'src/domain/database';
 import { evaluateParameters } from 'src/domain/definitions';
 import { getEvaluationContext, getResourceUniqueId, updateContext } from 'src/domain/services';
-import {
-  ResourceApplyResponseDto,
-  ResourceApplyStreamEvent,
-  ResourceApplyStreamRequest,
-  WorkerResolver,
-} from 'src/domain/workers';
+import { ResourceApplyStreamRequest, ResourceEventDto, WorkerResolver } from 'src/domain/workers';
 import { Activity } from '../registration';
 
 const RESOURCE_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
@@ -38,6 +35,8 @@ export class DeployResourceActivity implements Activity<DeployResourceParam> {
     private readonly deploymentUpdates: DeploymentUpdateRepository,
     @InjectRepository(DeploymentUpdateStepEntity)
     private readonly deploymentSteps: DeploymentUpdateStepRepository,
+    @InjectRepository(DeploymentUpdateSubStepEntity)
+    private readonly deploymentSubSteps: DeploymentUpdateSubStepRepository,
     private readonly workerResolver: WorkerResolver,
   ) {}
 
@@ -87,26 +86,106 @@ export class DeployResourceActivity implements Activity<DeployResourceParam> {
       context: 'WorkerService',
     });
 
-    let response: ResourceApplyResponseDto;
+    // Everything the worker produces now arrives incrementally as events. We accumulate it and
+    // persist as it comes in, so a failure in a later step never discards logs, context or
+    // connection info that an earlier step already reported.
+    const resourceConnection: Record<string, any> = { ...(update.resourceConnections[resource.id] ?? {}) };
+    const resourceContext: Record<string, any> = { ...(update.resourceContexts[resource.id] ?? {}) };
+
+    const persistUpdate = async () => {
+      update.resourceConnections[resource.id] = resourceConnection;
+      update.resourceContexts[resource.id] = resourceContext;
+      await this.deploymentUpdates.save(update);
+    };
+
+    // The worker reports each sub-step as discrete lifecycle events keyed by a sub-step id, which
+    // we persist as their own rows (parented to the step). The map correlates that key to the row.
+    // Log lines are appended to the sub-step they belong to, or to the step when reported outside one.
+    const subStepsByKey = new Map<string, DeploymentUpdateSubStepEntity>();
+
+    const handleEvent = async (event: ResourceEventDto) => {
+      switch (event.type) {
+        case 'startStep':
+          if (step) {
+            const subStep = this.deploymentSubSteps.create({
+              name: event.name,
+              startedAt: event.timestamp,
+              status: 'Running',
+              stepId: step.id,
+            });
+            await this.deploymentSubSteps.save(subStep);
+            subStepsByKey.set(event.id, subStep);
+          }
+          break;
+        case 'completeStep': {
+          const subStep = subStepsByKey.get(event.id);
+          if (subStep) {
+            subStep.status = 'Completed';
+            subStep.completedAt = event.timestamp;
+            await this.deploymentSubSteps.save(subStep);
+          }
+          break;
+        }
+        case 'failStep': {
+          const subStep = subStepsByKey.get(event.id);
+          if (subStep) {
+            subStep.status = 'Failed';
+            subStep.error = event.message ?? subStep.error;
+            subStep.completedAt = event.timestamp;
+            await this.deploymentSubSteps.save(subStep);
+          }
+          break;
+        }
+        case 'appendLog': {
+          const log = { message: event.message, timestamp: event.timestamp.toISOString() };
+          const subStep = event.stepId != null ? subStepsByKey.get(event.stepId) : undefined;
+          if (subStep) {
+            subStep.logs.push(log);
+            await this.deploymentSubSteps.save(subStep);
+          } else if (step) {
+            step.logs.push(log);
+            await this.deploymentSteps.save(step);
+          }
+          break;
+        }
+        case 'appendContext':
+          updateContext(resourceId, update.context, event.context);
+          await persistUpdate();
+          break;
+        case 'appendResourceContext':
+          Object.assign(resourceContext, event.context);
+          await persistUpdate();
+          break;
+        case 'appendConnection':
+          Object.assign(resourceConnection, event.connection);
+          await persistUpdate();
+          break;
+      }
+    };
+
     try {
-      response = await lastValueFrom(
+      await lastValueFrom(
         client.applyResourceStreamed(request).pipe(
           concatMap(async (event) => {
             heartbeat();
-
-            if (event.type === 'subSteps' && step) {
-              step.subSteps = event.subSteps;
-              await this.deploymentSteps.save(step);
-            }
-
-            return event;
+            await handleEvent(event);
           }),
-          filter((event): event is Extract<ResourceApplyStreamEvent, { type: 'result' }> => event.type === 'result'),
-          map((event) => event.result),
         ),
+        { defaultValue: undefined },
       );
     } catch (ex) {
-      // Keep the step running so that retries stay visible, but surface the error already.
+      // Flush whatever was reported before the failure. Any sub-step still marked running did not
+      // get its failStep event (e.g. the stream was cut), so fail it here as a safety net.
+      for (const subStep of subStepsByKey.values()) {
+        if (subStep.status === 'Running') {
+          subStep.status = 'Failed';
+          subStep.completedAt = new Date();
+          await this.deploymentSubSteps.save(subStep);
+        }
+      }
+
+      await persistUpdate();
+
       if (step) {
         step.error = ex instanceof Error ? ex.message : `${ex}`;
         await this.deploymentSteps.save(step);
@@ -115,16 +194,7 @@ export class DeployResourceActivity implements Activity<DeployResourceParam> {
       throw ex;
     }
 
-    update.resourceConnections[resource.id] = response.connection;
-    update.resourceContexts[resource.id] = response.resourceContext || {};
-
-    updateContext(resourceId, update.context, response.context);
-
-    if (response.log) {
-      update.log[resource.id] = response.log;
-    }
-
-    await this.deploymentUpdates.save(update);
+    await persistUpdate();
 
     if (step) {
       step.status = 'Completed';
@@ -147,8 +217,10 @@ export class DeployResourceActivity implements Activity<DeployResourceParam> {
     step.status = 'Running';
     step.attempt = activityInfo().attempt;
     step.startedAt = step.startedAt ?? new Date();
-    step.subSteps = [];
+    step.logs = [];
 
+    // A fresh attempt starts clean, so drop the sub-steps of the previous attempt.
+    await this.deploymentSubSteps.delete({ stepId: step.id });
     await this.deploymentSteps.save(step);
     return step;
   }

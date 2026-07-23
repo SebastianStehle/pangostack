@@ -63,7 +63,6 @@ export class CreateDeploymentStepsActivity implements Activity<CreateDeploymentS
       step.resourceName = resolveName(resourceId, action);
       step.action = action;
       step.status = 'Pending';
-      step.subSteps = [];
 
       const saved = await this.deploymentSteps.save(step);
       created.push({ action, resourceId, stepId: saved.id });

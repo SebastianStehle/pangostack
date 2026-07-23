@@ -115,6 +115,22 @@ The corresponding server must be running before regenerating a client. After cha
         })),
 ```
 
+Format @ApiProperty like this
+
+```
+@ApiProperty({
+  description: 'Indicates if the info is public.',
+  required: true,
+})
+
+or 
+
+```
+@ApiProperty({
+  description: 'Indicates if the info is public.',
+}
+```
+
 ### Generated code
 
 #### Worker Client

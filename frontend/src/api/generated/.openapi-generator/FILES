@@ -34,6 +34,7 @@ models/DeploymentMetricsDto.ts
 models/DeploymentResourceDto.ts
 models/DeploymentStatusDto.ts
 models/DeploymentStepDto.ts
+models/DeploymentStepLogDto.ts
 models/DeploymentStepsDto.ts
 models/DeploymentSubStepDto.ts
 models/DeploymentUsageSummariesDto.ts

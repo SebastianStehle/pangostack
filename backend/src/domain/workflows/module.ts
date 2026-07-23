@@ -8,6 +8,7 @@ import {
   DeploymentMetricEntity,
   DeploymentUpdateEntity,
   DeploymentUpdateStepEntity,
+  DeploymentUpdateSubStepEntity,
   DeploymentUsageEntity,
   WorkerEntity,
 } from 'src/domain/database';
@@ -51,6 +52,7 @@ import { TemporalService, WorkflowService } from './services';
       DeploymentMetricEntity,
       DeploymentUpdateEntity,
       DeploymentUpdateStepEntity,
+      DeploymentUpdateSubStepEntity,
       DeploymentUsageEntity,
       WorkerEntity,
     ]),

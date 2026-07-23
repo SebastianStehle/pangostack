@@ -9,11 +9,10 @@ import { stringify as toYAML } from 'yaml';
 import { dotToNested, formatReadiness, pollUntil } from 'src/lib';
 import {
   defineResource,
-  ProgressReporter,
   Resource,
-  ResourceApplyResult,
   ResourceLogResult,
   ResourceMetricsResult,
+  ResourceReporter,
   ResourceRequest,
   ResourceStatusResult,
   ResourceWorkloadStatus,
@@ -80,13 +79,13 @@ export class HelmResource implements Resource {
     },
   });
 
-  async apply(id: string, request: ResourceRequest<Parameters>, progress: ProgressReporter): Promise<ResourceApplyResult> {
+  async apply(id: string, request: ResourceRequest<Parameters>, reporter: ResourceReporter): Promise<void> {
     const { config, repositoryUrl, repositoryName, chartName, chartVersion, ...others } = request.parameters;
 
     const k8 = await this.getK8Service(config);
     const env = helmEnv(k8.kubeconfigPath);
     try {
-      progress.beginStep('Updating chart repository');
+      reporter.beginStep('Updating chart repository');
       await execa('helm', ['repo', 'add', repositoryName, repositoryUrl], { env });
       await execa('helm', ['repo', 'update'], { env });
 
@@ -128,30 +127,29 @@ export class HelmResource implements Resource {
       }
 
       try {
-        progress.beginStep(`Installing chart ${chartName}`);
+        reporter.beginStep(`Installing chart ${chartName}`);
         const { stdout, stderr } = await execa('helm', args, { env });
+
+        // Persist the helm output immediately so it survives even if the workload wait below fails.
+        reporter.report(stdout + '\n' + stderr, { log: true });
+
+        reporter.appendConnection({
+          namespace: {
+            value: namespace,
+            label: 'Namespace',
+            isPublic: false,
+          },
+          config: {
+            value: config,
+            label: 'Kubernetes Config',
+            isPublic: false,
+          },
+        });
 
         // A successful helm install only means the release exists. Later resources rely on
         // this one being usable, therefore wait until the workloads are actually ready.
-        progress.beginStep('Waiting for workloads to become ready');
-        await this.waitForWorkloadsReady(k8, namespace, request.timeoutMs, progress);
-
-        return {
-          log: stdout + '\n' + stderr,
-          context: {},
-          connection: {
-            namespace: {
-              value: namespace,
-              label: 'Namespace',
-              isPublic: false,
-            },
-            config: {
-              value: config,
-              label: 'Kubernetes Config',
-              isPublic: false,
-            },
-          },
-        };
+        reporter.beginStep('Waiting for workloads to become ready');
+        await this.waitForWorkloadsReady(k8, namespace, request.timeoutMs, reporter);
       } finally {
         if (valuesFilePath) {
           await fs.rm(valuesFilePath);
@@ -328,7 +326,7 @@ export class HelmResource implements Resource {
     k8: { v1Apps: k8s.AppsV1Api; v1Core: k8s.CoreV1Api },
     namespace: string,
     timeoutMs: number,
-    progress: ProgressReporter,
+    reporter: ResourceReporter,
   ) {
     await pollUntil(
       timeoutMs,
@@ -356,7 +354,7 @@ export class HelmResource implements Resource {
           }
         }
 
-        progress.update(formatReadiness(replicasReady, replicasTotal, 'replicas', waitingFor));
+        reporter.report(formatReadiness(replicasReady, replicasTotal, 'replicas', waitingFor));
 
         return workloads.length > 0 && waitingFor.length === 0;
       },

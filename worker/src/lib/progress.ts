@@ -1,4 +1,5 @@
-import { ProgressReporter, SubStep } from 'src/resources/interface';
+import { Logger } from '@nestjs/common';
+import { ConnectionInfo, ParametersOrContextValue, ResourceEvent, ResourceReporter } from 'src/resources/interface';
 
 export function formatReadiness(ready: number, total: number, unit: string, waitingFor: string[]) {
   let message = `${ready}/${total} ${unit} ready`;
@@ -10,53 +11,62 @@ export function formatReadiness(ready: number, total: number, unit: string, wait
   return message;
 }
 
-export class ProgressTracker implements ProgressReporter {
-  readonly subSteps: SubStep[] = [];
+export class ResourceReporterImpl implements ResourceReporter {
+  private stepCounter = 0;
+  private currentStepId?: string;
 
-  constructor(private readonly onChange: (subSteps: SubStep[]) => void) {}
-
-  private get current(): SubStep | undefined {
-    return this.subSteps[this.subSteps.length - 1];
-  }
+  constructor(
+    private readonly emit: (event: ResourceEvent) => void,
+    private readonly logger?: Logger,
+  ) {}
 
   beginStep(name: string) {
-    this.finishCurrent('Completed');
+    this.completeCurrent();
 
-    this.subSteps.push({ name, status: 'Running', startedAt: new Date().toISOString() });
-    this.onChange(this.subSteps);
+    const id = `${++this.stepCounter}`;
+    this.currentStepId = id;
+    this.emit({ type: 'startStep', id, name, timestamp: new Date() });
   }
 
-  update(message: string) {
-    const current = this.current;
-    if (!current || current.status !== 'Running') {
-      return;
-    }
+  report(message: string, options?: { log?: boolean }) {
+    this.emit({ type: 'appendLog', stepId: this.currentStepId ?? null, message, timestamp: new Date() });
 
-    current.message = message;
-    this.onChange(this.subSteps);
+    if (options?.log) {
+      this.logger?.log(message);
+    }
+  }
+
+  appendContext(context: Record<string, ParametersOrContextValue>) {
+    this.emit({ type: 'appendContext', context, timestamp: new Date() });
+  }
+
+  appendResourceContext(context: Record<string, string>) {
+    this.emit({ type: 'appendResourceContext', context, timestamp: new Date() });
+  }
+
+  appendConnection(connection: Record<string, ConnectionInfo>) {
+    this.emit({ type: 'appendConnection', connection, timestamp: new Date() });
   }
 
   complete() {
-    this.finishCurrent('Completed');
+    this.completeCurrent();
   }
 
   fail(message?: string) {
-    this.finishCurrent('Failed', message);
-  }
-
-  private finishCurrent(status: 'Completed' | 'Failed', message?: string) {
-    const current = this.current;
-    if (!current || current.status !== 'Running') {
+    if (!this.currentStepId) {
       return;
     }
 
-    current.status = status;
-    current.completedAt = new Date().toISOString();
+    this.emit({ type: 'failStep', id: this.currentStepId, message: message ?? null, timestamp: new Date() });
+    this.currentStepId = undefined;
+  }
 
-    if (message) {
-      current.message = message;
+  private completeCurrent() {
+    if (!this.currentStepId) {
+      return;
     }
 
-    this.onChange(this.subSteps);
+    this.emit({ type: 'completeStep', id: this.currentStepId, timestamp: new Date() });
+    this.currentStepId = undefined;
   }
 }

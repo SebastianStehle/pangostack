@@ -93,31 +93,46 @@ Today `applyResource` is one blocking HTTP call (up to 10 minutes) and each prov
 
 **Transport: stream progress on the apply call itself.** Instead of a side-channel store that the backend polls, the apply request becomes a **streaming HTTP response** (NDJSON, one event per line — SSE-style over the connection that already exists):
 
-```
-POST /resources/apply            (streaming response)
+Each line is a concrete, self-contained event discriminated by a **verb** `type`. Steps are reported as discrete lifecycle events carrying their own `id`, not as repeated full-array snapshots — the backend reconstructs whatever shape it needs (an ordered sub-step array, for the UI) from them:
 
-{"type":"subStep","name":"helm upgrade --install","status":"Running","startedAt":"..."}
-{"type":"subStep","name":"Waiting for workloads","status":"Running","message":"3/5 pods ready"}
-{"type":"log","message":"..."}
-{"type":"result","result":{ ...ResourceApplyResult }}     // terminal event
-{"type":"error","error":"..."}                            // or terminal error
 ```
+POST /deployment/apply           (streaming response)
+
+{"type":"startStep","id":"1","name":"Installing chart","startedAt":"..."}
+{"type":"appendLog","stepId":"1","message":"..."}                        // a log line under step 1
+{"type":"updateConnection","connection":{ "namespace": { ...ConnectInfo } }}
+{"type":"updateContext","context":{ "host":"1.2.3.4" }}
+{"type":"updateResourceContext","resourceContext":{ "password":"..." }}
+{"type":"completeStep","id":"1","completedAt":"..."}
+{"type":"startStep","id":"2","name":"Waiting for workloads","startedAt":"..."}
+{"type":"appendLog","stepId":"2","message":"1/3 replicas ready"}
+{"type":"appendLog","stepId":"2","message":"3/3 replicas ready"}         // every line kept, none replaced
+{"type":"completeStep","id":"2","completedAt":"..."}
+{"type":"complete"}                                                      // terminal success marker
+{"type":"fail","error":"..."}                                            // or terminal failure (+ a failStep for the current step)
+```
+
+There is no aggregate `result` event. Everything `apply` produces — steps, log lines, context, connection and resource-context — is emitted **incrementally** through a `ResourceReporter` and persisted by the backend as it arrives, so a failure in a later step never discards what an earlier step already reported (e.g. a VM's generated password is persisted before the SSH wait that might time out). `apply` therefore returns `void`; the terminal `complete` event distinguishes a clean finish from a dropped connection.
 
 Why this over a progress store: there is **no state at the worker** to lose, expire, or clean up — progress lives exactly as long as the operation; event ordering is guaranteed; and a dropped connection is an unambiguous failure that Temporal's existing activity retry handles (apply must already be idempotent because of those retries). A store-and-poll design would silently show stale progress after a worker restart.
 
 **Why not gRPC:** server-streaming gRPC is the textbook fit, but the worker↔backend contract is currently Swagger-driven (`/api-json` → `npm run generate-worker`), and introducing a proto toolchain, a second port, and new auth handling for one streaming endpoint isn't worth it. NDJSON over the existing HTTP/REST channel gets the same semantics with the current infrastructure. If more streaming use cases appear (live logs, status watches), revisit gRPC as a deliberate migration.
 
-One practical consequence: the generated OpenAPI client can't consume a streaming body, so `WorkerClient` gets one hand-written streaming method for apply (in `backend/src/domain/workers/`, next to — not inside — the generated folder). All other endpoints stay generated.
+One practical consequence: the generated OpenAPI client can't consume a streaming body, so `WorkerClient` gets one hand-written streaming method for apply (in `backend/src/domain/workers/`, next to — not inside — the generated folder). The *event shapes* are still generated, though: each concrete `*EventDto` is registered on the worker controller with `@ApiExtraModels` and combined into a proper `oneOf` **discriminated union** `ResourceEventDto` (assembled in `main.ts`), so they land in the OpenAPI spec and the generator emits a real TypeScript union the backend switches on — even though the endpoint itself is `@ApiExcludeEndpoint`. All other endpoints stay fully generated.
 
-**Progress reporter.** `Resource.apply` gets a `ProgressReporter` (passed alongside the existing `LogContext` parameter, so the hook point already exists) whose implementation just writes events to the response stream:
+**Resource reporter.** `Resource.apply` gets a `ResourceReporter` — the single output sink; provisioners do not log separately, so no `LogContext` is threaded through:
 
 ```ts
-interface ProgressReporter {
-  beginStep(name: string): void;        // completes the previous sub-step
-  update(message: string): void;        // e.g. '3/5 pods ready'
-  log(message: string): void;           // appended to the resource log
+interface ResourceReporter {
+  beginStep(name: string): void;                              // completes the previous sub-step, starts a new one
+  report(message: string, options?: { log?: boolean }): void; // appends a log line to the current step
+  updateContext(context: Record<string, string | number | boolean>): void;
+  updateResourceContext(resourceContext: Record<string, string>): void;
+  updateConnection(connection: Record<string, ConnectionInfo>): void;
 }
 ```
+
+The reporter assigns each step an id and emits `startStep`/`completeStep`/`failStep`. `report` emits a single `appendLog` event (carrying the current `stepId`) — there is no separate "live message" that gets replaced; every line is kept. `{ log: true }` additionally writes the line to the worker's own NestJS logger for operators. The setters emit the matching `update*` events.
 
 **Backend side.** `DeployResourceActivity` consumes the stream: each event heartbeats Temporal and updates the sub-step array on the step row (throttled to ~1 write/s). This also enables a much better timeout policy: instead of one blanket 10-minute timeout, fail fast when the stream is silent too long (idle timeout per sub-step, with the worker emitting keep-alives during long waits). Failures surface as the exact sub-step that broke, with its message — not an opaque timeout.
 
@@ -147,7 +162,7 @@ Sanitization note: step errors originate from provisioners and may leak infrastr
 |---|---|---|
 | 1 | `refetchInterval` polling; fix status-regression bug; coarse progress inferred from `resourceConnections` keys | none |
 | 2 | Step entity + migration; workflow/activity transitions incl. attempt tracking; steps + history endpoints; stepper UI with progress bar | yes |
-| 3 | Worker sub-steps: `ProgressReporter` in all provisioners, progress endpoint, backend polling/heartbeat, helm readiness wait, expandable sub-step UI | worker DTOs |
+| 3 | Worker sub-steps: `ResourceReporter` in all provisioners, streaming apply endpoint, backend polling/heartbeat, helm readiness wait, expandable sub-step UI | worker DTOs |
 | 4 | Error sanitization; retry button; SSE if polling ever becomes a limit | none |
 
 Phases 2 and 3 together are the actual concept; 2 ships standalone value and 3 builds on its persistence without rework (sub-steps land in the column phase 2 created).
@@ -158,7 +173,7 @@ Phases 2 and 3 together are the actual concept; 2 ships standalone value and 3 b
 - `backend/src/domain/workflows/workflows/deploy-resources.ts`, `activities/deploy-resource.ts`, `activities/delete-resource.ts`, new `activities/create-deployment-steps.ts`, `activities/fail-deployment-step.ts`
 - `backend/src/domain/services/use-cases/get-deployment-update-steps.ts` (new query/handler)
 - `backend/src/controllers/deployments/deployments.controller.ts` + DTOs
-- `worker/src/resources/interface.ts` (`ProgressReporter`), all four provisioners in `worker/src/resources/*/index.ts`, `worker/src/controllers/resources/` (streaming apply response)
+- `worker/src/resources/interface.ts` (`ResourceReporter`, `ResourceEvent`), all four provisioners in `worker/src/resources/*/index.ts`, `worker/src/controllers/deployment/` (streaming apply response + `ResourceEventDto`)
 - `backend/src/domain/workers/` (hand-written streaming apply client next to `generated/`), `frontend/src/api/generated/` (regenerated)
 - `frontend/src/pages/public/team/deployment/DeploymentPage.tsx`, new `frontend/src/components/DeploymentSteps.tsx`
 

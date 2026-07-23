@@ -1,5 +1,6 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Repository } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Repository } from 'typeorm';
 import { DeploymentUpdateEntity } from './deployment-update';
+import { DeploymentUpdateSubStepEntity } from './deployment-update-sub-step';
 
 export type DeploymentUpdateStepRepository = Repository<DeploymentUpdateStepEntity>;
 
@@ -7,17 +8,9 @@ export type DeploymentStepAction = 'Deploy' | 'Delete';
 
 export type DeploymentStepStatus = 'Pending' | 'Running' | 'Completed' | 'Failed';
 
-export type DeploymentSubStepStatus = 'Running' | 'Completed' | 'Failed';
-
 export type DeploymentStepKey = { resourceId: string; action: DeploymentStepAction };
 
-export type DeploymentSubStep = {
-  name: string;
-  status: DeploymentSubStepStatus;
-  message?: string | null;
-  startedAt: string;
-  completedAt?: string | null;
-};
+export type DeploymentStepLog = { message: string; timestamp: string };
 
 @Entity({ name: 'deployment-update-steps' })
 export class DeploymentUpdateStepEntity {
@@ -41,17 +34,20 @@ export class DeploymentUpdateStepEntity {
   @Column({ type: 'varchar', length: 20, default: 'Deploy' })
   action: DeploymentStepAction = 'Deploy';
 
-  @Column({ type: 'varchar', length: 20, default: 'Pending' })
-  status: DeploymentStepStatus = 'Pending';
-
   @Column({ default: 0 })
   attempt: number = 0;
+
+  @OneToMany(() => DeploymentUpdateSubStepEntity, (subStep) => subStep.step)
+  subSteps: DeploymentUpdateSubStepEntity[];
+
+  @Column({ type: 'varchar', length: 20, default: 'Pending' })
+  status: DeploymentStepStatus = 'Pending';
 
   @Column('text', { nullable: true })
   error?: string | null;
 
   @Column('simple-json', { default: [] })
-  subSteps: DeploymentSubStep[] = [];
+  logs: DeploymentStepLog[] = [];
 
   @Column({ type: 'timestamp', nullable: true })
   startedAt?: Date | null;
