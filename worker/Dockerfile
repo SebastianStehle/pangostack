@@ -12,7 +12,10 @@ COPY package*.json ./
 # Optimized installation for build servers.
 RUN npm ci
 
-COPY . . 
+COPY . .
+
+# Run linter
+RUN npm run lint
 
 # Run the build command which creates the production bundle
 RUN npm run build

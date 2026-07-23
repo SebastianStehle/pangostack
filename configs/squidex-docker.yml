@@ -185,8 +185,11 @@ resources:
       SQUIDEX_ADMINEMAIL: changeme@squidex.io
       SQUIDEX_ADMINPASSWORD: changeme
     healthChecks:
-      - name: Default
+      - name: External
         url: https://${parameters.domain}/healthz
+        type: http
+      - name: Internal
+        url: https://${context.vm.host}/healthz
         type: http
 
 prices:

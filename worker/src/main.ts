@@ -1,3 +1,5 @@
+// Must be first: starts OpenTelemetry before any instrumented module (http, express) is loaded.
+import './tracing';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
