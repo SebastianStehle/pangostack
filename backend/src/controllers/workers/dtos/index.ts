@@ -1,9 +1,12 @@
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
+import { IsDefined, IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
 import {
   Worker,
   ResourceMetricDto as WorkerResourceMetricDto,
   ResourceTypeDto as WorkerResourceTypeDto,
   ResourceValueDto as WorkerResourceValueDto,
+  WorkerStatus,
+  WorkerWithStatus,
 } from 'src/domain/workers';
 
 export class ResourceTypeValueDto {
@@ -139,7 +142,49 @@ export class ResourceTypesDto {
   }
 }
 
+export class WorkerStatusDto {
+  @ApiProperty({
+    description: 'Indicates if the worker can be reached.',
+    required: true,
+  })
+  isReady: boolean;
+
+  @ApiProperty({
+    description: 'The timestamp when the worker has been started.',
+    nullable: true,
+    type: String,
+  })
+  startedAt?: string | null;
+
+  @ApiProperty({
+    description: 'The resource types that the worker provides.',
+    required: true,
+    type: [String],
+  })
+  resourceTypes: string[];
+
+  @ApiProperty({
+    description: 'The reason why the worker could not be reached.',
+    nullable: true,
+    type: String,
+  })
+  error?: string | null;
+
+  static fromDomain(source: WorkerStatus): WorkerStatusDto {
+    const { error, isReady, resourceTypes, startedAt } = source;
+
+    return Object.assign(new WorkerStatusDto(), { error, isReady, resourceTypes, startedAt });
+  }
+}
+
+@ApiExtraModels(WorkerStatusDto)
 export class WorkerDto {
+  @ApiProperty({
+    description: 'The ID of the worker.',
+    required: true,
+  })
+  id: number;
+
   @ApiProperty({
     description: 'The endpoint of the worker.',
     required: true,
@@ -147,16 +192,35 @@ export class WorkerDto {
   endpoint: string;
 
   @ApiProperty({
-    description: 'Indicates if the worker can be reached.',
+    description: 'Indicates if an API key has been configured. The key itself is never exposed.',
     required: true,
   })
-  isReady: boolean;
+  hasApiKey: boolean;
 
   static fromDomain(source: Worker): WorkerDto {
-    const result = new WorkerDto();
-    result.endpoint = source.endpoint;
-    result.isReady = source.isReady;
-    return result;
+    const { endpoint, hasApiKey, id } = source;
+
+    return Object.assign(new WorkerDto(), { endpoint, hasApiKey, id });
+  }
+}
+
+export class WorkerWithStatusDto extends WorkerDto {
+  @ApiProperty({
+    description: 'The current status of the worker.',
+    required: true,
+    type: WorkerStatusDto,
+  })
+  status: WorkerStatusDto;
+
+  static fromDomain(source: WorkerWithStatus): WorkerWithStatusDto {
+    const { endpoint, hasApiKey, id, status } = source;
+
+    return Object.assign(new WorkerWithStatusDto(), {
+      endpoint,
+      hasApiKey,
+      id,
+      status: WorkerStatusDto.fromDomain(status),
+    });
   }
 }
 
@@ -164,15 +228,38 @@ export class WorkersDto {
   @ApiProperty({
     description: 'The workers.',
     required: true,
-    type: [WorkerDto],
+    type: [WorkerWithStatusDto],
   })
-  items: WorkerDto[];
+  items: WorkerWithStatusDto[];
 
-  static fromDomain(source: Worker[]): WorkersDto {
+  static fromDomain(source: WorkerWithStatus[]): WorkersDto {
     const result = new WorkersDto();
-    result.items = source.map(WorkerDto.fromDomain);
+    result.items = source.map(WorkerWithStatusDto.fromDomain);
     return result;
   }
+}
+
+export class UpsertWorkerDto {
+  @ApiProperty({
+    description: 'The endpoint of the worker.',
+    required: true,
+  })
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  // Workers usually run on hosts without a TLD, e.g. http://localhost:3100, but a protocol is required
+  // because the value is used as the base path of the worker client.
+  @IsUrl({ require_tld: false, require_protocol: true, protocols: ['http', 'https'] })
+  endpoint: string;
+
+  @ApiProperty({
+    description: 'The API key to authenticate against the worker. Keeps the current key when not defined.',
+    required: false,
+    type: String,
+  })
+  @IsOptional()
+  @IsString()
+  apiKey?: string;
 }
 
 function mapRecord<T, R>(source: Record<string, T>, mapper: (value: T) => R): Record<string, R> {

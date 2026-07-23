@@ -4,9 +4,9 @@ import {
   ConnectionInfo,
   DeploymentCheckStatus,
   DeploymentStepAction,
+  DeploymentStepLog,
   DeploymentStepStatus,
   DeploymentSubStep,
-  DeploymentSubStepStatus,
   DeploymentUpdateStatus,
 } from 'src/domain/database';
 import {
@@ -432,7 +432,35 @@ export class DeploymentStatusDto {
   }
 }
 
+export class DeploymentStepLogDto {
+  @ApiProperty({
+    description: 'The log line.',
+    required: true,
+  })
+  message: string;
+
+  @ApiProperty({
+    description: 'When the line was reported.',
+    required: true,
+    type: Date,
+  })
+  timestamp: Date;
+
+  static fromDomain(source: DeploymentStepLog) {
+    const result = new DeploymentStepLogDto();
+    result.message = source.message;
+    result.timestamp = new Date(source.timestamp);
+    return result;
+  }
+}
+
 export class DeploymentSubStepDto {
+  @ApiProperty({
+    description: 'The id of the sub-step.',
+    required: true,
+  })
+  id: number;
+
   @ApiProperty({
     description: 'The name of the sub-step.',
     required: true,
@@ -442,35 +470,45 @@ export class DeploymentSubStepDto {
   @ApiProperty({
     description: 'The status of the sub-step.',
     required: true,
-    enum: ['Running', 'Completed', 'Failed'],
+    enum: ['Pending', 'Running', 'Completed', 'Failed'],
   })
-  status: DeploymentSubStepStatus;
+  status: DeploymentStepStatus;
 
   @ApiProperty({
-    description: 'The live message of the sub-step, for example the readiness progress.',
+    description: 'The error, when the sub-step failed.',
     nullable: true,
     type: String,
   })
-  message?: string | null;
+  error?: string | null;
+
+  @ApiProperty({
+    description: 'The timestamped log lines reported for this sub-step.',
+    required: true,
+    type: [DeploymentStepLogDto],
+  })
+  logs: DeploymentStepLogDto[] = [];
 
   @ApiProperty({
     description: 'When the sub-step was started.',
-    required: true,
+    nullable: true,
+    type: Date,
   })
-  startedAt: string;
+  startedAt?: Date | null;
 
   @ApiProperty({
     description: 'When the sub-step was completed or failed.',
     nullable: true,
-    type: String,
+    type: Date,
   })
-  completedAt?: string | null;
+  completedAt?: Date | null;
 
   static fromDomain(source: DeploymentSubStep) {
     const result = new DeploymentSubStepDto();
+    result.id = source.id;
     result.name = source.name;
     result.status = source.status;
-    result.message = source.message;
+    result.error = source.error;
+    result.logs = source.logs.map(DeploymentStepLogDto.fromDomain);
     result.startedAt = source.startedAt;
     result.completedAt = source.completedAt;
     return result;
@@ -531,6 +569,13 @@ export class DeploymentStepDto {
   subSteps: DeploymentSubStepDto[] = [];
 
   @ApiProperty({
+    description: 'The timestamped log lines reported outside any sub-step.',
+    required: true,
+    type: [DeploymentStepLogDto],
+  })
+  logs: DeploymentStepLogDto[] = [];
+
+  @ApiProperty({
     description: 'When the step was started.',
     nullable: true,
     type: Date,
@@ -554,6 +599,7 @@ export class DeploymentStepDto {
     result.maxAttempts = DEPLOYMENT_STEP_MAX_ATTEMPTS;
     result.error = source.error;
     result.subSteps = source.subSteps.map(DeploymentSubStepDto.fromDomain);
+    result.logs = source.logs.map(DeploymentStepLogDto.fromDomain);
     result.startedAt = source.startedAt;
     result.completedAt = source.completedAt;
     return result;
@@ -826,9 +872,9 @@ export class DeploymentMetricSeriesDto {
   @ApiProperty({
     description: 'How the metric should be displayed.',
     required: true,
-    enum: ['label', 'bar'],
+    enum: ['line', 'bar'],
   })
-  chart: 'label' | 'bar';
+  chart: 'line' | 'bar';
 
   @ApiProperty({
     description: 'The summaries that are shown as cards in the UI.',

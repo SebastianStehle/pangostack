@@ -1,0 +1,195 @@
+# Redis on a single Vultr VM, started with Docker Compose over SSH.
+# Companion compose file: configs/redis/docker-compose.yml (referenced by dockerComposeUrl below).
+parameters:
+  - name: region
+    label: Region
+    type: string
+    required: true
+    defaultValue: fra
+    display: true
+    allowedValues:
+      - value: fra
+        label: Frankfurt
+      - value: ams
+        label: Amsterdam
+      - value: ewr
+        label: New Jersey
+    immutable: true
+
+  - name: plan
+    label: Plan
+    type: string
+    required: true
+    defaultValue: cores_1
+    display: true
+    allowedValues:
+      - value: cores_1
+        label: 1 Core, 1 GB RAM, 25 GB SSD
+        updateFrom: []
+      - value: cores_2
+        label: 1 Core, 2 GB RAM, 55 GB SSD
+        updateFrom: [cores_1]
+      - value: cores_4
+        label: 2 Cores, 4 GB RAM, 80 GB SSD
+        updateFrom: [cores_1, cores_2]
+
+  - name: version
+    label: Redis Version
+    type: string
+    required: true
+    defaultValue: "7"
+    display: true
+    allowedValues:
+      - value: "7"
+        label: Redis 7
+      - value: "6"
+        label: Redis 6
+
+  - name: password
+    label: Password
+    type: string
+    required: true
+    section: Security
+    hint: The password clients must send with AUTH. Store it somewhere safe.
+
+  - name: maxmemoryPolicy
+    label: Eviction Policy
+    type: string
+    required: true
+    defaultValue: noeviction
+    section: Advanced
+    hint: How Redis behaves when it reaches the memory limit.
+    allowedValues:
+      - value: noeviction
+        label: Reject writes (noeviction)
+      - value: allkeys-lru
+        label: Evict least-recently-used keys (allkeys-lru)
+      - value: allkeys-lfu
+        label: Evict least-frequently-used keys (allkeys-lfu)
+      - value: volatile-ttl
+        label: Evict keys with the shortest TTL (volatile-ttl)
+
+  - name: backup
+    label: Automatic VM Backup
+    type: boolean
+    required: true
+    defaultValue: false
+
+  - name: environment
+    label: Environment
+    type: string
+    editor: textarea
+    required: false
+    section: More
+    hint: Additional environment variables in the format key=value.
+
+afterInstallationInstructions: |-
+  Your Redis server is ready. Connect from your application with:
+
+  ```
+  redis://:<password>@${context.vm.host}:6379
+  ```
+
+  The host is **${context.vm.host}**. Keep port 6379 firewalled to trusted networks only.
+
+pricingModel: fixed
+
+metrics:
+  - key: memory
+    label: Memory
+    unit: gb
+    interval: 15m
+    keep: 15d
+    mapping:
+      - resource: vultr-vm
+        from: memory
+        prefix: vm
+    chart: bar
+    summaries:
+      - label: Max Memory
+        type: max
+        prefix: vm
+        value: used
+
+  - key: cpu
+    label: CPU
+    unit: percent
+    interval: 15m
+    keep: 15d
+    mapping:
+      - resource: vultr-vm
+        from: cpu
+        prefix: vm
+    chart: bar
+    summaries:
+      - label: Average CPU
+        type: avg
+        prefix: vm
+
+resources:
+  - name: Virtual Machine
+    id: vm
+    type: vultr-vm
+    parameters:
+      apiKey: ${env.apiKey}
+      app: docker
+      region: ${parameters.region}
+      backup: ${parameters.backup}
+    mappings:
+      plan:
+        value: ${parameters.plan}
+        map:
+          cores_1: vc2-1c-1gb
+          cores_2: vc2-1c-2gb
+          cores_4: vc2-2c-4gb
+
+  # Health checks only support the "http" type, so a plain Redis server has none defined.
+  - name: Redis
+    id: redis
+    type: docker-compose-ssh
+    parameters:
+      dockerComposeUrl: https://raw.githubusercontent.com/SebastianStehle/pangostack/main/configs/redis/docker-compose.yml
+      host: ${context.vm.host}
+      sshUser: ${context.vm.sshUser}
+      sshPassword: ${context.vm.sshPassword}
+      environment: ${parameters.environment}
+      REDIS_VERSION: ${parameters.version}
+      REDIS_PASSWORD: ${parameters.password}
+      REDIS_MAXMEMORY_POLICY: ${parameters.maxmemoryPolicy}
+
+prices:
+  - billingIdentifier: machine
+    label: Machine
+    target: ${parameters.plan}
+    test: cores_1
+    pricePerHour: 0.02
+
+  - billingIdentifier: backup
+    label: Backup
+    target: ${parameters.plan}_${parameters.backup}
+    test: cores_1_true
+    pricePerHour: 0.01
+
+  - billingIdentifier: machine
+    label: Machine
+    target: ${parameters.plan}
+    test: cores_2
+    pricePerHour: 0.03
+
+  - billingIdentifier: backup
+    label: Backup
+    target: ${parameters.plan}_${parameters.backup}
+    test: cores_2_true
+    pricePerHour: 0.015
+
+  - billingIdentifier: machine
+    label: Machine
+    target: ${parameters.plan}
+    test: cores_4
+    pricePerHour: 0.06
+
+  - billingIdentifier: backup
+    label: Backup
+    target: ${parameters.plan}_${parameters.backup}
+    test: cores_4_true
+    pricePerHour: 0.03

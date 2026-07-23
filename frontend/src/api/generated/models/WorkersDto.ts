@@ -16,12 +16,12 @@
  */
 
 import { exists, mapValues } from '../runtime';
-import type { WorkerDto } from './WorkerDto';
+import type { WorkerWithStatusDto } from './WorkerWithStatusDto';
 import {
-    WorkerDtoFromJSON,
-    WorkerDtoFromJSONTyped,
-    WorkerDtoToJSON,
-} from './WorkerDto';
+    WorkerWithStatusDtoFromJSON,
+    WorkerWithStatusDtoFromJSONTyped,
+    WorkerWithStatusDtoToJSON,
+} from './WorkerWithStatusDto';
 
 /**
  * 
@@ -31,10 +31,10 @@ import {
 export interface WorkersDto {
     /**
      * The workers.
-     * @type {Array<WorkerDto>}
+     * @type {Array<WorkerWithStatusDto>}
      * @memberof WorkersDto
      */
-    items: Array<WorkerDto>;
+    items: Array<WorkerWithStatusDto>;
 }
 
 /**
@@ -57,7 +57,7 @@ export function WorkersDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean)
     }
     return {
         
-        'items': ((json['items'] as Array<any>).map(WorkerDtoFromJSON)),
+        'items': ((json['items'] as Array<any>).map(WorkerWithStatusDtoFromJSON)),
     };
 }
 
@@ -70,7 +70,7 @@ export function WorkersDtoToJSON(value?: WorkersDto | null): any {
     }
     return {
         
-        'items': ((value.items as Array<any>).map(WorkerDtoToJSON)),
+        'items': ((value.items as Array<any>).map(WorkerWithStatusDtoToJSON)),
     };
 }
 

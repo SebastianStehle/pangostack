@@ -8,12 +8,14 @@ import {
   DeploymentMetricEntity,
   DeploymentUpdateEntity,
   DeploymentUpdateStepEntity,
+  DeploymentUpdateSubStepEntity,
   DeploymentUsageEntity,
   WorkerEntity,
 } from 'src/domain/database';
 import { LibModule } from 'src/lib';
 import { BillingModule } from '../billing';
 import { NotificationModule } from '../notifications';
+import { WorkersModule } from '../workers';
 import {
   ChargeDeploymentActivity,
   CleanupDeploymentMetricsActivity,
@@ -27,7 +29,7 @@ import {
   FailDeploymentStepActivity,
   GetDeploymentActivity,
   GetDeploymentsActivity,
-  GetWorkerActivity,
+  GetResourceWorkersActivity,
   NotifyActivity,
   TrackDeploymentHealthActivity,
   TrackDeploymentMetricsActivity,
@@ -50,9 +52,11 @@ import { TemporalService, WorkflowService } from './services';
       DeploymentMetricEntity,
       DeploymentUpdateEntity,
       DeploymentUpdateStepEntity,
+      DeploymentUpdateSubStepEntity,
       DeploymentUsageEntity,
       WorkerEntity,
     ]),
+    WorkersModule,
   ],
   providers: [
     ActivityExplorerService,
@@ -68,7 +72,7 @@ import { TemporalService, WorkflowService } from './services';
     FailDeploymentStepActivity,
     GetDeploymentActivity,
     GetDeploymentsActivity,
-    GetWorkerActivity,
+    GetResourceWorkersActivity,
     NotifyActivity,
     TemporalService,
     TrackDeploymentHealthActivity,

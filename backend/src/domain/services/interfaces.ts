@@ -2,6 +2,7 @@ import {
   ConnectionInfo,
   DeploymentCheckStatus,
   DeploymentStepAction,
+  DeploymentStepLog,
   DeploymentStepStatus,
   DeploymentSubStep,
   DeploymentUpdateStatus,
@@ -29,6 +30,9 @@ export interface DeploymentUpdateStep {
 
   // The sub-steps as reported by the worker.
   subSteps: DeploymentSubStep[];
+
+  // The timestamped log lines reported by the worker, associated with sub-steps.
+  logs: DeploymentStepLog[];
 
   // When the step was started.
   startedAt?: Date | null;
@@ -320,7 +324,7 @@ export interface MetricSeries {
   unit?: string | null;
 
   // How the metric should be displayed.
-  chart: 'label' | 'bar';
+  chart: 'line' | 'bar';
 
   // The summaries that are shown as cards in the UI.
   summaries: MetricSummary[];

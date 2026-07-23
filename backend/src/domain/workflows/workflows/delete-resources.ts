@@ -10,7 +10,7 @@ const { deleteResource } = proxyActivities<typeof activities>({
   },
 });
 
-const { getWorker } = proxyActivities<typeof activities>({
+const { getResourceWorkers } = proxyActivities<typeof activities>({
   startToCloseTimeout: '30s',
   retry: {
     maximumAttempts: 3,
@@ -18,15 +18,14 @@ const { getWorker } = proxyActivities<typeof activities>({
 });
 
 export async function deleteResources({ deploymentId, resourceIds, updateId }: DeleteResourcesParam): Promise<void> {
-  const { workerApiKey, workerEndpoint } = await getWorker({});
+  const workerEndpoints = await getResourceWorkers({ resourceIds, updateId });
 
   for (const resourceId of [...resourceIds].reverse()) {
     await deleteResource({
-      workerApiKey,
-      workerEndpoint,
       resourceId,
       deploymentId,
       updateId,
+      workerEndpoint: workerEndpoints[resourceId],
     });
   }
 }

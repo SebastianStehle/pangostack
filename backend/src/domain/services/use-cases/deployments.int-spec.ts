@@ -5,6 +5,7 @@ import {
   createIntegrationTest,
   IntegrationTestContext,
   seedDeployment,
+  seedReachableWorker,
   seedService,
   seedServiceVersion,
   seedTeam,
@@ -25,6 +26,7 @@ import {
   ServiceVersionEntity,
   WorkerEntity,
 } from 'src/domain/database';
+import { WorkerResolver } from 'src/domain/workers';
 import { WorkflowService } from 'src/domain/workflows';
 import { UrlService } from 'src/lib';
 import { AllowAllDeploymentPolicy, AllowTeamDeploymentPolicy } from '../policies';
@@ -60,6 +62,9 @@ import {
   GetDeploymentUsagesHandler,
   GetDeploymentUsagesQuery,
   GetDeploymentUsagesResult,
+  RetryDeployment,
+  RetryDeploymentHandler,
+  RetryDeploymentResult,
   UpdateDeployment,
   UpdateDeploymentHandler,
   UpdateDeploymentResult,
@@ -117,8 +122,10 @@ describe('deployments handlers', () => {
         CreateDeploymentHandler,
         ConfirmDeploymentHandler,
         CancelDeploymentHandler,
+        RetryDeploymentHandler,
         UpdateDeploymentHandler,
         DeleteDeploymentHandler,
+        WorkerResolver,
         { provide: WorkflowService, useValue: workflows },
         { provide: BillingService, useValue: billing },
         { provide: UrlService, useValue: urlService },
@@ -264,12 +271,12 @@ describe('deployments handlers', () => {
   });
 
   describe('GetDeploymentStatusQuery', () => {
-    it('should fail when no worker is registered', async () => {
+    it('should fail when no worker is available', async () => {
       await context.dataSource.getRepository(WorkerEntity).clear();
       const { deployment } = await seedDeployment(context.dataSource);
 
       await expect(context.queryBus.execute(new GetDeploymentStatusQuery(deployment.id, policy))).rejects.toThrow(
-        'No worker registered.',
+        'No worker available.',
       );
     });
 
@@ -285,12 +292,12 @@ describe('deployments handlers', () => {
   });
 
   describe('GetDeploymentLogsQuery', () => {
-    it('should fail when no worker is registered', async () => {
+    it('should fail when no worker is available', async () => {
       await context.dataSource.getRepository(WorkerEntity).clear();
       const { deployment } = await seedDeployment(context.dataSource);
 
       await expect(context.queryBus.execute(new GetDeploymentLogsQuery(deployment.id, policy))).rejects.toThrow(
-        'No worker registered.',
+        'No worker available.',
       );
     });
 
@@ -324,7 +331,7 @@ describe('deployments handlers', () => {
 
   describe('ConfirmDeployment', () => {
     it('should mark the deployment as created and start the workflow', async () => {
-      await seedWorker(context.dataSource);
+      await seedReachableWorker(context.dataSource);
       const { deployment, team } = await seedDeployment(context.dataSource, { status: 'Pending', confirmToken: 'tok' });
 
       await context.commandBus.execute(new ConfirmDeployment(team.id, deployment.id, 'tok'));
@@ -344,7 +351,7 @@ describe('deployments handlers', () => {
 
   describe('CreateDeployment', () => {
     it('should create a deployment and start the workflow when billing is immediate', async () => {
-      await seedWorker(context.dataSource);
+      await seedReachableWorker(context.dataSource);
       const team = await seedTeam(context.dataSource);
       const service = await seedService(context.dataSource, { isPublic: true });
       await seedServiceVersion(context.dataSource, service.id, { isActive: true });
@@ -374,7 +381,7 @@ describe('deployments handlers', () => {
 
   describe('UpdateDeployment', () => {
     it('should rename the deployment and start the workflow', async () => {
-      await seedWorker(context.dataSource);
+      await seedReachableWorker(context.dataSource);
       const { deployment } = await seedDeployment(context.dataSource);
       const user = asUser(await seedUser(context.dataSource));
       const name = uniqueId('dep');
@@ -400,9 +407,33 @@ describe('deployments handlers', () => {
     });
   });
 
+  describe('RetryDeployment', () => {
+    it('should re-trigger the deployment workflow for a failed deployment', async () => {
+      workflows.createDeployment.mockClear();
+      await seedReachableWorker(context.dataSource);
+      const { deployment, update } = await seedDeployment(context.dataSource, {}, { status: 'Failed' });
+      const user = asUser(await seedUser(context.dataSource));
+
+      await context.commandBus.execute<RetryDeployment, RetryDeploymentResult>(new RetryDeployment(deployment.id, policy, user));
+
+      expect(workflows.createDeployment).toHaveBeenCalled();
+      const saved = await context.dataSource.getRepository(DeploymentUpdateEntity).findOneByOrFail({ id: update.id });
+      expect(saved.status).toBe('Pending');
+    });
+
+    it('should throw when the deployment is not in a failed state', async () => {
+      const { deployment } = await seedDeployment(context.dataSource);
+      const user = asUser(await seedUser(context.dataSource));
+
+      await expect(
+        context.commandBus.execute<RetryDeployment, RetryDeploymentResult>(new RetryDeployment(deployment.id, policy, user)),
+      ).rejects.toThrow('not in a failed state');
+    });
+  });
+
   describe('DeleteDeployment', () => {
     it('should trigger the delete workflow for a created deployment', async () => {
-      await seedWorker(context.dataSource);
+      await seedReachableWorker(context.dataSource);
       const { deployment } = await seedDeployment(context.dataSource);
       const user = asUser(await seedUser(context.dataSource));
 

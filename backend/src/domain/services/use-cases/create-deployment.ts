@@ -2,7 +2,7 @@ import { NotFoundException } from '@nestjs/common';
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, MoreThan, Not } from 'typeorm';
+import { MoreThan } from 'typeorm';
 import * as uuid from 'uuid';
 import { BillingService } from 'src/domain/billing';
 import {
@@ -14,12 +14,11 @@ import {
   ServiceRepository,
   ServiceVersionEntity,
   ServiceVersionRepository,
-  WorkerEntity,
-  WorkerRepository,
 } from 'src/domain/database';
 import { validateParameters } from 'src/domain/definitions';
 import { DeploymentCreatedEvent, SubscriptionCreatedEvent } from 'src/domain/events';
 import { User } from 'src/domain/users';
+import { WorkerResolver } from 'src/domain/workers';
 import { WorkflowService } from 'src/domain/workflows';
 import { saveAndFind, UrlService } from 'src/lib';
 import { Deployment } from '../interfaces';
@@ -55,8 +54,7 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     private readonly services: ServiceRepository,
     @InjectRepository(ServiceVersionEntity)
     private readonly serviceVersions: ServiceVersionRepository,
-    @InjectRepository(WorkerEntity)
-    private readonly workers: WorkerRepository,
+    private readonly workerResolver: WorkerResolver,
     private readonly workflows: WorkflowService,
     private readonly urlService: UrlService,
     private readonly events: EventEmitter2,
@@ -82,9 +80,9 @@ export class CreateDeploymentHandler implements ICommandHandler<CreateDeployment
     // Dynamic validation with the definition.
     validateParameters(version.definition, parameters);
 
-    const worker = await this.workers.findOne({ where: { endpoint: Not(IsNull()) } });
-    if (!worker) {
-      throw new NotFoundException('No worker registered.');
+    const workers = await this.workerResolver.getWorkers();
+    if (workers.size === 0) {
+      throw new NotFoundException('No worker available.');
     }
 
     const confirmToken = uuid.v4();

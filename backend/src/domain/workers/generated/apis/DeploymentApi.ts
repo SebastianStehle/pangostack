@@ -18,24 +18,17 @@
 import * as runtime from '../runtime';
 import type {
   ErrorResponseDto,
-  ResourceApplyResponseDto,
   ResourceRequestDto,
   ResourcesDeleteRequestDto,
 } from '../models/index';
 import {
     ErrorResponseDtoFromJSON,
     ErrorResponseDtoToJSON,
-    ResourceApplyResponseDtoFromJSON,
-    ResourceApplyResponseDtoToJSON,
     ResourceRequestDtoFromJSON,
     ResourceRequestDtoToJSON,
     ResourcesDeleteRequestDtoFromJSON,
     ResourcesDeleteRequestDtoToJSON,
 } from '../models/index';
-
-export interface ApplyResourceRequest {
-    resourceRequestDto: ResourceRequestDto;
-}
 
 export interface DeleteResourcesRequest {
     resourcesDeleteRequestDto: ResourcesDeleteRequestDto;
@@ -49,44 +42,6 @@ export interface VerifyResourceRequest {
  * 
  */
 export class DeploymentApi extends runtime.BaseAPI {
-
-    /**
-     * Applies the resource.
-     * 
-     */
-    async applyResourceRaw(requestParameters: ApplyResourceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResourceApplyResponseDto>> {
-        if (requestParameters['resourceRequestDto'] == null) {
-            throw new runtime.RequiredError(
-                'resourceRequestDto',
-                'Required parameter "resourceRequestDto" was null or undefined when calling applyResource().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        const response = await this.request({
-            path: `/deployment`,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: ResourceRequestDtoToJSON(requestParameters['resourceRequestDto']),
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => ResourceApplyResponseDtoFromJSON(jsonValue));
-    }
-
-    /**
-     * Applies the resource.
-     * 
-     */
-    async applyResource(resourceRequestDto: ResourceRequestDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResourceApplyResponseDto> {
-        const response = await this.applyResourceRaw({ resourceRequestDto: resourceRequestDto }, initOverrides);
-        return await response.value();
-    }
 
     /**
      * Deletes all resources with the specified IDs.

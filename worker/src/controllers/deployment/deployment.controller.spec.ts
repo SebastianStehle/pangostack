@@ -1,8 +1,8 @@
 import { Response } from 'express';
 import { describe, expect, it } from 'vitest';
-import { Resource } from 'src/resources/interface';
+import { Resource, ResourceEvent } from 'src/resources/interface';
 import { ResourceRequestDto } from '../shared';
-import { DeploymentController, ResourceApplyStreamEvent } from './deployment.controller';
+import { DeploymentController } from './deployment.controller';
 
 function createResponse() {
   const lines: string[] = [];
@@ -45,21 +45,16 @@ const request = {
 } as ResourceRequestDto;
 
 function parseEvents(lines: string[]) {
-  return lines.map((line) => JSON.parse(line) as ResourceApplyStreamEvent);
-}
-
-function parseSnapshots(lines: string[]) {
-  return parseEvents(lines).filter((x): x is Extract<ResourceApplyStreamEvent, { type: 'subSteps' }> => x.type === 'subSteps');
+  return lines.map((line) => JSON.parse(line) as ResourceEvent);
 }
 
 describe('DeploymentController', () => {
-  it('should stream sub-steps and end with the result when the resource succeeds', async () => {
+  it('should stream step lifecycle and reported values and end with a complete event when the resource succeeds', async () => {
     const controller = createController(
-      createResource(async (_id, _request, progress) => {
-        progress.beginStep('First');
-        progress.update('working');
-
-        return { context: { key: 'value' }, connection: {} };
+      createResource(async (_id, _request, reporter) => {
+        reporter.beginStep('First');
+        reporter.report('working');
+        reporter.appendContext({ key: 'value' });
       }),
     );
 
@@ -67,20 +62,21 @@ describe('DeploymentController', () => {
     await controller.applyResourceStreamed(request, res);
 
     const events = parseEvents(lines);
-    const lastEvent = events[events.length - 1];
 
-    expect(lastEvent).toMatchObject({ type: 'result', result: { context: { key: 'value' } } });
+    expect(events).toEqual([
+      { type: 'startStep', id: '1', name: 'First', timestamp: expect.any(String) },
+      { type: 'appendLog', stepId: '1', message: 'working', timestamp: expect.any(String) },
+      { type: 'appendContext', context: { key: 'value' }, timestamp: expect.any(String) },
+      { type: 'completeStep', id: '1', timestamp: expect.any(String) },
+      { type: 'complete', timestamp: expect.any(String) },
+    ]);
     expect(state.ended).toBe(true);
-
-    const snapshots = parseSnapshots(lines);
-    expect(snapshots[0].subSteps).toMatchObject([{ name: 'First', status: 'Running' }]);
-    expect(snapshots[snapshots.length - 1].subSteps).toMatchObject([{ name: 'First', status: 'Completed', message: 'working' }]);
   });
 
-  it('should fail the current sub-step and end with an error when the resource fails', async () => {
+  it('should fail the current sub-step and end with a fail event when the resource fails', async () => {
     const controller = createController(
-      createResource(async (_id, _request, progress) => {
-        progress.beginStep('First');
+      createResource(async (_id, _request, reporter) => {
+        reporter.beginStep('First');
 
         throw new Error('boom');
       }),
@@ -92,15 +88,13 @@ describe('DeploymentController', () => {
     const events = parseEvents(lines);
     const lastEvent = events[events.length - 1];
 
-    expect(lastEvent).toEqual({ type: 'error', error: 'boom' });
+    expect(lastEvent).toEqual({ type: 'fail', error: 'boom', timestamp: expect.any(String) });
+    expect(events).toContainEqual({ type: 'failStep', id: '1', message: 'boom', timestamp: expect.any(String) });
     expect(state.ended).toBe(true);
-
-    const snapshots = parseSnapshots(lines);
-    expect(snapshots[snapshots.length - 1].subSteps).toMatchObject([{ name: 'First', status: 'Failed', message: 'boom' }]);
   });
 
   it('should reject unknown resource types before streaming starts', async () => {
-    const controller = createController(createResource(() => Promise.resolve({ context: {}, connection: {} })));
+    const controller = createController(createResource(() => Promise.resolve()));
 
     const { res, lines } = createResponse();
     const promise = controller.applyResourceStreamed({ ...request, resourceType: 'unknown' } as ResourceRequestDto, res);

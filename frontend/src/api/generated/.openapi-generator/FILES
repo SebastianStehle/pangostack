@@ -34,6 +34,7 @@ models/DeploymentMetricsDto.ts
 models/DeploymentResourceDto.ts
 models/DeploymentStatusDto.ts
 models/DeploymentStepDto.ts
+models/DeploymentStepLogDto.ts
 models/DeploymentStepsDto.ts
 models/DeploymentSubStepDto.ts
 models/DeploymentUsageSummariesDto.ts
@@ -76,12 +77,15 @@ models/UpsertTeamDto.ts
 models/UpsertTeamUserDto.ts
 models/UpsertUserDto.ts
 models/UpsertUserGroupDto.ts
+models/UpsertWorkerDto.ts
 models/UserDto.ts
 models/UserGroupDto.ts
 models/UserGroupsDto.ts
 models/UsersDto.ts
 models/VerifyServiceVersionDto.ts
 models/WorkerDto.ts
+models/WorkerStatusDto.ts
+models/WorkerWithStatusDto.ts
 models/WorkersDto.ts
 models/index.ts
 runtime.ts

@@ -10,7 +10,7 @@ export * from './deploy-resource';
 export * from './fail-deployment-step';
 export * from './get-deployment';
 export * from './get-deployments';
-export * from './get-worker';
+export * from './get-resource-workers';
 export * from './notify';
 export * from './track-deployment-health';
 export * from './track-deployment-metrics';

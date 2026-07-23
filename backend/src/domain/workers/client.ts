@@ -4,25 +4,14 @@ import {
   Configuration,
   DeploymentApi,
   FetchError,
+  PingApi,
   RequiredError,
-  ResourceApplyResponseDto,
+  ResourceEventDto,
+  ResourceEventDtoFromJSON,
   ResourcesApi,
   ResponseError,
   StatusApi,
 } from './generated';
-
-export type WorkerSubStep = {
-  name: string;
-  status: 'Running' | 'Completed' | 'Failed';
-  message?: string | null;
-  startedAt: string;
-  completedAt?: string | null;
-};
-
-export type ResourceApplyStreamEvent =
-  | { type: 'subSteps'; subSteps: WorkerSubStep[] }
-  | { type: 'result'; result: ResourceApplyResponseDto }
-  | { type: 'error'; error: string };
 
 export type ResourceApplyStreamRequest = {
   resourceUniqueId: string;
@@ -34,6 +23,7 @@ export type ResourceApplyStreamRequest = {
 
 export class WorkerClient {
   public readonly deployment: DeploymentApi;
+  public readonly ping: PingApi;
   public readonly resources: ResourcesApi;
   public readonly status: StatusApi;
 
@@ -68,14 +58,16 @@ export class WorkerClient {
     });
 
     this.deployment = new DeploymentApi(configuration);
+    this.ping = new PingApi(configuration);
     this.resources = new ResourcesApi(configuration);
     this.status = new StatusApi(configuration);
   }
 
   // The streamed apply endpoint returns NDJSON and can therefore not be consumed with
-  // the generated OpenAPI client.
+  // the generated OpenAPI client. The event shape (ResourceEventDto) is still generated from
+  // the worker OpenAPI spec, so only the transport is hand-written.
   applyResourceStreamed(request: ResourceApplyStreamRequest) {
-    return new Observable<ResourceApplyStreamEvent>((subscriber) => {
+    return new Observable<ResourceEventDto>((subscriber) => {
       const abort = new AbortController();
 
       void this.consumeApplyStream(request, abort, subscriber);
@@ -87,7 +79,7 @@ export class WorkerClient {
   private async consumeApplyStream(
     request: ResourceApplyStreamRequest,
     abort: AbortController,
-    subscriber: Subscriber<ResourceApplyStreamEvent>,
+    subscriber: Subscriber<ResourceEventDto>,
   ) {
     try {
       const response = await fetch(`${this.basePath}/deployment/apply`, {
@@ -111,20 +103,20 @@ export class WorkerClient {
         throw new WorkerError(response.status, body, undefined, 'Streamed apply request failed');
       }
 
-      let hasResult = false;
+      let hasCompleted = false;
 
       const handleLine = (line: string) => {
         if (!line.trim()) {
           return;
         }
 
-        const event = JSON.parse(line) as ResourceApplyStreamEvent;
-        if (event.type === 'error') {
-          throw new WorkerError(undefined, undefined, undefined, event.error);
+        const event = ResourceEventDtoFromJSON(JSON.parse(line));
+        if (event.type === 'fail') {
+          throw new WorkerError(undefined, undefined, undefined, event.error ?? 'The worker reported an error.');
         }
 
-        if (event.type === 'result') {
-          hasResult = true;
+        if (event.type === 'complete') {
+          hasCompleted = true;
         }
 
         subscriber.next(event);
@@ -147,12 +139,12 @@ export class WorkerClient {
 
       handleLine(buffered);
 
-      if (!hasResult) {
+      if (!hasCompleted) {
         throw new WorkerError(
           undefined,
           undefined,
           undefined,
-          'Stream ended without a result. The worker probably crashed or the connection was interrupted.',
+          'Stream ended without completion. The worker probably crashed or the connection was interrupted.',
         );
       }
 

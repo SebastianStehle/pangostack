@@ -29,7 +29,7 @@ export const ServiceVersions = ({ serviceId }: { serviceId: number }) => {
           <h2 className="card-title">{texts.services.versions}</h2>
 
           <div className="flex items-center gap-4">
-            <RefreshButton sm isLoading={isFetching} onClick={refetch} />
+            <RefreshButton isLoading={isFetching} onClick={refetch} />
 
             <TransientNavLink className="btn btn-success btn-sm text-sm text-white" to="versions/new">
               <Icon icon="plus" size={16} /> {texts.services.createVersion}

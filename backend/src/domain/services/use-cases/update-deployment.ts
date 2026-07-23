@@ -1,7 +1,7 @@
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, MoreThan, Not } from 'typeorm';
+import { MoreThan } from 'typeorm';
 import {
   DeploymentCheckEntity,
   DeploymentCheckRepository,
@@ -11,11 +11,10 @@ import {
   DeploymentUpdateRepository,
   ServiceVersionEntity,
   ServiceVersionRepository,
-  WorkerEntity,
-  WorkerRepository,
 } from 'src/domain/database';
 import { validateParameters } from 'src/domain/definitions';
 import { User } from 'src/domain/users';
+import { WorkerResolver } from 'src/domain/workers';
 import { WorkflowService } from 'src/domain/workflows';
 import { saveAndFind } from 'src/lib';
 import { Deployment } from '../interfaces';
@@ -50,8 +49,7 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
     private readonly deploymentUpdates: DeploymentUpdateRepository,
     @InjectRepository(ServiceVersionEntity)
     private readonly serviceVersions: ServiceVersionRepository,
-    @InjectRepository(WorkerEntity)
-    private readonly workers: WorkerRepository,
+    private readonly workerResolver: WorkerResolver,
     private readonly workflows: WorkflowService,
   ) {}
 
@@ -104,9 +102,9 @@ export class UpdateDeploymentHandler implements ICommandHandler<UpdateDeployment
     // Event validate with the current parameters to ensure that they still match to the current version.
     validateParameters(version.definition, parameters, lastUpdate.parameters);
 
-    const worker = await this.workers.findOne({ where: { endpoint: Not(IsNull()) } });
-    if (!worker) {
-      throw new NotFoundException('No worker registered.');
+    const workers = await this.workerResolver.getWorkers();
+    if (workers.size === 0) {
+      throw new NotFoundException('No worker available.');
     }
 
     if (name) {

@@ -231,7 +231,7 @@ metrics:
         value: used
 ```
 
-`interval` says how often data is collected, `keep` how long it stays (durations like `30s`, `15m`, `1h`, `15d`). Mixing sources from several resources in one `mapping` — told apart by `prefix` — puts VM memory and container memory side by side. `summaries` add a headline number (`avg` or `max`) above the chart.
+`interval` says how often data is collected, `keep` how long it stays (durations like `30s`, `15m`, `1h`, `15d`). Mixing sources from several resources in one `mapping` — told apart by `prefix` — puts VM memory and container memory side by side. `summaries` add a headline number (`avg` or `max`) above the chart. `chart` picks how the series is drawn — `bar` or `line`.
 
 Start with the two or three metrics your customers actually care about. Adding more later is fine.
 
@@ -259,3 +259,18 @@ Things that commonly bite:
 - **Renaming an `id` deletes and recreates the resource** on the next update.
 
 Need the exact list of fields? The validation classes in `backend/src/domain/definitions/index.ts` are the source of truth.
+
+## More examples
+
+The [`configs/`](../configs) folder has ready-to-adapt definitions:
+
+- [`squidex-docker.yml`](../configs/squidex-docker.yml) — the app built in this guide (Docker Compose on a VM).
+- [`squidex-helm.yml`](../configs/squidex-helm.yml) — the same app on Kubernetes via Helm.
+- [`postgres-docker.yml`](../configs/postgres-docker.yml) — a single-node PostgreSQL server on a VM.
+- [`redis-docker.yml`](../configs/redis-docker.yml) — a single-node Redis server on a VM.
+
+The `postgres` and `redis` examples pull their Docker Compose file from a companion file in the same
+folder (`configs/postgres/docker-compose.yml`, `configs/redis/docker-compose.yml`) via `dockerComposeUrl`.
+They pass connection settings (database name, password, version) as environment variables into that
+compose file. Databases have no HTTP endpoint, so — unlike Squidex — they define no `healthChecks`
+(only the `http` type is supported).

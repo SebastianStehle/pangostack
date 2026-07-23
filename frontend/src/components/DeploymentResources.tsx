@@ -12,12 +12,15 @@ export interface DeploymentResourcesProps {
   // The live status per resource.
   status: ResourceStatusDto[];
 
+  // Indicates that the live status is still being loaded.
+  statusLoading: boolean;
+
   // Enables polling while the deployment is running.
   isActive: boolean;
 }
 
 export const DeploymentResources = (props: DeploymentResourcesProps) => {
-  const { deployment, isActive, status } = props;
+  const { deployment, isActive, status, statusLoading } = props;
   const clients = useClients();
 
   const { data: loadedSteps } = useQuery({
@@ -61,6 +64,7 @@ export const DeploymentResources = (props: DeploymentResourcesProps) => {
             name={name}
             step={step}
             status={status.find((x) => x.resourceId === resourceId)}
+            statusLoading={statusLoading}
             connection={deployment.connections[resourceId]}
           />
         ))}

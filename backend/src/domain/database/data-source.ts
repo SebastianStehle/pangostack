@@ -1,7 +1,7 @@
 import { config } from 'dotenv';
 import { DataSource } from 'typeorm';
 import { loadDbConfig } from './config';
-import { DeploymentUpdateStepEntity } from './entities';
+import { DeploymentUpdateStepEntity, DeploymentUpdateSubStepEntity } from './entities';
 import { BilledDeploymentEntity } from './entities/billed-deployment';
 import { BlobEntity } from './entities/blob';
 import { CacheEntity } from './entities/cache';
@@ -37,6 +37,7 @@ export default new DataSource({
     DeploymentMetricEntity,
     DeploymentUpdateEntity,
     DeploymentUpdateStepEntity,
+    DeploymentUpdateSubStepEntity,
     DeploymentUsageEntity,
     ServiceEntity,
     ServiceVersionEntity,

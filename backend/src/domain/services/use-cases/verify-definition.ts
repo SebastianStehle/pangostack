@@ -1,10 +1,9 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Not } from 'typeorm';
-import { ServiceEntity, ServiceRepository, WorkerEntity, WorkerRepository } from 'src/domain/database';
+import { ServiceEntity, ServiceRepository } from 'src/domain/database';
 import { evaluateParameters, ParameterDefinition, ServiceDefinition } from 'src/domain/definitions';
-import { ResourceValueDto, WorkerClient, WorkerResponseError } from 'src/domain/workers';
+import { ResourceValueDto, WorkerResolver, WorkerResponseError } from 'src/domain/workers';
 import { is, isNumber } from 'src/lib';
 import { getResourceUniqueId, updateContext } from '../libs';
 
@@ -25,8 +24,7 @@ export class VerifyDefinitionHandler implements IQueryHandler<VerifyDefinitionQu
   constructor(
     @InjectRepository(ServiceEntity)
     private readonly services: ServiceRepository,
-    @InjectRepository(WorkerEntity)
-    private readonly workers: WorkerRepository,
+    private readonly workerResolver: WorkerResolver,
   ) {}
 
   async execute(query: VerifyDefinitionQuery): Promise<VerifyDefinitionResult> {
@@ -37,9 +35,9 @@ export class VerifyDefinitionHandler implements IQueryHandler<VerifyDefinitionQu
       throw new NotFoundException(`Service ${serviceId} not found`);
     }
 
-    const worker = await this.workers.findOne({ where: { endpoint: Not(IsNull()) } });
-    if (!worker) {
-      throw new NotFoundException('No worker registered.');
+    const workers = await this.workerResolver.getWorkers();
+    if (workers.size === 0) {
+      throw new NotFoundException('No worker available.');
     }
 
     const parameters: Record<string, any> = {};
@@ -48,18 +46,16 @@ export class VerifyDefinitionHandler implements IQueryHandler<VerifyDefinitionQu
     }
 
     const context = { env: { ...service.environment, ...environment }, context: {} as Record<string, any>, parameters };
-    const client = new WorkerClient(worker.endpoint, worker.apiKey);
-
-    const workerResources = await client.resources.getResources();
 
     for (const resource of definition.resources) {
-      const workerResource = workerResources.items.find((x) => x.name === resource.type);
-      if (!workerResource) {
-        throw new BadRequestException(`resource.${resource.id} has unknown resoruce type ${resource.type}`);
+      const worker = workers.get(resource.type);
+      if (!worker) {
+        throw new BadRequestException(`resource.${resource.id} has unknown resource type ${resource.type}`);
       }
 
+      const descriptor = worker.resourceType;
       try {
-        await client.deployment.verifyResource({
+        await worker.client.deployment.verifyResource({
           parameters: evaluateParameters(resource, context),
           resourceContext: {},
           resourceUniqueId: getResourceUniqueId(0, resource),
@@ -68,7 +64,7 @@ export class VerifyDefinitionHandler implements IQueryHandler<VerifyDefinitionQu
         });
 
         const resourceContext: Record<string, any> = {};
-        for (const [name, contextValue] of Object.entries(workerResource.context)) {
+        for (const [name, contextValue] of Object.entries(descriptor.context)) {
           resourceContext[name] = generateContext(contextValue);
         }
 

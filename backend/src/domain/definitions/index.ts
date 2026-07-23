@@ -246,8 +246,8 @@ class MetricDefinitionClass {
 
   @IsDefined()
   @IsString()
-  @IsEnum(['label', 'bar'])
-  chart: 'label' | 'bar';
+  @IsEnum(['line', 'bar'])
+  chart: 'line' | 'bar';
 
   @IsOptional()
   @IsArray()
@@ -531,6 +531,7 @@ export function evaluatePrices(service: ServiceDefinition, context: DefinitionCo
     if (target == price.test) {
       const byIdentifier = result[price.billingIdentifier] || { quantity: 0 };
       byIdentifier.quantity++;
+      result[price.billingIdentifier] = byIdentifier;
     }
   }
 

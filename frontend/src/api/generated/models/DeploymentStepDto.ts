@@ -16,6 +16,12 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { DeploymentStepLogDto } from './DeploymentStepLogDto';
+import {
+    DeploymentStepLogDtoFromJSON,
+    DeploymentStepLogDtoFromJSONTyped,
+    DeploymentStepLogDtoToJSON,
+} from './DeploymentStepLogDto';
 import type { DeploymentSubStepDto } from './DeploymentSubStepDto';
 import {
     DeploymentSubStepDtoFromJSON,
@@ -78,6 +84,12 @@ export interface DeploymentStepDto {
      */
     subSteps: Array<DeploymentSubStepDto>;
     /**
+     * The timestamped log lines reported outside any sub-step.
+     * @type {Array<DeploymentStepLogDto>}
+     * @memberof DeploymentStepDto
+     */
+    logs: Array<DeploymentStepLogDto>;
+    /**
      * When the step was started.
      * @type {Date}
      * @memberof DeploymentStepDto
@@ -126,6 +138,7 @@ export function instanceOfDeploymentStepDto(value: object): boolean {
     isInstance = isInstance && "maxAttempts" in value;
     isInstance = isInstance && "error" in value;
     isInstance = isInstance && "subSteps" in value;
+    isInstance = isInstance && "logs" in value;
     isInstance = isInstance && "startedAt" in value;
     isInstance = isInstance && "completedAt" in value;
 
@@ -150,6 +163,7 @@ export function DeploymentStepDtoFromJSONTyped(json: any, ignoreDiscriminator: b
         'maxAttempts': json['maxAttempts'],
         'error': json['error'],
         'subSteps': ((json['subSteps'] as Array<any>).map(DeploymentSubStepDtoFromJSON)),
+        'logs': ((json['logs'] as Array<any>).map(DeploymentStepLogDtoFromJSON)),
         'startedAt': (json['startedAt'] === null ? null : new Date(json['startedAt'])),
         'completedAt': (json['completedAt'] === null ? null : new Date(json['completedAt'])),
     };
@@ -172,6 +186,7 @@ export function DeploymentStepDtoToJSON(value?: DeploymentStepDto | null): any {
         'maxAttempts': value.maxAttempts,
         'error': value.error,
         'subSteps': ((value.subSteps as Array<any>).map(DeploymentSubStepDtoToJSON)),
+        'logs': ((value.logs as Array<any>).map(DeploymentStepLogDtoToJSON)),
         'startedAt': (value.startedAt === null ? null : value.startedAt.toISOString()),
         'completedAt': (value.completedAt === null ? null : value.completedAt.toISOString()),
     };

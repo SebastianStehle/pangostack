@@ -3,11 +3,26 @@ import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { WorkerEntity } from 'src/domain/database';
-import { WorkerInitializerService } from './services';
-import { GetResourceTypesHandler, GetWorkersHandler } from './use-cases';
+import { WorkerInitializerService, WorkerResolver } from './services';
+import {
+  CreateWorkerHandler,
+  DeleteWorkerHandler,
+  GetResourceTypesHandler,
+  GetWorkersHandler,
+  UpdateWorkerHandler,
+} from './use-cases';
 
 @Module({
   imports: [ConfigModule, CqrsModule, TypeOrmModule.forFeature([WorkerEntity])],
-  providers: [GetResourceTypesHandler, GetWorkersHandler, WorkerInitializerService],
+  providers: [
+    CreateWorkerHandler,
+    DeleteWorkerHandler,
+    GetResourceTypesHandler,
+    GetWorkersHandler,
+    UpdateWorkerHandler,
+    WorkerInitializerService,
+    WorkerResolver,
+  ],
+  exports: [WorkerResolver],
 })
 export class WorkersModule {}

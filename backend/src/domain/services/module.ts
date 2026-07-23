@@ -14,6 +14,7 @@ import {
 } from 'src/domain/database';
 import { LibModule } from 'src/lib';
 import { BillingModule } from '../billing';
+import { WorkersModule } from '../workers';
 import { WorkflowModule } from '../workflows';
 import {
   CancelDeploymentHandler,
@@ -36,6 +37,7 @@ import {
   GetServicesHandler,
   GetServicesPublicHandler,
   GetServiceVersionsHandler,
+  RetryDeploymentHandler,
   UpdateDeploymentHandler,
   UpdateServiceHandler,
   UpdateServiceVersionHandler,
@@ -58,6 +60,7 @@ import {
       ServiceVersionEntity,
       WorkerEntity,
     ]),
+    WorkersModule,
     WorkflowModule,
   ],
   providers: [
@@ -83,6 +86,7 @@ import {
     GetServicePublicHandler,
     GetServicesPublicHandler,
     GetServiceVersionsHandler,
+    RetryDeploymentHandler,
     UpdateDeploymentHandler,
     UpdateServiceHandler,
     UpdateServiceVersionHandler,

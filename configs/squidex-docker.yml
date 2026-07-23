@@ -141,7 +141,7 @@ metrics:
       - resource: vultr-vm
         from: disk
         prefix: vm
-    chart: label
+    chart: line
     summaries:
       - label: Max Disk
         type: max

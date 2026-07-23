@@ -1,3 +1,4 @@
+import { ReactNode } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { Icon, ProfileButton, TransientNavigate, TransientNavLink } from 'src/components';
 import { useTheme } from 'src/hooks';
@@ -9,6 +10,12 @@ import { ServicesPage } from './services/ServicesPage';
 import { ThemePage } from './theme/ThemePage';
 import { UserGroupsPage } from './user-groups/UserGroupsPage';
 import { UsersPage } from './users/UsersPage';
+import { WorkersPage } from './workers/WorkersPage';
+
+// The left margin compensates the transparent border that nav-menu-bordered adds to the items.
+const MenuTitle = ({ children }: { children: ReactNode }) => {
+  return <div className="mt-6 ml-[5px] px-4 text-xs font-semibold tracking-wide text-gray-600 uppercase">{children}</div>;
+};
 
 export const AdminPage = () => {
   const { theme } = useTheme();
@@ -31,6 +38,11 @@ export const AdminPage = () => {
                   <Icon icon="pie-chart" size={16} strokeWidth={1.75} /> {texts.common.dashboard}
                 </TransientNavLink>
               </li>
+            </ul>
+
+            <MenuTitle>{texts.common.management}</MenuTitle>
+
+            <ul className="nav-menu nav-menu-bordered mt-2 gap-1">
               <li>
                 <TransientNavLink className="flex items-center gap-4" to="/admin/services">
                   <Icon icon="file-text" size={16} strokeWidth={1.75} /> {texts.services.headline}
@@ -41,6 +53,11 @@ export const AdminPage = () => {
                   <Icon icon="server" size={16} strokeWidth={1.75} /> {texts.deployments.headline}
                 </TransientNavLink>
               </li>
+            </ul>
+
+            <MenuTitle>{texts.common.administration}</MenuTitle>
+
+            <ul className="nav-menu nav-menu-bordered mt-2 gap-1">
               <li>
                 <TransientNavLink className="flex items-center gap-4" to="/admin/theme">
                   <Icon icon="droplet" size={16} strokeWidth={1.75} /> {texts.theme.headline}
@@ -54,6 +71,11 @@ export const AdminPage = () => {
               <li>
                 <TransientNavLink className="flex items-center gap-3" to="/admin/user-groups">
                   <Icon icon="users" size={16} strokeWidth={1.75} /> {texts.userGroups.headline}
+                </TransientNavLink>
+              </li>
+              <li>
+                <TransientNavLink className="flex items-center gap-4" to="/admin/workers">
+                  <Icon icon="monitor" size={16} strokeWidth={1.75} /> {texts.workers.headline}
                 </TransientNavLink>
               </li>
             </ul>
@@ -79,6 +101,8 @@ export const AdminPage = () => {
             <Route path="/users" element={<UsersPage />} />
 
             <Route path="/user-groups" element={<UserGroupsPage />} />
+
+            <Route path="/workers" element={<WorkersPage />} />
 
             <Route path="*" element={<TransientNavigate to="/admin/dashboard" />} />
           </Routes>

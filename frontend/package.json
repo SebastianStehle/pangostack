@@ -4,9 +4,6 @@
   "version": "0.0.0",
   "license": "MIT",
   "type": "module",
-  "lint-staged": {
-    "*.{ts,tsx}": "eslint --report-unused-disable-directives --max-warnings 0 --fix"
-  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

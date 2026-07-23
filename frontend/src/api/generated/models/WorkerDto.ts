@@ -23,17 +23,23 @@ import { exists, mapValues } from '../runtime';
  */
 export interface WorkerDto {
     /**
+     * The ID of the worker.
+     * @type {number}
+     * @memberof WorkerDto
+     */
+    id: number;
+    /**
      * The endpoint of the worker.
      * @type {string}
      * @memberof WorkerDto
      */
     endpoint: string;
     /**
-     * Indicates if the worker can be reached.
+     * Indicates if an API key has been configured. The key itself is never exposed.
      * @type {boolean}
      * @memberof WorkerDto
      */
-    isReady: boolean;
+    hasApiKey: boolean;
 }
 
 /**
@@ -41,8 +47,9 @@ export interface WorkerDto {
  */
 export function instanceOfWorkerDto(value: object): boolean {
     let isInstance = true;
+    isInstance = isInstance && "id" in value;
     isInstance = isInstance && "endpoint" in value;
-    isInstance = isInstance && "isReady" in value;
+    isInstance = isInstance && "hasApiKey" in value;
 
     return isInstance;
 }
@@ -57,8 +64,9 @@ export function WorkerDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean):
     }
     return {
         
+        'id': json['id'],
         'endpoint': json['endpoint'],
-        'isReady': json['isReady'],
+        'hasApiKey': json['hasApiKey'],
     };
 }
 
@@ -71,8 +79,9 @@ export function WorkerDtoToJSON(value?: WorkerDto | null): any {
     }
     return {
         
+        'id': value.id,
         'endpoint': value.endpoint,
-        'isReady': value.isReady,
+        'hasApiKey': value.hasApiKey,
     };
 }
 

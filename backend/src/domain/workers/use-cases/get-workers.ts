@@ -1,14 +1,13 @@
 import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WorkerEntity, WorkerRepository } from 'src/domain/database';
-import { WorkerClient } from '../client';
-import { Worker } from '../interfaces';
-import { buildWorker } from './utils';
+import { WorkerWithStatus } from '../interfaces';
+import { buildWorker, pingWorker } from './utils';
 
 export class GetWorkersQuery extends Query<GetWorkersResult> {}
 
 export class GetWorkersResult {
-  constructor(public readonly workers: Worker[]) {}
+  constructor(public readonly workers: WorkerWithStatus[]) {}
 }
 
 @QueryHandler(GetWorkersQuery)
@@ -19,22 +18,13 @@ export class GetWorkersHandler implements IQueryHandler<GetWorkersQuery, GetWork
   ) {}
 
   async execute(): Promise<GetWorkersResult> {
-    const entities = await this.workers.find();
+    const entities = await this.workers.find({ order: { id: 'ASC' } });
 
-    const result: Worker[] = [];
-    for (const entity of entities) {
-      const client = new WorkerClient(entity.endpoint, entity.apiKey);
+    // A single unreachable worker should not delay the status of the other workers.
+    const workers = await Promise.all(
+      entities.map(async (entity) => ({ ...buildWorker(entity), status: await pingWorker(entity) })),
+    );
 
-      let isReady = true;
-      try {
-        await client.resources.getResources();
-      } catch {
-        isReady = false;
-      }
-
-      result.push(buildWorker(entity, isReady));
-    }
-
-    return new GetWorkersResult(result);
+    return new GetWorkersResult(workers);
   }
 }

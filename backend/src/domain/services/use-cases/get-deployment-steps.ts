@@ -57,19 +57,31 @@ export class GetDeploymentStepsHandler implements IQueryHandler<GetDeploymentSte
     const entities = await this.deploymentSteps.find({
       where: { updateId: latestUpdate.id },
       order: { id: 'ASC' },
+      relations: ['subSteps'],
     });
 
     const steps = entities.map(
-      ({ action, attempt, completedAt, error, resourceId, resourceName, startedAt, status, subSteps }) => ({
+      ({ action, attempt, completedAt, error, logs, resourceId, resourceName, startedAt, status, subSteps }) => ({
         action,
         attempt,
         completedAt,
         error,
+        logs,
         resourceId,
         resourceName,
         startedAt,
         status,
-        subSteps,
+        subSteps: [...subSteps]
+          .sort((a, b) => a.id - b.id)
+          .map(({ id, name, status, error, logs, startedAt, completedAt }) => ({
+            id,
+            name,
+            status,
+            error,
+            logs,
+            startedAt,
+            completedAt,
+          })),
       }),
     );
 

@@ -35,7 +35,7 @@
 }
 
 .recharts-wrapper {
-  @apply stats border-gray-300 border-[1px] pe-2;
+  @apply stats border-gray-300 border-[1px] pe-2 overflow-hidden;
 }
 
 .stats {

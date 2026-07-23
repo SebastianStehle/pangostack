@@ -8,7 +8,7 @@ import {
 } from 'src/domain/database';
 import { evaluateParameters, MetricDefinition } from 'src/domain/definitions';
 import { getEvaluationContext, getResourceUniqueId } from 'src/domain/services';
-import { WorkerClient } from 'src/domain/workers';
+import { MetricsResultDto, WorkerResolver } from 'src/domain/workers';
 import { parseDurationMs } from 'src/lib';
 import { Activity } from '../registration';
 
@@ -19,8 +19,6 @@ const INTERVAL_TOLERANCE_MS = 30 * 1000;
 
 export type TrackDeploymentMetricsParam = {
   deploymentId: number;
-  workerApiKey?: string;
-  workerEndpoint: string;
 };
 
 @Activity(trackDeploymentMetrics)
@@ -30,9 +28,10 @@ export class TrackDeploymentMetricsActivity implements Activity<TrackDeploymentM
     private readonly deploymentUpdates: DeploymentUpdateRepository,
     @InjectRepository(DeploymentMetricEntity)
     private readonly deploymentMetrics: DeploymentMetricRepository,
+    private readonly workerResolver: WorkerResolver,
   ) {}
 
-  async execute({ deploymentId, workerApiKey, workerEndpoint }: TrackDeploymentMetricsParam) {
+  async execute({ deploymentId }: TrackDeploymentMetricsParam) {
     const updates = await this.deploymentUpdates.find({
       where: { deploymentId },
       order: { id: 'DESC' },
@@ -69,23 +68,38 @@ export class TrackDeploymentMetricsActivity implements Activity<TrackDeploymentM
       return;
     }
 
-    const client = new WorkerClient(workerEndpoint, workerApiKey);
+    const workers = await this.workerResolver.getWorkers();
 
-    const metricsFromWorker = await client.status.postMetrics({
-      resources: resources.map((resource) => ({
-        parameters: evaluateParameters(resource, context),
-        resourceContext: update.resourceContexts[resource.id] || {},
-        resourceUniqueId: getResourceUniqueId(deploymentId, resource),
-        resourceType: resource.type,
-        timeoutMs: METRICS_REQUEST_TIMEOUT_MS,
-      })),
-    });
+    const responses: MetricsResultDto[] = [];
+    for (const resource of resources) {
+      const worker = workers.get(resource.type);
+      if (!worker) {
+        // Do not log missing workers. It would flood the log with entries.
+        continue;
+      }
+
+      responses.push(
+        await worker.client.status.postMetrics({
+          resources: [
+            {
+              parameters: evaluateParameters(resource, context),
+              resourceContext: update.resourceContexts[resource.id] || {},
+              resourceUniqueId: getResourceUniqueId(deploymentId, resource),
+              resourceType: resource.type,
+              timeoutMs: METRICS_REQUEST_TIMEOUT_MS,
+            },
+          ],
+        }),
+      );
+    }
+
+    const metricResources = responses.flatMap(({ resources: fromWorker }) => fromWorker);
 
     for (const metric of dueMetrics) {
       const values: Record<string, number> = {};
 
       for (const mapping of metric.mapping) {
-        for (const resource of metricsFromWorker.resources) {
+        for (const resource of metricResources) {
           if (resource.resourceType !== mapping.resource) {
             continue;
           }

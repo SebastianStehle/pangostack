@@ -20,14 +20,13 @@ const { deleteResource, deployResource } = proxyActivities<typeof activities>({
   },
 });
 
-const { createDeploymentSteps, failDeploymentStep, updateDeployment, getDeployment, getWorker, notify } = proxyActivities<
-  typeof activities
->({
-  startToCloseTimeout: '30s',
-  retry: {
-    maximumAttempts: 3,
-  },
-});
+const { createDeploymentSteps, failDeploymentStep, updateDeployment, getDeployment, getResourceWorkers, notify } =
+  proxyActivities<typeof activities>({
+    startToCloseTimeout: '30s',
+    retry: {
+      maximumAttempts: 3,
+    },
+  });
 
 export async function deployResources({
   deploymentId,
@@ -37,8 +36,6 @@ export async function deployResources({
   updateId,
 }: DeployResourcesParam): Promise<any> {
   await updateDeployment({ updateId, status: 'Running' });
-
-  const { workerApiKey, workerEndpoint } = await getWorker({});
 
   // Resources that are no longer part of the current definition are deleted first,
   // in reverse order to respect dependencies.
@@ -64,6 +61,12 @@ export async function deployResources({
     return steps.find((x) => x.resourceId === resourceId && x.action === action)?.stepId;
   };
 
+  // The deletions belong to the previous update and therefore need their own lookup, because their
+  // resources are no longer part of the current definition.
+  const deployWorkers = await getResourceWorkers({ resourceIds, updateId });
+  const deleteWorkers =
+    deletions.length > 0 ? await getResourceWorkers({ resourceIds: deletions, updateId: previousUpdateId! }) : {};
+
   let deployError: unknown = undefined;
   let currentStepId: number | undefined = undefined;
   try {
@@ -75,8 +78,7 @@ export async function deployResources({
         resourceId,
         stepId: currentStepId,
         updateId: previousUpdateId!,
-        workerApiKey,
-        workerEndpoint,
+        workerEndpoint: deleteWorkers[resourceId],
       });
     }
 
@@ -88,8 +90,7 @@ export async function deployResources({
         resourceId,
         stepId: currentStepId,
         updateId,
-        workerApiKey,
-        workerEndpoint,
+        workerEndpoint: deployWorkers[resourceId],
       });
     }
     await updateDeployment({ updateId, status: 'Completed' });

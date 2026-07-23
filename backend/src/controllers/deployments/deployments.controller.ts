@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Put, Query, Redirect, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Post, Put, Query, Redirect, Req, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -16,6 +16,7 @@ import {
   GetDeploymentStatusQuery,
   GetDeploymentStepsQuery,
   GetDeploymentUsagesQuery,
+  RetryDeployment,
   UpdateDeployment,
 } from 'src/domain/services';
 import { AllowAllDeploymentPolicy, AllowTeamDeploymentPolicy } from 'src/domain/services/policies';
@@ -105,6 +106,26 @@ export class DeploymentsController {
     const policy = await this.getPolicy(req.user);
 
     const command = new UpdateDeployment(deploymentId, policy, body.name, body.parameters, body.versionId, req.user);
+    const { deployment } = await this.commandBus.execute(command);
+
+    return DeploymentDto.fromDomain(deployment);
+  }
+
+  @Post(':deploymentId/retry')
+  @ApiOperation({ operationId: 'retryDeployment', description: 'Retries a failed deployment.' })
+  @ApiParam({
+    name: 'deploymentId',
+    description: 'The ID of the deployment.',
+    required: true,
+    type: 'number',
+  })
+  @ApiOkResponse({ type: DeploymentDto })
+  @Role(BUILTIN_USER_GROUP_ADMIN)
+  @UseGuards(RoleGuard)
+  async retryDeployment(@Req() req: Request, @IntParam('deploymentId') deploymentId: number) {
+    const policy = await this.getPolicy(req.user);
+
+    const command = new RetryDeployment(deploymentId, policy, req.user);
     const { deployment } = await this.commandBus.execute(command);
 
     return DeploymentDto.fromDomain(deployment);

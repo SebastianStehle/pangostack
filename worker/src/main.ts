@@ -1,9 +1,12 @@
+// Must be first: starts OpenTelemetry before any instrumented module (http, express) is loaded.
+import './tracing';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import { AppModule } from './app.module';
+import { registerResourceEventSchema } from './controllers/deployment/dto';
 import { PrettyFormat } from './lib';
 import { AllExceptionsInterceptor } from './lib/all-exceptions-interceptor';
 
@@ -32,6 +35,8 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+  registerResourceEventSchema(document);
+
   SwaggerModule.setup('api', app, document);
 
   app.useGlobalPipes(new ValidationPipe());

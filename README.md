@@ -5,8 +5,10 @@
 > It simplifies infrastructure provisioning by offering:
 > 
 > - A **backend API** to define deployment blueprints and manage versions.
-> - Integration with external **billing providers** (e.g., Stripe).
+> - Integration with external **billing providers** (Chargebee).
 > - A **customer-facing portal** to let users self-deploy their SaaS instance on demand.
+
+📚 **Documentation:** [Writing deployment definitions](docs/DEFINITIONS.md) · [Self-hosting Pangostack](docs/HOSTING.md)
 
 ### Features
 
@@ -150,58 +152,93 @@ I want to provide better hosting options to my customers for my existing applica
 * https://github.com/squidex/squidex
 * https://github.com/notifo-io/notifo
 
-## How to start
+## Project structure
 
-The main project has two parts, the backend and frontent. You have to run them individually:
+Pangostack is three independent npm packages (each manages its own dependencies) plus a tooling-only
+root. To **self-host** Pangostack, follow [docs/HOSTING.md](docs/HOSTING.md) — this section is about
+running it locally for development.
 
-### Backend
+| Package     | What it is                                                                  | Dev port          |
+| ----------- | --------------------------------------------------------------------------- | ----------------- |
+| `backend/`  | NestJS API — services, deployments, teams/users, billing, Temporal workflows | 3000 (HTTPS)      |
+| `worker/`   | NestJS microservice — provisions infra (Vultr, S3, Docker Compose/SSH, Helm) | 3100 (HTTP)       |
+| `frontend/` | Vite + React customer portal and admin UI                                   | 5173              |
 
-```
-cd backend
-npm i
-npm run start
-  - or -
-npm run start:debug for debugging with chrome
-```
+The backend orchestrates deployments through [Temporal](https://temporal.io/) and calls the worker
+over REST. For how the pieces fit together, see [CLAUDE.md](CLAUDE.md).
 
-#### Certificates (ONE TIME)
+## Running locally
 
-Before you can start running the backend you have to create local dev certificates. We need https for the authentication flow, because a cookie is set before a redirecting to an exernal authentication provider and this cookie is only available when you run the site with https. At the moment we use [mkcert](https://github.com/FiloSottile/mkcert) for that.
+### 1. Prerequisites (one time)
 
-Follow the installation instructions from the repository: https://github.com/FiloSottile/mkcert
+Local HTTPS certificates are required — the auth flow sets a cookie before redirecting to external
+identity providers, and browsers only keep that cookie over HTTPS. We use
+[mkcert](https://github.com/FiloSottile/mkcert):
 
-First you have to register the certificate authority in your system.
-
-```
-mkcert -install
-```
-
-Then create the local dev certificates!
-
-If you are in the root folder:
-
-```
-mkcert -cert-file backend/dev/local-dev.pem -key-file backend/dev/local-dev-key.pem localhost
+```bash
+mkcert -install                     # register the local certificate authority
+cd backend && npm run mkcert:create # writes dev/local-dev*.pem, then: cd ..
 ```
 
-Or if you are in the backend folder
+Create a `backend/.env` from [`backend/.env.example`](backend/.env.example) (credentials are not in
+the repo). Environment variables are validated with Joi at startup, so a missing required value fails
+fast with a clear message.
 
+### 2. Install and run everything
+
+From the repo root:
+
+```bash
+npm run install:all   # installs the root + all three packages
+npm run dev           # brings up Postgres + pgadmin, then runs Temporal, backend, worker and frontend
 ```
-mkcert -cert-file dev/local-dev.pem -key-file dev/local-dev-key.pem localhost
+
+`npm run dev` starts the docker-compose infrastructure and waits until Postgres is healthy, then runs
+all four processes concurrently with prefixed output. Related scripts: `dev:infra` /
+`dev:infra:down` (infrastructure only) and `dev:backend` / `dev:worker` / `dev:frontend` /
+`dev:temporal` (a single process). Each package also has its own `npm run dev` (watch mode),
+`npm run build` and `npm run lint`.
+
+> Temporal runs via the CLI (`temporal server start-dev`) and keeps its state in memory, so workflow
+> history is lost on restart. See [CLAUDE.md](CLAUDE.md) for how to persist it.
+
+## Testing
+
+The backend and worker use [vitest](https://vitest.dev/):
+
+```bash
+cd backend && npm test        # unit tests
+cd backend && npm run test:int  # integration tests (TestContainers-backed Postgres)
+cd worker  && npm test        # unit tests
 ```
 
-#### Configuration
+CI (`.github/workflows/deploy.yml`) runs on every pull request and push to `main`:
 
-At the moment we use a free cloud server for that. Just ask one of the team members for credentials and put the `.env` file to the backend folder.
-Before we can start the backend, we need a running postgres database. See `dev/postgress/docker-compose`
+- **Integration tests** run in a dedicated job on the runner, because they use TestContainers (a real
+  Postgres in Docker) and cannot run inside an image build. They gate the image builds.
+- **Lint, build and unit tests** run inside the Dockerfiles, so a failure blocks the image.
+- The images are pushed to Docker Hub only on `main`.
 
-### Frontend
+## Observability
 
+Pangostack is instrumented with [OpenTelemetry](https://opentelemetry.io/), the open standard for
+traces and metrics. It is **opt-in**: the backend and worker only start the OTel SDK when an OTLP/HTTP
+collector endpoint is configured, so local development is unaffected. Enable it by setting:
+
+```bash
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318   # your collector's OTLP/HTTP endpoint
+OTEL_SERVICE_NAME=pangostack-backend                # optional; sensible per-service defaults apply
 ```
-cd frontend
-npm i
-npm run dev
-```
+
+Because the backend calls the worker over instrumented HTTP, a deployment is traced end to end
+(`pangostack-backend` → `pangostack-worker`) once a collector is set up. Point the endpoint at any
+OTLP-compatible collector (OpenTelemetry Collector, Grafana Tempo/Alloy, Jaeger, Honeycomb, ...).
+
+Instrumented out of the box (via `@opentelemetry/auto-instrumentations-node`): HTTP, Express, NestJS,
+Postgres (`pg`), Winston, the AWS SDK and more. The backend additionally loads TypeORM instrumentation
+(`opentelemetry-instrumentation-typeorm`), which is not part of the auto bundle, so database access
+shows up as ORM-level spans (entity, method, SQL) on top of the raw driver spans. Add further
+instrumentations in `backend/src/tracing.ts` / `worker/src/tracing.ts`.
 
 ## Contributing
 
