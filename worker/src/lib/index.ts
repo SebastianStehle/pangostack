@@ -1,3 +1,4 @@
+export * from './cloud-vm';
 export * from './docker';
 export * from './environment';
 export * from './log';
