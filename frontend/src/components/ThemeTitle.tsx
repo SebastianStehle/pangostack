@@ -20,7 +20,14 @@ class Stack<T> {
 
 const TITLE_STACK = new Stack<string>();
 
-export const ThemeTitle = ({ text }: { text?: string }) => {
+export interface ThemeTitleProps {
+  // The page-specific title segment.
+  text?: string;
+}
+
+export const ThemeTitle = (props: ThemeTitleProps) => {
+  const { text } = props;
+
   const { theme } = useTheme();
   const [title, setTitle] = useState(text);
 

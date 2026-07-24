@@ -1,6 +1,19 @@
 import { Icon, IconType } from './Icon';
 
-export const Empty = ({ text, label, icon }: { text: string; label: string; icon: IconType }) => {
+export interface EmptyProps {
+  // The description text.
+  text: string;
+
+  // The headline label.
+  label: string;
+
+  // The icon to show.
+  icon: IconType;
+}
+
+export const Empty = (props: EmptyProps) => {
+  const { icon, label, text } = props;
+
   return (
     <div className="flex flex-col items-center gap-2">
       <Icon className="-mt-4 mb-4 text-gray-500" size={120} icon={icon} />

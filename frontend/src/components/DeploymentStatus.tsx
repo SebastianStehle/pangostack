@@ -1,30 +1,47 @@
+import { ReactNode } from 'react';
 import { DeploymentDtoStatusEnum } from 'src/api';
 import { texts } from 'src/texts';
+import { Spinner } from './Spinner';
 
-export const DeploymentStatus = ({ status }: { status: DeploymentDtoStatusEnum }) => {
-  if (status === 'Pending') {
+export interface DeploymentStatusProps {
+  // The status of the deployment or deployment step.
+  status: DeploymentDtoStatusEnum;
+
+  // Shows the status label next to the indicator.
+  showLabel?: boolean;
+
+  // Renders a smaller indicator.
+  small?: boolean;
+}
+
+export const DeploymentStatus = (props: DeploymentStatusProps) => {
+  const { showLabel = true, small, status } = props;
+
+  const size = small ? 'h-3 w-3 size-3!' : 'h-4 w-4 size-4!';
+
+  const dot = (color: string) => {
+    return <span className={`inline-flex ${size} ${color} rounded-full`}></span>;
+  };
+
+  const render = (indicator: ReactNode, label: string) => {
+    if (!showLabel) {
+      return indicator;
+    }
+
     return (
       <div className="flex items-center gap-1">
-        <span className="bg-neutral inline-flex h-3 w-3 rounded-full"></span> {texts.common.pending}
+        {indicator} {label}
       </div>
     );
-  } else if (status === 'Running') {
-    return (
-      <div className="flex items-center gap-1">
-        <span className="bg-error inline-flex h-3 w-3 rounded-full"></span> {texts.common.installing}
-      </div>
-    );
+  };
+
+  if (status === 'Running') {
+    return render(<Spinner visible className={size} />, texts.common.installing);
   } else if (status === 'Completed') {
-    return (
-      <div className="flex items-center gap-1">
-        <span className="bg-success inline-flex h-3 w-3 rounded-full"></span> {texts.common.succeeded}
-      </div>
-    );
+    return render(dot('bg-success'), texts.common.succeeded);
+  } else if (status === 'Failed') {
+    return render(dot('bg-error'), texts.common.failed);
   } else {
-    return (
-      <div className="flex items-center gap-1">
-        <span className="bg-error inline-flex h-3 w-3 rounded-full"></span> {texts.common.failed}
-      </div>
-    );
+    return render(dot('bg-neutral'), texts.common.pending);
   }
 };

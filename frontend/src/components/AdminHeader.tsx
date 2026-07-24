@@ -5,7 +5,7 @@ import { Icon } from './Icon';
 import { ThemeTitle } from './ThemeTitle';
 import { TransientNavLink } from './TransientNavLink';
 
-export interface AdminHeaderProps {
+export interface AdminHeaderProps extends PropsWithChildren {
   title: string;
 
   // The backlink.
@@ -15,7 +15,7 @@ export interface AdminHeaderProps {
   small?: boolean;
 }
 
-export const AdminHeader = (props: AdminHeaderProps & PropsWithChildren) => {
+export const AdminHeader = (props: AdminHeaderProps) => {
   const { backLink, children, small, title } = props;
 
   return (

@@ -6,7 +6,9 @@ import { texts } from 'src/texts';
 
 const defaultTheme: { name: string | null } = { name: texts.common.appName };
 
-export const ThemeProvider = (props: React.PropsWithChildren) => {
+export interface ThemeProviderProps extends React.PropsWithChildren {}
+
+export const ThemeProvider = (props: ThemeProviderProps) => {
   const { children } = props;
   const clients = useClients();
 

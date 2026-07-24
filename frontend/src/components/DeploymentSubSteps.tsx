@@ -1,8 +1,15 @@
 import { DeploymentSubStepDto } from 'src/api';
 import { formatDuration } from 'src/lib';
-import { DeploymentStepStatus } from './DeploymentStepStatus';
+import { DeploymentStatus } from './DeploymentStatus';
 
-export const DeploymentSubSteps = ({ subSteps }: { subSteps: DeploymentSubStepDto[] }) => {
+export interface DeploymentSubStepsProps {
+  // The sub-steps to render.
+  subSteps: DeploymentSubStepDto[];
+}
+
+export const DeploymentSubSteps = (props: DeploymentSubStepsProps) => {
+  const { subSteps } = props;
+
   return (
     <div className="mt-2 border-l-2 border-gray-300 ps-4">
       {subSteps.map((subStep, i) => {
@@ -10,7 +17,9 @@ export const DeploymentSubSteps = ({ subSteps }: { subSteps: DeploymentSubStepDt
 
         return (
           <div className="my-1 flex items-center gap-2" key={i}>
-            <DeploymentStepStatus status={subStep.status} small />
+            <div className="flex w-4 flex-col items-center">
+              <DeploymentStatus status={subStep.status} showLabel={false} small />
+            </div>
 
             <div>{subStep.name}</div>
 

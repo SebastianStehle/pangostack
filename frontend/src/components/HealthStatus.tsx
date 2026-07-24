@@ -1,7 +1,14 @@
 import { DeploymentDtoHealthStatusEnum } from 'src/api';
 import { texts } from 'src/texts';
 
-export const HealthStatus = ({ status }: { status?: DeploymentDtoHealthStatusEnum | null }) => {
+export interface HealthStatusProps {
+  // The health status of the deployment.
+  status?: DeploymentDtoHealthStatusEnum | null;
+}
+
+export const HealthStatus = (props: HealthStatusProps) => {
+  const { status } = props;
+
   if (status === 'Succeeded') {
     return (
       <div className="flex items-center gap-1">

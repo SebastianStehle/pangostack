@@ -3,7 +3,9 @@ import { DialogContext, DialogRequest, useEventCallback } from 'src/hooks';
 import { texts } from 'src/texts';
 import { Modal } from './Modal';
 
-export const DialogProvider = (props: PropsWithChildren) => {
+export interface DialogProviderProps extends PropsWithChildren {}
+
+export const DialogProvider = (props: DialogProviderProps) => {
   const { children } = props;
   const [request, setRequest] = useState<DialogRequest>();
 

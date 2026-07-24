@@ -2,7 +2,7 @@ import { ConnectionInfoDto, DeploymentStepDto, ResourceStatusDto } from 'src/api
 import { NodeStatus, Spinner } from 'src/components';
 import { formatDuration } from 'src/lib';
 import { texts } from 'src/texts';
-import { DeploymentStepStatus } from './DeploymentStepStatus';
+import { DeploymentStatus } from './DeploymentStatus';
 import { DeploymentSubSteps } from './DeploymentSubSteps';
 
 export interface DeploymentResourceProps {
@@ -34,7 +34,7 @@ export const DeploymentResource = (props: DeploymentResourceProps) => {
     <div className="card card-border bg-base border-gray-300">
       <div className="card-body">
         <div className="flex items-center gap-3">
-          {step && <DeploymentStepStatus status={step.status} />}
+          {step && <DeploymentStatus status={step.status} showLabel={false} />}
 
           {step && (
             <span className="badge badge-ghost badge-sm rounded-full font-normal">
@@ -68,14 +68,14 @@ export const DeploymentResource = (props: DeploymentResourceProps) => {
             <DeploymentSubSteps subSteps={step.subSteps} />
           ) : (
             <details>
-              <summary className="cursor-pointer text-sm text-slate-500">{texts.common.more}</summary>
+              <summary className="cursor-pointer text-sm text-slate-500">{texts.deployments.steps}</summary>
               <DeploymentSubSteps subSteps={step.subSteps} />
             </details>
           ))}
 
         {!status && statusLoading && (
           <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
-            <Spinner visible={true} />
+            <Spinner visible={true} className="size-3!" />
             {texts.deployments.loadingDetails}
           </div>
         )}
@@ -86,7 +86,7 @@ export const DeploymentResource = (props: DeploymentResourceProps) => {
               <div key={i}>
                 {workload.name}
 
-                <div className="m-2 border-l-2 border-gray-300 ps-4">
+                <div className="m-2 ms-4 border-l-2 border-gray-300 ps-4">
                   {workload.nodes.map((node, i) => (
                     <div className="my-1 flex max-w-[500px] gap-2" key={i}>
                       <div className="w-1/2">{node.name}</div>
