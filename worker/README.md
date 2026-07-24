@@ -4,12 +4,31 @@ The Pangostack worker: a [NestJS](https://github.com/nestjs/nest) microservice t
 actual infrastructure for a deployment. The backend calls it over REST (plain HTTP on port **3100**);
 it is not exposed to end users.
 
-Resource provisioners live in `src/resources/<type>/` and implement the `Resource` interface:
+Resource provisioners live in `src/resources/<type>/` and implement the `Resource` interface, grouped
+by what they provision:
 
-- `vultr-vm` — Vultr virtual machines (provides an SSH connection)
+**Virtual machines** (each provides an SSH connection)
+
+- `vultr-vm` — Vultr virtual machines
+- `aws-vm` — AWS EC2 instances
+- `azure-vm` — Azure virtual machines (including their network resources)
+- `gcp-vm` — Google Compute Engine instances
+
+**Storage**
+
 - `vultr-storage` — Vultr S3-compatible storage
+- `aws-s3` — AWS S3 buckets
+- `azure-blob` — Azure Blob Storage containers
+- `gcp-storage` — Google Cloud Storage buckets
+
+**Application deployment**
+
 - `docker-compose-ssh` — Docker Compose over SSH
 - `helm` — Helm releases
+
+**Infrastructure as code**
+
+- `terraform` — applies a Terraform configuration (state is stored with the deployment)
 
 For setup and running the whole stack, see the [root README](../README.md). To run just this service in
 watch mode: `npm run dev` (it needs no dev certificate — unlike the backend, it serves plain HTTP).

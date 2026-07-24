@@ -19,10 +19,21 @@
 * Billing providers
   * Chargebee
 * Resources
-  * Vultr VM (provides SSH connection)
-  * Vultr S3 Storage
-  * Docker Compose (based on SSH connection)
-  * Helm
+  * Virtual machines (each provides an SSH connection)
+    * Vultr VM
+    * AWS EC2
+    * Azure VM
+    * Google Compute Engine
+  * Storage
+    * Vultr S3 Storage
+    * AWS S3
+    * Azure Blob Storage
+    * Google Cloud Storage
+  * Application deployment
+    * Docker Compose (over SSH)
+    * Helm
+  * Infrastructure as code
+    * Terraform
 
 Whether you're offering a monolithic app or a collection of microservices, Pangostack helps you deploy reproducible, scalable environments — all while keeping your cost-to-profit ratio in check.
 
