@@ -3,7 +3,9 @@ import { useMemo } from 'react';
 import { TransientContext } from 'src/hooks';
 import { isArray } from 'src/lib';
 
-export const TransientProvider = (props: React.PropsWithChildren) => {
+export interface TransientProviderProps extends React.PropsWithChildren {}
+
+export const TransientProvider = (props: TransientProviderProps) => {
   const { children } = props;
 
   const values = useMemo(() => {

@@ -2,7 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { ProfileContext } from 'src/hooks';
 import { useClients } from '../api';
 
-export const RouteWhenPrivate = (props: React.PropsWithChildren) => {
+export interface RouteWhenPrivateProps extends React.PropsWithChildren {}
+
+export const RouteWhenPrivate = (props: RouteWhenPrivateProps) => {
   const { children } = props;
   const clients = useClients();
 

@@ -10,14 +10,10 @@ module.exports = {
     'react-refresh',
     '@typescript-eslint/eslint-plugin',
   ],
-  extends: [
-    'plugin:@typescript-eslint/recommended', 
-    'plugin:prettier/recommended',
-    'plugin:react-hooks/recommended'
-  ],
+  extends: ['plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended', 'plugin:react-hooks/recommended', 'plugin:storybook/recommended'],
   root: true,
   env: { browser: true, es2020: true },
-  ignorePatterns: ['.eslintrc.js', 'src/api/generated', 'vite.config.ts'],
+  ignorePatterns: ['.eslintrc.js', 'src/api/generated', 'vite.config.ts', 'vitest.shims.d.ts'],
   rules: {
     'import/extensions': [
         'error',

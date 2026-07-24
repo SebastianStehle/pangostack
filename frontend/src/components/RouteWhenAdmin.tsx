@@ -1,7 +1,9 @@
 import { Navigate } from 'react-router-dom';
 import { useProfile } from 'src/hooks';
 
-export const RouteWhenAdmin = (props: React.PropsWithChildren) => {
+export interface RouteWhenAdminProps extends React.PropsWithChildren {}
+
+export const RouteWhenAdmin = (props: RouteWhenAdminProps) => {
   const { children } = props;
 
   const profile = useProfile();

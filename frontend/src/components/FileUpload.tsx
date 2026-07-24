@@ -5,6 +5,7 @@ import { useClients } from 'src/api';
 import { Forms, Image } from 'src/components';
 import { toastError } from 'src/components/ToastError';
 import { texts } from 'src/texts';
+
 export interface FileUploadProps {
   // The file ID.
   fileId: string;
@@ -18,10 +19,12 @@ export interface FileUploadProps {
   // The hint to describe the file.
   hints?: string;
 }
+
 export const FileUpload = (props: FileUploadProps) => {
   const { fallback, fileId, hints, title } = props;
   const clients = useClients();
   const [file, setFile] = useState<File | undefined>(undefined);
+
   const updating = useMutation({
     mutationFn: (request: File) => {
       return clients.settings.postFile(fileId, request);
@@ -33,11 +36,13 @@ export const FileUpload = (props: FileUploadProps) => {
       toastError(texts.theme.fileUploadFailed, error);
     },
   });
+
   const upload = () => {
     if (file) {
       updating.mutate(file);
     }
   };
+
   return (
     <>
       <div className="flex flex-row items-center gap-8">

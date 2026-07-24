@@ -1,6 +1,16 @@
 import classNames from 'classnames';
 
-export const VersionLabel = ({ version, isDefault }: { version: string; isDefault?: boolean }) => {
+export interface VersionLabelProps {
+  // The version to display.
+  version: string;
+
+  // Highlights the label as the default version.
+  isDefault?: boolean;
+}
+
+export const VersionLabel = (props: VersionLabelProps) => {
+  const { isDefault, version } = props;
+
   return (
     <div
       className={classNames(`badge badge-neutral badge-sm rounded-full font-normal`, {

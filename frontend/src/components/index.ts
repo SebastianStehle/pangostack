@@ -2,7 +2,6 @@ export * from './AdminHeader';
 export * from './Alert';
 export * from './Avatar';
 export * from './CodeEditor';
-export * from './CollapseButton';
 export * from './ConfirmDialog';
 export * from './DeploymentDisplayParameter';
 export * from './DeploymentHealthChart';

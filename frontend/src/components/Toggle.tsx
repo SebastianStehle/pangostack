@@ -1,7 +1,9 @@
 import classNames from 'classnames';
 import { ComponentPropsWithoutRef } from 'react';
 
-export const Toggle = (props: ComponentPropsWithoutRef<'input'>) => {
+export interface ToggleProps extends ComponentPropsWithoutRef<'input'> {}
+
+export const Toggle = (props: ToggleProps) => {
   const { className, ...other } = props;
 
   return (
