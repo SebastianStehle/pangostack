@@ -20,7 +20,7 @@ export class ResourcesDeleteRequestDto {
   resources: ResourceRequestDto[];
 }
 
-export class ConnectInfoDto {
+export class LabeledValueDto {
   @ApiProperty({
     description: 'The value.',
     required: true,
@@ -40,7 +40,7 @@ export class ConnectInfoDto {
   isPublic: boolean;
 
   static fromDomain(source: { value: string; label: string; isPublic: boolean }) {
-    const result = new ConnectInfoDto();
+    const result = new LabeledValueDto();
     result.value = source.value;
     result.label = source.label;
     result.isPublic = source.isPublic;
@@ -48,9 +48,6 @@ export class ConnectInfoDto {
     return result;
   }
 }
-
-// Each event is its own concrete shape. The `type` property is the discriminator that selects the
-// member of the ResourceEventDto union (see RESOURCE_EVENT_MODELS and main.ts).
 
 class EventBaseDto {
   @ApiProperty({
@@ -177,9 +174,9 @@ export class AppendConnectionEventDto extends EventBaseDto {
   @ApiProperty({
     description: 'Connection info, for example Api Keys.',
     required: true,
-    additionalProperties: { $ref: getSchemaPath(ConnectInfoDto) },
+    additionalProperties: { $ref: getSchemaPath(LabeledValueDto) },
   })
-  connection: Record<string, ConnectInfoDto>;
+  connection: Record<string, LabeledValueDto>;
 }
 
 export class CompleteEventDto extends EventBaseDto {
@@ -219,14 +216,14 @@ const RESOURCE_EVENT_MODELS = [
 
 // The streamed apply endpoint is @ApiExcludeEndpoint (generated clients cannot consume NDJSON), so
 // nothing references the events and Nest emits neither their schemas nor a union. We register the
-// concrete members (and ConnectInfoDto, referenced by AppendConnectionEventDto) and combine them
+// concrete members (and LabeledValueDto, referenced by AppendConnectionEventDto) and combine them
 // into a proper discriminated union, so the generator produces a real ResourceEventDto union type.
 export function registerResourceEventSchema(document: OpenAPIObject) {
   document.components ??= {};
   const schemas = (document.components.schemas ??= {}) as Record<string, SchemaObject>;
 
   const factory = new SchemaObjectFactory(new ModelPropertiesAccessor(), new SwaggerTypesMapper());
-  for (const model of [ConnectInfoDto, ...RESOURCE_EVENT_MODELS.map(({ model }) => model)]) {
+  for (const model of [LabeledValueDto, ...RESOURCE_EVENT_MODELS.map(({ model }) => model)]) {
     factory.exploreModelSchema(model, schemas);
   }
 

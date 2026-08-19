@@ -56,6 +56,9 @@ const status: ResourceStatusDto = {
       ],
     },
   ],
+  properties: {
+    'squidex/squidex': { value: '7.23.0', isPublic: true, label: 'Squidex Version' },
+  },
 };
 
 const completedStep: DeploymentStepDto = {

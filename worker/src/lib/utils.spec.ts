@@ -1,5 +1,29 @@
 import { describe, expect, it } from 'vitest';
-import { dotToNested } from './utils';
+import { dotToNested, parsePercent, parseSizeGb, roundValue } from './utils';
+
+describe('parsePercent', () => {
+  it('should parse a percentage and default invalid input to zero', () => {
+    expect(parsePercent('12.34%')).toBe(12.34);
+    expect(parsePercent('abc')).toBe(0);
+    expect(parsePercent(undefined)).toBe(0);
+  });
+});
+
+describe('parseSizeGb', () => {
+  it('should convert size units to GB and default invalid input to zero', () => {
+    expect(parseSizeGb('2GiB')).toBe(2);
+    expect(parseSizeGb('512 MiB')).toBeCloseTo(0.5);
+    expect(parseSizeGb('1GB')).toBe(1);
+    expect(parseSizeGb('invalid')).toBe(0);
+  });
+});
+
+describe('roundValue', () => {
+  it('should round to two decimal places', () => {
+    expect(roundValue(0.129)).toBe(0.13);
+    expect(roundValue(2)).toBe(2);
+  });
+});
 
 describe('dotToNested', () => {
   it('should build nested objects when keys contain dots', () => {

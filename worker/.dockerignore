@@ -1,1 +1,6 @@
 **/node_modules
+**/dist
+**/*.tsbuildinfo
+
+# Local secrets must never end up in an image.
+**/.env

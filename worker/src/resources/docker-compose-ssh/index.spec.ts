@@ -1,7 +1,7 @@
 import { NodeSSH } from 'node-ssh';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { ResourceRequest } from '../interface';
-import { DockerComposeSshResource } from './index';
+import { DockerComposeSshResource, resolveProperties } from './index';
 
 vi.mock('node-ssh', () => ({ NodeSSH: vi.fn() }));
 
@@ -34,8 +34,8 @@ function setupSsh(outputs: Record<string, string>): Ssh {
 }
 
 const DOCKER_PS = [
-  '{"Names":"user-web","State":"running","Status":"Up 5 minutes"}',
-  '{"Names":"user-db","State":"restarting","Status":"Restarting"}',
+  '{"Names":"user-web","State":"running","Status":"Up 5 minutes","Image":"squidex/squidex:7.23.0"}',
+  '{"Names":"user-db","State":"restarting","Status":"Restarting","Image":"mongo:7"}',
 ].join('\n');
 
 describe('DockerComposeSshResource', () => {
@@ -55,11 +55,27 @@ describe('DockerComposeSshResource', () => {
       {
         name: 'Docker Compose',
         nodes: [
-          { name: 'web', originalName: 'user-web', isReady: true, details: 'Up 5 minutes' },
-          { name: 'db', originalName: 'user-db', isReady: false, details: 'Restarting' },
+          { name: 'web', originalName: 'user-web', isReady: true, details: 'Up 5 minutes', image: 'squidex/squidex:7.23.0' },
+          { name: 'db', originalName: 'user-db', isReady: false, details: 'Restarting', image: 'mongo:7' },
         ],
       },
     ]);
+  });
+
+  it('should report version and status per main image when mainImages is set', async () => {
+    setupSsh({ 'docker ps': DOCKER_PS });
+
+    const request = createRequest();
+    request.parameters.mainImages = 'squidex/squidex, mongo';
+
+    const status = await resource.status('id', request);
+
+    expect(status.properties).toEqual({
+      'squidex/squidex/version': { value: '7.23.0', label: 'Squidex Version', isPublic: true },
+      'squidex/squidex/status': { value: 'Up 5 minutes', label: 'Squidex Status', isPublic: true },
+      'mongo/version': { value: '7', label: 'Mongo Version', isPublic: true },
+      'mongo/status': { value: 'Restarting', label: 'Mongo Status', isPublic: true },
+    });
   });
 
   it('should convert docker stats when queried for metrics', async () => {
@@ -92,5 +108,26 @@ describe('DockerComposeSshResource', () => {
 
     expect(result.metrics.cpu).toEqual({ a: 150.5, b: 0, c: 0, d: 0.13 });
     expect(result.metrics.memory).toEqual({ a: 2, b: 0.1, c: 1, d: 0 });
+  });
+});
+
+describe('resolveProperties', () => {
+  const CONTAINERS = [
+    { image: 'squidex/caddy-proxy', details: 'Up 4 weeks' },
+    { image: 'squidex/squidex:7', details: 'Up 4 weeks (healthy)' },
+    { image: 'mongo:6', details: 'Up 4 weeks' },
+  ];
+
+  it('should match a tagged main image regardless of other untagged images', () => {
+    const properties = resolveProperties(CONTAINERS, 'squidex/squidex');
+
+    expect(properties).toEqual({
+      'squidex/squidex/version': { value: '7', label: 'Squidex Version', isPublic: true },
+      'squidex/squidex/status': { value: 'Up 4 weeks (healthy)', label: 'Squidex Status', isPublic: true },
+    });
+  });
+
+  it('should return no properties when mainImages is not set', () => {
+    expect(resolveProperties(CONTAINERS, undefined)).toEqual({});
   });
 });

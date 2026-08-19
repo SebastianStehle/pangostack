@@ -24,7 +24,7 @@ RUN npm run build
 RUN npm test
 
 # Only keep production dependencies.
-RUN NODE_ENV=production & npm ci --only=production && npm cache clean --force
+RUN npm ci --omit=dev && npm cache clean --force
 
 #
 # RUNTIME
@@ -50,13 +50,13 @@ RUN curl "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3" |
 # Verify Helm
 RUN helm version
 
+WORKDIR /app
+
 # Copy the bundled code from the build stages to the production image
 COPY --from=backend /src/backend/node_modules ./node_modules
 COPY --from=backend /src/backend/dist ./dist
 
-RUN apk update && apk add bash
-
-EXPOSE 3000
+EXPOSE 3100
 
 # Start the server using the production build
 CMD [ "node", "dist/main.js" ]

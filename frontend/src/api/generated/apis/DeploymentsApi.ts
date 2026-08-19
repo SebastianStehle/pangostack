@@ -718,7 +718,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
 
     /**
      * Retries a failed deployment.
-     *
+     * 
      */
     async retryDeploymentRaw(requestParameters: RetryDeploymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeploymentDto>> {
         if (requestParameters.deploymentId === null || requestParameters.deploymentId === undefined) {
@@ -745,7 +745,7 @@ export class DeploymentsApi extends runtime.BaseAPI {
 
     /**
      * Retries a failed deployment.
-     *
+     * 
      */
     async retryDeployment(deploymentId: number, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DeploymentDto> {
         const response = await this.retryDeploymentRaw({ deploymentId: deploymentId }, initOverrides);

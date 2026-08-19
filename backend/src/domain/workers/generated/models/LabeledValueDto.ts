@@ -18,44 +18,44 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface ConnectInfoDto
+ * @interface LabeledValueDto
  */
-export interface ConnectInfoDto {
+export interface LabeledValueDto {
     /**
      * The value.
      * @type {string}
-     * @memberof ConnectInfoDto
+     * @memberof LabeledValueDto
      */
     value: string;
     /**
      * The label.
      * @type {string}
-     * @memberof ConnectInfoDto
+     * @memberof LabeledValueDto
      */
     label: string;
     /**
      * Indicates if the info is public.
      * @type {boolean}
-     * @memberof ConnectInfoDto
+     * @memberof LabeledValueDto
      */
     isPublic: boolean;
 }
 
 /**
- * Check if a given object implements the ConnectInfoDto interface.
+ * Check if a given object implements the LabeledValueDto interface.
  */
-export function instanceOfConnectInfoDto(value: object): boolean {
+export function instanceOfLabeledValueDto(value: object): boolean {
     if (!('value' in value)) return false;
     if (!('label' in value)) return false;
     if (!('isPublic' in value)) return false;
     return true;
 }
 
-export function ConnectInfoDtoFromJSON(json: any): ConnectInfoDto {
-    return ConnectInfoDtoFromJSONTyped(json, false);
+export function LabeledValueDtoFromJSON(json: any): LabeledValueDto {
+    return LabeledValueDtoFromJSONTyped(json, false);
 }
 
-export function ConnectInfoDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): ConnectInfoDto {
+export function LabeledValueDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): LabeledValueDto {
     if (json == null) {
         return json;
     }
@@ -67,7 +67,7 @@ export function ConnectInfoDtoFromJSONTyped(json: any, ignoreDiscriminator: bool
     };
 }
 
-export function ConnectInfoDtoToJSON(value?: ConnectInfoDto | null): any {
+export function LabeledValueDtoToJSON(value?: LabeledValueDto | null): any {
     if (value == null) {
         return value;
     }

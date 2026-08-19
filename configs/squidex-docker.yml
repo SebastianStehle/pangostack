@@ -40,11 +40,47 @@ parameters:
         label: 16 Cores, 64 GB RAM, 1280 GB SSD
         updateFrom: [cores_4, cores_6, cores_8]
 
+  - name: version
+    label: Version
+    type: string
+    required: true
+    defaultValue: 7.23.0
+    display: true
+    allowedValues:
+      - value: 7.23.0
+        label: 7.23.0
+      - value: 7.22.0
+        label: 7.22.0
+      - value: 7.21.0
+        label: 7.21.0
+      - value: 7.20.0
+        label: 7.20.0
+      - value: 7.19.0
+        label: 7.19.0
+      - value: 7.18.0
+        label: 7.18.0
+      - value: 7.17.0
+        label: 7.17.0
+      - value: 7.16.0
+        label: 7.16.0
+      - value: 7.15.0
+        label: 7.15.0
+      - value: 7.14.0
+        label: 7.14.0
+
   - name: backup
     label: Backup
     type: boolean
     required: true
     defaultValue: false
+
+  - name: autoUpdate
+    label: Auto Update
+    type: boolean
+    required: true
+    defaultValue: false
+    display: true
+    hint: Automatically update Squidex to the latest patch of the selected version.
 
   - name: googleClient
     label: Google Client ID
@@ -171,10 +207,12 @@ resources:
     type: docker-compose-ssh
     parameters:
       dockerComposeUrl: https://raw.githubusercontent.com/Squidex/squidex-hosting/refs/heads/master/docker-compose/docker-compose.yml
+      mainImages: squidex/squidex
       host: ${context.vm.host}
       sshUser: ${context.vm.sshUser}
       sshPassword: ${context.vm.sshPassword}
       environment: ${parameters.environment}
+      SQUIDEX_VERSION: ${parameters.version}
       SQUIDEX_GITHUBCLIENT: ${parameters.githubClient}
       SQUIDEX_GITHUBSECRET: ${parameters.githubSecret}
       SQUIDEX_GOOGLECLIENT: ${parameters.googleClient}
@@ -184,6 +222,7 @@ resources:
       SQUIDEX_DOMAIN: ${parameters.domain}
       SQUIDEX_ADMINEMAIL: changeme@squidex.io
       SQUIDEX_ADMINPASSWORD: changeme
+      COMPOSE_PROFILES: "${parameters.autoUpdate ? 'autoupdate' : ''}"
     healthChecks:
       - name: Default
         url: https://${parameters.domain}/healthz

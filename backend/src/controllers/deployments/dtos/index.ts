@@ -1,13 +1,13 @@
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
 import {
-  ConnectionInfo,
   DeploymentCheckStatus,
   DeploymentStepAction,
   DeploymentStepLog,
   DeploymentStepStatus,
   DeploymentSubStep,
   DeploymentUpdateStatus,
+  LabeledValue,
 } from 'src/domain/database';
 import {
   CheckSummary,
@@ -103,27 +103,27 @@ export class UpdateDeploymentDto {
   parameters?: Record<string, any>;
 }
 
-export class ConnectionInfoDto {
+export class LabeledValueDto {
   @ApiProperty({
-    description: 'The connection value (URL, endpoint, etc.).',
+    description: 'The value, for example a connection URL or an image version.',
     required: true,
   })
   value: string;
 
   @ApiProperty({
-    description: 'Whether this connection is publicly accessible.',
+    description: 'Whether this value is publicly visible to the customer.',
     required: true,
   })
   isPublic: boolean;
 
   @ApiProperty({
-    description: 'Human-readable label for this connection.',
+    description: 'Human-readable label for the value.',
     required: true,
   })
   label: string;
 
-  static fromDomain(source: ConnectionInfo): ConnectionInfoDto {
-    const result = new ConnectionInfoDto();
+  static fromDomain(source: LabeledValue): LabeledValueDto {
+    const result = new LabeledValueDto();
     result.value = source.value;
     result.label = source.label;
     return result;
@@ -166,7 +166,7 @@ export class AvailableUpdateDto {
 }
 
 @ApiExtraModels(AvailableUpdateDto)
-@ApiExtraModels(ConnectionInfoDto)
+@ApiExtraModels(LabeledValueDto)
 export class DeploymentDto {
   @ApiProperty({
     description: 'The ID of the deployment.',
@@ -225,11 +225,11 @@ export class DeploymentDto {
     additionalProperties: {
       type: 'object',
       additionalProperties: {
-        $ref: getSchemaPath(ConnectionInfoDto),
+        $ref: getSchemaPath(LabeledValueDto),
       },
     },
   })
-  connections: Record<string, Record<string, ConnectionInfoDto>>;
+  connections: Record<string, Record<string, LabeledValueDto>>;
 
   @ApiProperty({
     description: 'Instructions to follow after installation.',
@@ -296,7 +296,7 @@ export class DeploymentDto {
 
       for (const [connectionName, connectionInfo] of Object.entries(connections)) {
         if (connectionInfo.isPublic) {
-          result.connections[connectionType][connectionName] = ConnectionInfoDto.fromDomain(connectionInfo);
+          result.connections[connectionType][connectionName] = LabeledValueDto.fromDomain(connectionInfo);
         }
       }
     }
@@ -378,6 +378,7 @@ export class ResourceWorkloadStatusDto {
   }
 }
 
+@ApiExtraModels(LabeledValueDto)
 export class ResourceStatusDto {
   @ApiProperty({
     description: 'The resource I.',
@@ -407,12 +408,28 @@ export class ResourceStatusDto {
   })
   workloads: ResourceWorkloadStatusDto[] = [];
 
+  @ApiProperty({
+    description: 'Runtime properties collected live from the resource, for example the deployed image version.',
+    required: true,
+    additionalProperties: {
+      $ref: getSchemaPath(LabeledValueDto),
+    },
+  })
+  properties: Record<string, LabeledValueDto> = {};
+
   static fromDomain(source: ResourceStatus) {
     const result = new ResourceStatusDto();
     result.resourceId = source.resourceId;
     result.resourceName = source.resourceName;
     result.resourceType = source.resourceType;
     result.workloads = source.workloads.map(ResourceWorkloadStatusDto.fromDomain);
+
+    for (const [key, property] of Object.entries(source.properties)) {
+      if (property.isPublic) {
+        result.properties[key] = LabeledValueDto.fromDomain(property);
+      }
+    }
+
     return result;
   }
 }

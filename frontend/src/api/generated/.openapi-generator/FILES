@@ -18,7 +18,6 @@ models/ActivityUserDto.ts
 models/AuthProviderDto.ts
 models/AuthSettingsDto.ts
 models/AvailableUpdateDto.ts
-models/ConnectionInfoDto.ts
 models/CreateDeploymentDto.ts
 models/CreateServiceVersionDto.ts
 models/DeploymentCheckSummariesDto.ts
@@ -45,6 +44,7 @@ models/HealthControllerCheck200ResponseInfoValue.ts
 models/HealthControllerCheck503Response.ts
 models/InvoiceDto.ts
 models/InvoicesDto.ts
+models/LabeledValueDto.ts
 models/LinkDto.ts
 models/LoginDto.ts
 models/ParameterAllowedValueDto.ts

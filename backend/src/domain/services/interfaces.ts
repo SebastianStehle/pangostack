@@ -6,6 +6,7 @@ import {
   DeploymentStepStatus,
   DeploymentSubStep,
   DeploymentUpdateStatus,
+  LabeledValue,
 } from '../database';
 import { ParameterDefinition, ServiceDefinition, ServicePricingModel, UsageDefinition } from '../definitions';
 
@@ -261,6 +262,9 @@ export interface ResourceStatus {
 
   // The workflows that have been created.
   workloads: ResourceWorkloadStatus[];
+
+  // Runtime properties collected live from the resource, for example the deployed image version.
+  properties: Record<string, LabeledValue>;
 }
 
 export interface CheckSummary {
