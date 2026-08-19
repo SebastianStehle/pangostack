@@ -25,11 +25,11 @@ services:
       BILLING_CHARGEBEE_SITE: ${PANGO_CHARGEBEE_SITE}
       BILLING_TYPE: CHARGEBEE
       TEMPORAL_ADDRESS: temporal:7233
-      WORKER_ENDPOINT: pangostack_worker:300
+      WORKER_ENDPOINT: http://pangostack_worker:3100
     networks:
       - pango-network
     ports:
-      - 4000:80
+      - 4000:3000
     restart: unless-stopped
 
   pangostack_worker:
@@ -38,7 +38,7 @@ services:
     networks:
       - pango-network
     ports:
-      - 3000:80
+      - 3000:3100
     restart: unless-stopped
 
   pangostack_proxy:

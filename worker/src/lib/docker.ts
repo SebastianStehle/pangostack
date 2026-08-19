@@ -71,9 +71,9 @@ export async function composeUp(
   }
 }
 
-type Container = { name: string; isReady: boolean; details?: string; originalName: string };
+type Container = { name: string; isReady: boolean; details?: string; originalName: string; image: string };
 
-type DockerPsEntry = { Names: string; State: string; Status: string };
+type DockerPsEntry = { Names: string; State: string; Status: string; Image: string };
 
 export async function getContainers(ssh: NodeSSH): Promise<Container[]> {
   const result: Container[] = [];
@@ -98,10 +98,42 @@ export async function getContainers(ssh: NodeSSH): Promise<Container[]> {
       name = name.substring(5);
     }
 
-    result.push({ name, originalName: json.Names, isReady: json.State === 'running', details: json.Status });
+    result.push({ name, originalName: json.Names, isReady: json.State === 'running', details: json.Status, image: json.Image });
   }
 
   return result;
+}
+
+export type ParsedImage = {
+  // The full image reference, for example 'docker.io/squidex/squidex:7.23.0'.
+  image: string;
+
+  // The registry host, for example 'docker.io', when the reference includes one.
+  registry?: string;
+
+  // The repository without the registry and tag, for example 'squidex/squidex'.
+  repository: string;
+
+  // The tag, defaulting to 'latest' when the reference is untagged.
+  tag: string;
+};
+
+// Matches '[REGISTRY[:PORT]/]REPOSITORY[:TAG]'. The registry is only taken when the first segment looks
+// like a host (contains a dot or a port, or is localhost), so 'squidex/squidex' keeps its namespace as
+// part of the repository. The tag group cannot contain a slash, so a registry port is not mistaken for
+// one. This is not the full distribution/reference grammar (no digests), just the parts we need.
+const IMAGE_PATTERN = /^(?:(?<registry>[^/]*[.:][^/]*|localhost)\/)?(?<repository>.+?)(?::(?<tag>[^/]+))?$/;
+
+// Splits a docker image reference into its registry, repository and tag.
+export function parseImage(image: string): ParsedImage {
+  const { registry, repository, tag } = IMAGE_PATTERN.exec(image)?.groups ?? {};
+
+  return {
+    image,
+    registry: registry || undefined,
+    repository: repository ?? image,
+    tag: tag || 'latest',
+  };
 }
 
 type ContainerLog = { name: string; log: string };

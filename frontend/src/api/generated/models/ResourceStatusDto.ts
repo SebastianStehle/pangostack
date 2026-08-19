@@ -16,6 +16,12 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { LabeledValueDto } from './LabeledValueDto';
+import {
+    LabeledValueDtoFromJSON,
+    LabeledValueDtoFromJSONTyped,
+    LabeledValueDtoToJSON,
+} from './LabeledValueDto';
 import type { ResourceWorkloadStatusDto } from './ResourceWorkloadStatusDto';
 import {
     ResourceWorkloadStatusDtoFromJSON,
@@ -53,6 +59,12 @@ export interface ResourceStatusDto {
      * @memberof ResourceStatusDto
      */
     workloads: Array<ResourceWorkloadStatusDto>;
+    /**
+     * Runtime properties collected live from the resource, for example the deployed image version.
+     * @type {{ [key: string]: LabeledValueDto; }}
+     * @memberof ResourceStatusDto
+     */
+    properties: { [key: string]: LabeledValueDto; };
 }
 
 /**
@@ -64,6 +76,7 @@ export function instanceOfResourceStatusDto(value: object): boolean {
     isInstance = isInstance && "resourceType" in value;
     isInstance = isInstance && "resourceName" in value;
     isInstance = isInstance && "workloads" in value;
+    isInstance = isInstance && "properties" in value;
 
     return isInstance;
 }
@@ -82,6 +95,7 @@ export function ResourceStatusDtoFromJSONTyped(json: any, ignoreDiscriminator: b
         'resourceType': json['resourceType'],
         'resourceName': json['resourceName'],
         'workloads': ((json['workloads'] as Array<any>).map(ResourceWorkloadStatusDtoFromJSON)),
+        'properties': (mapValues(json['properties'], LabeledValueDtoFromJSON)),
     };
 }
 
@@ -98,6 +112,7 @@ export function ResourceStatusDtoToJSON(value?: ResourceStatusDto | null): any {
         'resourceType': value.resourceType,
         'resourceName': value.resourceName,
         'workloads': ((value.workloads as Array<any>).map(ResourceWorkloadStatusDtoToJSON)),
+        'properties': (mapValues(value.properties, LabeledValueDtoToJSON)),
     };
 }
 

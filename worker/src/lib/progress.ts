@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { ConnectionInfo, ParametersOrContextValue, ResourceEvent, ResourceReporter } from 'src/resources/interface';
+import { LabeledValue, ParametersOrContextValue, ResourceEvent, ResourceReporter } from 'src/resources/interface';
 
 export function formatReadiness(ready: number, total: number, unit: string, waitingFor: string[]) {
   let message = `${ready}/${total} ${unit} ready`;
@@ -44,7 +44,7 @@ export class ResourceReporterImpl implements ResourceReporter {
     this.emit({ type: 'appendResourceContext', context, timestamp: new Date() });
   }
 
-  appendConnection(connection: Record<string, ConnectionInfo>) {
+  appendConnection(connection: Record<string, LabeledValue>) {
     this.emit({ type: 'appendConnection', connection, timestamp: new Date() });
   }
 

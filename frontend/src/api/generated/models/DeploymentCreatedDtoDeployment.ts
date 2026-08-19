@@ -22,18 +22,18 @@ import {
     AvailableUpdateDtoFromJSONTyped,
     AvailableUpdateDtoToJSON,
 } from './AvailableUpdateDto';
-import type { ConnectionInfoDto } from './ConnectionInfoDto';
-import {
-    ConnectionInfoDtoFromJSON,
-    ConnectionInfoDtoFromJSONTyped,
-    ConnectionInfoDtoToJSON,
-} from './ConnectionInfoDto';
 import type { DeploymentResourceDto } from './DeploymentResourceDto';
 import {
     DeploymentResourceDtoFromJSON,
     DeploymentResourceDtoFromJSONTyped,
     DeploymentResourceDtoToJSON,
 } from './DeploymentResourceDto';
+import type { LabeledValueDto } from './LabeledValueDto';
+import {
+    LabeledValueDtoFromJSON,
+    LabeledValueDtoFromJSONTyped,
+    LabeledValueDtoToJSON,
+} from './LabeledValueDto';
 
 /**
  * The created deployment.
@@ -91,10 +91,10 @@ export interface DeploymentCreatedDtoDeployment {
     createdAt: Date;
     /**
      * The connection infos organized by connection type and name.
-     * @type {{ [key: string]: { [key: string]: ConnectionInfoDto; }; }}
+     * @type {{ [key: string]: { [key: string]: LabeledValueDto; }; }}
      * @memberof DeploymentCreatedDtoDeployment
      */
-    connections: { [key: string]: { [key: string]: ConnectionInfoDto; }; };
+    connections: { [key: string]: { [key: string]: LabeledValueDto; }; };
     /**
      * Instructions to follow after installation.
      * @type {object}

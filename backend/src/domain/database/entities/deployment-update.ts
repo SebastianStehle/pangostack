@@ -51,6 +51,9 @@ export class DeploymentUpdateEntity {
   createdBy: string;
 }
 
-export type ConnectionInfo = { value: string; isPublic: boolean; label: string };
+// A labeled value, for example connection info (Api Keys) or a runtime property (image version).
+export type LabeledValue = { value: string; isPublic: boolean; label: string };
+
+export type ConnectionInfo = LabeledValue;
 
 export type DeploymentUpdateStatus = 'Pending' | 'Running' | 'Completed' | 'Failed';

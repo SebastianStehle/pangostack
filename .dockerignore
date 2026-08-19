@@ -1,1 +1,10 @@
 **/node_modules
+**/dist
+**/.git
+**/*.tsbuildinfo
+
+# Local secrets and dev certificates must never end up in an image.
+**/.env
+backend/dev/*.pem
+
+frontend/storybook-static

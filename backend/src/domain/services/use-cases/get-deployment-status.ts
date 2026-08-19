@@ -81,11 +81,12 @@ export class GetDeploymentStatusHandler implements IQueryHandler<GetDeploymentSt
 
       // The worker answers with only one status.
       mapped.push(
-        ...statuses.resources.map(({ workloads }) => ({
+        ...statuses.resources.map(({ workloads, properties }) => ({
           resourceId: resource.id,
           resourceType: resource.type,
           resourceName: resource.name,
           workloads,
+          properties,
         })),
       );
     }

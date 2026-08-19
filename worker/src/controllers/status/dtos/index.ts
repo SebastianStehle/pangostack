@@ -1,6 +1,7 @@
-import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
+import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsArray, IsDefined, ValidateNested } from 'class-validator';
+import { LabeledValueDto } from 'src/controllers/deployment/dto';
 import { ResourceRequestDto } from 'src/controllers/shared';
 import {
   InstanceLog,
@@ -77,6 +78,7 @@ export class ResourceWorkloadStatusDto {
   }
 }
 
+@ApiExtraModels(LabeledValueDto)
 export class ResourceStatusDto {
   @ApiProperty({
     description: 'The resource ID.',
@@ -99,11 +101,23 @@ export class ResourceStatusDto {
   })
   workloads: ResourceWorkloadStatusDto[] = [];
 
+  @ApiProperty({
+    description: 'Runtime properties collected live from the resource, for example the deployed image version.',
+    required: true,
+    additionalProperties: { $ref: getSchemaPath(LabeledValueDto) },
+  })
+  properties: Record<string, LabeledValueDto> = {};
+
   static fromDomain(source: ResourceStatusResult, id: string, type: string) {
     const result = new ResourceStatusDto();
     result.resourceUniqueId = id;
     result.resourceType = type;
     result.workloads = source.workloads.map(ResourceWorkloadStatusDto.fromDomain);
+
+    for (const [key, value] of Object.entries(source.properties || {})) {
+      result.properties[key] = LabeledValueDto.fromDomain(value);
+    }
+
     return result;
   }
 }

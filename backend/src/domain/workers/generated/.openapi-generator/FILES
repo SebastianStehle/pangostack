@@ -11,11 +11,11 @@ models/AppendLogEventDto.ts
 models/AppendResourceContextEventDto.ts
 models/CompleteEventDto.ts
 models/CompleteStepEventDto.ts
-models/ConnectInfoDto.ts
 models/ErrorResponseDto.ts
 models/FailEventDto.ts
 models/FailStepEventDto.ts
 models/InstanceLogDto.ts
+models/LabeledValueDto.ts
 models/LogRequestDto.ts
 models/LogResultDto.ts
 models/MetricsRequestDto.ts

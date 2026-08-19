@@ -72,8 +72,8 @@ export interface ResourceRequest<T = ParametersOrContext, TResourceContext = Rec
   timeoutMs: number;
 }
 
-// Provides values how to connect to the resource, for example Api Keys.
-export interface ConnectionInfo {
+// A labeled value, for example connection info (Api Keys) or a runtime property (image version).
+export interface LabeledValue {
   value: string;
   label: string;
   isPublic: boolean;
@@ -116,7 +116,10 @@ export interface ResourceStatusResult {
   workloads: ResourceWorkloadStatus[];
 
   // Provides values how to connect to the resource, for example Api Keys.
-  connection?: Record<string, ConnectionInfo>;
+  connection?: Record<string, LabeledValue>;
+
+  // Runtime properties collected live from the resource, for example the deployed image version.
+  properties?: Record<string, LabeledValue>;
 }
 
 export interface ResourceUsage {
@@ -139,7 +142,7 @@ export type ResourceFailStepEvent = { type: 'failStep'; id: string; message: str
 export type ResourceAppendLogEvent = { type: 'appendLog'; stepId: string | null; message: string } & ResourceEventBase;
 export type ResourceAppendContextEvent = { type: 'appendContext'; context: Record<string, ParametersOrContextValue> } & ResourceEventBase;
 export type ResourceAppendResourceContextEvent = { type: 'appendResourceContext'; context: Record<string, string> } & ResourceEventBase;
-export type ResourceAppendConnectionEvent = { type: 'appendConnection'; connection: Record<string, ConnectionInfo> } & ResourceEventBase;
+export type ResourceAppendConnectionEvent = { type: 'appendConnection'; connection: Record<string, LabeledValue> } & ResourceEventBase;
 export type ResourceCompleteEvent = { type: 'complete' } & ResourceEventBase;
 export type ResourceFailEvent = { type: 'fail'; error: string } & ResourceEventBase;
 
@@ -173,7 +176,7 @@ export interface ResourceReporter {
   appendResourceContext(context: Record<string, string>): void;
 
   // Adds or overwrites connection info, for example IP addresses or Api Keys.
-  appendConnection(connections: Record<string, ConnectionInfo>): void;
+  appendConnection(connections: Record<string, LabeledValue>): void;
 }
 
 export interface Resource {

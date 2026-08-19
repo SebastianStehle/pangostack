@@ -6,8 +6,8 @@ import { execa } from 'execa';
 import { v4 as uuidv4 } from 'uuid';
 import { parseEnvironment } from 'src/lib';
 import {
-  ConnectionInfo,
   defineResource,
+  LabeledValue,
   ParametersOrContextValue,
   Resource,
   ResourceReporter,
@@ -161,7 +161,7 @@ function publishOutputs(outputJson: string, reporter: ResourceReporter) {
   const outputs = JSON.parse(outputJson) as Record<string, { value: unknown; sensitive?: boolean }>;
 
   const context: Record<string, ParametersOrContextValue> = {};
-  const connection: Record<string, ConnectionInfo> = {};
+  const connection: Record<string, LabeledValue> = {};
 
   for (const [key, output] of Object.entries(outputs)) {
     const value = typeof output.value === 'string' ? output.value : JSON.stringify(output.value);

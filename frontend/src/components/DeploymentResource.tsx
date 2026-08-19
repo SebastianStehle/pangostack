@@ -1,4 +1,4 @@
-import { ConnectionInfoDto, DeploymentStepDto, ResourceStatusDto } from 'src/api';
+import { DeploymentStepDto, LabeledValueDto, ResourceStatusDto } from 'src/api';
 import { NodeStatus, Spinner } from 'src/components';
 import { formatDuration } from 'src/lib';
 import { texts } from 'src/texts';
@@ -13,7 +13,7 @@ export interface DeploymentResourceProps {
   step?: DeploymentStepDto;
 
   // The connection infos.
-  connection?: Record<string, ConnectionInfoDto>;
+  connection?: Record<string, LabeledValueDto>;
 
   // The live status.
   status?: ResourceStatusDto;
@@ -25,6 +25,7 @@ export interface DeploymentResourceProps {
 export const DeploymentResource = (props: DeploymentResourceProps) => {
   const { connection, name, status, statusLoading, step } = props;
   const actualConnections = connection || {};
+  const actualProperties = status?.properties || {};
 
   // Running or failed steps are always expanded so the relevant details are visible immediately.
   const isExpanded = step?.status === 'Running' || step?.status === 'Failed';
@@ -53,10 +54,16 @@ export const DeploymentResource = (props: DeploymentResourceProps) => {
           {step && <div className="text-sm text-slate-500">{formatDuration(step.startedAt, step.completedAt)}</div>}
         </div>
 
-        {Object.keys(actualConnections).length > 0 && (
+        {(Object.keys(actualConnections).length > 0 || Object.keys(actualProperties).length > 0) && (
           <div className="flex flex-wrap gap-2">
             {Object.entries(actualConnections).map(([key, value]) => (
               <div key={key}>
+                {value.label}: {value.value}
+              </div>
+            ))}
+
+            {Object.entries(actualProperties).map(([key, value]) => (
+              <div key={key} className="badge badge-ghost badge-sm rounded-full font-normal">
                 {value.label}: {value.value}
               </div>
             ))}

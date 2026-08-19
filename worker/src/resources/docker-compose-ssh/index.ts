@@ -1,8 +1,21 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { NodeSSH } from 'node-ssh';
-import { composeDown, composeUp, formatReadiness, getContainers, getLogs, parseEnvironment, pollUntil } from 'src/lib';
+import {
+  composeDown,
+  composeUp,
+  formatReadiness,
+  getContainers,
+  getLogs,
+  parseEnvironment,
+  parseImage,
+  parsePercent,
+  parseSizeGb,
+  pollUntil,
+  roundValue,
+} from 'src/lib';
 import {
   defineResource,
+  LabeledValue,
   Resource,
   ResourceLogResult,
   ResourceMetricsResult,
@@ -11,7 +24,14 @@ import {
   ResourceStatusResult,
 } from '../interface';
 
-type Parameters = { host: string; sshUser: string; sshPassword: string; dockerComposeUrl: string; environment?: string };
+type Parameters = {
+  host: string;
+  sshUser: string;
+  sshPassword: string;
+  dockerComposeUrl: string;
+  environment?: string;
+  mainImages?: string;
+};
 
 @Injectable()
 export class DockerComposeSshResource implements Resource {
@@ -45,6 +65,10 @@ export class DockerComposeSshResource implements Resource {
         description: 'The additional environment variables.',
         type: 'string',
       },
+      mainImages: {
+        description: "A comma separated list of image repositories to report the version for, for example 'squidex/squidex,mongo'.",
+        type: 'string',
+      },
     },
     context: {},
     metrics: {
@@ -66,6 +90,9 @@ export class DockerComposeSshResource implements Resource {
 
   async apply(_: string, request: ResourceRequest<Parameters>, reporter: ResourceReporter): Promise<void> {
     const { dockerComposeUrl, host, environment, sshUser, sshPassword, ...others } = request.parameters;
+
+    // mainImages is metadata used by status(), not an environment variable for the containers.
+    delete others.mainImages;
 
     const ssh = new NodeSSH();
     try {
@@ -164,7 +191,7 @@ export class DockerComposeSshResource implements Resource {
   }
 
   async status(_id: string, request: ResourceRequest<Parameters>): Promise<ResourceStatusResult> {
-    const { host, sshUser, sshPassword } = request.parameters;
+    const { host, sshUser, sshPassword, mainImages } = request.parameters;
 
     const ssh = new NodeSSH();
     try {
@@ -178,6 +205,7 @@ export class DockerComposeSshResource implements Resource {
             nodes: containers,
           },
         ],
+        properties: resolveProperties(containers, mainImages),
       };
 
       return status;
@@ -187,33 +215,41 @@ export class DockerComposeSshResource implements Resource {
   }
 }
 
-const SIZE_UNITS_GB: Record<string, number> = {
-  b: 1 / 1024 ** 3,
-  kb: 1 / 1000 ** 2,
-  kib: 1 / 1024 ** 2,
-  mb: 1 / 1000,
-  mib: 1 / 1024,
-  gb: 1,
-  gib: 1,
-  tb: 1000,
-  tib: 1024,
-};
-
-function parsePercent(source: string | undefined): number {
-  const parsed = parseFloat(source?.replace('%', '') || '');
-
-  return isNaN(parsed) ? 0 : parsed;
-}
-
-function parseSizeGb(source: string | undefined): number {
-  const match = /^([\d.]+)\s*([a-z]+)$/i.exec(source?.trim() || '');
-  if (!match) {
-    return 0;
+export function resolveProperties(
+  containers: { image: string; details?: string }[],
+  mainImages: string | undefined,
+): Record<string, LabeledValue> {
+  if (!mainImages) {
+    return {};
   }
 
-  return parseFloat(match[1]) * (SIZE_UNITS_GB[match[2].toLowerCase()] ?? 0);
-}
+  // The last path segment of a repository, capitalized.
+  //  - for example 'squidex/squidex' -> 'Squidex'.
+  const displayName = (repository: string) => {
+    const segment = repository.substring(repository.lastIndexOf('/') + 1);
 
-function roundValue(value: number): number {
-  return Math.round(value * 100) / 100;
+    return segment.charAt(0).toUpperCase() + segment.slice(1);
+  };
+
+  const repositories = mainImages.split(',').map((x) => x.trim());
+
+  const result: Record<string, LabeledValue> = {};
+  for (const repository of repositories) {
+    const match = containers
+      .map((container) => ({ container, parsed: parseImage(container.image) }))
+      .find(({ parsed }) => parsed.repository === repository || parsed.repository.endsWith(`/${repository}`));
+
+    if (!match) {
+      continue;
+    }
+
+    const name = displayName(repository);
+    result[`${repository}/version`] = { value: match.parsed.tag, label: `${name} Version`, isPublic: true };
+
+    if (match.container.details) {
+      result[`${repository}/status`] = { value: match.container.details, label: `${name} Status`, isPublic: true };
+    }
+  }
+
+  return result;
 }

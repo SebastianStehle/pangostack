@@ -15,12 +15,12 @@
  */
 
 import { mapValues } from '../runtime';
-import type { ConnectInfoDto } from './ConnectInfoDto';
+import type { LabeledValueDto } from './LabeledValueDto';
 import {
-    ConnectInfoDtoFromJSON,
-    ConnectInfoDtoFromJSONTyped,
-    ConnectInfoDtoToJSON,
-} from './ConnectInfoDto';
+    LabeledValueDtoFromJSON,
+    LabeledValueDtoFromJSONTyped,
+    LabeledValueDtoToJSON,
+} from './LabeledValueDto';
 
 /**
  * 
@@ -42,10 +42,10 @@ export interface AppendConnectionEventDto {
     type: string;
     /**
      * Connection info, for example Api Keys.
-     * @type {{ [key: string]: ConnectInfoDto; }}
+     * @type {{ [key: string]: LabeledValueDto; }}
      * @memberof AppendConnectionEventDto
      */
-    connection: { [key: string]: ConnectInfoDto; };
+    connection: { [key: string]: LabeledValueDto; };
 }
 
 /**
@@ -70,7 +70,7 @@ export function AppendConnectionEventDtoFromJSONTyped(json: any, ignoreDiscrimin
         
         'timestamp': (new Date(json['timestamp'])),
         'type': json['type'],
-        'connection': (mapValues(json['connection'], ConnectInfoDtoFromJSON)),
+        'connection': (mapValues(json['connection'], LabeledValueDtoFromJSON)),
     };
 }
 
@@ -82,7 +82,7 @@ export function AppendConnectionEventDtoToJSON(value?: AppendConnectionEventDto 
         
         'timestamp': ((value['timestamp']).toISOString()),
         'type': value['type'],
-        'connection': (mapValues(value['connection'], ConnectInfoDtoToJSON)),
+        'connection': (mapValues(value['connection'], LabeledValueDtoToJSON)),
     };
 }
 

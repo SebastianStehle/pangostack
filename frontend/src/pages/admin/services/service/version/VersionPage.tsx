@@ -83,7 +83,7 @@ export const VersionPage = (props: VersionPageProps) => {
               <div className="relative pt-4">
                 <button
                   type="button"
-                  className="btn btn-outline btn-sm absolute top-0 right-0 z-10"
+                  className="btn btn-outline btn-sm absolute top-0 right-0 z-1"
                   onClick={() => setIsResourceTypesOpen(true)}
                 >
                   <Icon icon="arrow-left" size={12} />

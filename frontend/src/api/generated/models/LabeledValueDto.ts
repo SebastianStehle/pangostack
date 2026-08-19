@@ -19,33 +19,33 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface ConnectionInfoDto
+ * @interface LabeledValueDto
  */
-export interface ConnectionInfoDto {
+export interface LabeledValueDto {
     /**
-     * The connection value (URL, endpoint, etc.).
+     * The value, for example a connection URL or an image version.
      * @type {string}
-     * @memberof ConnectionInfoDto
+     * @memberof LabeledValueDto
      */
     value: string;
     /**
-     * Whether this connection is publicly accessible.
+     * Whether this value is publicly visible to the customer.
      * @type {boolean}
-     * @memberof ConnectionInfoDto
+     * @memberof LabeledValueDto
      */
     isPublic: boolean;
     /**
-     * Human-readable label for this connection.
+     * Human-readable label for the value.
      * @type {string}
-     * @memberof ConnectionInfoDto
+     * @memberof LabeledValueDto
      */
     label: string;
 }
 
 /**
- * Check if a given object implements the ConnectionInfoDto interface.
+ * Check if a given object implements the LabeledValueDto interface.
  */
-export function instanceOfConnectionInfoDto(value: object): boolean {
+export function instanceOfLabeledValueDto(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "value" in value;
     isInstance = isInstance && "isPublic" in value;
@@ -54,11 +54,11 @@ export function instanceOfConnectionInfoDto(value: object): boolean {
     return isInstance;
 }
 
-export function ConnectionInfoDtoFromJSON(json: any): ConnectionInfoDto {
-    return ConnectionInfoDtoFromJSONTyped(json, false);
+export function LabeledValueDtoFromJSON(json: any): LabeledValueDto {
+    return LabeledValueDtoFromJSONTyped(json, false);
 }
 
-export function ConnectionInfoDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): ConnectionInfoDto {
+export function LabeledValueDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): LabeledValueDto {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -70,7 +70,7 @@ export function ConnectionInfoDtoFromJSONTyped(json: any, ignoreDiscriminator: b
     };
 }
 
-export function ConnectionInfoDtoToJSON(value?: ConnectionInfoDto | null): any {
+export function LabeledValueDtoToJSON(value?: LabeledValueDto | null): any {
     if (value === undefined) {
         return undefined;
     }

@@ -85,6 +85,16 @@ describe('evaluateParameters', () => {
     expect(result).not.toHaveProperty('gone');
   });
 
+  it('should evaluate a ternary expression based on a boolean parameter', () => {
+    const parameters = { COMPOSE_PROFILES: "${parameters.autoUpdate ? 'autoupdate' : ''}" };
+
+    const enabled = evaluateParameters(resource({ parameters }), { ...emptyContext, parameters: { autoUpdate: true } });
+    const disabled = evaluateParameters(resource({ parameters }), { ...emptyContext, parameters: { autoUpdate: false } });
+
+    expect(enabled.COMPOSE_PROFILES).toBe('autoupdate');
+    expect(disabled.COMPOSE_PROFILES).toBe('');
+  });
+
   it('should resolve mappings through the lookup table', () => {
     const result = evaluateParameters(
       resource({ parameters: {}, mappings: { plan: { value: '${env.SIZE}', map: { small: 'S', big: 'B' } } } as never }),
