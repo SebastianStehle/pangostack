@@ -6,6 +6,7 @@ import { AddDeploymentUpdateSteps1783161589845 } from './1783161589845-AddDeploy
 import { AddTeamActivities1784123028202 } from './1784123028202-AddTeamActivities';
 import { AddActivityDeployment1784140513714 } from './1784140513714-AddActivityDeployment';
 import { AddDeploymentSubSteps1784721605429 } from './1784721605429-AddDeploymentSubSteps';
+import { AddOrphanedResources1787309376631 } from './1787309376631-AddOrphanedResources';
 
 export const ALL_MIGRATIONS = [
   Init1760346162798,
@@ -15,4 +16,5 @@ export const ALL_MIGRATIONS = [
   AddTeamActivities1784123028202,
   AddActivityDeployment1784140513714,
   AddDeploymentSubSteps1784721605429,
+  AddOrphanedResources1787309376631,
 ];

@@ -148,6 +148,26 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
         },
       }),
     );
+
+    await this.tryRegister(() =>
+      client.schedule.create({
+        scheduleId: 'reconcile-orphaned-resources',
+        spec: {
+          intervals: [
+            {
+              every: '6h',
+            },
+          ],
+        },
+        action: {
+          args: [],
+          type: 'startWorkflow',
+          workflowId: 'reconcile-orphaned-resources',
+          workflowType: workflows.reconcileOrphanedResources,
+          taskQueue: 'checks',
+        },
+      }),
+    );
   }
 
   private async configureBilling(connection: NativeConnection, client: Client, activities: Record<string, any>) {

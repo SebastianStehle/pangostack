@@ -8,6 +8,7 @@ export * from './AuthApi';
 export * from './BillingApi';
 export * from './DeploymentsApi';
 export * from './HealthApi';
+export * from './OrphanedResourcesApi';
 export * from './ServicesApi';
 export * from './SettingsApi';
 export * from './TeamsApi';

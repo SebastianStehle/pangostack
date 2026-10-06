@@ -6,6 +6,7 @@ import { texts } from 'src/texts';
 import { DashboardPage } from './dashboard/DashboardPage';
 import { DeploymentPage } from './deployment/DeploymentPage';
 import { DeploymentsPage } from './deployments/DeploymentsPage';
+import { OrphanedResourcesPage } from './orphans/OrphanedResourcesPage';
 import { ServicesPage } from './services/ServicesPage';
 import { ThemePage } from './theme/ThemePage';
 import { UserGroupsPage } from './user-groups/UserGroupsPage';
@@ -59,6 +60,11 @@ export const AdminPage = () => {
 
             <ul className="nav-menu nav-menu-bordered mt-2 gap-1">
               <li>
+                <TransientNavLink className="flex items-center gap-4" to="/admin/orphaned-resources">
+                  <Icon icon="alert" size={16} strokeWidth={1.75} /> {texts.orphanedResources.headline}
+                </TransientNavLink>
+              </li>
+              <li>
                 <TransientNavLink className="flex items-center gap-4" to="/admin/theme">
                   <Icon icon="droplet" size={16} strokeWidth={1.75} /> {texts.theme.headline}
                 </TransientNavLink>
@@ -95,6 +101,8 @@ export const AdminPage = () => {
             <Route path="/deployments" element={<DeploymentsPage />} />
 
             <Route path="/deployments/:deploymentId" element={<DeploymentPage />} />
+
+            <Route path="/orphaned-resources" element={<OrphanedResourcesPage />} />
 
             <Route path="/theme" element={<ThemePage />} />
 

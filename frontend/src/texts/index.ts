@@ -88,6 +88,7 @@ export const texts = {
     succeeded: 'Succeeded',
     text: 'Text',
     title: 'Title',
+    type: 'Type',
     totalPrice: 'Total',
     unhealthy: 'Unhealthy',
     uncheckedHealth: 'Health unchecked',
@@ -163,6 +164,26 @@ export const texts = {
     updateHeadline: 'Update Deployment',
     usageChartWarning: 'Days are based on UTC time. Usage will be measured once per hour.',
   },
+  orphanedResources: {
+    detectedAt: 'Detected',
+    empty: 'No orphaned resources found.',
+    headline: 'Orphans',
+    ignore: 'Ignore',
+    lastSeenAt: 'Last Seen',
+    manualHint:
+      'Pangostack never deletes these resources. Remove them at the provider yourself and mark them as deleted here afterwards.',
+    markDeleted: 'Mark as Deleted',
+    partialHint:
+      'Only accounts that a service still has credentials for are scanned, and only for resource types that can list them, such as virtual machines. A service version that was deleted, or a changed environment, hides everything that was created with it. Treat this list as a help, not as proof that nothing else was left behind.',
+    reopen: 'Reopen',
+    resource: 'Resource',
+    statusDeleted: 'Deleted',
+    statusIgnored: 'Ignored',
+    statusOpen: 'Open',
+    statusAll: 'All',
+    statusFailed: 'Failed to update the finding.',
+    statusSuccess: 'Finding updated.',
+  },
   login: {
     loginButton: (provider: string) => `Login with ${provider}`,
     loginHint: 'Login to your account',
@@ -188,6 +209,8 @@ export const texts = {
     definition: 'YAML Definition',
     definitionCreationHint: 'The YAML Definition should not be changed later, if you have an deployment.',
     definitionUpdateHint: 'The YAML Definition should not be changed later, if you have an deployment.',
+    environmentChangeHint: (numDeployments: number) =>
+      `Still used by **${numDeployments}** ${numDeployments === 1 ? 'deployment' : 'deployments'} to reach the created resources. Changing a credential can make them unreachable, so that Pangostack can no longer read their status or detect them when they are left behind.`,
     empty: 'No service found.',
     emptyVersions: 'No version found.',
     fixedPrice: 'Fixed base price',

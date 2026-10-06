@@ -18,17 +18,28 @@
 import * as runtime from '../runtime';
 import type {
   ErrorResponseDto,
+  ListRequestDto,
+  ListResultDto,
   ResourcesTypesDto,
 } from '../models/index';
 import {
     ErrorResponseDtoFromJSON,
     ErrorResponseDtoToJSON,
+    ListRequestDtoFromJSON,
+    ListRequestDtoToJSON,
+    ListResultDtoFromJSON,
+    ListResultDtoToJSON,
     ResourcesTypesDtoFromJSON,
     ResourcesTypesDtoToJSON,
 } from '../models/index';
 
 export interface GetResourceRequest {
     type: string;
+}
+
+export interface PostResourceListRequest {
+    type: string;
+    listRequestDto: ListRequestDto;
 }
 
 /**
@@ -95,6 +106,51 @@ export class ResourcesApi extends runtime.BaseAPI {
      */
     async getResources(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResourcesTypesDto> {
         const response = await this.getResourcesRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Lists the unique IDs of all resources of a type that the given credentials can see.
+     * 
+     */
+    async postResourceListRaw(requestParameters: PostResourceListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ListResultDto>> {
+        if (requestParameters['type'] == null) {
+            throw new runtime.RequiredError(
+                'type',
+                'Required parameter "type" was null or undefined when calling postResourceList().'
+            );
+        }
+
+        if (requestParameters['listRequestDto'] == null) {
+            throw new runtime.RequiredError(
+                'listRequestDto',
+                'Required parameter "listRequestDto" was null or undefined when calling postResourceList().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/resources/{type}/list`.replace(`{${"type"}}`, encodeURIComponent(String(requestParameters['type']))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: ListRequestDtoToJSON(requestParameters['listRequestDto']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ListResultDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Lists the unique IDs of all resources of a type that the given credentials can see.
+     * 
+     */
+    async postResourceList(type: string, listRequestDto: ListRequestDto, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ListResultDto> {
+        const response = await this.postResourceListRaw({ type: type, listRequestDto: listRequestDto }, initOverrides);
         return await response.value();
     }
 

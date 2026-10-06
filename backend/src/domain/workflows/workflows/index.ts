@@ -7,6 +7,7 @@ export * from './delete-deployment';
 export * from './delete-resources';
 export * from './deploy-resources';
 export * from './deployment-coordinator';
+export * from './reconcile-orphaned-resources';
 export * from './track-deployments-healths';
 export * from './track-deployments-metrics';
 export * from './track-deployments-usage';

@@ -9,6 +9,7 @@ export * from './deployment-update-step';
 export * from './deployment-update-sub-step';
 export * from './deployment-usage';
 export * from './deployment';
+export * from './orphaned-resource';
 export * from './service-version';
 export * from './service';
 export * from './session';

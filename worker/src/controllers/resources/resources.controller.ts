@@ -1,8 +1,8 @@
-import { Controller, Get, Inject, NotFoundException, Param } from '@nestjs/common';
+import { Body, Controller, Get, Inject, NotFoundException, NotImplementedException, Param, Post } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Resource, RESOURCES_TOKEN } from 'src/resources/interface';
 import { ApiDefaultResponses } from '../shared';
-import { ResourcesTypesDto, ResourceTypeDto } from './dto';
+import { ListRequestDto, ListResultDto, ResourcesTypesDto, ResourceTypeDto } from './dto';
 
 @Controller('resources')
 @ApiTags('resources')
@@ -24,6 +24,26 @@ export class ResourcesController {
     }
 
     return result;
+  }
+
+  @Post(':type/list')
+  @ApiOperation({
+    operationId: 'postResourceList',
+    description: 'Lists the unique IDs of all resources of a type that the given credentials can see.',
+  })
+  @ApiOkResponse({ type: ListResultDto })
+  async postResourceList(@Param('type') type: string, @Body() body: ListRequestDto) {
+    const resource = this.resources.get(type);
+    if (!resource) {
+      throw new NotFoundException();
+    }
+
+    // Not every resource type can enumerate an account, the caller has to cope with that.
+    if (!resource.list) {
+      throw new NotImplementedException(`Resource type ${type} cannot enumerate its resources.`);
+    }
+
+    return ListResultDto.fromDomain(await resource.list(body));
   }
 
   @Get(':type')

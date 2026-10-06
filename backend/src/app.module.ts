@@ -18,6 +18,7 @@ import { DeploymentsController } from './controllers/deployments/deployments.con
 import { ServiceDeploymentsController } from './controllers/deployments/service-deployments.controller';
 import { TeamDeploymentsController } from './controllers/deployments/team-deployments.controller';
 import { HealthController } from './controllers/health/health.controller';
+import { OrphanedResourcesController } from './controllers/orphans/orphaned-resources.controller';
 import { ServicesController } from './controllers/services/services.controller';
 import { SettingsController } from './controllers/settings/settings.controller';
 import { TeamsController } from './controllers/users/teams.controller';
@@ -43,6 +44,7 @@ import {
   DeploymentUpdateStepEntity,
   DeploymentUpdateSubStepEntity,
   DeploymentUsageEntity,
+  OrphanedResourceEntity,
   ServiceEntity,
   ServiceVersionEntity,
   SessionEntity,
@@ -57,6 +59,7 @@ import {
 import { ALL_MIGRATIONS, MigratorService } from './domain/database/migrations';
 import { NOTIFICATION_ENV_SCHEMA, notificationConfig } from './domain/notifications';
 import { NotificationModule } from './domain/notifications';
+import { OrphansModule } from './domain/orphans';
 import { ServicesModule } from './domain/services';
 import { SettingsModule } from './domain/settings';
 import { UsersModule } from './domain/users/module';
@@ -92,6 +95,7 @@ const combineSchemas = (...schemas: Joi.ObjectSchema[]) => schemas.reduce((acc, 
     HealthModule,
     LibModule,
     NotificationModule,
+    OrphansModule,
     ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', 'assets') }),
     ServicesModule,
     SettingsModule,
@@ -122,6 +126,7 @@ const combineSchemas = (...schemas: Joi.ObjectSchema[]) => schemas.reduce((acc, 
             DeploymentUpdateStepEntity,
             DeploymentUpdateSubStepEntity,
             DeploymentUsageEntity,
+            OrphanedResourceEntity,
             ServiceEntity,
             ServiceVersionEntity,
             SessionEntity,
@@ -149,6 +154,7 @@ const combineSchemas = (...schemas: Joi.ObjectSchema[]) => schemas.reduce((acc, 
     DeploymentsController,
     FaviconController,
     HealthController,
+    OrphanedResourcesController,
     ServiceDeploymentsController,
     ServicesController,
     SettingsController,

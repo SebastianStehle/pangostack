@@ -3,7 +3,16 @@ import { NodeSSH } from 'node-ssh';
 import { collectVmMetrics, pollUntil } from 'src/lib';
 import { VultrClient } from 'src/lib/vultr';
 import { InstanceGet } from 'src/lib/vultr/generated';
-import { defineResource, Resource, ResourceMetricsResult, ResourceReporter, ResourceRequest, ResourceStatusResult } from '../interface';
+import {
+  defineResource,
+  Resource,
+  ResourceListRequest,
+  ResourceListResult,
+  ResourceMetricsResult,
+  ResourceReporter,
+  ResourceRequest,
+  ResourceStatusResult,
+} from '../interface';
 
 type Parameters = { apiKey: string; region: string; plan: string; app: string; backup: boolean };
 
@@ -176,6 +185,20 @@ export class VultrVmResource implements Resource {
     await vultr.instances.deleteInstance(vm.id!);
   }
 
+  async list(request: ResourceListRequest<Parameters>): Promise<ResourceListResult> {
+    const { apiKey } = request.parameters;
+
+    const vultr = new VultrClient(apiKey);
+
+    // The label is the unique id verbatim, so the ids need no mapping.
+    const ids: string[] = [];
+    for await (const instances of pagedInstances(vultr)) {
+      ids.push(...instances.map((x) => x.label).filter((label): label is string => !!label));
+    }
+
+    return { ids };
+  }
+
   async status(id: string, request: ResourceRequest<Parameters, ResourceContext>): Promise<ResourceStatusResult> {
     const { apiKey } = request.parameters;
 
@@ -250,25 +273,28 @@ function isValidIp(instance: InstanceGet) {
   return !!instance.mainIp && instance.mainIp !== '0.0.0.0';
 }
 
-async function findInstance(vultr: VultrClient, label: string) {
+async function* pagedInstances(vultr: VultrClient) {
   let cursor: string | undefined = undefined;
   while (true) {
     const response = await vultr.instances.listInstances(undefined, cursor);
 
-    if (response.instances) {
-      for (const instance of response.instances) {
-        if (instance.label === label) {
-          return instance;
-        }
-      }
-    }
+    yield response.instances ?? [];
 
     const newCursor = response.meta?.links?.next;
     if (!newCursor || newCursor === cursor) {
-      break;
+      return;
     }
 
     cursor = newCursor;
+  }
+}
+
+async function findInstance(vultr: VultrClient, label: string) {
+  for await (const instances of pagedInstances(vultr)) {
+    const instance = instances.find((x) => x.label === label);
+    if (instance) {
+      return instance;
+    }
   }
 
   return null;

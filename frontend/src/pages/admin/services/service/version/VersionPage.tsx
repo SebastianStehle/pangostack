@@ -80,7 +80,7 @@ export const VersionPage = (props: VersionPageProps) => {
 
               <Forms.Boolean name="isActive" label={texts.services.isActive} vertical />
 
-              <div className="relative pt-4">
+              <div className="form-row relative pt-4">
                 <button
                   type="button"
                   className="btn btn-outline btn-sm absolute top-0 right-0 z-1"
@@ -104,6 +104,11 @@ export const VersionPage = (props: VersionPageProps) => {
               </div>
 
               <Forms.Code
+                alert={
+                  loadedServiceVersion.numDeployments
+                    ? texts.services.environmentChangeHint(loadedServiceVersion.numDeployments)
+                    : undefined
+                }
                 disabled={creating.isPending}
                 height="200px"
                 label={texts.common.environment}

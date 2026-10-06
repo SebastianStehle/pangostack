@@ -7,6 +7,7 @@ import {
   Configuration,
   DeploymentsApi,
   Middleware,
+  OrphanedResourcesApi,
   ServicesApi,
   SettingsApi,
   TeamsApi,
@@ -47,6 +48,7 @@ export class AppClient {
   public readonly auth: AuthApi;
   public readonly billing: BillingApi;
   public readonly deployments: DeploymentsApi;
+  public readonly orphanedResources: OrphanedResourcesApi;
   public readonly teams: TeamsApi;
   public readonly services: ServicesApi;
   public readonly settings: SettingsApi;
@@ -65,6 +67,7 @@ export class AppClient {
     this.auth = new AuthApi(configuration).withMiddleware(middleware);
     this.billing = new BillingApi(configuration).withMiddleware(middleware);
     this.deployments = new DeploymentsApi(configuration).withMiddleware(middleware);
+    this.orphanedResources = new OrphanedResourcesApi(configuration).withMiddleware(middleware);
     this.services = new ServicesApi(configuration).withMiddleware(middleware);
     this.teams = new TeamsApi(configuration).withMiddleware(middleware);
     this.settings = new SettingsApi(configuration).withMiddleware(middleware);

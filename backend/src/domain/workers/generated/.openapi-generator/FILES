@@ -16,6 +16,8 @@ models/FailEventDto.ts
 models/FailStepEventDto.ts
 models/InstanceLogDto.ts
 models/LabeledValueDto.ts
+models/ListRequestDto.ts
+models/ListResultDto.ts
 models/LogRequestDto.ts
 models/LogResultDto.ts
 models/MetricsRequestDto.ts

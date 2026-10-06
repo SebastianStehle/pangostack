@@ -1,6 +1,7 @@
 import {
   _InstanceType,
   DescribeInstancesCommand,
+  DescribeInstancesCommandOutput,
   EC2Client,
   Instance,
   RunInstancesCommand,
@@ -9,7 +10,16 @@ import {
 import { Injectable } from '@nestjs/common';
 import { NodeSSH } from 'node-ssh';
 import { buildPasswordCloudInit, collectVmMetrics, generatePassword, pollUntil } from 'src/lib';
-import { defineResource, Resource, ResourceMetricsResult, ResourceReporter, ResourceRequest, ResourceStatusResult } from '../interface';
+import {
+  defineResource,
+  Resource,
+  ResourceListRequest,
+  ResourceListResult,
+  ResourceMetricsResult,
+  ResourceReporter,
+  ResourceRequest,
+  ResourceStatusResult,
+} from '../interface';
 
 type Parameters = {
   accessKeyId: string;
@@ -181,6 +191,37 @@ export class AwsVmResource implements Resource {
     }
 
     await client.send(new TerminateInstancesCommand({ InstanceIds: [instance.InstanceId!] }));
+  }
+
+  async list(request: ResourceListRequest<Parameters>): Promise<ResourceListResult> {
+    const client = createClient(request.parameters);
+
+    // The Name tag is the unique id verbatim, so the ids need no mapping.
+    const ids: string[] = [];
+
+    let token: string | undefined = undefined;
+    do {
+      const response: DescribeInstancesCommandOutput = await client.send(
+        new DescribeInstancesCommand({
+          Filters: [{ Name: 'instance-state-name', Values: ACTIVE_STATES }],
+          NextToken: token,
+        }),
+      );
+
+      for (const { Instances } of response.Reservations ?? []) {
+        for (const { Tags } of Instances ?? []) {
+          const name = Tags?.find(({ Key }) => Key === 'Name')?.Value;
+
+          if (name) {
+            ids.push(name);
+          }
+        }
+      }
+
+      token = response.NextToken;
+    } while (token);
+
+    return { ids };
   }
 
   async status(id: string, request: ResourceRequest<Parameters>): Promise<ResourceStatusResult> {

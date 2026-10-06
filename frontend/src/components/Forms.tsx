@@ -11,6 +11,7 @@ import { isString } from 'src/lib';
 import { texts } from 'src/texts';
 import { CodeEditor, CodeEditorProps } from './CodeEditor';
 import { FormControlError } from './FormControlError';
+import { Icon } from './Icon';
 import { Markdown } from './Markdown';
 import { MarkdownEditor } from './MarkdownEditor';
 import { NumberInput } from './NumberInput';
@@ -36,6 +37,9 @@ export interface FormEditorProps {
 
   // The hints.
   hints?: ReactNode;
+
+  // An optional warning that is rendered above the editor.
+  alert?: ReactNode;
 
   // The form name.
   name: string;
@@ -90,7 +94,7 @@ export namespace Forms {
   };
 
   export const Row = (props: FormRowProps & { aligned?: boolean }) => {
-    const { aligned, badge, children, className, hideError, hints, name, label, required, vertical } = props;
+    const { aligned, alert, badge, children, className, hideError, hints, name, label, required, vertical } = props;
 
     const labelText = (
       <>
@@ -128,6 +132,8 @@ export namespace Forms {
 
         {!hideError && <Forms.Error name={name} />}
 
+        <FormWarning alert={alert} />
+
         {children}
 
         <FormDescription className="mb-2" hints={hints} />
@@ -140,6 +146,8 @@ export namespace Forms {
 
         <div className="min-w-0 grow">
           {!hideError && <Forms.Error name={name} />}
+
+          <FormWarning alert={alert} />
 
           {children}
 
@@ -245,6 +253,26 @@ export namespace Forms {
     );
   };
 }
+
+interface FormWarningProps {
+  // The warning to render, either markdown or an element.
+  alert?: ReactNode;
+}
+
+const FormWarning = (props: FormWarningProps) => {
+  const { alert } = props;
+
+  if (!alert) {
+    return null;
+  }
+
+  return (
+    <div role="alert" className="alert alert-warning mb-2">
+      <Icon icon="alert" />
+      <span>{isString(alert) ? <Markdown>{alert}</Markdown> : alert}</span>
+    </div>
+  );
+};
 
 const FormDescription = ({ className, hints }: { className?: string; hints?: ReactNode }) => {
   if (!hints) {
