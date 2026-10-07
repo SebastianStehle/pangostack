@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { UrlService } from './services';
+import { ResourceUniqueIdService, UrlService } from './services';
 
 @Module({
   imports: [ConfigModule],
-  providers: [UrlService],
-  exports: [UrlService],
+  providers: [ResourceUniqueIdService, UrlService],
+  exports: [ResourceUniqueIdService, UrlService],
 })
 export class LibModule {}

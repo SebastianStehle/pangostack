@@ -67,7 +67,7 @@ import { WORKER_ENV_SCHEMA, workerConfig } from './domain/workers';
 import { WorkersModule } from './domain/workers/module';
 import { WORKFLOW_ENV_SCHEMA, workflowConfig, WorkflowModule } from './domain/workflows';
 import { HealthModule } from './health';
-import { LibModule, URLS_ENV_SCHEMA, urlsConfig } from './lib';
+import { INSTALL_ENV_SCHEMA, installConfig, LibModule, URLS_ENV_SCHEMA, urlsConfig } from './lib';
 
 const combineSchemas = (...schemas: Joi.ObjectSchema[]) => schemas.reduce((acc, schema) => acc.concat(schema));
 
@@ -78,12 +78,13 @@ const combineSchemas = (...schemas: Joi.ObjectSchema[]) => schemas.reduce((acc, 
     BillingModule,
     CacheModule.register({ isGlobal: true, shouldCloneBeforeSet: false }),
     ConfigModule.forRoot({
-      load: [authConfig, billingConfig, dbConfig, notificationConfig, urlsConfig, workflowConfig, workerConfig],
+      load: [authConfig, billingConfig, dbConfig, installConfig, notificationConfig, urlsConfig, workflowConfig, workerConfig],
       isGlobal: true,
       validationSchema: combineSchemas(
         AUTH_ENV_SCHEMA,
         BILLING_ENV_SCHEMA,
         DB_ENV_SCHEMA,
+        INSTALL_ENV_SCHEMA,
         NOTIFICATION_ENV_SCHEMA,
         URLS_ENV_SCHEMA,
         WORKFLOW_ENV_SCHEMA,

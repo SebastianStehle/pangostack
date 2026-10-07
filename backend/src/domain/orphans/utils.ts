@@ -1,24 +1,23 @@
-import { parseResourceUniqueId } from 'src/domain/services';
+import { ParsedResourceUniqueId } from 'src/lib';
 import { CurrentDeploymentResources } from './interfaces';
 
 export function isOrphanedResource(
-  resourceUniqueId: string,
+  resource: ParsedResourceUniqueId | null,
   deployments: Map<number, CurrentDeploymentResources>,
   graceCutoff: Date,
 ) {
   // Deliberately conservative, because a wrong finding is cheap and a wrong deletion is not.
-  const parsed = parseResourceUniqueId(resourceUniqueId);
-  if (!parsed) {
-    // Not created by Pangostack. Foreign resources in the same cloud account are never touched.
+  if (!resource) {
+    // Not created by this installation. Foreign resources in the same cloud account are never touched.
     return false;
   }
 
-  const deployment = deployments.get(parsed.deploymentId);
+  const deployment = deployments.get(resource.deploymentId);
   if (!deployment) {
     return true;
   }
 
-  if (deployment.resourceIds.has(parsed.resourceId)) {
+  if (deployment.resourceIds.has(resource.resourceId)) {
     return false;
   }
 

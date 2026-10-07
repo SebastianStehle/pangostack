@@ -4,8 +4,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeploymentEntity, DeploymentRepository } from 'src/domain/database';
 import { evaluateParameters } from 'src/domain/definitions';
 import { WorkerResolver } from 'src/domain/workers';
+import { ResourceUniqueIdService } from 'src/lib';
 import { ResourceStatus } from '../interfaces';
-import { getEvaluationContext, getResourceUniqueId } from '../libs';
+import { getEvaluationContext } from '../libs';
 import { DeploymentPolicy } from '../policies';
 
 export class GetDeploymentStatusQuery extends Query<GetDeploymentStatusResult> {
@@ -28,6 +29,7 @@ export class GetDeploymentStatusHandler implements IQueryHandler<GetDeploymentSt
   constructor(
     @InjectRepository(DeploymentEntity)
     private readonly deployments: DeploymentRepository,
+    private readonly resourceUniqueIds: ResourceUniqueIdService,
     private readonly workerResolver: WorkerResolver,
   ) {}
 
@@ -72,7 +74,7 @@ export class GetDeploymentStatusHandler implements IQueryHandler<GetDeploymentSt
           {
             parameters: evaluateParameters(resource, context),
             resourceContext: update.resourceContexts[resource.id] || {},
-            resourceUniqueId: getResourceUniqueId(deploymentId, resource),
+            resourceUniqueId: this.resourceUniqueIds.build(deploymentId, resource.id),
             resourceType: resource.type,
             timeoutMs: 1 * 60 * 1000, // 1 minute
           },

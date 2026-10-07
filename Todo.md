@@ -24,8 +24,8 @@ Effort: **S** = up to 2 days, **M** = up to 2 weeks, **L** = more than 2 weeks.
 | # | Item | Tier | Effort | Status | Depends on |
 |---|---|---|---|---|---|
 | 1 | Retry and timeout policies | Quick win | S | Done | |
-| 2 | Install-scoped resource prefix | Quick win | S | Open | |
-| 3 | Repo scaffolding | Quick win | S | Open | |
+| 2 | Install-scoped resource prefix | Quick win | S | Done | |
+| 3 | Repo scaffolding | Quick win | S | In progress | |
 | 4 | One-command install | Quick win | S | Open | |
 | 5 | JSON Schema for definitions | Quick win | S | Open | |
 | 6 | Readable errors and live progress | Quick win | S | Open | |
@@ -95,7 +95,7 @@ Effort: **S** = up to 2 days, **M** = up to 2 weeks, **L** = more than 2 weeks.
 
 ### 2. Install-scoped resource prefix
 
-`Status: Open` · `Effort: S`
+`Status: Done` · `Effort: S`
 
 **Why.** `getResourceUniqueId` in `backend/src/domain/services/libs/index.ts` builds `deployment_<id>_<resourceId>`. Two Pangostack installations sharing one cloud account produce colliding names, and their orphan scans would report each other's resources. Changing the scheme later renames live resources, so it has to be decided now while it is cheap.
 
@@ -106,17 +106,24 @@ Effort: **S** = up to 2 days, **M** = up to 2 weeks, **L** = more than 2 weeks.
 - Check name length limits per provider (GCP and Azure already truncate).
 
 **Done when.**
-- [ ] New installs can set an install ID; existing installs are unaffected.
-- [ ] Orphan scans only report resources of their own install (test).
+- [x] New installs can set an install ID; existing installs are unaffected.
+- [x] Orphan scans only report resources of their own install (test).
+
+**Outcome.**
+- `ResourceUniqueIdService` in `backend/src/lib/services/` builds and parses the IDs. It replaces `getResourceUniqueId` and `parseResourceUniqueId`, so the prefix comes from one place.
+- `INSTALL_ID` is optional, up to 8 lowercase letters and digits (`INSTALL_ENV_SCHEMA` in `backend/src/lib/config.ts`). No underscores, so the prefix stays unambiguous.
+- Length: the prefix costs up to 9 characters. GCP and Azure VM names are cut at 40 and Helm namespaces at 53, which leaves roughly 16 and 26 characters for the resource ID. Only `vultr-vm` and `aws-vm` are listed by the orphan scan, and both keep the full ID in a label or tag.
+- Documented in `docs/HOSTING.md` and `backend/.env.example`.
 
 **Open questions.**
 - Make `INSTALL_ID` required for new installs via the install script (item 4)?
+- Truncated names in GCP, Azure and Helm can collide when two resource IDs of one deployment share a long prefix. That was already possible before; a short hash suffix would fix it, but renames live resources.
 
 ---
 
 ### 3. Repo scaffolding
 
-`Status: Open` · `Effort: S`
+`Status: In progress` · `Effort: S`
 
 **Why.** `package.json` declares MIT but there is no LICENSE file, and `.github/` only contains workflows. It's the cheapest credibility fix there is.
 
@@ -127,6 +134,10 @@ Effort: **S** = up to 2 days, **M** = up to 2 weeks, **L** = more than 2 weeks.
 
 **Done when.**
 - [ ] GitHub shows the license and community profile as complete.
+
+**Progress.**
+- Added `LICENSE`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` (adapted Contributor Covenant 2.1), bug and feature issue forms and a PR template. The README links to them.
+- Still open: create the `good first issue` label and issues on GitHub, then check the community profile once this is on `main`.
 
 ---
 
@@ -626,6 +637,7 @@ New ideas that are not sorted yet. Add a why and an effort, then move them into 
 ## Done
 
 - **Retry and timeout policies (item 1).** See the outcome in item 1.
+- **Install-scoped resource prefix (item 2).** Optional `INSTALL_ID` prefixes resource names, and orphan scans ignore other installs. All IDs go through `ResourceUniqueIdService`. See the outcome in item 2.
 - **Orphan reconciliation.**
   - A scheduled workflow (`reconcileOrphanedResources`, every 6 hours) enumerates the cloud accounts Pangostack has credentials for, through the optional `list` operation (`POST /resources/:type/list`). It records resources that no deployment accounts for.
   - It covers `vultr-vm` and `aws-vm`; other types answer `501` and are skipped.
@@ -636,5 +648,6 @@ New ideas that are not sorted yet. Add a why and an effort, then move them into 
 
 ## Changelog
 
+- **2026-10-07:** Item 2 done: optional `INSTALL_ID` resource prefix and `ResourceUniqueIdService`. Item 3 in progress: LICENSE, CONTRIBUTING, Code of Conduct, issue and PR templates; GitHub labels still open.
 - **2026-10-06:** Item 1 done: retry policies for maintenance workflows, idempotent Chargebee charges, a per-deployment billed-period key, an `admins` notification topic and `BILLING_FAILED` notifications.
 - **2026-10-06:** Roadmap rewritten after the [Omnistrate comparison](compare.md): sorted by value for effort, backups switched to native provider snapshots, restic moved to a later add-on.

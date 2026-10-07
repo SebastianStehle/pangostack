@@ -12,8 +12,9 @@ import {
   DeploymentUpdateSubStepRepository,
 } from 'src/domain/database';
 import { evaluateParameters } from 'src/domain/definitions';
-import { getEvaluationContext, getResourceUniqueId, updateContext } from 'src/domain/services';
+import { getEvaluationContext, updateContext } from 'src/domain/services';
 import { ResourceApplyStreamRequest, ResourceEventDto, WorkerResolver } from 'src/domain/workers';
+import { ResourceUniqueIdService } from 'src/lib';
 import { Activity } from '../registration';
 
 const RESOURCE_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
@@ -37,6 +38,7 @@ export class DeployResourceActivity implements Activity<DeployResourceParam> {
     private readonly deploymentSteps: DeploymentUpdateStepRepository,
     @InjectRepository(DeploymentUpdateSubStepEntity)
     private readonly deploymentSubSteps: DeploymentUpdateSubStepRepository,
+    private readonly resourceUniqueIds: ResourceUniqueIdService,
     private readonly workerResolver: WorkerResolver,
   ) {}
 
@@ -60,7 +62,7 @@ export class DeployResourceActivity implements Activity<DeployResourceParam> {
     const { context } = getEvaluationContext(update);
     const client = await this.workerResolver.clientForEndpoint(workerEndpoint);
 
-    const resourceUniqueId = getResourceUniqueId(deploymentId, resource);
+    const resourceUniqueId = this.resourceUniqueIds.build(deploymentId, resource.id);
     const resourceParams = evaluateParameters(resource, context);
 
     this.logger.log(`Deploying resource ${resource.id} for deployment ${deploymentId}`, {

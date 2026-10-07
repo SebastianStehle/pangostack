@@ -253,21 +253,11 @@ instrumentations in `backend/src/tracing.ts` / `worker/src/tracing.ts`.
 
 ## Contributing
 
-We welcome contributions from developers of all skill levels.
+We welcome contributions from developers of all skill levels. Read the [contributing guide](CONTRIBUTING.md) for setup, checks and pull request rules, and follow our [Code of Conduct](CODE_OF_CONDUCT.md). Planning a bigger feature? Open an issue first, so we can agree on the approach.
 
-### How to contribute:
+## License
 
-1. Fork this repository
-2. Create a feature branch (`git checkout -b feature/xyz`)
-3. Commit your changes clearly
-4. Push to your fork and open a Pull Request
-
-Before submitting:
-- Make sure all code is formatted and linted
-- Include tests where possible
-- Describe what the change does and why it matters
-
-If you are planning to work on a bigger features, let schedule a call first to discuss the details.
+Pangostack is licensed under the [MIT License](LICENSE).
 
 ## Tech Stack
 

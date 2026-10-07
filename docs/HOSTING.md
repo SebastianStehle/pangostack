@@ -122,6 +122,7 @@ The backend checks its configuration on startup and refuses to start if a requir
 | `URLS_BASEURL` | Public base URL of the API, used for OAuth callbacks and confirmation links. |
 | `URLS_BASEUIURL` | Public base URL of the portal, if different from the API. |
 | `WORKER_ENDPOINT` | URL of the worker, registered on startup (default `http://localhost:3100`). |
+| `INSTALL_ID` | Optional. Up to 8 lowercase letters and digits, e.g. `prod`. Prefixes every cloud resource name, so several installations can share one cloud account without colliding. Set it before the first deployment: changing it later makes existing resources invisible to this installation. |
 
 ### Login
 

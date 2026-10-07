@@ -14,6 +14,7 @@ import { evaluateParameters } from 'src/domain/definitions';
 import { CurrentDeploymentResources, isOrphanedResource } from 'src/domain/orphans';
 import { getEvaluationContext } from 'src/domain/services';
 import { WorkerError, WorkerResolver } from 'src/domain/workers';
+import { ResourceUniqueIdService } from 'src/lib';
 import { Activity } from '../registration';
 
 export type ScanOrphanGroupParam = {
@@ -41,6 +42,7 @@ export class ScanOrphanGroupActivity implements Activity<ScanOrphanGroupParam, S
     private readonly orphanedResources: OrphanedResourceRepository,
     @InjectRepository(ServiceVersionEntity)
     private readonly serviceVersions: ServiceVersionRepository,
+    private readonly resourceUniqueIds: ResourceUniqueIdService,
     private readonly workerResolver: WorkerResolver,
   ) {}
 
@@ -100,7 +102,7 @@ export class ScanOrphanGroupActivity implements Activity<ScanOrphanGroupParam, S
 
     let found = 0;
     for (const resourceUniqueId of ids) {
-      if (!isOrphanedResource(resourceUniqueId, deployments, graceCutoff)) {
+      if (!isOrphanedResource(this.resourceUniqueIds.parse(resourceUniqueId), deployments, graceCutoff)) {
         continue;
       }
 

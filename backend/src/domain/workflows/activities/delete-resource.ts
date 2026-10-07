@@ -8,8 +8,9 @@ import {
   DeploymentUpdateStepRepository,
 } from 'src/domain/database';
 import { evaluateParameters } from 'src/domain/definitions';
-import { getEvaluationContext, getResourceUniqueId } from 'src/domain/services';
+import { getEvaluationContext } from 'src/domain/services';
 import { WorkerResolver } from 'src/domain/workers';
+import { ResourceUniqueIdService } from 'src/lib';
 import { Activity } from '../registration';
 
 const RESOURCE_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
@@ -29,6 +30,7 @@ export class DeleteResourceActivity implements Activity<DeleteResourceParam> {
     private readonly deploymentUpdates: DeploymentUpdateRepository,
     @InjectRepository(DeploymentUpdateStepEntity)
     private readonly deploymentSteps: DeploymentUpdateStepRepository,
+    private readonly resourceUniqueIds: ResourceUniqueIdService,
     private readonly workerResolver: WorkerResolver,
   ) {}
 
@@ -58,7 +60,7 @@ export class DeleteResourceActivity implements Activity<DeleteResourceParam> {
           {
             parameters: evaluateParameters(resource, context),
             resourceContext: update.resourceContexts[resource.id] || {},
-            resourceUniqueId: getResourceUniqueId(deploymentId, resource),
+            resourceUniqueId: this.resourceUniqueIds.build(deploymentId, resource.id),
             resourceType: resource.type,
             timeoutMs: RESOURCE_TIMEOUT_MS,
           },
