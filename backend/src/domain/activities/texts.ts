@@ -1,7 +1,11 @@
 import {
   DeploymentConfirmedEvent,
   DeploymentCreatedEvent,
+  DeploymentDegradedEvent,
   DeploymentDeletedEvent,
+  DeploymentReadyEvent,
+  DeploymentRecoveredEvent,
+  DeploymentUpdatedEvent,
   MemberAddedEvent,
   MemberRemovedEvent,
   PaymentChargedEvent,
@@ -16,6 +20,10 @@ interface ActivityEvents {
   [PaymentChargedEvent.TYPE]: PaymentChargedEvent;
   [MemberAddedEvent.TYPE]: MemberAddedEvent;
   [MemberRemovedEvent.TYPE]: MemberRemovedEvent;
+  [DeploymentReadyEvent.TYPE]: DeploymentReadyEvent;
+  [DeploymentUpdatedEvent.TYPE]: DeploymentUpdatedEvent;
+  [DeploymentDegradedEvent.TYPE]: DeploymentDegradedEvent;
+  [DeploymentRecoveredEvent.TYPE]: DeploymentRecoveredEvent;
 }
 
 export type ActivityKey = keyof ActivityEvents;
@@ -43,5 +51,17 @@ export const ACTIVITY_TEXTS: { [K in ActivityKey]: (event: ActivityEvents[K]) =>
   },
   [MemberRemovedEvent.TYPE]: (e) => {
     return `${e.member} has been removed from the team.`;
+  },
+  [DeploymentReadyEvent.TYPE]: (e) => {
+    return `Deployment "${e.deploymentName ?? e.deploymentId}" is ready.`;
+  },
+  [DeploymentUpdatedEvent.TYPE]: (e) => {
+    return `Deployment "${e.deploymentName ?? e.deploymentId}" has been updated.`;
+  },
+  [DeploymentDegradedEvent.TYPE]: (e) => {
+    return `Deployment "${e.deploymentName ?? e.deploymentId}" is degraded.`;
+  },
+  [DeploymentRecoveredEvent.TYPE]: (e) => {
+    return `Deployment "${e.deploymentName ?? e.deploymentId}" is healthy again.`;
   },
 };

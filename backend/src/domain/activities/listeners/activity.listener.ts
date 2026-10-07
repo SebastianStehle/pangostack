@@ -5,7 +5,11 @@ import { TeamActivityEntity, TeamActivityRepository } from 'src/domain/database'
 import {
   DeploymentConfirmedEvent,
   DeploymentCreatedEvent,
+  DeploymentDegradedEvent,
   DeploymentDeletedEvent,
+  DeploymentReadyEvent,
+  DeploymentRecoveredEvent,
+  DeploymentUpdatedEvent,
   MemberAddedEvent,
   MemberRemovedEvent,
   PaymentChargedEvent,
@@ -35,6 +39,26 @@ export class ActivityListener {
   @OnEvent(DeploymentDeletedEvent.TYPE, { async: true, promisify: true })
   onDeploymentDeleted(event: DeploymentDeletedEvent) {
     return this.persist(DeploymentDeletedEvent.TYPE, event);
+  }
+
+  @OnEvent(DeploymentReadyEvent.TYPE, { async: true, promisify: true })
+  onDeploymentReady(event: DeploymentReadyEvent) {
+    return this.persist(DeploymentReadyEvent.TYPE, event);
+  }
+
+  @OnEvent(DeploymentUpdatedEvent.TYPE, { async: true, promisify: true })
+  onDeploymentUpdated(event: DeploymentUpdatedEvent) {
+    return this.persist(DeploymentUpdatedEvent.TYPE, event);
+  }
+
+  @OnEvent(DeploymentDegradedEvent.TYPE, { async: true, promisify: true })
+  onDeploymentDegraded(event: DeploymentDegradedEvent) {
+    return this.persist(DeploymentDegradedEvent.TYPE, event);
+  }
+
+  @OnEvent(DeploymentRecoveredEvent.TYPE, { async: true, promisify: true })
+  onDeploymentRecovered(event: DeploymentRecoveredEvent) {
+    return this.persist(DeploymentRecoveredEvent.TYPE, event);
   }
 
   @OnEvent(SubscriptionCreatedEvent.TYPE, { async: true, promisify: true })

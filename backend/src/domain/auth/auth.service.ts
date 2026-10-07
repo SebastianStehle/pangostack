@@ -142,6 +142,9 @@ export class AuthService implements OnApplicationBootstrap {
       }
 
       fromDB = await saveAndFind(this.users, user);
+
+      // This method will catch exceptions.
+      await this.notifications.upsertUsers([fromDB]);
     }
 
     await new Promise((resolve) => {

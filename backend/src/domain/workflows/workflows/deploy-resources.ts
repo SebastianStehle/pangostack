@@ -1,6 +1,5 @@
 import { proxyActivities } from '@temporalio/workflow';
 import type { DeploymentStepKey } from 'src/domain/database';
-import { Topics } from 'src/domain/notifications/topics';
 import type * as activities from '../activities';
 import { DEPLOYMENT_STEP_MAX_ATTEMPTS } from '../constants';
 
@@ -20,13 +19,12 @@ const { deleteResource, deployResource } = proxyActivities<typeof activities>({
   },
 });
 
-const { createDeploymentSteps, failDeploymentStep, updateDeployment, getDeployment, getResourceWorkers, notify } =
-  proxyActivities<typeof activities>({
-    startToCloseTimeout: '30s',
-    retry: {
-      maximumAttempts: 3,
-    },
-  });
+const { createDeploymentSteps, failDeploymentStep, updateDeployment, getResourceWorkers } = proxyActivities<typeof activities>({
+  startToCloseTimeout: '30s',
+  retry: {
+    maximumAttempts: 3,
+  },
+});
 
 export async function deployResources({
   deploymentId,
@@ -104,39 +102,8 @@ export async function deployResources({
     await updateDeployment({ updateId, status: 'Failed', error: `${ex}` });
   }
 
-  const deployment = await getDeployment({ id: deploymentId });
-  if (!deployment) {
-    if (deployError) {
-      throw deployError;
-    }
-    return;
-  }
-
-  const deploymentProperties: Record<string, string> = Object.fromEntries(
-    Object.entries(deployment).map(([key, value]) => [key, String(value)]),
-  );
-
-  const topic = Topics.team(deployment.teamId);
+  // Re-throw so Temporal marks this workflow run as failed. Successful runs are announced by the updateDeployment activity.
   if (deployError) {
-    // Re-throw so Temporal marks this workflow run as failed.
     throw deployError;
-  } else if (previousResourceIds) {
-    await notify({
-      topic,
-      templateCode: 'DEPLOYMENT_UPDATED',
-      properties: {
-        ...deploymentProperties,
-      },
-      url: deployment.url,
-    });
-  } else {
-    await notify({
-      topic,
-      templateCode: 'DEPLOYMENT_CREATED',
-      properties: {
-        ...deploymentProperties,
-      },
-      url: deployment.url,
-    });
   }
 }

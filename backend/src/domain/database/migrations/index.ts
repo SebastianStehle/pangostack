@@ -7,6 +7,8 @@ import { AddTeamActivities1784123028202 } from './1784123028202-AddTeamActivitie
 import { AddActivityDeployment1784140513714 } from './1784140513714-AddActivityDeployment';
 import { AddDeploymentSubSteps1784721605429 } from './1784721605429-AddDeploymentSubSteps';
 import { AddOrphanedResources1787309376631 } from './1787309376631-AddOrphanedResources';
+import { AddBilledDeploymentKey1791320452695 } from './1791320452695-AddBilledDeploymentKey';
+import { AddDeploymentHealthStatus1791365107013 } from './1791365107013-AddDeploymentHealthStatus';
 
 export const ALL_MIGRATIONS = [
   Init1760346162798,
@@ -17,4 +19,6 @@ export const ALL_MIGRATIONS = [
   AddActivityDeployment1784140513714,
   AddDeploymentSubSteps1784721605429,
   AddOrphanedResources1787309376631,
+  AddBilledDeploymentKey1791320452695,
+  AddDeploymentHealthStatus1791365107013,
 ];

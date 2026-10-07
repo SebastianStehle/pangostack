@@ -1,12 +1,11 @@
 import { log, proxyActivities } from '@temporalio/workflow';
 import { todayUtcDate } from 'src/lib/helpers/time';
 import type * as activities from '../activities';
+import { TRACKING_RETRY_POLICY } from '../constants';
 
 const { getDeployments, trackDeploymentUsage } = proxyActivities<typeof activities>({
   startToCloseTimeout: '30s',
-  retry: {
-    maximumAttempts: 1,
-  },
+  retry: TRACKING_RETRY_POLICY,
 });
 
 export async function trackDeploymentsUsage(): Promise<void> {

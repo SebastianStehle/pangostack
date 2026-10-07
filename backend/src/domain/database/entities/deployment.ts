@@ -62,6 +62,15 @@ export class DeploymentEntity {
   @Column('varchar', { nullable: true })
   confirmToken?: string | null;
 
+  @Column('varchar', { length: 10, nullable: true })
+  healthStatus?: DeploymentHealthStatus | null;
+
+  @Column('varchar', { length: 10, nullable: true })
+  notifiedHealthStatus?: DeploymentHealthStatus | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  healthNotifiedAt?: Date | null;
+
   @CreateDateColumn()
   createdAt: Date;
 
@@ -74,3 +83,5 @@ export class DeploymentEntity {
   @Column({ length: 50 })
   updatedBy: string;
 }
+
+export type DeploymentHealthStatus = 'Healthy' | 'Degraded';

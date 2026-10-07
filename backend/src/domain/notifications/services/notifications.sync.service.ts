@@ -20,8 +20,8 @@ export class NotificationsSyncService implements OnApplicationBootstrap {
     const teams = await this.teams.find({ relations: ['users'] });
     for (const team of teams) {
       const topic = Topics.team(team.id);
-      for (const user of users) {
-        await this.notifications.subscribe(user.id, topic);
+      for (const { userId } of team.users) {
+        await this.notifications.subscribe(userId, topic);
       }
     }
   }
