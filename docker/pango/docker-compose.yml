@@ -23,8 +23,8 @@ services:
       BILLING_CHARGEBEE_FIXED_PRICE_DESCRIPTION: Setup Fee
       BILLING_CHARGEBEE_PLAN_ID: pay_per_use
       BILLING_CHARGEBEE_SITE: ${PANGO_CHARGEBEE_SITE}
-      BILLING_TYPE: CHARGEBEE
-      TEMPORAL_ADDRESS: temporal:7233
+      BILLING_TYPE: chargebee
+      WORKFLOW_TEMPORAL_ADDRESS: temporal:7233
       WORKER_ENDPOINT: http://pangostack_worker:3100
     networks:
       - pango-network

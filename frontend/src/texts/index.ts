@@ -119,7 +119,7 @@ export const texts = {
     checkChartWarning: 'Days are based on UTC time. Health checks are tested every 15 minutes.',
     create: 'New Deployment',
     deleteConfirmText: 'Do you really want to delete the Deployment?',
-    deleteConfirmTitle: 'Delete Member',
+    deleteConfirmTitle: 'Delete Deployment',
     deleteConfirmed: 'Deletion confirmed. It might take a while until all resources have been deleted.',
     deployButton: 'Deploy Now',
     deployHeadline: 'Deploy new Service',

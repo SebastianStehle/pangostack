@@ -1,6 +1,7 @@
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import * as uuid from 'uuid';
 import { UserEntity, UserRepository } from 'src/domain/database';
 import { NotificationsService } from 'src/domain/notifications';
 import { User } from '../interfaces';
@@ -31,7 +32,7 @@ export class CreateUserHandler implements ICommandHandler<CreateUser, CreateUser
     const { id, apiKey, email, name, password, roles, userGroupId } = values;
 
     const user = this.users.create({
-      id,
+      id: id ?? uuid.v4(),
       apiKey,
       email,
       name,

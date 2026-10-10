@@ -21,7 +21,8 @@ npm run test:cov     # unit tests with coverage
 
 ## Code generation & migrations
 
-- `npm run generate-worker` regenerates the worker REST client (worker must be running on :3100).
+- `npm run generate` generates the worker REST client from `../worker/openapi.yaml` (needs Docker, runs before `dev`).
+- `npm run openapi` updates `openapi.yaml` from the running dev server. Run it after changing controllers, then `npm run generate` in frontend/ and e2e/.
 - `npm run typeorm:generate-migrations <Name>` generates a TypeORM migration — never hand-write them.
 
 See [CLAUDE.md](../CLAUDE.md) for the full architecture (CQRS, domains, Temporal workflows) and the

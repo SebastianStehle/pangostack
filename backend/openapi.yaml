@@ -1,0 +1,3386 @@
+openapi: 3.0.0
+paths:
+  /api/auth/settings:
+    get:
+      description: The settings.
+      operationId: getAuthSettings
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSettingsDto"
+      summary: ""
+      tags:
+        - auth
+  /api/auth/profile:
+    get:
+      description: Provides the profile.
+      operationId: getProfile
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileDto"
+      summary: ""
+      tags:
+        - auth
+  /api/auth/login:
+    post:
+      description: Login completed.
+      operationId: login
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginDto"
+      responses:
+        "204":
+          description: ""
+      summary: ""
+      tags:
+        - auth
+  /api/teams/{teamId}/activities:
+    get:
+      description: Gets the team activity log.
+      operationId: getTeamActivities
+      parameters:
+        - name: teamId
+          required: true
+          in: path
+          description: The ID of the team.
+          schema:
+            type: number
+        - name: page
+          required: false
+          in: query
+          description: The page number, starting at zero.
+          schema:
+            type: number
+        - name: pageSize
+          required: false
+          in: query
+          description: The number of items per page.
+          schema:
+            type: number
+        - name: deploymentId
+          required: false
+          in: query
+          description: Only include activities for this deployment.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActivitiesDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - activities
+  /api/deployments:
+    get:
+      description: Gets all deployments.
+      operationId: getDeployments
+      parameters:
+        - name: page
+          required: false
+          in: query
+          description: The page count.
+          schema:
+            type: number
+        - name: pageSize
+          required: false
+          in: query
+          description: The page size.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeploymentsDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - deployments
+  /api/deployments/{deploymentId}:
+    get:
+      description: Gets a deployment by ID.
+      operationId: getDeployment
+      parameters:
+        - name: deploymentId
+          required: true
+          in: path
+          description: The ID of the deployment.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeploymentDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - deployments
+    put:
+      description: Updates a deployment.
+      operationId: putDeployment
+      parameters:
+        - name: deploymentId
+          required: true
+          in: path
+          description: The ID of the deployment.
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDeploymentDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeploymentDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - deployments
+    delete:
+      description: Delete a deployment.
+      operationId: deleteDeployment
+      parameters:
+        - name: deploymentId
+          required: true
+          in: path
+          description: The ID of the deployment.
+          schema:
+            type: number
+      responses:
+        "204":
+          description: ""
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - deployments
+  /api/deployments/{deploymentId}/retry:
+    post:
+      description: Retries a failed deployment.
+      operationId: retryDeployment
+      parameters:
+        - name: deploymentId
+          required: true
+          in: path
+          description: The ID of the deployment.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeploymentDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - deployments
+  /api/deployments/{deploymentId}/status:
+    get:
+      description: Gets deployments status.
+      operationId: getDeploymentStatus
+      parameters:
+        - name: deploymentId
+          required: true
+          in: path
+          description: The ID of the deployment.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeploymentStatusDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - deployments
+  /api/deployments/{deploymentId}/steps:
+    get:
+      description: Gets the steps of the most recent deployment update.
+      operationId: getDeploymentSteps
+      parameters:
+        - name: deploymentId
+          required: true
+          in: path
+          description: The ID of the deployment.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeploymentStepsDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - deployments
+  /api/deployments/{deploymentId}/logs:
+    get:
+      description: Gets deployments logs.
+      operationId: getDeploymentLogs
+      parameters:
+        - name: deploymentId
+          required: true
+          in: path
+          description: The ID of the deployment.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeploymentLogsDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - deployments
+  /api/deployments/{deploymentId}/checks:
+    get:
+      description: Gets deployments status.
+      operationId: getDeploymentChecks
+      parameters:
+        - name: deploymentId
+          required: true
+          in: path
+          description: The ID of the deployment.
+          schema:
+            type: number
+        - name: fromDate
+          required: true
+          in: query
+          schema:
+            type: string
+        - name: toDate
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeploymentCheckSummariesDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - deployments
+  /api/deployments/{deploymentId}/usage:
+    get:
+      description: Gets usage summaries.
+      operationId: getDeploymentUsage
+      parameters:
+        - name: deploymentId
+          required: true
+          in: path
+          description: The ID of the deployment.
+          schema:
+            type: number
+        - name: fromDate
+          required: true
+          in: query
+          schema:
+            type: string
+        - name: toDate
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeploymentUsageSummariesDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - deployments
+  /api/deployments/{deploymentId}/metrics:
+    get:
+      description: Gets the collected metrics.
+      operationId: getDeploymentMetrics
+      parameters:
+        - name: deploymentId
+          required: true
+          in: path
+          description: The ID of the deployment.
+          schema:
+            type: number
+        - name: hours
+          required: false
+          in: query
+          description: The number of hours to look back.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeploymentMetricsDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - deployments
+  /api/deployments/{deploymentId}/confirm:
+    get:
+      operationId: DeploymentsController_confirmDeployment
+      parameters:
+        - name: teamId
+          required: true
+          in: path
+          schema:
+            type: number
+        - name: deploymentId
+          required: true
+          in: path
+          schema:
+            type: number
+        - name: token
+          required: true
+          in: query
+          schema:
+            type: string
+        - name: redirectUrl
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      security:
+        - x-api-key: []
+      tags:
+        - deployments
+  /api/deployments/{deploymentId}/cancel:
+    get:
+      operationId: DeploymentsController_cancelDeployment
+      parameters:
+        - name: deploymentId
+          required: true
+          in: path
+          schema:
+            type: number
+        - name: token
+          required: true
+          in: query
+          schema:
+            type: string
+        - name: redirectUrl
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      security:
+        - x-api-key: []
+      tags:
+        - deployments
+  /health:
+    get:
+      operationId: HealthController_check
+      parameters: []
+      responses:
+        "200":
+          description: The Health Check is successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  info:
+                    type: object
+                    example:
+                      database:
+                        status: up
+                    additionalProperties:
+                      type: object
+                      required:
+                        - status
+                      properties:
+                        status:
+                          type: string
+                      additionalProperties: true
+                    nullable: true
+                  error:
+                    type: object
+                    example: {}
+                    additionalProperties:
+                      type: object
+                      required:
+                        - status
+                      properties:
+                        status:
+                          type: string
+                      additionalProperties: true
+                    nullable: true
+                  details:
+                    type: object
+                    example:
+                      database:
+                        status: up
+                    additionalProperties:
+                      type: object
+                      required:
+                        - status
+                      properties:
+                        status:
+                          type: string
+                      additionalProperties: true
+        "503":
+          description: The Health Check is not successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  info:
+                    type: object
+                    example:
+                      database:
+                        status: up
+                    additionalProperties:
+                      type: object
+                      required:
+                        - status
+                      properties:
+                        status:
+                          type: string
+                      additionalProperties: true
+                    nullable: true
+                  error:
+                    type: object
+                    example:
+                      redis:
+                        status: down
+                        message: Could not connect
+                    additionalProperties:
+                      type: object
+                      required:
+                        - status
+                      properties:
+                        status:
+                          type: string
+                      additionalProperties: true
+                    nullable: true
+                  details:
+                    type: object
+                    example:
+                      database:
+                        status: up
+                      redis:
+                        status: down
+                        message: Could not connect
+                    additionalProperties:
+                      type: object
+                      required:
+                        - status
+                      properties:
+                        status:
+                          type: string
+                      additionalProperties: true
+      tags:
+        - Health
+  /api/orphaned-resources:
+    get:
+      description: Gets the orphaned resources.
+      operationId: getOrphanedResources
+      parameters:
+        - name: page
+          required: false
+          in: query
+          schema:
+            type: number
+        - name: pageSize
+          required: false
+          in: query
+          schema:
+            type: number
+        - name: status
+          required: false
+          in: query
+          schema:
+            enum:
+              - Open
+              - Ignored
+              - Deleted
+            type: string
+        - name: query
+          required: false
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrphanedResourcesDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - orphaned-resources
+  /api/orphaned-resources/{id}/status:
+    post:
+      description: Updates the status.
+      operationId: postOrphanedResourceStatus
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetOrphanedResourceStatusDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrphanedResourceDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - orphaned-resources
+  /api/services/{serviceId}/deployments:
+    get:
+      description: Gets all deployments.
+      operationId: getServiceDeployments
+      parameters:
+        - name: serviceId
+          required: true
+          in: path
+          description: The ID of the service.
+          schema:
+            type: number
+        - name: page
+          required: false
+          in: query
+          description: The page count.
+          schema:
+            type: number
+        - name: pageSize
+          required: false
+          in: query
+          description: The page size.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeploymentsDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - services
+  /api/services:
+    get:
+      description: Gets all services.
+      operationId: getServices
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServicesDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - services
+    post:
+      description: Creates a service.
+      operationId: postService
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertServiceDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - services
+  /api/services/public:
+    get:
+      description: Gets all services for end users.
+      operationId: getServicesPublic
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServicesPublicDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - services
+  /api/services/definition/schema:
+    get:
+      description: Gets the service definition JSON schema.
+      operationId: getServiceDefinitionSchema
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - services
+  /api/services/public/{serviceId}:
+    get:
+      description: Gets the service with the public properties.
+      operationId: getServicePublic
+      parameters:
+        - name: serviceId
+          required: true
+          in: path
+          description: The ID of the service.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServicePublicDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - services
+  /api/services/public/{serviceId}/versions/{versionName}:
+    get:
+      description: Gets the service with the public properties for a specific version.
+      operationId: getServicePublicVersion
+      parameters:
+        - name: serviceId
+          required: true
+          in: path
+          description: The ID of the service.
+          schema:
+            type: number
+        - name: versionName
+          required: true
+          in: path
+          description: The name of the service version.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServicePublicDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - services
+  /api/services/{serviceId}:
+    get:
+      description: Gets the service.
+      operationId: getService
+      parameters:
+        - name: serviceId
+          required: true
+          in: path
+          description: The ID of the service.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - services
+    put:
+      description: Updates the service.
+      operationId: putService
+      parameters:
+        - name: serviceId
+          required: true
+          in: path
+          description: The ID of the service.
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertServiceDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - services
+    delete:
+      description: Deletes the service.
+      operationId: deleteService
+      parameters:
+        - name: serviceId
+          required: true
+          in: path
+          description: The ID of the service.
+          schema:
+            type: number
+      responses:
+        "204":
+          description: ""
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - services
+  /api/services/{serviceId}/versions:
+    get:
+      description: Gets all services versions.
+      operationId: getServiceVersions
+      parameters:
+        - name: serviceId
+          required: true
+          in: path
+          description: The ID of the service.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceVersionsDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - services
+    post:
+      description: Creates a service version.
+      operationId: postServiceVersion
+      parameters:
+        - name: serviceId
+          required: true
+          in: path
+          description: The ID of the service.
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateServiceVersionDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceVersionDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - services
+  /api/services/{serviceId}/versions/{versionId}:
+    get:
+      description: Gets a service version.
+      operationId: getServiceVersion
+      parameters:
+        - name: serviceId
+          required: true
+          in: path
+          description: The ID of the service.
+          schema:
+            type: number
+        - name: versionId
+          required: true
+          in: path
+          description: The ID of the service version.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceVersionDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - services
+    put:
+      description: Updates the service version.
+      operationId: putServiceVersion
+      parameters:
+        - name: serviceId
+          required: true
+          in: path
+          description: The ID of the service.
+          schema:
+            type: number
+        - name: versionId
+          required: true
+          in: path
+          description: The ID of the service version.
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateServiceVersionDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceVersionDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - services
+    delete:
+      description: Deletes the service version.
+      operationId: deleteServiceVersion
+      parameters:
+        - name: serviceId
+          required: true
+          in: path
+          description: The ID of the service.
+          schema:
+            type: number
+        - name: versionId
+          required: true
+          in: path
+          description: The ID of the service version.
+          schema:
+            type: number
+      responses:
+        "204":
+          description: ""
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - services
+  /api/services/{serviceId}/versions/verify:
+    post:
+      description: Verifies a service version.
+      operationId: postVerifyServiceVersion
+      parameters:
+        - name: serviceId
+          required: true
+          in: path
+          description: The ID of the service.
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyServiceVersionDto"
+      responses:
+        "204":
+          description: ""
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - services
+  /api/settings:
+    get:
+      description: Gets settings.
+      operationId: getSettings
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SettingsDto"
+      summary: ""
+      tags:
+        - settings
+    post:
+      description: Update settings.
+      operationId: postSettings
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SettingsDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SettingsDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - settings
+  /api/settings/files/{fileId}:
+    post:
+      operationId: postFile
+      parameters:
+        - name: fileId
+          required: true
+          in: path
+          description: The ID of the file.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: ""
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - settings
+    delete:
+      description: Deletes the file.
+      operationId: deleteFile
+      parameters:
+        - name: fileId
+          required: true
+          in: path
+          description: The ID of the file.
+          schema:
+            type: string
+      responses:
+        "204":
+          description: ""
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - settings
+  /api/teams/{teamId}/invoices:
+    get:
+      description: Gets all invoices.
+      operationId: getInvoices
+      parameters:
+        - name: teamId
+          required: true
+          in: path
+          description: The ID of the team.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvoicesDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - billing
+  /api/teams/{teamId}/deployments/{deploymentId}/invoices:
+    get:
+      description: Gets all deployment invoices.
+      operationId: getDeploymentInvoices
+      parameters:
+        - name: teamId
+          required: true
+          in: path
+          description: The ID of the team.
+          schema:
+            type: number
+        - name: deploymentId
+          required: true
+          in: path
+          description: The ID of the deployment.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvoicesDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - billing
+  /api/teams/{teamId}/deployments:
+    get:
+      description: Gets all deployments.
+      operationId: getTeamDeployments
+      parameters:
+        - name: teamId
+          required: true
+          in: path
+          description: The ID of the team.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeploymentsDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - deployments
+    post:
+      description: Creates a deployment.
+      operationId: postTeamDeployment
+      parameters:
+        - name: teamId
+          required: true
+          in: path
+          description: The ID of the team.
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDeploymentDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeploymentCreatedDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - deployments
+  /api/teams:
+    get:
+      description: Gets the teams.
+      operationId: getTeams
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamsDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - teams
+    post:
+      description: Creates a team.
+      operationId: postTeam
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertTeamDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - teams
+  /api/teams/{teamId}:
+    put:
+      description: Updates a team.
+      operationId: putTeam
+      parameters:
+        - name: teamId
+          required: true
+          in: path
+          description: The ID of the team.
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertTeamDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - teams
+  /api/teams/{teamId}/users:
+    post:
+      description: Sets a team user.
+      operationId: postTeamUser
+      parameters:
+        - name: teamId
+          required: true
+          in: path
+          description: The ID of the team.
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertTeamUserDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - teams
+  /api/teams/{teamId}/users/{userId}:
+    delete:
+      description: Removes a team user.
+      operationId: deleteTeamuser
+      parameters:
+        - name: teamId
+          required: true
+          in: path
+          description: The ID of the team.
+          schema:
+            type: number
+        - name: userId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - teams
+  /api/user-groups:
+    get:
+      description: Gets the user groups.
+      operationId: getUserGroups
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserGroupsDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - users
+    post:
+      description: Creates a user group.
+      operationId: postUserGroup
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertUserGroupDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserGroupDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - users
+  /api/user-groups/{groupId}:
+    put:
+      description: Updates the user group.
+      operationId: putUserGroup
+      parameters:
+        - name: groupId
+          required: true
+          in: path
+          description: The ID of the user group.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertUserGroupDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserGroupDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - users
+    delete:
+      description: Deletes an user group.
+      operationId: deleteUserGroup
+      parameters:
+        - name: groupId
+          required: true
+          in: path
+          description: The ID of the user group.
+          schema:
+            type: string
+      responses:
+        "204":
+          description: ""
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - users
+  /api/users:
+    get:
+      description: Gets the users.
+      operationId: getUsers
+      parameters:
+        - name: page
+          required: false
+          in: query
+          description: The page count.
+          schema:
+            type: number
+        - name: pageSize
+          required: false
+          in: query
+          description: The page size.
+          schema:
+            type: number
+        - name: query
+          required: false
+          in: query
+          description: The query to search by email address.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsersDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - users
+    post:
+      description: Creates a user.
+      operationId: postUser
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertUserDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - users
+  /api/users/{userId}:
+    get:
+      description: Get the user.
+      operationId: getUser
+      parameters:
+        - name: userId
+          required: true
+          in: path
+          description: The ID of the user.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - users
+    put:
+      description: Updates the user.
+      operationId: putUser
+      parameters:
+        - name: userId
+          required: true
+          in: path
+          description: The ID of the user.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertUserDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - users
+    delete:
+      description: Deletes an user.
+      operationId: deleteUser
+      parameters:
+        - name: userId
+          required: true
+          in: path
+          description: The ID of the user.
+          schema:
+            type: string
+      responses:
+        "204":
+          description: ""
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - users
+  /api/workers:
+    get:
+      description: Gets the workers.
+      operationId: getWorkers
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkersDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - workers
+    post:
+      description: Creates a worker.
+      operationId: postWorker
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertWorkerDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkerDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - workers
+  /api/workers/{id}:
+    put:
+      description: Updates a worker.
+      operationId: putWorker
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertWorkerDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkerDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - workers
+    delete:
+      description: Deletes a worker.
+      operationId: deleteWorker
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        "204":
+          description: ""
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - workers
+  /api/workers/resource-types:
+    get:
+      description: Gets the available resource types.
+      operationId: getResourceTypes
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceTypesDto"
+      security:
+        - x-api-key: []
+      summary: ""
+      tags:
+        - workers
+info:
+  title: Pangostack
+  description: SaaS Deployment Tool
+  version: "1.0"
+  contact: {}
+tags: []
+servers: []
+components:
+  securitySchemes:
+    x-api-key:
+      type: apiKey
+      in: header
+      name: x-api-key
+  schemas:
+    AuthProviderDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The unique name.
+        displayName:
+          type: string
+          description: The display name.
+        color:
+          type: string
+          description: The color.
+      required:
+        - name
+        - displayName
+        - color
+    AuthSettingsDto:
+      type: object
+      properties:
+        providers:
+          description: Indicates which auth providers are enabled.
+          type: array
+          items:
+            $ref: "#/components/schemas/AuthProviderDto"
+        enablePasswordAuth:
+          type: boolean
+          description: Indicates if password authentication is enabled.
+      required:
+        - providers
+        - enablePasswordAuth
+    ProfileDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The user ID from the auth provider.
+        name:
+          type: string
+          description: The display name.
+        email:
+          type: string
+          description: The email address.
+        picture:
+          type: string
+          description: The URL to an external picture.
+          nullable: true
+        isAdmin:
+          type: boolean
+          description: Indicates if the user is an admin.
+        notifoApiKey:
+          type: string
+          description: The api key for notifo.
+          nullable: true
+        notifoUrl:
+          type: string
+          description: The URL for notifo.
+          nullable: true
+      required:
+        - id
+        - name
+        - email
+        - picture
+        - isAdmin
+        - notifoApiKey
+        - notifoUrl
+    LoginDto:
+      type: object
+      properties:
+        email:
+          type: string
+          description: The email address.
+        password:
+          type: string
+          description: The password.
+      required:
+        - email
+        - password
+    ActivityUserDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The user ID from the auth provider.
+        name:
+          type: string
+          description: The display name.
+        email:
+          type: string
+          description: The email address.
+      required:
+        - id
+        - name
+        - email
+    ActivityDto:
+      type: object
+      properties:
+        id:
+          type: number
+          description: The ID of the activity.
+        key:
+          type: string
+          description: The key that identifies the type of the activity.
+        text:
+          type: string
+          description: The already translated, human readable text of the activity.
+        deploymentId:
+          type: number
+          description: The ID of the deployment the activity relates to, or null for team
+            wide activities.
+          nullable: true
+        createdAt:
+          type: string
+          description: The date the activity has been logged.
+          format: date-time
+        createdBy:
+          description: The user that caused the activity, or null for system activities.
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/ActivityUserDto"
+      required:
+        - id
+        - key
+        - text
+        - deploymentId
+        - createdAt
+        - createdBy
+    ActivitiesDto:
+      type: object
+      properties:
+        items:
+          description: The activities.
+          type: array
+          items:
+            $ref: "#/components/schemas/ActivityDto"
+        total:
+          type: number
+          description: The total number of activities.
+      required:
+        - items
+        - total
+    LabeledValueDto:
+      type: object
+      properties:
+        value:
+          type: string
+          description: The value, for example a connection URL or an image version.
+        isPublic:
+          type: boolean
+          description: Whether this value is publicly visible to the customer.
+        label:
+          type: string
+          description: Human-readable label for the value.
+      required:
+        - value
+        - isPublic
+        - label
+    AvailableUpdateDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the version.
+      required:
+        - name
+    DeploymentResourceDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the resource.
+        name:
+          type: string
+          description: The name of the resource.
+      required:
+        - id
+        - name
+    DeploymentDto:
+      type: object
+      properties:
+        id:
+          type: number
+          description: The ID of the deployment.
+        name:
+          type: string
+          description: The name of the deployment.
+          nullable: true
+        serviceId:
+          type: number
+          description: The ID of the service.
+        serviceName:
+          type: string
+          description: The name of the service.
+        serviceVersion:
+          type: string
+          description: The version of the service.
+        isVersionDefault:
+          type: boolean
+          description: Indicates if the version is the default one.
+        isVersionLast:
+          type: boolean
+          description: " Indicates if the version is the last one."
+        createdAt:
+          type: string
+          description: The timestamp when the deployment has been created.
+          format: date
+        connections:
+          type: object
+          description: The connection infos organized by connection type and name.
+          additionalProperties:
+            type: object
+            additionalProperties:
+              $ref: "#/components/schemas/LabeledValueDto"
+        afterInstallationInstructions:
+          type: object
+          description: Instructions to follow after installation.
+          nullable: true
+        status:
+          type: string
+          description: The current status of the last deployment update.
+          enum:
+            - Pending
+            - Running
+            - Completed
+            - Failed
+        healthStatus:
+          type: string
+          description: The current health status of the deployment.
+          nullable: true
+          enum:
+            - Succeeded
+            - Failed
+        parameters:
+          type: object
+          description: The current deployment parameters.
+          additionalProperties: true
+        resources:
+          description: The current resources.
+          type: array
+          items:
+            $ref: "#/components/schemas/DeploymentResourceDto"
+        availableUpdates:
+          description: The available updates.
+          type: array
+          items:
+            $ref: "#/components/schemas/AvailableUpdateDto"
+      required:
+        - id
+        - name
+        - serviceId
+        - serviceName
+        - serviceVersion
+        - isVersionDefault
+        - isVersionLast
+        - createdAt
+        - connections
+        - afterInstallationInstructions
+        - status
+        - healthStatus
+        - parameters
+        - resources
+        - availableUpdates
+    DeploymentsDto:
+      type: object
+      properties:
+        items:
+          description: The deployments.
+          type: array
+          items:
+            $ref: "#/components/schemas/DeploymentDto"
+        total:
+          type: number
+          description: The total number of deployments.
+      required:
+        - items
+        - total
+    UpdateDeploymentDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The optional name to describe the deployment.
+          nullable: true
+          maxLength: 100
+        versionId:
+          type: number
+          description: The ID of the version when an update is made.
+          nullable: true
+        parameters:
+          type: object
+          description: The parameters.
+          additionalProperties: true
+      required:
+        - name
+        - versionId
+        - parameters
+    ResourceNodeStatusDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the node.
+        isReady:
+          type: boolean
+          description: Indicates if the node can be used.
+        message:
+          type: string
+          description: The message to describe the status.
+          nullable: true
+      required:
+        - name
+        - isReady
+        - message
+    ResourceWorkloadStatusDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the workload.
+        nodes:
+          description: All nodes within the workload.
+          type: array
+          items:
+            $ref: "#/components/schemas/ResourceNodeStatusDto"
+      required:
+        - name
+        - nodes
+    ResourceStatusDto:
+      type: object
+      properties:
+        resourceId:
+          type: string
+          description: The resource I.
+        resourceType:
+          type: string
+          description: The type of the resource.
+        resourceName:
+          type: string
+          description: The name of the resource.
+        workloads:
+          description: The workflows that have been create.
+          type: array
+          items:
+            $ref: "#/components/schemas/ResourceWorkloadStatusDto"
+        properties:
+          type: object
+          description: Runtime properties collected live from the resource, for example
+            the deployed image version.
+          additionalProperties:
+            $ref: "#/components/schemas/LabeledValueDto"
+      required:
+        - resourceId
+        - resourceType
+        - resourceName
+        - workloads
+        - properties
+    DeploymentStatusDto:
+      type: object
+      properties:
+        resources:
+          description: The resource.
+          type: array
+          items:
+            $ref: "#/components/schemas/ResourceStatusDto"
+      required:
+        - resources
+    DeploymentStepLogDto:
+      type: object
+      properties:
+        message:
+          type: string
+          description: The log line.
+        timestamp:
+          format: date-time
+          type: string
+          description: When the line was reported.
+      required:
+        - message
+        - timestamp
+    DeploymentSubStepDto:
+      type: object
+      properties:
+        id:
+          type: number
+          description: The id of the sub-step.
+        name:
+          type: string
+          description: The name of the sub-step.
+        status:
+          type: string
+          description: The status of the sub-step.
+          enum:
+            - Pending
+            - Running
+            - Completed
+            - Failed
+        error:
+          type: string
+          description: The error, when the sub-step failed.
+          nullable: true
+        logs:
+          description: The timestamped log lines reported for this sub-step.
+          type: array
+          items:
+            $ref: "#/components/schemas/DeploymentStepLogDto"
+        startedAt:
+          format: date-time
+          type: string
+          description: When the sub-step was started.
+          nullable: true
+        completedAt:
+          format: date-time
+          type: string
+          description: When the sub-step was completed or failed.
+          nullable: true
+      required:
+        - id
+        - name
+        - status
+        - error
+        - logs
+        - startedAt
+        - completedAt
+    DeploymentStepDto:
+      type: object
+      properties:
+        resourceId:
+          type: string
+          description: The ID of the resource within the service definition.
+        resourceName:
+          type: string
+          description: The display name of the resource.
+        action:
+          type: string
+          description: Whether the resource is deployed or deleted in this step.
+          enum:
+            - Deploy
+            - Delete
+        status:
+          type: string
+          description: The status of the step.
+          enum:
+            - Pending
+            - Running
+            - Completed
+            - Failed
+        attempt:
+          type: number
+          description: The current attempt, greater than one when the step has been retried.
+        maxAttempts:
+          type: number
+          description: The maximum number of attempts.
+        error:
+          type: string
+          description: The error of the last failed attempt.
+          nullable: true
+        subSteps:
+          description: The sub-steps as reported by the worker.
+          type: array
+          items:
+            $ref: "#/components/schemas/DeploymentSubStepDto"
+        logs:
+          description: The timestamped log lines reported outside any sub-step.
+          type: array
+          items:
+            $ref: "#/components/schemas/DeploymentStepLogDto"
+        startedAt:
+          format: date-time
+          type: string
+          description: When the step was started.
+          nullable: true
+        completedAt:
+          format: date-time
+          type: string
+          description: When the step was completed or failed.
+          nullable: true
+      required:
+        - resourceId
+        - resourceName
+        - action
+        - status
+        - attempt
+        - maxAttempts
+        - error
+        - subSteps
+        - logs
+        - startedAt
+        - completedAt
+    DeploymentStepsDto:
+      type: object
+      properties:
+        steps:
+          description: The steps of the most recent deployment update.
+          type: array
+          items:
+            $ref: "#/components/schemas/DeploymentStepDto"
+      required:
+        - steps
+    ResourceInstanceLogDto:
+      type: object
+      properties:
+        instanceId:
+          type: string
+          description: The identifier for instances or kubernetes deployments.
+        messages:
+          type: string
+          description: The actual log message.
+      required:
+        - instanceId
+        - messages
+    ResourceLogsDto:
+      type: object
+      properties:
+        resourceId:
+          type: string
+          description: The resource I.
+        resourceType:
+          type: string
+          description: The type of the resource.
+        resourceName:
+          type: string
+          description: The name of the resource.
+        instances:
+          description: The logs for the instances.
+          type: array
+          items:
+            $ref: "#/components/schemas/ResourceInstanceLogDto"
+      required:
+        - resourceId
+        - resourceType
+        - resourceName
+        - instances
+    DeploymentLogsDto:
+      type: object
+      properties:
+        resources:
+          description: The resource.
+          type: array
+          items:
+            $ref: "#/components/schemas/ResourceLogsDto"
+      required:
+        - resources
+    DeploymentCheckSummaryDto:
+      type: object
+      properties:
+        date:
+          type: string
+          description: The date for which the summary has been create.
+        totalFailures:
+          type: number
+          description: The total number of failures on this dat.
+        totalSuccesses:
+          type: number
+          description: The total number of successes on this dat.
+      required:
+        - date
+        - totalFailures
+        - totalSuccesses
+    DeploymentCheckSummariesDto:
+      type: object
+      properties:
+        checks:
+          description: The summary per dat.
+          type: array
+          items:
+            $ref: "#/components/schemas/DeploymentCheckSummaryDto"
+      required:
+        - checks
+    DeploymentUsageSummaryDto:
+      type: object
+      properties:
+        date:
+          type: string
+          description: The date for which the summary has been create.
+        totalCores:
+          type: number
+          description: The total cores at the specified dat.
+        totalMemoryGB:
+          type: number
+          description: The total memory at the specified date (in GB.
+        totalVolumeGB:
+          type: number
+          description: The total volume at the specified date (in GB.
+        totalStorageGB:
+          type: number
+          description: The total storage at the specified date (in GB.
+      required:
+        - date
+        - totalCores
+        - totalMemoryGB
+        - totalVolumeGB
+        - totalStorageGB
+    DeploymentUsageSummariesDto:
+      type: object
+      properties:
+        summaries:
+          description: The usage summary per dat.
+          type: array
+          items:
+            $ref: "#/components/schemas/DeploymentUsageSummaryDto"
+      required:
+        - summaries
+    DeploymentMetricSummaryDto:
+      type: object
+      properties:
+        label:
+          type: string
+          description: The display label of the summary.
+        type:
+          type: string
+          description: How the values are aggregated.
+          enum:
+            - avg
+            - max
+        prefix:
+          type: string
+          description: The mapping prefix that the summary is based on.
+        value:
+          type: string
+          description: The optional value name to select a single value under the prefix.
+          nullable: true
+      required:
+        - label
+        - type
+        - prefix
+        - value
+    DeploymentMetricDatapointDto:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          description: The timestamp when the metric has been collected.
+        values:
+          type: object
+          description: "The collected values, for example { used: 4, total: 8 }."
+          additionalProperties:
+            type: number
+      required:
+        - timestamp
+        - values
+    DeploymentMetricSeriesDto:
+      type: object
+      properties:
+        key:
+          type: string
+          description: The key of the metric from the definition.
+        label:
+          type: string
+          description: The display label of the metric.
+        unit:
+          type: string
+          description: The unit of the metric.
+          nullable: true
+        chart:
+          type: string
+          description: How the metric should be displayed.
+          enum:
+            - line
+            - bar
+        summaries:
+          description: The summaries that are shown as cards in the UI.
+          type: array
+          items:
+            $ref: "#/components/schemas/DeploymentMetricSummaryDto"
+        datapoints:
+          description: The collected datapoints, ordered by timestamp.
+          type: array
+          items:
+            $ref: "#/components/schemas/DeploymentMetricDatapointDto"
+      required:
+        - key
+        - label
+        - unit
+        - chart
+        - summaries
+        - datapoints
+    DeploymentMetricsDto:
+      type: object
+      properties:
+        metrics:
+          description: The metrics with their datapoints.
+          type: array
+          items:
+            $ref: "#/components/schemas/DeploymentMetricSeriesDto"
+      required:
+        - metrics
+    OrphanedResourceDto:
+      type: object
+      properties:
+        id:
+          type: number
+          description: The ID of the finding.
+        resourceUniqueId:
+          type: string
+          description: The unique ID the resource was provisioned with.
+        resourceType:
+          type: string
+          description: The type of the resource.
+        serviceVersionId:
+          type: number
+          description: The service version whose credentials found the resource.
+        resourceDefinitionId:
+          type: string
+          description: The ID of the resource within the definition.
+        detectedAt:
+          format: date-time
+          type: string
+          description: The date time when the resource was reported for the first time.
+        lastSeenAt:
+          format: date-time
+          type: string
+          description: The date time when the resource was last seen at the provider.
+        status:
+          type: string
+          description: The status of the finding.
+          enum:
+            - Open
+            - Ignored
+            - Deleted
+        resolvedAt:
+          format: date-time
+          type: string
+          description: The date time when an admin resolved the finding.
+          nullable: true
+      required:
+        - id
+        - resourceUniqueId
+        - resourceType
+        - serviceVersionId
+        - resourceDefinitionId
+        - detectedAt
+        - lastSeenAt
+        - status
+        - resolvedAt
+    OrphanedResourcesDto:
+      type: object
+      properties:
+        items:
+          description: The orphaned resources.
+          type: array
+          items:
+            $ref: "#/components/schemas/OrphanedResourceDto"
+        total:
+          type: number
+          description: The total number of orphaned resources.
+      required:
+        - items
+        - total
+    SetOrphanedResourceStatusDto:
+      type: object
+      properties:
+        status:
+          type: string
+          description: The status to assign to the finding.
+          enum:
+            - Open
+            - Ignored
+            - Deleted
+      required:
+        - status
+    ServiceDto:
+      type: object
+      properties:
+        id:
+          type: number
+          description: The ID of the service.
+        name:
+          type: string
+          description: The name of the service.
+        description:
+          type: string
+          description: The description.
+        numDeployments:
+          type: number
+          description: The number of deployments.
+        latestVersion:
+          type: string
+          description: The latest version.
+          nullable: true
+        environment:
+          type: object
+          description: The environment settings.
+          additionalProperties:
+            type: string
+        currency:
+          type: string
+          description: The currency.
+        pricePerCoreHour:
+          type: number
+          description: The price per Core and hour in the selected currency.
+        pricePerMemoryGBHour:
+          type: number
+          description: The price per Memory in GB and hour in the selected currency.
+        pricePerVolumeGBHour:
+          type: number
+          description: The price per Disk in GB and hour in the selected currency.
+        pricePerStorageGBMonth:
+          type: number
+          description: The price per Storage in GB and month in the selected currency.
+        fixedPrice:
+          type: number
+          description: The additional fixed price.
+        isActive:
+          type: boolean
+          description: Indicates if the service is active (has at least one active version).
+        isPublic:
+          type: boolean
+          description: Indicates if the service is public.
+      required:
+        - id
+        - name
+        - description
+        - numDeployments
+        - latestVersion
+        - environment
+        - currency
+        - pricePerCoreHour
+        - pricePerMemoryGBHour
+        - pricePerVolumeGBHour
+        - pricePerStorageGBMonth
+        - fixedPrice
+        - isActive
+        - isPublic
+    ServicesDto:
+      type: object
+      properties:
+        items:
+          description: The services.
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceDto"
+      required:
+        - items
+    ServicePriceDto:
+      type: object
+      properties:
+        label:
+          type: string
+          description: The label of the price.
+        target:
+          type: string
+          description: The target value.
+        test:
+          type: string
+          description: The test value.
+        pricePerHour:
+          type: number
+          description: The price per hour in the currency of the service.
+      required:
+        - label
+        - target
+        - test
+        - pricePerHour
+    ParameterAllowedValueDto:
+      type: object
+      properties:
+        value:
+          type: string
+          description: The value.
+        label:
+          type: string
+          description: The display label.
+        hint:
+          type: string
+          description: The hints to explain the value.
+          nullable: true
+        updateFrom:
+          description: The display label.
+          nullable: true
+          type: array
+          items:
+            type: string
+      required:
+        - value
+        - label
+        - hint
+        - updateFrom
+    ParameterDefinitionDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the parameter.
+        type:
+          type: string
+          description: The type of the parameter.
+          enum:
+            - string
+            - number
+            - boolean
+        required:
+          type: boolean
+          description: Indicates if the parameter is required.
+        immutable:
+          type: object
+          description: Indicates if the parameter cannot be changed after creation.
+          nullable: true
+        display:
+          type: object
+          description: Indicates if the parameter should be displayed.
+          nullable: true
+        label:
+          type: string
+          description: Gives the parameter a readable name.
+          nullable: true
+        hint:
+          type: string
+          description: Describes the parameter.
+          nullable: true
+        placeholder:
+          type: string
+          description: Placeholder for input fields.
+          nullable: true
+        defaultValue:
+          type: object
+          description: The default value of the parameter.
+          nullable: true
+        allowedValues:
+          description: Allowed values for the parameter.
+          nullable: true
+          type: array
+          items:
+            $ref: "#/components/schemas/ParameterAllowedValueDto"
+        minValue:
+          type: number
+          description: Minimum value for numeric parameters.
+          nullable: true
+        maxValue:
+          type: number
+          description: Maximum value for numeric parameters.
+          nullable: true
+        minLength:
+          type: number
+          description: Minimum length for string parameters.
+          nullable: true
+        step:
+          type: number
+          description: The step when the control is a slider.
+          nullable: true
+        maxLength:
+          type: number
+          description: Maximum length for string parameters.
+          nullable: true
+        editor:
+          type: string
+          description: The editor.
+          enum:
+            - default
+            - textarea
+          nullable: true
+        section:
+          type: number
+          description: Optional section for grouping.
+          nullable: true
+      required:
+        - name
+        - type
+        - required
+        - immutable
+        - display
+        - label
+        - hint
+        - placeholder
+        - defaultValue
+        - allowedValues
+        - minValue
+        - maxValue
+        - minLength
+        - step
+        - maxLength
+        - editor
+        - section
+    ServicePublicDto:
+      type: object
+      properties:
+        id:
+          type: number
+          description: The ID of the service.
+        name:
+          type: string
+          description: The name of the service.
+        description:
+          type: string
+          description: The description.
+        version:
+          type: string
+          description: The latest version.
+        currency:
+          type: string
+          description: The currency.
+        pricePerCoreHour:
+          type: number
+          description: The price per Core and hour in the selected currency.
+        pricePerMemoryGBHour:
+          type: number
+          description: The price per Memory in GB and hour in the selected currency.
+        pricePerStorageGBMonth:
+          type: number
+          description: The price per Storage in GB and hour in the selected currency.
+        pricePerVolumeGBHour:
+          type: number
+          description: The price per Disk in GB and hour in the selected currency.
+        fixedPrice:
+          type: number
+          description: The additional fixed price.
+        prices:
+          description: The prices.
+          type: array
+          items:
+            $ref: "#/components/schemas/ServicePriceDto"
+        pricingModel:
+          type: string
+          description: The pricing model.
+          enum:
+            - fixed
+            - pay_per_use
+        parameters:
+          description: The parameters.
+          type: array
+          items:
+            $ref: "#/components/schemas/ParameterDefinitionDto"
+        afterInstallationInstructions:
+          type: string
+          description: The instructions to show after the installation has been made.
+          nullable: true
+        isPreRelease:
+          type: boolean
+          description: Indicates if this is a prerelease which should not be selectable.
+        totalCores:
+          type: string
+          description: The expression to calculate the total number of Core.
+          nullable: true
+        totalMemoryGB:
+          type: string
+          description: The expression to calculate the total memory.
+          nullable: true
+        totalVolumeGB:
+          type: string
+          description: The expression to calculate the total volume size.
+          nullable: true
+        totalStorageGB:
+          type: string
+          description: The expression to calculate the total storage.
+          nullable: true
+      required:
+        - id
+        - name
+        - description
+        - version
+        - currency
+        - pricePerCoreHour
+        - pricePerMemoryGBHour
+        - pricePerStorageGBMonth
+        - pricePerVolumeGBHour
+        - fixedPrice
+        - prices
+        - pricingModel
+        - parameters
+        - afterInstallationInstructions
+        - isPreRelease
+        - totalCores
+        - totalMemoryGB
+        - totalVolumeGB
+        - totalStorageGB
+    ServicesPublicDto:
+      type: object
+      properties:
+        items:
+          description: The list of public services.
+          type: array
+          items:
+            $ref: "#/components/schemas/ServicePublicDto"
+      required:
+        - items
+    UpsertServiceDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the service.
+          maxLength: 100
+        description:
+          type: string
+          description: The description.
+        environment:
+          type: object
+          description: The environment settings.
+          additionalProperties:
+            type: string
+        currency:
+          type: string
+          description: The currency.
+        pricePerCoreHour:
+          type: number
+          description: The price per Core and hour in the selected currency.
+        pricePerMemoryGBHour:
+          type: number
+          description: The price per Memory in GB and hour in the selected currency.
+        pricePerStorageGBMonth:
+          type: number
+          description: The price per Storage in GB and hour in the selected currency.
+        pricePerVolumeGBHour:
+          type: number
+          description: The price per Disk in GB and hour in the selected currency.
+        fixedPrice:
+          type: number
+          description: The additional fixed price.
+        isPublic:
+          type: boolean
+          description: Indicates if the service is public.
+      required:
+        - name
+        - description
+        - environment
+        - currency
+        - pricePerCoreHour
+        - pricePerMemoryGBHour
+        - pricePerStorageGBMonth
+        - pricePerVolumeGBHour
+        - fixedPrice
+        - isPublic
+    ServiceVersionDto:
+      type: object
+      properties:
+        id:
+          type: number
+          description: The ID of the service version.
+        name:
+          type: string
+          description: The name of the version.
+        definition:
+          type: string
+          description: The YAML definition.
+        environment:
+          type: object
+          description: The environment settings.
+          additionalProperties:
+            type: string
+        isActive:
+          type: boolean
+          description: Indicates if the version is active.
+        isDefault:
+          type: boolean
+          description: Indicates if the version is the default one.
+        numDeployments:
+          type: number
+          description: The number of deployments.
+      required:
+        - id
+        - name
+        - definition
+        - environment
+        - isActive
+        - isDefault
+        - numDeployments
+    ServiceVersionsDto:
+      type: object
+      properties:
+        items:
+          description: The service versions.
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceVersionDto"
+      required:
+        - items
+    CreateServiceVersionDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the version.
+          maxLength: 10
+        definition:
+          type: string
+          description: The YAML definition.
+        environment:
+          type: object
+          description: The environment settings.
+          additionalProperties:
+            type: string
+        isActive:
+          type: boolean
+          description: Indicates if the version is active.
+      required:
+        - name
+        - definition
+        - environment
+        - isActive
+    VerifyServiceVersionDto:
+      type: object
+      properties:
+        definition:
+          type: string
+          description: The YAML definition.
+        environment:
+          type: object
+          description: The environment settings.
+          additionalProperties:
+            type: string
+      required:
+        - definition
+        - environment
+    UpdateServiceVersionDto:
+      type: object
+      properties:
+        definition:
+          type: string
+          description: The YAML definition.
+        environment:
+          type: object
+          description: The environment settings.
+          additionalProperties:
+            type: string
+        isActive:
+          type: boolean
+          description: Indicates if the version is active.
+      required:
+        - definition
+        - environment
+        - isActive
+    LinkDto:
+      type: object
+      properties:
+        title:
+          type: string
+          description: The title.
+        url:
+          type: string
+          description: The URL of the link.
+      required:
+        - title
+        - url
+    SettingsDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the app.
+          nullable: true
+        primaryColor:
+          type: string
+          description: The header color.
+          nullable: true
+        headerColor:
+          type: string
+          description: The primary color used for buttons and links.
+          nullable: true
+        primaryContentColor:
+          type: string
+          description: The primary content color used for buttons and links.
+          nullable: true
+        welcomeText:
+          type: string
+          description: The welcome text.
+          nullable: true
+        customCss:
+          type: string
+          description: Some custom css.
+          nullable: true
+        footerText:
+          type: string
+          description: The footer text, for example for copyright infos.
+          nullable: true
+        headerLinks:
+          description: The header links.
+          nullable: true
+          type: array
+          items:
+            $ref: "#/components/schemas/LinkDto"
+        footerLinks:
+          description: The footer links.
+          nullable: true
+          type: array
+          items:
+            $ref: "#/components/schemas/LinkDto"
+      required:
+        - name
+        - primaryColor
+        - headerColor
+        - primaryContentColor
+        - welcomeText
+        - customCss
+        - footerText
+        - headerLinks
+        - footerLinks
+    InvoiceDto:
+      type: object
+      properties:
+        number:
+          type: string
+          description: The invoice number.
+        downloadLink:
+          type: string
+          description: The download link.
+        dueDate:
+          type: string
+          description: The date the invoice has been issued.
+          nullable: true
+          format: date-time
+        amount:
+          type: number
+          description: The total amount of the invoice.
+        status:
+          type: string
+          description: The status of the invoice.
+          enum:
+            - Paid
+            - PaymentDue
+            - NotPaid
+            - Voided
+            - Pending
+        currency:
+          type: string
+          description: The currency.
+      required:
+        - number
+        - downloadLink
+        - dueDate
+        - amount
+        - status
+        - currency
+    InvoicesDto:
+      type: object
+      properties:
+        items:
+          description: The invoices.
+          type: array
+          items:
+            $ref: "#/components/schemas/InvoiceDto"
+        portalLink:
+          type: string
+          description: The poral link.
+          nullable: true
+      required:
+        - items
+        - portalLink
+    CreateDeploymentDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The optional name to describe the deployment.
+          nullable: true
+          maxLength: 100
+        serviceId:
+          type: number
+          description: The ID of the service.
+        parameters:
+          type: object
+          description: The parameters.
+          additionalProperties: true
+        confirmUrl:
+          type: string
+          description: The URL to call after the deployment has been created.
+          nullable: true
+        cancelUrl:
+          type: string
+          description: The URL to call after the deployment has been cancelled.
+          nullable: true
+      required:
+        - name
+        - serviceId
+        - parameters
+        - confirmUrl
+        - cancelUrl
+    DeploymentCreatedDto:
+      type: object
+      properties:
+        deployment:
+          description: The created deployment.
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/DeploymentDto"
+        redirectUrl:
+          type: string
+          description: The redirect URL if the deployment cannot be completed automatically.
+          nullable: true
+      required:
+        - deployment
+        - redirectUrl
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The user ID from the auth provider.
+        name:
+          type: string
+          description: The display name.
+        email:
+          type: string
+          description: The email address.
+        picture:
+          type: string
+          description: " The URL to an external picture."
+          nullable: true
+        apiKey:
+          type: string
+          description: The API Key.
+          nullable: true
+        roles:
+          description: The user roles.
+          nullable: true
+          type: array
+          items:
+            type: string
+        userGroupId:
+          type: string
+          description: The user group ID.
+        hasPassword:
+          type: boolean
+          description: Indicates if the user has a password configured.
+      required:
+        - id
+        - name
+        - email
+        - picture
+        - apiKey
+        - roles
+        - userGroupId
+        - hasPassword
+    TeamUserDto:
+      type: object
+      properties:
+        user:
+          description: The user.
+          allOf:
+            - $ref: "#/components/schemas/UserDto"
+        role:
+          type: string
+          description: The role of the user within the team.
+        created:
+          format: date-time
+          type: string
+          description: The time when the user has been added to the team.
+      required:
+        - user
+        - role
+        - created
+    TeamDto:
+      type: object
+      properties:
+        id:
+          type: number
+          description: The ID of the team.
+        name:
+          type: string
+          description: The display name.
+        users:
+          description: The associated users.
+          type: array
+          items:
+            $ref: "#/components/schemas/TeamUserDto"
+      required:
+        - id
+        - name
+        - users
+    TeamsDto:
+      type: object
+      properties:
+        items:
+          description: The teams.
+          type: array
+          items:
+            $ref: "#/components/schemas/TeamDto"
+      required:
+        - items
+    UpsertTeamDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the team.
+      required:
+        - name
+    UpsertTeamUserDto:
+      type: object
+      properties:
+        userIdOrEmail:
+          type: string
+          description: The ID or email address of the user.
+        role:
+          type: string
+          description: The role of the user within the team.
+      required:
+        - userIdOrEmail
+        - role
+    UserGroupDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the user group.
+        name:
+          type: string
+          description: The display name.
+        isAdmin:
+          type: boolean
+          description: Indicates if the users are admins.
+        isBuiltIn:
+          type: boolean
+          description: Indicates if the user group is builtin and cannot be deleted.
+      required:
+        - id
+        - name
+        - isAdmin
+        - isBuiltIn
+    UserGroupsDto:
+      type: object
+      properties:
+        items:
+          description: The user groups.
+          type: array
+          items:
+            $ref: "#/components/schemas/UserGroupDto"
+      required:
+        - items
+    UpsertUserGroupDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The display name.
+          maxLength: 100
+      required:
+        - name
+    UsersDto:
+      type: object
+      properties:
+        items:
+          description: The users.
+          type: array
+          items:
+            $ref: "#/components/schemas/UserDto"
+        total:
+          type: number
+          description: The total number of users.
+      required:
+        - items
+        - total
+    UpsertUserDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The display name.
+        email:
+          type: string
+          description: The email address.
+        roles:
+          description: The user roles.
+          nullable: true
+          type: array
+          items:
+            type: string
+        password:
+          type: string
+          description: The optional password.
+          nullable: true
+        userGroupId:
+          type: string
+          description: The user group ID.
+        apiKey:
+          type: string
+          description: The API Key.
+          nullable: true
+      required:
+        - name
+        - email
+        - roles
+        - password
+        - userGroupId
+        - apiKey
+    WorkerStatusDto:
+      type: object
+      properties:
+        isReady:
+          type: boolean
+          description: Indicates if the worker can be reached.
+        startedAt:
+          type: string
+          description: The timestamp when the worker has been started.
+          nullable: true
+        resourceTypes:
+          description: The resource types that the worker provides.
+          type: array
+          items:
+            type: string
+        error:
+          type: string
+          description: The reason why the worker could not be reached.
+          nullable: true
+      required:
+        - isReady
+        - startedAt
+        - resourceTypes
+        - error
+    WorkerWithStatusDto:
+      type: object
+      properties:
+        id:
+          type: number
+          description: The ID of the worker.
+        endpoint:
+          type: string
+          description: The endpoint of the worker.
+        hasApiKey:
+          type: boolean
+          description: Indicates if an API key has been configured. The key itself is
+            never exposed.
+        status:
+          description: The current status of the worker.
+          allOf:
+            - $ref: "#/components/schemas/WorkerStatusDto"
+      required:
+        - id
+        - endpoint
+        - hasApiKey
+        - status
+    WorkersDto:
+      type: object
+      properties:
+        items:
+          description: The workers.
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkerWithStatusDto"
+      required:
+        - items
+    UpsertWorkerDto:
+      type: object
+      properties:
+        endpoint:
+          type: string
+          description: The endpoint of the worker.
+        apiKey:
+          type: string
+          description: The API key to authenticate against the worker. Keeps the current
+            key when not defined.
+      required:
+        - endpoint
+    WorkerDto:
+      type: object
+      properties:
+        id:
+          type: number
+          description: The ID of the worker.
+        endpoint:
+          type: string
+          description: The endpoint of the worker.
+        hasApiKey:
+          type: boolean
+          description: Indicates if an API key has been configured. The key itself is
+            never exposed.
+      required:
+        - id
+        - endpoint
+        - hasApiKey
+    ResourceTypeValueDto:
+      type: object
+      properties:
+        type:
+          type: string
+          description: The type.
+          enum:
+            - boolean
+            - number
+            - string
+        required:
+          type: boolean
+          description: True, if required.
+          nullable: true
+        description:
+          type: string
+          description: The description of the value.
+          nullable: true
+        minLength:
+          type: number
+          description: The minimum length.
+          nullable: true
+        maxLength:
+          type: number
+          description: The maximum length.
+          nullable: true
+        allowedValues:
+          description: The enum values.
+          nullable: true
+          type: array
+          items:
+            type: string
+      required:
+        - type
+        - required
+        - description
+        - minLength
+        - maxLength
+        - allowedValues
+    ResourceTypeMetricDto:
+      type: object
+      properties:
+        description:
+          type: string
+          description: The description of the metric.
+      required:
+        - description
+    ResourceTypeDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the resource.
+        description:
+          type: string
+          description: The description of the resource.
+        parameters:
+          type: object
+          description: The parameters.
+          additionalProperties:
+            $ref: "#/components/schemas/ResourceTypeValueDto"
+        context:
+          type: object
+          description: The context.
+          additionalProperties:
+            $ref: "#/components/schemas/ResourceTypeValueDto"
+        metrics:
+          type: object
+          description: The metrics that the resource can provide.
+          additionalProperties:
+            $ref: "#/components/schemas/ResourceTypeMetricDto"
+      required:
+        - name
+        - description
+        - parameters
+        - context
+        - metrics
+    ResourceTypesDto:
+      type: object
+      properties:
+        items:
+          description: The available resource types.
+          type: array
+          items:
+            $ref: "#/components/schemas/ResourceTypeDto"
+      required:
+        - items

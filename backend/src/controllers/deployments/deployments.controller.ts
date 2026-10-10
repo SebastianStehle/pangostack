@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, NotFoundException, Post, Put, Query, Redirect, Req, UseGuards } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -21,6 +22,7 @@ import {
 } from 'src/domain/services';
 import { AllowAllDeploymentPolicy, AllowTeamDeploymentPolicy } from 'src/domain/services/policies';
 import { GetTeamsQuery, User } from 'src/domain/users';
+import { WorkflowConfig } from 'src/domain/workflows';
 import { IntParam, IntQuery, UrlService } from 'src/lib';
 import { TeamPermissionGuard } from '../TeamPermissionGuard';
 import {
@@ -40,11 +42,16 @@ import {
 @ApiSecurity('x-api-key')
 @UseGuards(LocalAuthGuard)
 export class DeploymentsController {
+  private readonly stepMaxAttempts: number;
+
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
     private readonly urlService: UrlService,
-  ) {}
+    configService: ConfigService,
+  ) {
+    this.stepMaxAttempts = configService.getOrThrow<WorkflowConfig>('workflow').deploymentStep.maxAttempts;
+  }
 
   @Get('')
   @ApiOperation({ operationId: 'getDeployments', description: 'Gets all deployments.' })
@@ -164,7 +171,7 @@ export class DeploymentsController {
     const policy = await this.getPolicy(req.user);
     const { steps } = await this.queryBus.execute(new GetDeploymentStepsQuery(deploymentId, policy));
 
-    return DeploymentStepsDto.fromDomain(steps);
+    return DeploymentStepsDto.fromDomain(steps, this.stepMaxAttempts);
   }
 
   @Get(':deploymentId/logs')

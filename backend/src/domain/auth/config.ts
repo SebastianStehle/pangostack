@@ -33,56 +33,56 @@ export interface AuthConfig {
 }
 
 export const AUTH_ENV_SCHEMA = Joi.object({
-  GITHUB_CLIENTID: Joi.string().optional(),
-  GITHUB_CLIENTSECRET: Joi.when('GITHUB_CLIENTID', {
+  AUTH_GITHUB_CLIENTID: Joi.string().optional(),
+  AUTH_GITHUB_CLIENTSECRET: Joi.when('AUTH_GITHUB_CLIENTID', {
     is: Joi.exist(),
     then: Joi.string().required(),
     otherwise: Joi.string().optional(),
   }),
-  GOOGLE_CLIENTID: Joi.string().optional(),
-  GOOGLE_CLIENTSECRET: Joi.when('GOOGLE_CLIENTID', {
+  AUTH_GOOGLE_CLIENTID: Joi.string().optional(),
+  AUTH_GOOGLE_CLIENTSECRET: Joi.when('AUTH_GOOGLE_CLIENTID', {
     is: Joi.exist(),
     then: Joi.string().required(),
     otherwise: Joi.string().optional(),
   }),
-  MICROSOFT_CLIENTID: Joi.string().optional(),
-  MICROSOFT_CLIENTSECRET: Joi.when('MICROSOFT_CLIENTID', {
+  AUTH_MICROSOFT_CLIENTID: Joi.string().optional(),
+  AUTH_MICROSOFT_CLIENTSECRET: Joi.when('AUTH_MICROSOFT_CLIENTID', {
     is: Joi.exist(),
     then: Joi.string().required(),
     otherwise: Joi.string().optional(),
   }),
-  MICROSOFT_TENANT: Joi.string().optional(),
-  OAUTH_CLIENTID: Joi.string().optional(),
-  OAUTH_CLIENTSECRET: Joi.when('OAUTH_CLIENTID', {
+  AUTH_MICROSOFT_TENANT: Joi.string().optional(),
+  AUTH_OAUTH_CLIENTID: Joi.string().optional(),
+  AUTH_OAUTH_CLIENTSECRET: Joi.when('AUTH_OAUTH_CLIENTID', {
     is: Joi.exist(),
     then: Joi.string().required(),
     otherwise: Joi.string().optional(),
   }),
-  OAUTH_AUTHORIZATION_URL: Joi.when('OAUTH_CLIENTID', {
+  AUTH_OAUTH_AUTHORIZATION_URL: Joi.when('AUTH_OAUTH_CLIENTID', {
     is: Joi.exist(),
     then: Joi.string().uri().required(),
     otherwise: Joi.string().optional(),
   }),
-  OAUTH_TOKEN_URL: Joi.when('OAUTH_CLIENTID', {
+  AUTH_OAUTH_TOKEN_URL: Joi.when('AUTH_OAUTH_CLIENTID', {
     is: Joi.exist(),
     then: Joi.string().uri().required(),
     otherwise: Joi.string().optional(),
   }),
-  OAUTH_USERINFO_URL: Joi.when('OAUTH_CLIENTID', {
+  AUTH_OAUTH_USERINFO_URL: Joi.when('AUTH_OAUTH_CLIENTID', {
     is: Joi.exist(),
     then: Joi.string().uri().required(),
     otherwise: Joi.string().optional(),
   }),
-  OAUTH_BRAND_NAME: Joi.string().optional(),
-  OAUTH_BRAND_COLOR: Joi.string().optional(),
-  INITIAL_USER_EMAIL: Joi.string().optional(),
-  INITIAL_USER_API_KEY: Joi.string().optional(),
-  INITIAL_USER_PASSWORD: Joi.when('INITIAL_USER_EMAIL', {
+  AUTH_OAUTH_BRAND_NAME: Joi.string().optional(),
+  AUTH_OAUTH_BRAND_COLOR: Joi.string().optional(),
+  AUTH_INITIAL_USER_EMAIL: Joi.string().optional(),
+  AUTH_INITIAL_USER_API_KEY: Joi.string().optional(),
+  AUTH_INITIAL_USER_PASSWORD: Joi.when('AUTH_INITIAL_USER_EMAIL', {
     is: Joi.exist(),
     then: Joi.string().required(),
     otherwise: Joi.string().optional(),
   }),
-  ENABLE_PASSWORD: Joi.string().valid('true', 'false').optional(),
+  AUTH_ENABLE_PASSWORD: Joi.string().valid('true', 'false').optional(),
 }).unknown(true);
 
 export const authConfig = registerAs<AuthConfig>('auth', () => {

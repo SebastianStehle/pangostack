@@ -1,18 +1,29 @@
 #
-# BACKEND
+# VULTR CLIENT (same as scripts/generate-client.mjs, keep the version in sync with openapitools.json)
 #
-FROM node:22-alpine AS backend
+FROM openapitools/openapi-generator-cli:v7.14.0 AS vultr-client
+
+COPY worker/src/lib/vultr/openapi-filtered.json /spec/openapi.json
+RUN docker-entrypoint.sh generate -g typescript-fetch --additional-properties=useSingleRequestParameter=false,ensureUniqueParams=false -i /spec/openapi.json -o /client --skip-validate-spec --schema-mappings=float=number
+
+#
+# BUILD (the context is the repository root, because the build needs the shared scripts)
+#
+FROM node:22-alpine AS build
 
 # Create app directory
-WORKDIR /src/backend
+WORKDIR /src/worker
 
 # Copy the package json to use caching.
-COPY package*.json ./
+COPY worker/package*.json ./
 
 # Optimized installation for build servers.
 RUN npm ci
 
-COPY . .
+COPY worker .
+COPY scripts ../scripts
+COPY --from=vultr-client /client ./src/lib/vultr/generated
+RUN node ../scripts/add-ts-ignore.js ./src/lib/vultr/generated
 
 # Run linter
 RUN npm run lint
@@ -53,8 +64,8 @@ RUN helm version
 WORKDIR /app
 
 # Copy the bundled code from the build stages to the production image
-COPY --from=backend /src/backend/node_modules ./node_modules
-COPY --from=backend /src/backend/dist ./dist
+COPY --from=build /src/worker/node_modules ./node_modules
+COPY --from=build /src/worker/dist ./dist
 
 EXPOSE 3100
 

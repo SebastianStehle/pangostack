@@ -7,6 +7,7 @@ export interface DeploymentSignal {
   previousResourceIds?: string[] | null;
   previousUpdateId?: number | null;
   resourceIds: string[];
+  stepMaxAttempts?: number | null;
   updateId: number;
 }
 

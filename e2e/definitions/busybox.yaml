@@ -1,0 +1,23 @@
+# A real docker-compose-ssh deployment to the docker-target container of the e2e stack.
+parameters:
+  - name: greeting
+    label: Greeting
+    type: string
+    required: true
+    defaultValue: World
+    display: true
+    hint: Printed by the container on startup.
+
+pricingModel: fixed
+
+resources:
+  - name: App
+    id: app
+    type: docker-compose-ssh
+    parameters:
+      host: docker-target
+      sshUser: root
+      sshPassword: e2e-target
+      dockerComposeUrl: http://fixtures/compose/busybox.yml
+      mainImages: busybox
+      GREETING: ${parameters.greeting}
