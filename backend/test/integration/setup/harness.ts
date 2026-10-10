@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { INestApplication, ModuleMetadata } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { CommandBus, CqrsModule, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -8,7 +8,7 @@ import { DataSource } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { inject } from 'vitest';
 import AppDataSource from 'src/domain/database/data-source';
-import { ResourceUniqueIdService } from 'src/lib';
+import { installConfig, ResourceUniqueIdService } from 'src/lib';
 import { runAdminStatement, withDatabase } from './database';
 
 export interface IntegrationTestContext {
@@ -21,9 +21,10 @@ export interface IntegrationTestContext {
 
 // Boots a real NestJS module graph wired to a database of its own, cloned from the migrated template
 // in the shared container. Real TypeORM repositories and real CQRS handlers are used; the caller
-// mocks only the outward-facing collaborators it passes in. CqrsModule and the buses are wired in
-// here so every handler test does not repeat that setup. Because each call gets a private database,
-// test files stay isolated and can run in parallel without a container per test.
+// mocks only the outward-facing collaborators it passes in. CqrsModule, the buses, config and the
+// resource unique IDs are wired in here so every handler test does not repeat that setup. Because each
+// call gets a private database, test files stay isolated and can run in parallel without a container
+// per test.
 export async function createIntegrationTest(
   metadata: ModuleMetadata,
   configure?: (builder: TestingModuleBuilder) => TestingModuleBuilder,
@@ -39,6 +40,7 @@ export async function createIntegrationTest(
     ...metadata,
     imports: [
       CqrsModule,
+      ConfigModule.forRoot({ ignoreEnvFile: true, isGlobal: true, load: [installConfig] }),
       TypeOrmModule.forRoot({
         ...options,
         url: withDatabase(adminUrl, database),
@@ -48,11 +50,7 @@ export async function createIntegrationTest(
       }),
       ...(metadata.imports ?? []),
     ],
-    providers: [
-      // Without an install ID the original naming scheme is used, so the tests do not need any configuration.
-      { provide: ResourceUniqueIdService, useValue: new ResourceUniqueIdService(new ConfigService()) },
-      ...(metadata.providers ?? []),
-    ],
+    providers: [ResourceUniqueIdService, ...(metadata.providers ?? [])],
   });
 
   if (configure) {
