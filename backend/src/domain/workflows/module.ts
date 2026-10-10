@@ -10,11 +10,12 @@ import {
   DeploymentUpdateStepEntity,
   DeploymentUpdateSubStepEntity,
   DeploymentUsageEntity,
+  OrphanedResourceEntity,
+  ServiceVersionEntity,
   WorkerEntity,
 } from 'src/domain/database';
 import { LibModule } from 'src/lib';
 import { BillingModule } from '../billing';
-import { NotificationModule } from '../notifications';
 import { WorkersModule } from '../workers';
 import {
   ChargeDeploymentActivity,
@@ -27,10 +28,11 @@ import {
   DeleteResourceActivity,
   DeployResourceActivity,
   FailDeploymentStepActivity,
-  GetDeploymentActivity,
   GetDeploymentsActivity,
+  GetOrphanScanGroupsActivity,
   GetResourceWorkersActivity,
-  NotifyActivity,
+  ReportBillingFailuresActivity,
+  ScanOrphanGroupActivity,
   TrackDeploymentHealthActivity,
   TrackDeploymentMetricsActivity,
   TrackDeploymentUsageActivity,
@@ -44,7 +46,6 @@ import { TemporalService, WorkflowService } from './services';
     BillingModule,
     ConfigModule,
     LibModule,
-    NotificationModule,
     TypeOrmModule.forFeature([
       BilledDeploymentEntity,
       DeploymentEntity,
@@ -54,6 +55,8 @@ import { TemporalService, WorkflowService } from './services';
       DeploymentUpdateStepEntity,
       DeploymentUpdateSubStepEntity,
       DeploymentUsageEntity,
+      OrphanedResourceEntity,
+      ServiceVersionEntity,
       WorkerEntity,
     ]),
     WorkersModule,
@@ -70,10 +73,11 @@ import { TemporalService, WorkflowService } from './services';
     DeleteResourceActivity,
     DeployResourceActivity,
     FailDeploymentStepActivity,
-    GetDeploymentActivity,
     GetDeploymentsActivity,
+    GetOrphanScanGroupsActivity,
     GetResourceWorkersActivity,
-    NotifyActivity,
+    ReportBillingFailuresActivity,
+    ScanOrphanGroupActivity,
     TemporalService,
     TrackDeploymentHealthActivity,
     TrackDeploymentMetricsActivity,

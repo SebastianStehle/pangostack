@@ -122,6 +122,7 @@ The backend checks its configuration on startup and refuses to start if a requir
 | `URLS_BASEURL` | Public base URL of the API, used for OAuth callbacks and confirmation links. |
 | `URLS_BASEUIURL` | Public base URL of the portal, if different from the API. |
 | `WORKER_ENDPOINT` | URL of the worker, registered on startup (default `http://localhost:3100`). |
+| `INSTALL_ID` | Optional. Up to 8 lowercase letters and digits, e.g. `prod`. Prefixes every cloud resource name, so several installations can share one cloud account without colliding. Set it before the first deployment: changing it later makes existing resources invisible to this installation. |
 
 ### Login
 
@@ -164,3 +165,14 @@ The backend checks its configuration on startup and refuses to start if a requir
 | --- | --- |
 | `NOTIFO_API_KEY` | Notifo API key. |
 | `NOTIFO_API_URL` | Notifo API URL (required when the key is set). |
+
+Pangostack sends events to two kinds of topics. Every team member is subscribed to `teams/<id>`, and every user in the built-in Admin group is subscribed to `admins`. Create a template in your Notifo app for each code you want to deliver:
+
+| Template | Topic | When |
+| --- | --- | --- |
+| `DEPLOYMENT_CREATED` / `DEPLOYMENT_UPDATED` | team | A deployment finished successfully for the first time, or an update finished. |
+| `DEPLOYMENT_UNHEALTHY` / `DEPLOYMENT_HEALTHY` | team | The health of a deployment changed: two checks in a row (15 minutes apart) agree, each URL retried 3 times. At most one notification per deployment every 2 hours. The first status after deployment is not announced. |
+| `TEAM_USER_ADDED` / `TEAM_USER_REMOVED` | team | The team members changed. |
+| `BILLING_FAILED` | admins | The monthly charge failed for at least one deployment after all retries. Properties: `dateFrom`, `dateTo`, `failedCount`, `deploymentIds`, `errors`. |
+
+The deployment templates get the properties `id`, `name`, `serviceName`, `serviceVersion`, `teamId` and `url`. Deployment and health changes also show up in the team's activity log.

@@ -7,9 +7,9 @@ import {
   DeploymentUpdateRepository,
 } from 'src/domain/database';
 import { evaluateParameters, MetricDefinition } from 'src/domain/definitions';
-import { getEvaluationContext, getResourceUniqueId } from 'src/domain/services';
+import { getEvaluationContext } from 'src/domain/services';
 import { MetricsResultDto, WorkerResolver } from 'src/domain/workers';
-import { parseDurationMs } from 'src/lib';
+import { parseDurationMs, ResourceUniqueIdService } from 'src/lib';
 import { Activity } from '../registration';
 
 const METRICS_REQUEST_TIMEOUT_MS = 60 * 1000;
@@ -28,6 +28,7 @@ export class TrackDeploymentMetricsActivity implements Activity<TrackDeploymentM
     private readonly deploymentUpdates: DeploymentUpdateRepository,
     @InjectRepository(DeploymentMetricEntity)
     private readonly deploymentMetrics: DeploymentMetricRepository,
+    private readonly resourceUniqueIds: ResourceUniqueIdService,
     private readonly workerResolver: WorkerResolver,
   ) {}
 
@@ -84,7 +85,7 @@ export class TrackDeploymentMetricsActivity implements Activity<TrackDeploymentM
             {
               parameters: evaluateParameters(resource, context),
               resourceContext: update.resourceContexts[resource.id] || {},
-              resourceUniqueId: getResourceUniqueId(deploymentId, resource),
+              resourceUniqueId: this.resourceUniqueIds.build(deploymentId, resource.id),
               resourceType: resource.type,
               timeoutMs: METRICS_REQUEST_TIMEOUT_MS,
             },

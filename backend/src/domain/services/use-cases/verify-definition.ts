@@ -4,8 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceEntity, ServiceRepository } from 'src/domain/database';
 import { evaluateParameters, ParameterDefinition, ServiceDefinition } from 'src/domain/definitions';
 import { ResourceValueDto, WorkerResolver, WorkerResponseError } from 'src/domain/workers';
-import { is, isNumber } from 'src/lib';
-import { getResourceUniqueId, updateContext } from '../libs';
+import { is, isNumber, ResourceUniqueIdService } from 'src/lib';
+import { updateContext } from '../libs';
 
 export class VerifyDefinitionQuery extends Query<VerifyDefinitionResult> {
   constructor(
@@ -24,6 +24,7 @@ export class VerifyDefinitionHandler implements IQueryHandler<VerifyDefinitionQu
   constructor(
     @InjectRepository(ServiceEntity)
     private readonly services: ServiceRepository,
+    private readonly resourceUniqueIds: ResourceUniqueIdService,
     private readonly workerResolver: WorkerResolver,
   ) {}
 
@@ -58,7 +59,7 @@ export class VerifyDefinitionHandler implements IQueryHandler<VerifyDefinitionQu
         await worker.client.deployment.verifyResource({
           parameters: evaluateParameters(resource, context),
           resourceContext: {},
-          resourceUniqueId: getResourceUniqueId(0, resource),
+          resourceUniqueId: this.resourceUniqueIds.build(0, resource.id),
           resourceType: resource.type,
           timeoutMs: 1 * 60 * 1000, // 1 minute
         });

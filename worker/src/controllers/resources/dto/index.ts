@@ -1,5 +1,6 @@
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
-import { ResourceDescriptor, ResourceMetricDescriptor, ResourceValueDescriptor } from 'src/resources/interface';
+import { IsDefined, IsObject } from 'class-validator';
+import { ResourceDescriptor, ResourceListResult, ResourceMetricDescriptor, ResourceValueDescriptor } from 'src/resources/interface';
 
 export class ResourceValueDto {
   @ApiProperty({
@@ -140,4 +141,30 @@ export class ResourcesTypesDto {
     type: [ResourceTypeDto],
   })
   items: ResourceTypeDto[] = [];
+}
+
+export class ListRequestDto {
+  @ApiProperty({
+    description: 'The parameters. Only the credentials are actually used.',
+    required: true,
+    additionalProperties: true,
+  })
+  @IsDefined()
+  @IsObject()
+  parameters: Record<string, any>;
+}
+
+export class ListResultDto {
+  @ApiProperty({
+    description: 'The unique IDs of the found resources.',
+    required: true,
+    type: [String],
+  })
+  ids: string[] = [];
+
+  static fromDomain(source: ResourceListResult) {
+    const result = new ListResultDto();
+    result.ids.push(...source.ids);
+    return result;
+  }
 }

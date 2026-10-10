@@ -4,6 +4,7 @@ apis/AuthApi.ts
 apis/BillingApi.ts
 apis/DeploymentsApi.ts
 apis/HealthApi.ts
+apis/OrphanedResourcesApi.ts
 apis/ServicesApi.ts
 apis/SettingsApi.ts
 apis/TeamsApi.ts
@@ -47,6 +48,8 @@ models/InvoicesDto.ts
 models/LabeledValueDto.ts
 models/LinkDto.ts
 models/LoginDto.ts
+models/OrphanedResourceDto.ts
+models/OrphanedResourcesDto.ts
 models/ParameterAllowedValueDto.ts
 models/ParameterDefinitionDto.ts
 models/ProfileDto.ts
@@ -66,6 +69,7 @@ models/ServiceVersionDto.ts
 models/ServiceVersionsDto.ts
 models/ServicesDto.ts
 models/ServicesPublicDto.ts
+models/SetOrphanedResourceStatusDto.ts
 models/SettingsDto.ts
 models/TeamDto.ts
 models/TeamUserDto.ts

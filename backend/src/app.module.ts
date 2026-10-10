@@ -18,6 +18,7 @@ import { DeploymentsController } from './controllers/deployments/deployments.con
 import { ServiceDeploymentsController } from './controllers/deployments/service-deployments.controller';
 import { TeamDeploymentsController } from './controllers/deployments/team-deployments.controller';
 import { HealthController } from './controllers/health/health.controller';
+import { OrphanedResourcesController } from './controllers/orphans/orphaned-resources.controller';
 import { ServicesController } from './controllers/services/services.controller';
 import { SettingsController } from './controllers/settings/settings.controller';
 import { TeamsController } from './controllers/users/teams.controller';
@@ -43,6 +44,7 @@ import {
   DeploymentUpdateStepEntity,
   DeploymentUpdateSubStepEntity,
   DeploymentUsageEntity,
+  OrphanedResourceEntity,
   ServiceEntity,
   ServiceVersionEntity,
   SessionEntity,
@@ -57,6 +59,7 @@ import {
 import { ALL_MIGRATIONS, MigratorService } from './domain/database/migrations';
 import { NOTIFICATION_ENV_SCHEMA, notificationConfig } from './domain/notifications';
 import { NotificationModule } from './domain/notifications';
+import { OrphansModule } from './domain/orphans';
 import { ServicesModule } from './domain/services';
 import { SettingsModule } from './domain/settings';
 import { UsersModule } from './domain/users/module';
@@ -64,7 +67,7 @@ import { WORKER_ENV_SCHEMA, workerConfig } from './domain/workers';
 import { WorkersModule } from './domain/workers/module';
 import { WORKFLOW_ENV_SCHEMA, workflowConfig, WorkflowModule } from './domain/workflows';
 import { HealthModule } from './health';
-import { LibModule, URLS_ENV_SCHEMA, urlsConfig } from './lib';
+import { INSTALL_ENV_SCHEMA, installConfig, LibModule, URLS_ENV_SCHEMA, urlsConfig } from './lib';
 
 const combineSchemas = (...schemas: Joi.ObjectSchema[]) => schemas.reduce((acc, schema) => acc.concat(schema));
 
@@ -75,12 +78,13 @@ const combineSchemas = (...schemas: Joi.ObjectSchema[]) => schemas.reduce((acc, 
     BillingModule,
     CacheModule.register({ isGlobal: true, shouldCloneBeforeSet: false }),
     ConfigModule.forRoot({
-      load: [authConfig, billingConfig, dbConfig, notificationConfig, urlsConfig, workflowConfig, workerConfig],
+      load: [authConfig, billingConfig, dbConfig, installConfig, notificationConfig, urlsConfig, workflowConfig, workerConfig],
       isGlobal: true,
       validationSchema: combineSchemas(
         AUTH_ENV_SCHEMA,
         BILLING_ENV_SCHEMA,
         DB_ENV_SCHEMA,
+        INSTALL_ENV_SCHEMA,
         NOTIFICATION_ENV_SCHEMA,
         URLS_ENV_SCHEMA,
         WORKFLOW_ENV_SCHEMA,
@@ -92,6 +96,7 @@ const combineSchemas = (...schemas: Joi.ObjectSchema[]) => schemas.reduce((acc, 
     HealthModule,
     LibModule,
     NotificationModule,
+    OrphansModule,
     ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', 'assets') }),
     ServicesModule,
     SettingsModule,
@@ -122,6 +127,7 @@ const combineSchemas = (...schemas: Joi.ObjectSchema[]) => schemas.reduce((acc, 
             DeploymentUpdateStepEntity,
             DeploymentUpdateSubStepEntity,
             DeploymentUsageEntity,
+            OrphanedResourceEntity,
             ServiceEntity,
             ServiceVersionEntity,
             SessionEntity,
@@ -149,6 +155,7 @@ const combineSchemas = (...schemas: Joi.ObjectSchema[]) => schemas.reduce((acc, 
     DeploymentsController,
     FaviconController,
     HealthController,
+    OrphanedResourcesController,
     ServiceDeploymentsController,
     ServicesController,
     SettingsController,

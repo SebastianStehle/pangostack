@@ -117,6 +117,11 @@ export class ChargebeeBillingService implements BillingService {
         date_to = subscription.created_at! + 1;
       }
 
+      // The charge is retried by the workflow. Idempotency keys ensure that items that already went through are not charged twice.
+      const idempotencyKey = (suffix: string) => ({
+        'chargebee-idempotency-key': `${subscriptionId}_${charges.dateFrom}_${charges.dateTo}_${suffix}`,
+      });
+
       for (const item of charges.items) {
         if (item.quantity === 0 || item.pricePerUnit === 0) {
           continue;
@@ -127,26 +132,34 @@ export class ChargebeeBillingService implements BillingService {
           throw new BillingError(`Failed to get addon for identifier '${item.identifier}'`);
         }
 
-        const result = await this.chargebee.subscription.chargeAddonAtTermEnd(subscription.id, {
-          addon_id: addon,
-          addon_quantity: item.quantity,
-          addon_unit_price: item.pricePerUnit * 100,
-          date_from,
-          date_to,
-        });
+        const result = await this.chargebee.subscription.chargeAddonAtTermEnd(
+          subscription.id,
+          {
+            addon_id: addon,
+            addon_quantity: item.quantity,
+            addon_unit_price: item.pricePerUnit * 100,
+            date_from,
+            date_to,
+          },
+          idempotencyKey(item.identifier),
+        );
 
         if (result.httpStatusCode && result.httpStatusCode >= 400) {
-          throw new BillingError(`Failed to add addon, got status {result.httpStatusCode}`);
+          throw new BillingError(`Failed to add addon, got status ${result.httpStatusCode}`);
         }
       }
 
       if (charges.fixedPrice && charges.fixedPriceDescription) {
-        await this.chargebee.subscription.addChargeAtTermEnd(subscription.id, {
-          amount: charges.fixedPrice * 100,
-          date_from,
-          date_to,
-          description: charges.fixedPriceDescription,
-        });
+        await this.chargebee.subscription.addChargeAtTermEnd(
+          subscription.id,
+          {
+            amount: charges.fixedPrice * 100,
+            date_from,
+            date_to,
+            description: charges.fixedPriceDescription,
+          },
+          idempotencyKey('fixed'),
+        );
       }
     } catch (ex: any) {
       throw new BillingError(`Chargebee: Failed to charge deployment ${deploymentId}`, ex);

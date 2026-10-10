@@ -1,7 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NotifoClient } from '@notifo/notifo';
+import { BUILTIN_USER_GROUP_ADMIN } from 'src/domain/database';
 import { NotifoConfig } from '../config';
+import { Topics } from '../topics';
 
 @Injectable()
 export class NotificationsService {
@@ -86,7 +88,7 @@ export class NotificationsService {
     }
   }
 
-  async upsertUsers(users: { id: string; email?: string; name?: string }[]) {
+  async upsertUsers(users: { id: string; email?: string; name?: string; userGroupId?: string }[]) {
     if (!this.client || !this.config) {
       return;
     }
@@ -103,6 +105,19 @@ export class NotificationsService {
       });
     } catch (ex: unknown) {
       this.logger.error('Failed to upsert users', ex);
+    }
+
+    for (const { id, userGroupId } of users) {
+      // Unknown groups are skipped, so that a partial user update does not unsubscribe an admin.
+      if (userGroupId === undefined) {
+        continue;
+      }
+
+      if (userGroupId === BUILTIN_USER_GROUP_ADMIN) {
+        await this.subscribe(id, Topics.admins);
+      } else {
+        await this.unsubscribe(id, Topics.admins);
+      }
     }
   }
 }

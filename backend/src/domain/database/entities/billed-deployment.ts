@@ -1,11 +1,11 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Repository } from 'typeorm';
+import { Entity, JoinColumn, ManyToOne, PrimaryColumn, Repository } from 'typeorm';
 import { DeploymentEntity } from './deployment';
 
 export type BilledDeploymentRepository = Repository<BilledDeploymentEntity>;
 
 @Entity({ name: 'billed-deployment' })
 export class BilledDeploymentEntity {
-  @Column()
+  @PrimaryColumn()
   deploymentId: number;
 
   @PrimaryColumn('date')

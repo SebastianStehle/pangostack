@@ -142,7 +142,15 @@ export const UpsertServiceDialog = (props: UpsertServiceDialogProps) => {
                 </section>
               </>
             ) : (
-              <Forms.Code height="full" label="" mode="javascript" name="environment" valueMode="object" vertical />
+              <Forms.Code
+                alert={target?.numDeployments ? texts.services.environmentChangeHint(target.numDeployments) : undefined}
+                height="full"
+                label=""
+                mode="javascript"
+                name="environment"
+                valueMode="object"
+                vertical
+              />
             )}
           </fieldset>
         </Modal>

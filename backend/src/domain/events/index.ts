@@ -99,3 +99,61 @@ export class MemberRemovedEvent extends TeamEvent {
     super(teamId, userId);
   }
 }
+
+export class DeploymentReadyEvent extends TeamEvent {
+  static readonly TYPE = 'deployment.ready';
+
+  constructor(
+    teamId: number,
+    public readonly deploymentId: number,
+    public readonly deploymentName?: string | null,
+  ) {
+    super(teamId);
+  }
+}
+
+export class DeploymentUpdatedEvent extends TeamEvent {
+  static readonly TYPE = 'deployment.updated';
+
+  constructor(
+    teamId: number,
+    public readonly deploymentId: number,
+    public readonly deploymentName?: string | null,
+  ) {
+    super(teamId);
+  }
+}
+
+export class DeploymentDegradedEvent extends TeamEvent {
+  static readonly TYPE = 'deployment.degraded';
+
+  constructor(
+    teamId: number,
+    public readonly deploymentId: number,
+    public readonly deploymentName?: string | null,
+  ) {
+    super(teamId);
+  }
+}
+
+export class DeploymentRecoveredEvent extends TeamEvent {
+  static readonly TYPE = 'deployment.recovered';
+
+  constructor(
+    teamId: number,
+    public readonly deploymentId: number,
+    public readonly deploymentName?: string | null,
+  ) {
+    super(teamId);
+  }
+}
+
+export class BillingFailedEvent {
+  static readonly TYPE = 'billing.failed';
+
+  constructor(
+    public readonly dateFrom: string,
+    public readonly dateTo: string,
+    public readonly failures: { deploymentId: number; error: string }[],
+  ) {}
+}

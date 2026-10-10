@@ -7,8 +7,9 @@ import {
   DeploymentUsageRepository,
 } from 'src/domain/database';
 import { evaluateParameters, evaluatePrices, evaluateUsage } from 'src/domain/definitions';
-import { getEvaluationContext, getResourceUniqueId } from 'src/domain/services';
+import { getEvaluationContext } from 'src/domain/services';
 import { UsageResultDto, WorkerResolver } from 'src/domain/workers';
+import { ResourceUniqueIdService } from 'src/lib';
 import { Activity } from '../registration';
 
 export type TrackDeploymentUsageParam = {
@@ -24,6 +25,7 @@ export class TrackDeploymentUsageActivity implements Activity<TrackDeploymentUsa
     private readonly deploymentUpdates: DeploymentUpdateRepository,
     @InjectRepository(DeploymentUsageEntity)
     private readonly deploymentUsages: DeploymentUsageRepository,
+    private readonly resourceUniqueIds: ResourceUniqueIdService,
     private readonly workerResolver: WorkerResolver,
   ) {}
 
@@ -61,7 +63,7 @@ export class TrackDeploymentUsageActivity implements Activity<TrackDeploymentUsa
             {
               parameters: evaluateParameters(resource, context),
               resourceContext: update.resourceContexts[resource.id] || {},
-              resourceUniqueId: getResourceUniqueId(deploymentId, resource),
+              resourceUniqueId: this.resourceUniqueIds.build(deploymentId, resource.id),
               resourceType: resource.type,
               timeoutMs: 1 * 60 * 1000, // 1 minute
             },

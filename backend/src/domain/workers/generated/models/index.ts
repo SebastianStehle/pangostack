@@ -13,6 +13,8 @@ export * from './FailEventDto';
 export * from './FailStepEventDto';
 export * from './InstanceLogDto';
 export * from './LabeledValueDto';
+export * from './ListRequestDto';
+export * from './ListResultDto';
 export * from './LogRequestDto';
 export * from './LogResultDto';
 export * from './MetricsRequestDto';

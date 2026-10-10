@@ -11,6 +11,7 @@ import { DeploymentLogEntity } from './entities/deployment-log';
 import { DeploymentMetricEntity } from './entities/deployment-metric';
 import { DeploymentUpdateEntity } from './entities/deployment-update';
 import { DeploymentUsageEntity } from './entities/deployment-usage';
+import { OrphanedResourceEntity } from './entities/orphaned-resource';
 import { ServiceEntity } from './entities/service';
 import { ServiceVersionEntity } from './entities/service-version';
 import { SessionEntity } from './entities/session';
@@ -39,6 +40,7 @@ export default new DataSource({
     DeploymentUpdateStepEntity,
     DeploymentUpdateSubStepEntity,
     DeploymentUsageEntity,
+    OrphanedResourceEntity,
     ServiceEntity,
     ServiceVersionEntity,
     SessionEntity,

@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security issue
+    url: https://github.com/SebastianStehle/omnisaas/blob/main/CONTRIBUTING.md#report-a-bug-or-request-a-feature
+    about: Please do not report security issues publicly. The contributing guide explains how to reach the maintainer.

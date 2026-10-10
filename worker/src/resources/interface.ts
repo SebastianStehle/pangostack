@@ -61,6 +61,16 @@ export function defineResource<TParameters extends ParametersOrContext, TContext
   return input;
 }
 
+export interface ResourceListRequest<T = ParametersOrContext> {
+  // Scoped to an account, not to a single resource, therefore no unique id and no resource context.
+  parameters: T;
+}
+
+export interface ResourceListResult {
+  // The found IDs.
+  ids: string[];
+}
+
 export interface ResourceRequest<T = ParametersOrContext, TResourceContext = Record<string, string>> {
   // Parameters to apply to the resource.
   parameters: T;
@@ -157,10 +167,6 @@ export type ResourceEvent =
   | ResourceCompleteEvent
   | ResourceFailEvent;
 
-// The single channel through which apply emits everything it produces: sub-steps, log output,
-// context, connection info and resource-context. Values are reported incrementally so that they
-// are persisted as they happen and are never lost when a later step fails. It is also the only
-// output sink - provisioners do not log separately.
 export interface ResourceReporter {
   // Starts a new sub-step and completes the previous one.
   beginStep(name: string): void;
@@ -187,6 +193,8 @@ export interface Resource {
   verify?(id: string, request: ResourceRequest): Promise<boolean>;
 
   delete(id: string, request: ResourceRequest): Promise<void>;
+
+  list?(request: ResourceListRequest): Promise<ResourceListResult>;
 
   status(id: string, request: ResourceRequest): Promise<ResourceStatusResult>;
 
