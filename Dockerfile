@@ -1,4 +1,17 @@
 #
+# API CLIENTS (same as scripts/generate-client.mjs, keep the versions in sync with openapitools.json)
+#
+FROM openapitools/openapi-generator-cli:v7.4.0 AS worker-client
+
+COPY worker/openapi.yaml /spec/openapi.yaml
+RUN docker-entrypoint.sh generate -g typescript-fetch --additional-properties=useSingleRequestParameter=false,ensureUniqueParams=false -i /spec/openapi.yaml -o /client
+
+FROM openapitools/openapi-generator-cli:v7.3.0 AS backend-client
+
+COPY backend/openapi.yaml /spec/openapi.yaml
+RUN docker-entrypoint.sh generate -g typescript-fetch --additional-properties=useSingleRequestParameter=false,ensureUniqueParams=false -i /spec/openapi.yaml -o /client
+
+#
 # BACKEND
 #
 FROM node:22-bullseye AS backend
@@ -12,7 +25,11 @@ COPY backend/package*.json ./
 # Optimized installation for build servers.
 RUN npm ci
 
-COPY backend . 
+COPY backend .
+
+COPY scripts ../scripts
+COPY --from=worker-client /client ./src/domain/workers/generated
+RUN node ../scripts/add-ts-ignore.js ./src/domain/workers/generated
 
 # Run linter
 RUN npm run lint
@@ -41,6 +58,10 @@ COPY frontend/package*.json ./
 RUN npm ci
 
 COPY frontend .
+
+COPY scripts ../scripts
+COPY --from=backend-client /client ./src/api/generated
+RUN node ../scripts/add-ts-ignore.js ./src/api/generated && node gen-helper.mjs
 
 # Run linter
 RUN npm run lint

@@ -1,0 +1,4 @@
+# The image does not exist, so docker compose up fails while pulling.
+services:
+  app:
+    image: pangostack/e2e-image-does-not-exist:1.0.0

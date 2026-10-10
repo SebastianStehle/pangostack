@@ -1,0 +1,35 @@
+{
+  "name": "pangostack-e2e",
+  "private": true,
+  "version": "0.0.0",
+  "license": "MIT",
+  "type": "module",
+  "description": "Black-box API and UI tests against the Docker images of backend and worker.",
+  "scripts": {
+    "infra:build": "docker build -t pangostack-local .. && docker build -t pangostack-worker-local -f ../worker/Dockerfile ..",
+    "infra:up": "docker compose up -d --wait",
+    "infra:down": "docker compose down -v",
+    "infra:logs": "docker compose logs",
+    "test:api": "vitest run",
+    "test:ui": "playwright test -c ui/playwright.config.ts",
+    "format": "prettier --write \"{src,api,ui}/**/*.ts\"",
+    "lint": "eslint \"{src,api,ui}/**/*.ts\" \"*.config.ts\" --max-warnings 0",
+    "lint:fix": "eslint \"{src,api,ui}/**/*.ts\" \"*.config.ts\" --max-warnings 0 --fix",
+    "generate": "node ../scripts/generate-client.mjs ../backend/openapi.yaml ./src/api/generated"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "@types/node": "^24.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.40.0",
+    "@typescript-eslint/parser": "^8.40.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-prettier": "^5.1.3",
+    "prettier": "^3.6.2",
+    "rimraf": "^5.0.7",
+    "typescript": "^5.9.2",
+    "vitest": "^4.1.9"
+  }
+}

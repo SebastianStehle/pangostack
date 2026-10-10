@@ -8,3 +8,9 @@
 backend/dev/*.pem
 
 frontend/storybook-static
+
+# API clients are generated inside the build, local copies may be outdated.
+backend/src/domain/workers/generated
+frontend/src/api/generated
+worker/src/lib/vultr/generated
+e2e

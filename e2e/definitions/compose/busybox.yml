@@ -1,0 +1,6 @@
+# Prints the greeting parameter, so tests can verify that parameters reach the container through the logs.
+services:
+  app:
+    image: busybox:1.37
+    init: true
+    command: ['sh', '-c', 'echo "Hello ${GREETING}" && sleep 86400']

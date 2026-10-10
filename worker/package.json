@@ -16,9 +16,11 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "dev": "nest start --watch",
-    "generate-vultr": " node ./scripts/cleanup-openapi.js && npx rimraf ./src/lib/vultr/generated && npx @openapitools/openapi-generator-cli generate -g typescript-fetch -i ./src/lib/vultr/openapi-filtered.json -o ./src/lib/vultr/generated --skip-validate-spec --additional-properties=useSingleRequestParameter=false,ensureUniqueParams=false --schema-mappings=float=number && node ../scripts/add-ts-ignore.js ./src/lib/vultr/generated",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "generate": "node ./scripts/cleanup-openapi.js && node ../scripts/generate-client.mjs ./src/lib/vultr/openapi-filtered.json ./src/lib/vultr/generated --skip-validate-spec --schema-mappings=float=number",
+    "openapi": "node ../scripts/export-openapi.mjs http://localhost:3100/api-json openapi.yaml",
+    "predev": "npm run generate"
   },
   "dependencies": {
     "@aws-sdk/client-ec2": "^3.1093.0",

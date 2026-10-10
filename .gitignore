@@ -11,3 +11,9 @@ docker-compose-local.yml
 
 backend/dev/local-dev-key.pem
 backend/dev/local-dev.pem
+
+# API clients are generated from the committed OpenAPI specs with `npm run generate`.
+backend/src/domain/workers/generated
+frontend/src/api/generated
+worker/src/lib/vultr/generated
+e2e/src/api/generated

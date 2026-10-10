@@ -11,6 +11,7 @@ import {
   parsePercent,
   parseSizeGb,
   pollUntil,
+  resolveComposeProject,
   roundValue,
 } from 'src/lib';
 import {
@@ -88,7 +89,7 @@ export class DockerComposeSshResource implements Resource {
     return {};
   }
 
-  async apply(_: string, request: ResourceRequest<Parameters>, reporter: ResourceReporter): Promise<void> {
+  async apply(id: string, request: ResourceRequest<Parameters>, reporter: ResourceReporter): Promise<void> {
     const { dockerComposeUrl, host, environment, sshUser, sshPassword, ...others } = request.parameters;
 
     // mainImages is metadata used by status(), not an environment variable for the containers.
@@ -113,8 +114,10 @@ export class DockerComposeSshResource implements Resource {
 
       reporter.beginStep('Starting containers');
 
+      const project = await resolveComposeProject(ssh, id);
       await composeUp(
         ssh,
+        project,
         dockerComposeUrl,
         env,
         request.timeoutMs,
@@ -128,23 +131,25 @@ export class DockerComposeSshResource implements Resource {
 
   async delete(id: string, request: ResourceRequest<Parameters>) {
     const { host, sshUser, sshPassword } = request.parameters;
+    const ssh = new NodeSSH();
     try {
-      const ssh = new NodeSSH();
       await ssh.connect({ host, username: sshUser, password: sshPassword });
 
-      await composeDown(ssh);
+      await composeDown(ssh, await resolveComposeProject(ssh, id));
     } catch {
       this.logger.warn(`Failed to delete resource ${id}. Host has probably been deleted already`);
+    } finally {
+      ssh.dispose();
     }
   }
 
-  async log(_id: string, request: ResourceRequest<Parameters>): Promise<ResourceLogResult> {
+  async log(id: string, request: ResourceRequest<Parameters>): Promise<ResourceLogResult> {
     const { host, sshUser, sshPassword } = request.parameters;
 
     const ssh = new NodeSSH();
     try {
       await ssh.connect({ host, username: sshUser, password: sshPassword });
-      const logs = await getLogs(ssh);
+      const logs = await getLogs(ssh, await resolveComposeProject(ssh, id));
 
       return { instances: logs.map(({ name, log }) => ({ instanceId: name, messages: log })) };
     } finally {
@@ -152,17 +157,21 @@ export class DockerComposeSshResource implements Resource {
     }
   }
 
-  async metrics(_id: string, request: ResourceRequest<Parameters>): Promise<ResourceMetricsResult> {
+  async metrics(id: string, request: ResourceRequest<Parameters>): Promise<ResourceMetricsResult> {
     const { host, sshUser, sshPassword } = request.parameters;
 
     const ssh = new NodeSSH();
     try {
       await ssh.connect({ host, username: sshUser, password: sshPassword });
 
-      const [containers, stats] = await Promise.all([
-        getContainers(ssh),
-        ssh.execCommand('docker stats --no-stream --format "{{json .}}"'),
-      ]);
+      const containers = await getContainers(ssh, await resolveComposeProject(ssh, id));
+      if (containers.length === 0) {
+        return { metrics: { containers: { running: 0, total: 0 }, cpu: {}, memory: {} } };
+      }
+
+      // Without explicit names docker stats reports every container on the host, including other deployments.
+      const names = containers.map(({ originalName }) => originalName).join(' ');
+      const stats = await ssh.execCommand(`docker stats --no-stream --format "{{json .}}" ${names}`);
 
       const cpu: Record<string, number> = {};
       const memory: Record<string, number> = {};
@@ -190,13 +199,13 @@ export class DockerComposeSshResource implements Resource {
     }
   }
 
-  async status(_id: string, request: ResourceRequest<Parameters>): Promise<ResourceStatusResult> {
+  async status(id: string, request: ResourceRequest<Parameters>): Promise<ResourceStatusResult> {
     const { host, sshUser, sshPassword, mainImages } = request.parameters;
 
     const ssh = new NodeSSH();
     try {
       await ssh.connect({ host, username: sshUser, password: sshPassword });
-      const containers = await getContainers(ssh);
+      const containers = await getContainers(ssh, await resolveComposeProject(ssh, id));
 
       const status: ResourceStatusResult = {
         workloads: [

@@ -1,0 +1,87 @@
+{
+  "deployment": {
+    "afterInstallationInstructions": undefined,
+    "availableUpdates": [],
+    "connections": {
+      "app": {},
+    },
+    "createdAt": "<date>",
+    "healthStatus": undefined,
+    "id": "<id>",
+    "isVersionDefault": true,
+    "isVersionLast": false,
+    "name": null,
+    "parameters": {
+      "greeting": "World",
+    },
+    "resources": [
+      {
+        "id": "<id>",
+        "name": "App",
+      },
+    ],
+    "serviceId": "<id>",
+    "serviceName": "<name>",
+    "serviceVersion": "1.0.0",
+    "status": "Completed",
+  },
+  "steps": [
+    {
+      "action": "Deploy",
+      "attempt": 1,
+      "completedAt": "<date>",
+      "error": null,
+      "logs": [],
+      "maxAttempts": 1,
+      "resourceId": "<id>",
+      "resourceName": "App",
+      "startedAt": "<date>",
+      "status": "Completed",
+      "subSteps": [
+        {
+          "completedAt": "<date>",
+          "error": null,
+          "id": "<id>",
+          "logs": [],
+          "name": "Waiting for SSH connection",
+          "startedAt": "<date>",
+          "status": "Completed",
+        },
+        {
+          "completedAt": "<date>",
+          "error": null,
+          "id": "<id>",
+          "logs": [
+            {
+              "message": "Docker compose file uploaded",
+              "timestamp": "<date>",
+            },
+            {
+              "message": "Docker env file uploaded",
+              "timestamp": "<date>",
+            },
+            {
+              "message": "Docker compose up starting",
+              "timestamp": "<date>",
+            },
+            {
+              "message": "Docker compose applied, waiting for status",
+              "timestamp": "<date>",
+            },
+            {
+              "message": "1/1 containers ready",
+              "timestamp": "<date>",
+            },
+            {
+              "message": "Docker compose ready",
+              "timestamp": "<date>",
+            },
+          ],
+          "name": "Starting containers",
+          "startedAt": "<date>",
+          "status": "Completed",
+        },
+      ],
+    },
+  ],
+}

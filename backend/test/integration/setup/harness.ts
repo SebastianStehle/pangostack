@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
 import { INestApplication, ModuleMetadata } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { CommandBus, CqrsModule, QueryBus } from '@nestjs/cqrs';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -7,6 +8,7 @@ import { DataSource } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { inject } from 'vitest';
 import AppDataSource from 'src/domain/database/data-source';
+import { ResourceUniqueIdService } from 'src/lib';
 import { runAdminStatement, withDatabase } from './database';
 
 export interface IntegrationTestContext {
@@ -45,6 +47,11 @@ export async function createIntegrationTest(
         retryAttempts: 0,
       }),
       ...(metadata.imports ?? []),
+    ],
+    providers: [
+      // Without an install ID the original naming scheme is used, so the tests do not need any configuration.
+      { provide: ResourceUniqueIdService, useValue: new ResourceUniqueIdService(new ConfigService()) },
+      ...(metadata.providers ?? []),
     ],
   });
 

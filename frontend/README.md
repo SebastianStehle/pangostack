@@ -18,7 +18,7 @@ hand-write fetch calls.
 npm run dev          # dev server (vite)
 npm run build        # type-check + production build (tsc && vite build)
 npm run lint         # eslint, --max-warnings 0
-npm run generate-api # regenerate the API client from the backend's OpenAPI (backend must be running)
+npm run generate     # generate the API client from ../backend/openapi.yaml (needs Docker, runs before dev)
 ```
 
 ## Structure

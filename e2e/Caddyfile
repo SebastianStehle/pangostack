@@ -1,0 +1,8 @@
+{
+	local_certs
+	skip_install_trust
+}
+
+localhost {
+	reverse_proxy pango:3000
+}

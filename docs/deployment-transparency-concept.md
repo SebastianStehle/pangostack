@@ -78,7 +78,7 @@ Step DTO: `resourceId`, `resourceName`, `action`, `status`, `attempt`, `maxAttem
 
 Also expose the **update history**: the `deployment-updates` rows (status, `createdBy`, `createdAt`, service version) already contain everything for an audit trail; they just need a query + endpoint.
 
-After controller changes: run the backend, `npm run generate-api` in frontend/, then lint.
+After controller changes: run the backend, `npm run openapi` in backend/, `npm run generate` in frontend/, then lint.
 
 ### 4. Worker: sub-steps inside a resource
 
@@ -138,7 +138,7 @@ The reporter assigns each step an id and emits `startStep`/`completeStep`/`failS
 
 **Helm readiness is verification, not decoration.** Resources deploy sequentially and later resources consume the context/connections of earlier ones — so `apply` returning successfully must mean "this resource is usable by its dependents". Today helm's `apply` returns right after `helm upgrade --install`, when pods may still be crash-looping. The "wait for workloads" phase (reusing the readiness logic from `getStatus`) therefore goes **inside `apply` as part of its success condition**: not ready within the timeout → the step fails. The sub-step reporting (`n/m pods ready`) is the transparent view of that verification, not a separate feature. The same principle applies to `docker-compose-ssh` (wait until containers are healthy, not just started).
 
-After DTO changes: run the worker, `npm run generate-worker` in backend/.
+After DTO changes: run the worker, `npm run openapi` in worker/, `npm run generate` in backend/.
 
 ### 5. Live updates
 
