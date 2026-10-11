@@ -6,6 +6,7 @@ import { LocalAuthGuard, Role, RoleGuard } from 'src/domain/auth';
 import { BUILTIN_USER_GROUP_DEFAULT } from 'src/domain/database';
 import { CreateTeam, DeleteTeamUser, GetTeamsQuery, SetTeamUser, UpdateTeam } from 'src/domain/users';
 import { IntParam } from 'src/lib';
+import { TeamPermissionGuard } from '../TeamPermissionGuard';
 import { TeamDto, TeamsDto, UpsertTeamDto, UpsertTeamUserDto } from './dtos';
 
 @Controller('api/teams')
@@ -46,7 +47,7 @@ export class TeamsController {
   @ApiParam({ name: 'teamId', description: 'The ID of the team.', required: true, type: 'number' })
   @ApiOkResponse({ type: TeamDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
-  @UseGuards(RoleGuard)
+  @UseGuards(RoleGuard, TeamPermissionGuard)
   async putTeam(@IntParam('teamId') teamId: number, @Body() body: UpsertTeamDto) {
     const command = new UpdateTeam(teamId, body);
     const { team } = await this.commandBus.execute(command);
@@ -59,7 +60,7 @@ export class TeamsController {
   @ApiParam({ name: 'teamId', description: 'The ID of the team.', required: true, type: 'number' })
   @ApiOkResponse({ type: TeamDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
-  @UseGuards(RoleGuard)
+  @UseGuards(RoleGuard, TeamPermissionGuard)
   async postTeamUser(@Req() req: Request, @IntParam('teamId') teamId: number, @Body() body: UpsertTeamUserDto) {
     const command = new SetTeamUser(teamId, body.userIdOrEmail, req.user, body.role);
     const { team } = await this.commandBus.execute(command);
@@ -72,7 +73,7 @@ export class TeamsController {
   @ApiOperation({ operationId: 'deleteTeamuser', description: 'Removes a team user.' })
   @ApiOkResponse({ type: TeamDto })
   @Role(BUILTIN_USER_GROUP_DEFAULT)
-  @UseGuards(RoleGuard)
+  @UseGuards(RoleGuard, TeamPermissionGuard)
   async deleteTeamUser(@Req() req: Request, @IntParam('teamId') teamId: number, @Param('userId') userId: string) {
     const command = new DeleteTeamUser(teamId, userId, req.user);
     const { team } = await this.commandBus.execute(command);

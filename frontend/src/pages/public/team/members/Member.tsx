@@ -35,7 +35,12 @@ export const Member = (props: MemberProps) => {
             onPerform={() => onRemove(member)}
           >
             {({ onClick }) => (
-              <button type="button" className="btn btn-square btn-error btn-sm" onClick={onClick}>
+              <button
+                type="button"
+                className="btn btn-square btn-error btn-sm"
+                onClick={onClick}
+                aria-label={texts.members.removeConfirmTitle}
+              >
                 <Icon size={16} icon="trash" />
               </button>
             )}

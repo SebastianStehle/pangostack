@@ -5,27 +5,66 @@ import * as path from 'path';
 import { NodeSSH } from 'node-ssh';
 import { pollUntil } from './wait';
 
-export async function composeDown(ssh: NodeSSH) {
-  const remotePath = '/user';
+export type ComposeProject = { name: string; path: string };
 
-  const { stdout } = await ssh.execCommand(`docker compose -f ${remotePath}/docker-compose.yml down`, {
-    cwd: remotePath,
+// Deployments created before projects were scoped per resource share this folder and project on their host.
+const LEGACY_PROJECT: ComposeProject = { name: 'user', path: '/user' };
+
+export async function resolveComposeProject(ssh: NodeSSH, resourceId: string): Promise<ComposeProject> {
+  const name = resourceId.toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+  const project = { name, path: `/pango/${name}` };
+
+  if (await fileExists(ssh, `${project.path}/docker-compose.yml`)) {
+    return project;
+  }
+
+  if (await fileExists(ssh, `${LEGACY_PROJECT.path}/docker-compose.yml`)) {
+    return LEGACY_PROJECT;
+  }
+
+  return project;
+}
+
+async function fileExists(ssh: NodeSSH, path: string) {
+  const { stdout } = await ssh.execCommand(`test -f ${path} && echo exists`);
+
+  return stdout.trim() === 'exists';
+}
+
+function composeCommand({ name, path }: ComposeProject) {
+  return `docker compose -p ${name} -f ${path}/docker-compose.yml`;
+}
+
+export async function composeDown(ssh: NodeSSH, project: ComposeProject) {
+  const { stdout, stderr, code } = await ssh.execCommand(`${composeCommand(project)} down`, {
+    cwd: project.path,
     onStdout: () => {},
     onStderr: () => {},
   });
+
+  if (code) {
+    throw new Error(`Docker compose down failed with exit code ${code}: ${stderr || stdout}`);
+  }
+
+  // The legacy folder is shared with whatever else the host operator put there, so it is never removed.
+  if (project !== LEGACY_PROJECT) {
+    await ssh.execCommand(`rm -rf ${project.path}`);
+  }
 
   return stdout;
 }
 
 export async function composeUp(
   ssh: NodeSSH,
+  project: ComposeProject,
   dockerComposeUrl: string,
   env: any,
   pollTimeout: number,
   log?: (message: string) => void,
   onReadiness?: (ready: number, total: number, waitingFor: string[]) => void,
 ) {
-  const remotePath = '/user';
+  const remotePath = project.path;
+  await ssh.execCommand(`mkdir -p ${remotePath}`);
 
   const tempDir = path.join(os.tmpdir(), randomUUID());
   await fs.mkdir(tempDir, { recursive: true });
@@ -44,15 +83,20 @@ export async function composeUp(
 
   try {
     log?.('Docker compose up starting');
-    const { stdout } = await ssh.execCommand(`docker compose -f ${remotePath}/docker-compose.yml --env-file ${remotePath}/.env up -d`, {
+    const { stdout, stderr, code } = await ssh.execCommand(`${composeCommand(project)} --env-file ${remotePath}/.env up -d`, {
       cwd: remotePath,
       onStdout: () => {},
       onStderr: () => {},
     });
 
+    // Without this check, a failed pull or invalid compose file only surfaces as a readiness timeout much later.
+    if (code) {
+      throw new Error(`Docker compose up failed with exit code ${code}: ${stderr || stdout}`);
+    }
+
     log?.('Docker compose applied, waiting for status');
     await pollUntil(pollTimeout, async () => {
-      const containers = await getContainers(ssh);
+      const containers = await getContainers(ssh, project);
       const waitingFor = containers.filter((x) => !x.isReady);
 
       onReadiness?.(
@@ -75,9 +119,9 @@ type Container = { name: string; isReady: boolean; details?: string; originalNam
 
 type DockerPsEntry = { Names: string; State: string; Status: string; Image: string };
 
-export async function getContainers(ssh: NodeSSH): Promise<Container[]> {
+export async function getContainers(ssh: NodeSSH, project: ComposeProject): Promise<Container[]> {
   const result: Container[] = [];
-  const { stdout } = await ssh.execCommand(`docker ps --format json`);
+  const { stdout } = await ssh.execCommand(`docker ps --filter label=com.docker.compose.project=${project.name} --format json`);
 
   const lines = stdout.split('\n');
   for (const line of lines) {
@@ -94,8 +138,8 @@ export async function getContainers(ssh: NodeSSH): Promise<Container[]> {
     }
 
     let name = json.Names;
-    if (name.indexOf('user-') === 0) {
-      name = name.substring(5);
+    if (name.indexOf(`${project.name}-`) === 0) {
+      name = name.substring(project.name.length + 1);
     }
 
     result.push({ name, originalName: json.Names, isReady: json.State === 'running', details: json.Status, image: json.Image });
@@ -138,9 +182,9 @@ export function parseImage(image: string): ParsedImage {
 
 type ContainerLog = { name: string; log: string };
 
-export async function getLogs(ssh: NodeSSH): Promise<ContainerLog[]> {
+export async function getLogs(ssh: NodeSSH, project: ComposeProject): Promise<ContainerLog[]> {
   const result: ContainerLog[] = [];
-  const containers = await getContainers(ssh);
+  const containers = await getContainers(ssh, project);
 
   for (const container of containers) {
     const { stdout } = await ssh.execCommand(`docker logs ${container.originalName}`);

@@ -34,8 +34,8 @@ function setupSsh(outputs: Record<string, string>): Ssh {
 }
 
 const DOCKER_PS = [
-  '{"Names":"user-web","State":"running","Status":"Up 5 minutes","Image":"squidex/squidex:7.23.0"}',
-  '{"Names":"user-db","State":"restarting","Status":"Restarting","Image":"mongo:7"}',
+  '{"Names":"id-web","State":"running","Status":"Up 5 minutes","Image":"squidex/squidex:7.23.0"}',
+  '{"Names":"id-db","State":"restarting","Status":"Restarting","Image":"mongo:7"}',
 ].join('\n');
 
 describe('DockerComposeSshResource', () => {
@@ -55,8 +55,8 @@ describe('DockerComposeSshResource', () => {
       {
         name: 'Docker Compose',
         nodes: [
-          { name: 'web', originalName: 'user-web', isReady: true, details: 'Up 5 minutes', image: 'squidex/squidex:7.23.0' },
-          { name: 'db', originalName: 'user-db', isReady: false, details: 'Restarting', image: 'mongo:7' },
+          { name: 'web', originalName: 'id-web', isReady: true, details: 'Up 5 minutes', image: 'squidex/squidex:7.23.0' },
+          { name: 'db', originalName: 'id-db', isReady: false, details: 'Restarting', image: 'mongo:7' },
         ],
       },
     ]);
@@ -81,15 +81,15 @@ describe('DockerComposeSshResource', () => {
   it('should convert docker stats when queried for metrics', async () => {
     setupSsh({
       'docker ps': DOCKER_PS,
-      'docker stats': '{"Name":"user-web","CPUPerc":"12.34%","MemUsage":"512MiB / 1GiB"}',
+      'docker stats': '{"Name":"id-web","CPUPerc":"12.34%","MemUsage":"512MiB / 1GiB"}',
     });
 
     const result = await resource.metrics('id', createRequest());
 
     expect(result.metrics).toEqual({
       containers: { running: 1, total: 2 },
-      cpu: { 'user-web': 12.34 },
-      memory: { 'user-web': 0.5 },
+      cpu: { 'id-web': 12.34 },
+      memory: { 'id-web': 0.5 },
     });
   });
 

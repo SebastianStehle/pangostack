@@ -1,0 +1,865 @@
+openapi: 3.0.0
+paths:
+  /deployment/verify:
+    post:
+      description: Applies the resource.
+      operationId: verifyResource
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResourceRequestDto"
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: Internal Server Error
+      summary: ""
+      tags:
+        - deployment
+  /deployment:
+    delete:
+      description: Deletes all resources with the specified IDs.
+      operationId: deleteResources
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResourcesDeleteRequestDto"
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: Internal Server Error
+      summary: ""
+      tags:
+        - deployment
+  /ping:
+    get:
+      description: Checks whether the worker is alive.
+      operationId: getPing
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PingResultDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: Internal Server Error
+      summary: ""
+      tags:
+        - ping
+  /resources:
+    get:
+      description: Gets the available resource types.
+      operationId: getResources
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourcesTypesDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: Internal Server Error
+      summary: ""
+      tags:
+        - resources
+  /resources/{type}/list:
+    post:
+      description: Lists the unique IDs of all resources of a type that the given
+        credentials can see.
+      operationId: postResourceList
+      parameters:
+        - name: type
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListRequestDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListResultDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: Internal Server Error
+      summary: ""
+      tags:
+        - resources
+  /resources/{type}:
+    get:
+      description: Get details about a resource.
+      operationId: getResource
+      parameters:
+        - name: type
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: Internal Server Error
+      summary: ""
+      tags:
+        - resources
+  /status:
+    post:
+      description: Gets the status for all specified deployment IDs.
+      operationId: postStatus
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StatusRequestDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResultDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: Internal Server Error
+      summary: ""
+      tags:
+        - status
+  /status/usage:
+    post:
+      description: Gets the usages for all specified deployment IDs.
+      operationId: postUsage
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UsageRequestDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsageResultDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: Internal Server Error
+      summary: ""
+      tags:
+        - status
+  /status/metrics:
+    post:
+      description: Gets the metrics for all specified deployment IDs.
+      operationId: postMetrics
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MetricsRequestDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MetricsResultDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: Internal Server Error
+      summary: ""
+      tags:
+        - status
+  /status/log:
+    post:
+      description: Gets the logs for all specified deployment IDs.
+      operationId: postLog
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogRequestDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogResultDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponseDto"
+        "500":
+          description: Internal Server Error
+      summary: ""
+      tags:
+        - status
+info:
+  title: Pangostack
+  description: Worker
+  version: "1.0"
+  contact: {}
+tags: []
+servers: []
+components:
+  schemas:
+    ErrorResponseDto:
+      type: object
+      properties:
+        message:
+          type: object
+          description: The error details.
+        error:
+          type: string
+          description: The error itself.
+        statusCode:
+          type: number
+          description: The status code.
+      required:
+        - message
+        - error
+        - statusCode
+    ResourceRequestDto:
+      type: object
+      properties:
+        resourceUniqueId:
+          type: string
+          description: The resource ID.
+        resourceType:
+          type: string
+          description: The name of the resource type.
+        parameters:
+          type: object
+          description: The parameters.
+          additionalProperties: true
+        resourceContext:
+          type: object
+          description: Context that only contains values that are needed for this resource
+            betwene subsequent calls.
+          additionalProperties: true
+        timeoutMs:
+          type: number
+          description: The resource ID.
+      required:
+        - resourceUniqueId
+        - resourceType
+        - parameters
+        - resourceContext
+        - timeoutMs
+    ResourcesDeleteRequestDto:
+      type: object
+      properties:
+        resources:
+          description: The resourced to delete.
+          type: array
+          items:
+            $ref: "#/components/schemas/ResourceRequestDto"
+      required:
+        - resources
+    PingResultDto:
+      type: object
+      properties:
+        startedAt:
+          type: string
+          description: The timestamp when the worker has been started.
+        resourceTypes:
+          description: The names of the resource types that the worker provides.
+          type: array
+          items:
+            type: string
+      required:
+        - startedAt
+        - resourceTypes
+    ResourceValueDto:
+      type: object
+      properties:
+        type:
+          type: string
+          description: The type.
+          enum:
+            - boolean
+            - number
+            - string
+        required:
+          type: boolean
+          description: True, if required.
+          nullable: true
+        description:
+          type: string
+          description: The description of the argument.
+          nullable: true
+        minLength:
+          type: number
+          description: The minimum length.
+          nullable: true
+        maxLength:
+          type: number
+          description: The maximum length.
+          nullable: true
+        allowedValues:
+          description: The enum values.
+          nullable: true
+          type: array
+          items:
+            type: string
+      required:
+        - type
+        - required
+        - description
+        - minLength
+        - maxLength
+        - allowedValues
+    ResourceMetricDto:
+      type: object
+      properties:
+        description:
+          type: string
+          description: The description of the metric.
+      required:
+        - description
+    ResourceTypeDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the resource.
+        description:
+          type: string
+          description: The description of the resource.
+        parameters:
+          type: object
+          description: The parameters.
+          additionalProperties:
+            $ref: "#/components/schemas/ResourceValueDto"
+        context:
+          type: object
+          description: The context.
+          additionalProperties:
+            $ref: "#/components/schemas/ResourceValueDto"
+        metrics:
+          type: object
+          description: The metrics that the resource can provide.
+          additionalProperties:
+            $ref: "#/components/schemas/ResourceMetricDto"
+      required:
+        - name
+        - description
+        - parameters
+        - context
+        - metrics
+    ResourcesTypesDto:
+      type: object
+      properties:
+        items:
+          description: The available resources.
+          type: array
+          items:
+            $ref: "#/components/schemas/ResourceTypeDto"
+      required:
+        - items
+    ListRequestDto:
+      type: object
+      properties:
+        parameters:
+          type: object
+          description: The parameters. Only the credentials are actually used.
+          additionalProperties: true
+      required:
+        - parameters
+    ListResultDto:
+      type: object
+      properties:
+        ids:
+          description: The unique IDs of the found resources.
+          type: array
+          items:
+            type: string
+      required:
+        - ids
+    StatusRequestDto:
+      type: object
+      properties:
+        resources:
+          description: The resource identifiers.
+          type: array
+          items:
+            $ref: "#/components/schemas/ResourceRequestDto"
+      required:
+        - resources
+    LabeledValueDto:
+      type: object
+      properties:
+        value:
+          type: string
+          description: The value.
+        label:
+          type: string
+          description: The label.
+        isPublic:
+          type: boolean
+          description: Indicates if the info is public.
+      required:
+        - value
+        - label
+        - isPublic
+    ResourceNodeStatusDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the node.
+        isReady:
+          type: boolean
+          description: Indicates if the node can be used.
+        message:
+          type: string
+          description: The message to describe the status.
+          nullable: true
+      required:
+        - name
+        - isReady
+        - message
+    ResourceWorkloadStatusDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the workload.
+        nodes:
+          description: All nodes within the workload.
+          type: array
+          items:
+            $ref: "#/components/schemas/ResourceNodeStatusDto"
+      required:
+        - name
+        - nodes
+    ResourceStatusDto:
+      type: object
+      properties:
+        resourceUniqueId:
+          type: string
+          description: The resource ID.
+        resourceType:
+          type: string
+          description: The type of the resource.
+        workloads:
+          description: The workflows that have been created.
+          type: array
+          items:
+            $ref: "#/components/schemas/ResourceWorkloadStatusDto"
+        properties:
+          type: object
+          description: Runtime properties collected live from the resource, for example
+            the deployed image version.
+          additionalProperties:
+            $ref: "#/components/schemas/LabeledValueDto"
+      required:
+        - resourceUniqueId
+        - resourceType
+        - workloads
+        - properties
+    StatusResultDto:
+      type: object
+      properties:
+        resources:
+          description: The resources.
+          type: array
+          items:
+            $ref: "#/components/schemas/ResourceStatusDto"
+      required:
+        - resources
+    UsageRequestDto:
+      type: object
+      properties:
+        resources:
+          description: The resource identifiers.
+          type: array
+          items:
+            $ref: "#/components/schemas/ResourceRequestDto"
+      required:
+        - resources
+    ResourceUsageDto:
+      type: object
+      properties:
+        resourceUniqueId:
+          type: string
+          description: The resource ID.
+        resourceType:
+          type: string
+          description: The type of the resource.
+        totalStorageGB:
+          type: number
+          description: The total storage in GB.
+      required:
+        - resourceUniqueId
+        - resourceType
+        - totalStorageGB
+    UsageResultDto:
+      type: object
+      properties:
+        resources:
+          description: The usages.
+          type: array
+          items:
+            $ref: "#/components/schemas/ResourceUsageDto"
+      required:
+        - resources
+    MetricsRequestDto:
+      type: object
+      properties:
+        resources:
+          description: The resource identifiers.
+          type: array
+          items:
+            $ref: "#/components/schemas/ResourceRequestDto"
+      required:
+        - resources
+    ResourceMetricsDto:
+      type: object
+      properties:
+        resourceUniqueId:
+          type: string
+          description: The resource ID.
+        resourceType:
+          type: string
+          description: The type of the resource.
+        metrics:
+          type: object
+          description: The collected values per metric name. Each metric provides multiple
+            named values.
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: number
+      required:
+        - resourceUniqueId
+        - resourceType
+        - metrics
+    MetricsResultDto:
+      type: object
+      properties:
+        resources:
+          description: The metrics per resource.
+          type: array
+          items:
+            $ref: "#/components/schemas/ResourceMetricsDto"
+      required:
+        - resources
+    LogRequestDto:
+      type: object
+      properties:
+        resources:
+          description: The resource identifiers.
+          type: array
+          items:
+            $ref: "#/components/schemas/ResourceRequestDto"
+      required:
+        - resources
+    InstanceLogDto:
+      type: object
+      properties:
+        instanceId:
+          type: string
+          description: The log for a specific.
+        messages:
+          type: string
+          description: The log messages.
+      required:
+        - instanceId
+        - messages
+    ResourceLogDto:
+      type: object
+      properties:
+        resourceUniqueId:
+          type: string
+          description: The resource ID.
+        resourceType:
+          type: string
+          description: The type of the resource.
+        instances:
+          description: The log per instance.
+          type: array
+          items:
+            $ref: "#/components/schemas/InstanceLogDto"
+      required:
+        - resourceUniqueId
+        - resourceType
+        - instances
+    LogResultDto:
+      type: object
+      properties:
+        resources:
+          description: The logs per resource.
+          type: array
+          items:
+            $ref: "#/components/schemas/ResourceLogDto"
+      required:
+        - resources
+    StartStepEventDto:
+      type: object
+      properties:
+        timestamp:
+          format: date-time
+          type: string
+          description: When the event happened.
+        type:
+          type: string
+          description: The event type.
+        id:
+          type: string
+          description: The generated id of the sub-step.
+        name:
+          type: string
+          description: The name of the sub-step, for example "Waiting for workloads".
+      required:
+        - timestamp
+        - type
+        - id
+        - name
+    CompleteStepEventDto:
+      type: object
+      properties:
+        timestamp:
+          format: date-time
+          type: string
+          description: When the event happened.
+        type:
+          type: string
+          description: The event type.
+        id:
+          type: string
+          description: The id of the sub-step.
+      required:
+        - timestamp
+        - type
+        - id
+    FailStepEventDto:
+      type: object
+      properties:
+        timestamp:
+          format: date-time
+          type: string
+          description: When the event happened.
+        type:
+          type: string
+          description: The event type.
+        id:
+          type: string
+          description: The id of the sub-step.
+        message:
+          type: string
+          description: The failure message.
+          nullable: true
+      required:
+        - timestamp
+        - type
+        - id
+        - message
+    AppendLogEventDto:
+      type: object
+      properties:
+        timestamp:
+          format: date-time
+          type: string
+          description: When the event happened.
+        type:
+          type: string
+          description: The event type.
+        stepId:
+          type: string
+          description: The id of the sub-step the line belongs to, or null when reported
+            outside a step.
+          nullable: true
+        message:
+          type: string
+          description: The line appended to the log.
+      required:
+        - timestamp
+        - type
+        - stepId
+        - message
+    AppendContextEventDto:
+      type: object
+      properties:
+        timestamp:
+          format: date-time
+          type: string
+          description: When the event happened.
+        type:
+          type: string
+          description: The event type.
+        context:
+          type: object
+          description: Context values added or overwritten in the deployment.
+          additionalProperties: true
+      required:
+        - timestamp
+        - type
+        - context
+    AppendResourceContextEventDto:
+      type: object
+      properties:
+        timestamp:
+          format: date-time
+          type: string
+          description: When the event happened.
+        type:
+          type: string
+          description: The event type.
+        context:
+          type: object
+          description: Resource-scoped context persisted between subsequent calls.
+          additionalProperties: true
+      required:
+        - timestamp
+        - type
+        - context
+    AppendConnectionEventDto:
+      type: object
+      properties:
+        timestamp:
+          format: date-time
+          type: string
+          description: When the event happened.
+        type:
+          type: string
+          description: The event type.
+        connection:
+          type: object
+          description: Connection info, for example Api Keys.
+          additionalProperties:
+            $ref: "#/components/schemas/LabeledValueDto"
+      required:
+        - timestamp
+        - type
+        - connection
+    CompleteEventDto:
+      type: object
+      properties:
+        timestamp:
+          format: date-time
+          type: string
+          description: When the event happened.
+        type:
+          type: string
+          description: The event type.
+      required:
+        - timestamp
+        - type
+    FailEventDto:
+      type: object
+      properties:
+        timestamp:
+          format: date-time
+          type: string
+          description: When the event happened.
+        type:
+          type: string
+          description: The event type.
+        error:
+          type: string
+          description: The error message.
+      required:
+        - timestamp
+        - type
+        - error
+    ResourceEventDto:
+      oneOf:
+        - $ref: "#/components/schemas/StartStepEventDto"
+        - $ref: "#/components/schemas/CompleteStepEventDto"
+        - $ref: "#/components/schemas/FailStepEventDto"
+        - $ref: "#/components/schemas/AppendLogEventDto"
+        - $ref: "#/components/schemas/AppendContextEventDto"
+        - $ref: "#/components/schemas/AppendResourceContextEventDto"
+        - $ref: "#/components/schemas/AppendConnectionEventDto"
+        - $ref: "#/components/schemas/CompleteEventDto"
+        - $ref: "#/components/schemas/FailEventDto"
+      discriminator:
+        propertyName: type
+        mapping:
+          startStep: "#/components/schemas/StartStepEventDto"
+          completeStep: "#/components/schemas/CompleteStepEventDto"
+          failStep: "#/components/schemas/FailStepEventDto"
+          appendLog: "#/components/schemas/AppendLogEventDto"
+          appendContext: "#/components/schemas/AppendContextEventDto"
+          appendResourceContext: "#/components/schemas/AppendResourceContextEventDto"
+          appendConnection: "#/components/schemas/AppendConnectionEventDto"
+          complete: "#/components/schemas/CompleteEventDto"
+          fail: "#/components/schemas/FailEventDto"

@@ -1,4 +1,4 @@
-import { proxyActivities } from '@temporalio/workflow';
+import { ActivityFailure, proxyActivities } from '@temporalio/workflow';
 import type { DeploymentStepKey } from 'src/domain/database';
 import type * as activities from '../activities';
 import { DEPLOYMENT_STEP_MAX_ATTEMPTS } from '../constants';
@@ -8,16 +8,9 @@ export interface DeployResourcesParam {
   previousResourceIds?: string[] | null;
   previousUpdateId?: number | null;
   resourceIds: string[];
+  stepMaxAttempts?: number | null;
   updateId: number;
 }
-
-const { deleteResource, deployResource } = proxyActivities<typeof activities>({
-  startToCloseTimeout: '15m',
-  retry: {
-    maximumAttempts: DEPLOYMENT_STEP_MAX_ATTEMPTS,
-    initialInterval: '1m',
-  },
-});
 
 const { createDeploymentSteps, failDeploymentStep, updateDeployment, getResourceWorkers } = proxyActivities<typeof activities>({
   startToCloseTimeout: '30s',
@@ -31,8 +24,18 @@ export async function deployResources({
   previousResourceIds,
   previousUpdateId,
   resourceIds,
+  stepMaxAttempts,
   updateId,
 }: DeployResourcesParam): Promise<any> {
+  // Workflows cannot read the configuration, so the attempts are passed in. Older signals do not have them.
+  const { deleteResource, deployResource } = proxyActivities<typeof activities>({
+    startToCloseTimeout: '15m',
+    retry: {
+      maximumAttempts: stepMaxAttempts || DEPLOYMENT_STEP_MAX_ATTEMPTS,
+      initialInterval: '1m',
+    },
+  });
+
   await updateDeployment({ updateId, status: 'Running' });
 
   // Resources that are no longer part of the current definition are deleted first,
@@ -95,15 +98,25 @@ export async function deployResources({
   } catch (ex) {
     deployError = ex;
 
+    const error = getErrorMessage(ex);
     if (currentStepId) {
-      await failDeploymentStep({ stepId: currentStepId, error: `${ex}` });
+      await failDeploymentStep({ stepId: currentStepId, error });
     }
 
-    await updateDeployment({ updateId, status: 'Failed', error: `${ex}` });
+    await updateDeployment({ updateId, status: 'Failed', error });
   }
 
   // Re-throw so Temporal marks this workflow run as failed. Successful runs are announced by the updateDeployment activity.
   if (deployError) {
     throw deployError;
   }
+}
+
+// Temporal wraps errors from activities, but users need to see the original reason.
+function getErrorMessage(error: unknown) {
+  if (error instanceof ActivityFailure && error.cause) {
+    return error.cause.message;
+  }
+
+  return `${error}`;
 }

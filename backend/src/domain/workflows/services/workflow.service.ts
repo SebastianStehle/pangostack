@@ -1,8 +1,10 @@
 import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Client, ScheduleAlreadyRunning } from '@temporalio/client';
 import { NativeConnection, Worker } from '@temporalio/worker';
 import { DeploymentUpdateEntity } from 'src/domain/database';
 import { is } from 'src/lib';
+import { WorkflowConfig } from '../config';
 import { ActivityExplorerService } from '../registration';
 import * as workflows from '../workflows';
 import { DEPLOYMENT_ACTION_SIGNAL, DeploymentSignal } from '../workflows/signals';
@@ -13,11 +15,15 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
   private readonly logger = new Logger(WorkflowService.name);
   private readonly signal = new ShutdownSignal();
   private readonly workers: Promise<any>[] = [];
+  private readonly stepMaxAttempts: number;
 
   constructor(
     private readonly temporal: TemporalService,
     private readonly explorer: ActivityExplorerService,
-  ) {}
+    configService: ConfigService,
+  ) {
+    this.stepMaxAttempts = configService.getOrThrow<WorkflowConfig>('workflow').deploymentStep.maxAttempts;
+  }
 
   async onApplicationBootstrap() {
     const [connection, client] = await this.temporal.getClient();
@@ -281,6 +287,7 @@ export class WorkflowService implements OnApplicationBootstrap, OnApplicationShu
             previousUpdateId: previousUpdate?.id || null,
             previousResourceIds: previousUpdate?.serviceVersion.definition.resources.map((x) => x.id) || null,
             resourceIds: deploymentUpdate.serviceVersion.definition.resources.map((x) => x.id),
+            stepMaxAttempts: this.stepMaxAttempts,
             updateId: deploymentUpdate.id,
           },
         ],

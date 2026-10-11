@@ -40,14 +40,14 @@ npm run dev            # watch mode (nest start --watch)
 npm run build          # production build
 npm run lint           # eslint, --max-warnings 0
 npm test               # unit tests (vitest)
-npm run generate-vultr # regenerate the Vultr API client from the filtered OpenAPI spec
+npm run generate       # generate the Vultr API client from the filtered OpenAPI spec (needs Docker, runs before dev)
 ```
 
 ## Code generation
 
-The worker exposes its own OpenAPI document at `http://localhost:3100/api-json`; the backend consumes it
-via `npm run generate-worker`. After changing controller DTOs or endpoints here, regenerate the backend
-worker client. See [CLAUDE.md](../CLAUDE.md) for the full cross-package generation chain and for how to
+The worker's API is described in `openapi.yaml`, which the backend uses to generate its worker client. After
+changing controller DTOs or endpoints here, run `npm run openapi` while the dev server is running, then
+`npm run generate` in backend/. See [CLAUDE.md](../CLAUDE.md) for the full cross-package generation chain and for how to
 add a new resource type.
 
 ## Observability

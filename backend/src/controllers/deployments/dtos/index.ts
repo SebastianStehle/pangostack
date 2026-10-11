@@ -24,7 +24,6 @@ import {
   ResourceWorkloadStatus,
   UsageSummary,
 } from 'src/domain/services';
-import { DEPLOYMENT_STEP_MAX_ATTEMPTS } from 'src/domain/workflows/constants';
 
 export class CreateDeploymentDto {
   @ApiProperty({
@@ -606,14 +605,14 @@ export class DeploymentStepDto {
   })
   completedAt?: Date | null;
 
-  static fromDomain(source: DeploymentUpdateStep) {
+  static fromDomain(source: DeploymentUpdateStep, maxAttempts: number) {
     const result = new DeploymentStepDto();
     result.resourceId = source.resourceId;
     result.resourceName = source.resourceName;
     result.action = source.action;
     result.status = source.status;
     result.attempt = source.attempt;
-    result.maxAttempts = DEPLOYMENT_STEP_MAX_ATTEMPTS;
+    result.maxAttempts = maxAttempts;
     result.error = source.error;
     result.subSteps = source.subSteps.map(DeploymentSubStepDto.fromDomain);
     result.logs = source.logs.map(DeploymentStepLogDto.fromDomain);
@@ -631,9 +630,9 @@ export class DeploymentStepsDto {
   })
   steps: DeploymentStepDto[] = [];
 
-  static fromDomain(source: DeploymentUpdateStep[]) {
+  static fromDomain(source: DeploymentUpdateStep[], maxAttempts: number) {
     const result = new DeploymentStepsDto();
-    result.steps = source.map(DeploymentStepDto.fromDomain);
+    result.steps = source.map((step) => DeploymentStepDto.fromDomain(step, maxAttempts));
     return result;
   }
 }

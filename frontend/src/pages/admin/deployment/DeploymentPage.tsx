@@ -116,7 +116,12 @@ export const DeploymentPage = () => {
           onPerform={deleting.mutate}
         >
           {({ onClick }) => (
-            <button type="button" className="btn btn-square btn-error" onClick={onClick}>
+            <button
+              type="button"
+              className="btn btn-square btn-error"
+              onClick={onClick}
+              aria-label={texts.deployments.deleteConfirmTitle}
+            >
               <Icon size={18} icon="trash" />
             </button>
           )}

@@ -10,6 +10,8 @@ Pangostack is a deployment platform for SaaS providers: customers self-deploy Sa
 - **worker/** — NestJS microservice (port 3100, HTTP). Provisions actual infrastructure resources (Vultr VMs, Vultr S3, Docker Compose over SSH, Helm). Called by the backend over REST.
 - **frontend/** — Vite + React 18 customer portal and admin UI. Talks to the backend via a generated API client.
 
+There is also **e2e/**, a fourth independent package with black-box API tests (vitest) and UI tests (Playwright) against the Docker images. It is not part of `install:all`. See `e2e/README.md` and `docs/e2e-testing-concept.md`.
+
 The administrator creates a service definition using yaml syntax to define the resource and dependencies. Examples are in the `config` folder.
 
 ## Commands
@@ -19,6 +21,8 @@ From the repo root, `npm run install:all` installs the dependencies of the root 
 Temporal comes from the CLI, not from compose — `dev:infra` deliberately starts only `postgresql` and `pgadmin`, because the compose `temporal` and `temporal-ui` services would occupy ports 7233/8233 and conflict with `start-dev`. Note that `start-dev` keeps its state in memory, so workflow history is lost on restart; add `--db-filename` to the backend's `temporal-dev` script if you need it to persist.
 
 Each package: `npm run dev` (watch mode), `npm run build`, `npm run lint` / `npm run lint:fix` (eslint, `--max-warnings 0`), `npm run format` (prettier).
+
+E2E (in e2e/): `npm run infra:build` and `npm run infra:up` build the images and start the stack at https://localhost:8443, then run `npm run test:api` and `npm run test:ui`. After backend API changes, run `npm run generate` there as well.
 
 Backend only:
 - `npm test` — Jest (config in package.json: `rootDir: src`, testRegex `.*\.spec\.ts$`). Single test: `npx jest path/to/file.spec.ts` from backend/.
@@ -31,15 +35,19 @@ Backend only:
 - Running Postgres — see `dev/postgres/docker-compose.yml`.
 - A `.env` file in backend/ (credentials not in repo). Env vars are validated per-domain with Joi schemas (`AUTH_ENV_SCHEMA`, `DB_ENV_SCHEMA`, etc.) combined in `app.module.ts` — new env vars must be added to the matching schema or startup fails.
 
-## Code generation (do not hand-edit generated folders)
+## Code generation
 
-There is a Swagger-driven generation chain between the packages:
+Only the OpenAPI specs are committed. The API clients are generated from them and are gitignored:
 
-1. Worker exposes OpenAPI at `http://localhost:3100/api-json`. Backend runs `npm run generate-worker` to regenerate its worker client in `backend/src/domain/workers/generated/`.
-2. Backend exposes OpenAPI at `https://localhost:3000/api-json`. Frontend runs `npm run generate-api` to regenerate `frontend/src/api/generated/`.
-3. Worker regenerates its Vultr API client with `npm run generate-vultr` (`worker/src/lib/vultr/generated/`).
+| Spec | Owned by | Clients generated from it |
+|---|---|---|
+| `worker/openapi.yaml` | worker | `backend/src/domain/workers/generated/` |
+| `backend/openapi.yaml` | backend | `frontend/src/api/generated/`, `e2e/src/api/generated/` |
+| `worker/src/lib/vultr/openapi.json` | Vultr | `worker/src/lib/vultr/generated/` |
 
-The corresponding server must be running before regenerating a client. After changing controller DTOs/endpoints in worker or backend, regenerate the downstream client(s).
+- `npm run generate` in a package (or at the root for all three) generates its clients. It runs automatically before `npm run dev`. It runs the official `openapitools/openapi-generator-cli` image, so it needs Docker but no Java. The Docker builds generate the clients in their own build stages.
+- After changing controller DTOs or endpoints, run `npm run openapi` in the owning package while its dev server is running. This updates the spec, and the diff shows the API change. Then run `npm run generate` in the consuming packages.
+- Never edit the generated folders.
 
 ## Architecture
 
@@ -138,16 +146,7 @@ or
 
 ### Generated code
 
-#### Worker Client
-
-* Run the worker with `start:dev` in the `worker` directory
-* Update the generated code with `generate-worker` in the `backend` directory
-
-### Backend Client
-
-* Run the worker with `start:dev` in the `backend` directory
-* Run the temporal dev server with `temporal-dev` in the `backend` directory
-* Update the generated code with `generate-worker` in the `frontend` directory
+* After an API change, run `npm run openapi` in the `worker` or `backend` directory while its dev server is running, then `npm run generate` in the consuming packages. See "Code generation".
 
 ### Backend Migration
 

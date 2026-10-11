@@ -1,0 +1,14 @@
+# Same as busybox.yaml, but the compose file references an image that does not exist.
+parameters: []
+
+pricingModel: fixed
+
+resources:
+  - name: App
+    id: app
+    type: docker-compose-ssh
+    parameters:
+      host: docker-target
+      sshUser: root
+      sshPassword: e2e-target
+      dockerComposeUrl: http://fixtures/compose/broken.yml

@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useClients } from 'src/api';
@@ -11,6 +11,7 @@ export const UpdateDeploymentPage = () => {
   const { deploymentId, teamId } = useTypedParams({ teamId: 'int', deploymentId: 'int' });
   const clients = useClients();
   const navigate = useNavigate();
+  const queries = useQueryClient();
 
   const { data: deployment } = useQuery({
     queryKey: ['deployment', deploymentId],
@@ -29,7 +30,10 @@ export const UpdateDeploymentPage = () => {
     mutationFn: ({ name, parameters }: DeploymentUpdate) => {
       return clients.deployments.putDeployment(deploymentId, { name, parameters, versionId: null });
     },
-    onSuccess: () => {
+    onSuccess: (updated) => {
+      // Otherwise the detail page shows the cached deployment and does not poll the new update.
+      queries.setQueryData(['deployment', deploymentId], updated);
+
       navigate(`/teams/${teamId}/deployments/${deploymentId}`);
       toast(texts.common.saved, { type: 'success' });
     },
